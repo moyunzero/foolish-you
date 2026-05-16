@@ -3,9 +3,9 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: planning
-stopped_at: Phase 2 context gathered — ready for plan-phase
+stopped_at: Phase 2 planned — ready for execute
 last_updated: "2026-05-16"
-last_activity: 2026-05-16 — Phase 2 discuss complete
+last_activity: 2026-05-16 — Phase 2 plan-phase complete (02-01, 02-02)
 progress:
   total_phases: 4
   completed_phases: 1
@@ -21,14 +21,14 @@ progress:
 See: .planning/PROJECT.md (updated 2026-05-16)
 
 **Core value:** 用户每天打开就能玩到唯一、确定的今日谜题，结束时获得情绪化反馈。  
-**Current focus:** Phase 2 — 数独（CONTEXT 已定，待 plan-phase）
+**Current focus:** Phase 2 — 数独（执行 02-01 → 02-02）
 
 ## Current Position
 
-Phase: 1 of 4 **complete** → Phase 2 **discussed**  
-Plans: 3/3 complete (Phase 1); Phase 2 plans **not yet created**  
-Status: Phase 2 context ready for planning  
-Last activity: 2026-05-16 — `/gsd-discuss-phase 2` 完成
+Phase: 1 of 4 **complete** → Phase 2 **planned**  
+Plans: Phase 1 3/3 done；Phase 2 **0/2**（02-01 lib，02-02 UI + 手测）  
+Status: Ready for `/gsd-execute-phase 2`  
+Last activity: 2026-05-16 — `/gsd-plan-phase 2` 完成
 
 Progress: [██░░░░░░░░] 25% (1/4 phases)
 
@@ -63,4 +63,4 @@ None.
 
 Last session: 2026-05-16  
 Stopped at: Phase 1 complete  
-Resume: `/gsd-plan-phase 2`（可选 `/gsd-ui-phase 2`）→ `/gsd-execute-phase 2`
+Resume: `/gsd-execute-phase 2`（wave 1: 02-01，wave 2: 02-02 + checkpoint）
