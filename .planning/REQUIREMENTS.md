@@ -87,12 +87,36 @@
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| (populated by roadmap) | | |
+| DAILY-01 | Phase 1 | Pending |
+| DAILY-02 | Phase 1 | Pending |
+| DAILY-03 | Phase 1 | Pending |
+| DAILY-04 | Phase 1 | Pending |
+| DAILY-05 | Phase 2, 3 | Pending |
+| SUDO-01 | Phase 2 | Pending |
+| SUDO-02 | Phase 2 | Pending |
+| SUDO-03 | Phase 2 | Pending |
+| SUDO-04 | Phase 2 | Pending |
+| BIN-01 | Phase 3 | Pending |
+| BIN-02 | Phase 3 | Pending |
+| BIN-03 | Phase 3 | Pending |
+| BIN-04 | Phase 3 | Pending |
+| RSLT-01 | Phase 4 | Pending |
+| RSLT-02 | Phase 4 | Pending |
+| RSLT-03 | Phase 4 | Pending |
+| STOR-01 | Phase 1 | Pending |
+| STOR-02 | Phase 1 | Pending |
+| STOR-03 | Phase 1 | Pending |
+| NAV-01 | Phase 1 | Pending |
+| NAV-02 | Phase 1 | Pending |
+| AUTH-01 | Phase 1 | Pending |
+| AUTH-02 | Phase 1 | Pending |
+| GAME-01 | Phase 4 | Pending |
+| GAME-02 | Phase 4 | Pending |
 
 **Coverage:**
 - v1 requirements: 24 total (22 core + 2 optional)
-- Mapped to phases: pending roadmap
-- Unmapped: pending
+- Mapped to phases: 24
+- Unmapped: 0 ✓
 
 ---
 *Requirements defined: 2026-05-16*
