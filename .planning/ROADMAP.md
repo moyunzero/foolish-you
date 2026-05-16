@@ -6,7 +6,7 @@
 
 ## Phases
 
-- [ ] **Phase 1: 基础骨架与每日管道** — Expo、路由、日期种子、存储、入口分流
+- [x] **Phase 1: 基础骨架与每日管道** — Expo、路由、日期种子、存储、入口分流
 - [ ] **Phase 2: 数独** — 生成器、网格 UI、校验与完成/放弃
 - [ ] **Phase 3: 二进制谜题** — 生成器、网格 UI、规则校验
 - [ ] **Phase 4: 结果体验与打磨** — 搞笑文案、动画、计时/提示（可选）
@@ -27,9 +27,9 @@
 **Plans**: 3 plans
 
 Plans:
-- [ ] 01-01: 初始化 Expo + expo-router + NativeWind + 目录结构
-- [ ] 01-02: `lib/date.ts`、`lib/storage.ts`、`dailySelector` 与类型定义
-- [ ] 01-03: `useDailyGame` + index/game/result 路由分流（game 可占位）
+- [x] 01-01: 初始化 Expo + expo-router + NativeWind + 目录结构
+- [x] 01-02: `lib/date.ts`、`lib/storage.ts`、`dailySelector` 与类型定义
+- [x] 01-03: `useDailyGame` + index/game/result 路由分流（game 可占位）
 
 ### Phase 2: 数独
 **Goal**: 数独作为今日游戏类型时可完整游玩并判定胜负。  
