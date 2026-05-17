@@ -5,6 +5,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { DEV_TOOLS_ENABLED } from '../../constants/dev';
 import { useDailyGame } from '../../contexts/DailyGameContext';
+import { useDevToolsUi } from '../../contexts/DevToolsUiContext';
 import type { GameType } from '../../lib/puzzles/types';
 import { isSudokuPuzzle } from '../../lib/puzzles/types';
 
@@ -43,8 +44,9 @@ export default function DevToolsPanel() {
     snapshot,
     devRegenerateToday,
   } = useDailyGame();
+  const { barVisible, hideBar } = useDevToolsUi();
 
-  if (!DEV_TOOLS_ENABLED) return null;
+  if (!DEV_TOOLS_ENABLED || !barVisible) return null;
 
   const puzzleHash = snapshot?.puzzleHash ?? '—';
   const sudokuHash =
@@ -63,18 +65,30 @@ export default function DevToolsPanel() {
       style={{ paddingBottom: Math.max(insets.bottom, 8) }}
       pointerEvents="box-none"
     >
-      <Pressable
-        onPress={() => setExpanded((v) => !v)}
-        className="mb-2 flex-row items-center justify-between"
-      >
-        <Text
-          className="text-xs uppercase tracking-widest text-accent-sunset"
-          style={{ fontFamily: 'SpaceMono_400Regular' }}
+      <View className="mb-2 flex-row items-center justify-between gap-2">
+        <Pressable
+          onPress={() => setExpanded((v) => !v)}
+          className="min-h-[32px] flex-1 flex-row items-center justify-between"
         >
-          DEV 调试
-        </Text>
-        <Text className="text-xs text-muted">{expanded ? '收起 ▼' : '展开 ▲'}</Text>
-      </Pressable>
+          <Text
+            className="text-xs uppercase tracking-widest text-accent-sunset"
+            style={{ fontFamily: 'SpaceMono_400Regular' }}
+          >
+            DEV 调试
+          </Text>
+          <Text className="text-xs text-muted">{expanded ? '收起 ▼' : '展开 ▲'}</Text>
+        </Pressable>
+        <Pressable
+          onPress={hideBar}
+          accessibilityRole="button"
+          accessibilityLabel="隐藏调试条，便于截图"
+          className="rounded-full border border-hairline px-2.5 py-1.5"
+        >
+          <Text className="text-[10px] text-muted" style={{ fontFamily: 'SpaceMono_400Regular' }}>
+            隐藏
+          </Text>
+        </Pressable>
+      </View>
 
       {expanded ? (
         <View className="gap-2">
@@ -93,7 +107,7 @@ export default function DevToolsPanel() {
           </View>
 
           <Text className="text-[10px] leading-4 text-muted">
-            点「数独/二进制」会清今日存档并按选定题型重建；「自然随机」走日期算法。也可改 constants/dev.ts 里 DEV_FORCE_GAME_TYPE。
+            点「数独/二进制」会清今日存档并按选定题型重建；「自然随机」走日期算法。也可改 constants/dev.ts 里 DEV_FORCE_GAME_TYPE。截图时点「隐藏」；长按页脚「隐私政策」可再唤出。
           </Text>
         </View>
       ) : null}

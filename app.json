@@ -15,9 +15,15 @@
     },
     "ios": {
       "supportsTablet": false,
-      "bundleIdentifier": "com.moyunzero.foolish-you"
+      "bundleIdentifier": "com.moyunzero.foolish-you",
+      "buildNumber": "1",
+      "infoPlist": {
+        "ITSAppUsesNonExemptEncryption": false
+      }
     },
     "android": {
+      "package": "com.moyunzero.foolishyou",
+      "versionCode": 1,
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#0a0a0a"
@@ -31,6 +37,12 @@
     "plugins": [
       "expo-router",
       "expo-font"
-    ]
+    ],
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "c966dcb9-f523-46a1-aa38-00053eb7d8d4"
+      }
+    }
   }
 }

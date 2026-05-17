@@ -8,17 +8,17 @@ import FoolFaceBadge from '../components/result/FoolFaceBadge';
 import ResultOutcomeBody from '../components/result/ResultOutcomeBody';
 import ResultStatCard from '../components/result/ResultStatCard';
 import WinFaceBadge from '../components/result/WinFaceBadge';
+import PrivacyPolicyFooterLink from '../components/legal/PrivacyPolicyFooterLink';
 import OutlinePillButton from '../components/ui/OutlinePillButton';
-import { DEV_TOOLS_ENABLED } from '../constants/dev';
 import { colors } from '../constants/design';
 import { useDailyGame } from '../contexts/DailyGameContext';
+import { useDevBottomInset } from '../contexts/DevToolsUiContext';
 import {
   getResultFooterHint,
   pickResultCopy,
 } from '../lib/copy/resultMessages';
 import { exitApplication } from '../lib/platform/exitApp';
 
-const DEV_BAR_HEIGHT = 36;
 const HORIZONTAL_PADDING = 24;
 const FOOTER_HINT = getResultFooterHint();
 
@@ -37,8 +37,7 @@ export default function ResultScreen() {
     return pickResultCopy(isSuccess ? 'completed' : 'abandoned', finishedAt - startedAt);
   }, [isSuccess, isFail, snapshot?.startedAt, snapshot?.finishedAt]);
 
-  const bottomPadding =
-    insets.bottom + (DEV_TOOLS_ENABLED ? DEV_BAR_HEIGHT : 0) + 16;
+  const bottomPadding = useDevBottomInset(insets.bottom + 16);
 
   if (copy == null) {
     return (
@@ -120,6 +119,7 @@ export default function ResultScreen() {
           >
             {FOOTER_HINT}
           </Text>
+          <PrivacyPolicyFooterLink className="mt-1" />
         </Animated.View>
       </ScrollView>
     </SafeAreaView>

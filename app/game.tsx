@@ -13,6 +13,7 @@ import {
   useSafeAreaInsets,
 } from 'react-native-safe-area-context';
 
+import PrivacyPolicyFooterLink from '../components/legal/PrivacyPolicyFooterLink';
 import GameRulesButton from '../components/game/GameRulesButton';
 import GameToolbar from '../components/game/GameToolbar';
 import BinaryGrid from '../components/grid/BinaryGrid';
@@ -20,8 +21,8 @@ import SudokuGrid from '../components/grid/SudokuGrid';
 import SudokuNumpad from '../components/grid/SudokuNumpad';
 import HairlineCard from '../components/ui/HairlineCard';
 import OutlinePillButton from '../components/ui/OutlinePillButton';
-import { DEV_TOOLS_ENABLED } from '../constants/dev';
 import { useDailyGame } from '../contexts/DailyGameContext';
+import { useDevBottomInset } from '../contexts/DevToolsUiContext';
 import { useElapsedTimer } from '../hooks/useElapsedTimer';
 import {
   BINARY_EMPTY,
@@ -48,7 +49,6 @@ const GAME_LABEL: Record<string, string> = {
 };
 
 const HORIZONTAL_PADDING = 24;
-const DEV_BAR_HEIGHT = 36;
 
 function isSudokuEditable(givens: number[][], row: number, col: number): boolean {
   return givens[row][col] === 0;
@@ -111,8 +111,7 @@ export default function GameScreen() {
     isBinary && playState != null ? playState : createEmptyBinaryGrid();
 
   const gridMaxWidth = screenWidth - HORIZONTAL_PADDING * 2;
-  const bottomInset =
-    insets.bottom + (DEV_TOOLS_ENABLED ? DEV_BAR_HEIGHT : 0) + 8;
+  const bottomInset = useDevBottomInset(insets.bottom + 8);
 
   useEffect(() => {
     if (status === 'completed' || status === 'abandoned') {
@@ -379,6 +378,7 @@ export default function GameScreen() {
             label="放弃今日挑战"
             onPress={confirmAbandon}
           />
+          <PrivacyPolicyFooterLink className="mt-1" />
         </View>
       </ScrollView>
     </SafeAreaView>

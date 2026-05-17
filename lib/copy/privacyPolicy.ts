@@ -1,0 +1,74 @@
+import {
+  APP_DISPLAY_NAME,
+  DEVELOPER_ENTITY,
+  PRIVACY_POLICY_LAST_UPDATED,
+  PRIVACY_POLICY_URL,
+  SUPPORT_URL,
+} from '../../constants/legal';
+
+export type PrivacySection = {
+  title: string;
+  paragraphs: string[];
+};
+
+export const privacyPolicyMeta = {
+  title: '隐私政策',
+  appName: APP_DISPLAY_NAME,
+  developer: DEVELOPER_ENTITY,
+  lastUpdated: PRIVACY_POLICY_LAST_UPDATED,
+  publicUrl: PRIVACY_POLICY_URL,
+  supportUrl: SUPPORT_URL,
+} as const;
+
+/** App 内展示与 docs/privacy.html 正文保持一致 */
+export const privacyPolicySections: PrivacySection[] = [
+  {
+    title: '概述',
+    paragraphs: [
+      `「${APP_DISPLAY_NAME}」（以下简称「本应用」）由 ${DEVELOPER_ENTITY} 提供。我们重视你的隐私。本政策说明本应用如何处理（以及不如何处理）你的信息。`,
+      '本应用为离线优先的每日益智游戏：谜题在设备本地生成，无需注册账号即可使用。',
+    ],
+  },
+  {
+    title: '我们不收集个人数据',
+    paragraphs: [
+      '本应用不会向你索取姓名、电子邮箱、电话号码或其他可识别个人身份的信息。',
+      '我们不会将游戏数据上传至我们的服务器，也不运营用于追踪你的用户账号系统（v1 版本无登录功能）。',
+      '本应用未集成第三方广告 SDK，未使用第三方数据分析（如 Firebase Analytics、友盟等）来收集使用行为或个人画像。',
+    ],
+  },
+  {
+    title: '仅保存在你设备上的数据',
+    paragraphs: [
+      '为支持「今日一题」与断点续玩，本应用会在你的设备本地（通过系统提供的 AsyncStorage）保存少量游戏状态，例如：当日日期标识、谜题类型、盘面进度、开始/结束时间等。',
+      '上述数据仅用于在本机恢复你的今日游戏，不会主动发送至开发者或第三方服务器。',
+      '你可以通过卸载本应用或清除应用数据（系统设置中）删除这些本地记录。',
+    ],
+  },
+  {
+    title: '网络与权限',
+    paragraphs: [
+      '本应用的核心玩法可在无网络连接时使用。若你主动在应用内打开本隐私政策的网页链接，或访问 GitHub 支持页面，将使用系统浏览器或网络能力，该行为由你主动触发。',
+      '本应用不要求位置、通讯录、相机、麦克风等敏感权限来完成游戏功能。',
+    ],
+  },
+  {
+    title: '儿童隐私',
+    paragraphs: [
+      '本应用不面向 13 周岁以下儿童主动收集个人信息。由于我们不收集个人数据，儿童在监护人同意下使用本应用时，同样适用本政策所述的「不收集」原则。',
+    ],
+  },
+  {
+    title: '政策更新',
+    paragraphs: [
+      '我们可能会不时更新本隐私政策。更新后的版本将替换本页面，并修改文首的「最后更新」日期。若变更涉及数据处理方式的重大调整，我们会在应用内或公开页面上提供合理提示。',
+    ],
+  },
+  {
+    title: '联系我们',
+    paragraphs: [
+      `如对本政策有疑问，请通过 GitHub Issues 联系我们：${SUPPORT_URL}`,
+      `公开政策全文亦可访问：${PRIVACY_POLICY_URL}`,
+    ],
+  },
+];
