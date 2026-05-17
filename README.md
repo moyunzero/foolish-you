@@ -49,7 +49,7 @@
 
 ```bash
 # 克隆仓库
-git clone https://github.com/<your-org>/foolish-you.git
+git clone https://github.com/moyunzero/foolish-you.git
 cd foolish-you
 
 # 安装依赖
