@@ -1,0 +1,76 @@
+# Learn more: https://docs.github.com/en/get-started/gitignore
+
+# --- Dependencies ---
+node_modules/
+
+# --- Environment & secrets (never commit) ---
+.env
+.env.*
+!.env.example
+
+# --- Expo ---
+.expo/
+dist/
+web-build/
+expo-env.d.ts
+
+# EAS local credentials / build artifacts
+.eas/
+*.jks
+*.p8
+*.p12
+*.key
+*.mobileprovision
+*.pem
+
+# --- Native (managed workflow: regenerate locally) ---
+/ios
+/android
+.kotlin/
+*.orig.*
+
+# --- Metro / bundler ---
+.metro-health-check*
+
+# --- Logs & debug ---
+npm-debug.*
+yarn-debug.*
+yarn-error.*
+*.log
+logs/
+
+# --- OS ---
+.DS_Store
+Thumbs.db
+Desktop.ini
+ehthumbs.db
+
+# --- Editors & AI (local-only) ---
+.idea/
+.vscode/
+.cursor/
+.agent/
+*.code-workspace
+*.swp
+*.swo
+*~
+
+# --- TypeScript / tooling ---
+*.tsbuildinfo
+.eslintcache
+coverage/
+.nyc_output/
+
+# --- Temporary ---
+*.tmp
+*.temp
+.turbo/
+.cache/
+
+# --- Lockfile: this repo uses npm (package-lock.json) ---
+yarn.lock
+
+# --- Internal planning & agent docs (not for public repo) ---
+.planning/
+DESIGN.md
+CLAUDE.md

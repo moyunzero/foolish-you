@@ -1,0 +1,60 @@
+import '../global.css';
+
+import {
+  Inter_400Regular,
+  useFonts as useInterFonts,
+} from '@expo-google-fonts/inter';
+import {
+  SpaceMono_400Regular,
+  useFonts as useSpaceMonoFonts,
+} from '@expo-google-fonts/space-mono';
+import { Stack } from 'expo-router';
+import * as SplashScreen from 'expo-splash-screen';
+import { StatusBar } from 'expo-status-bar';
+import { useEffect } from 'react';
+import { View } from 'react-native';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
+import { SafeAreaProvider } from 'react-native-safe-area-context';
+
+import DevToolsPanel from '../components/dev/DevToolsPanel';
+import { colors } from '../constants/design';
+import { DEV_TOOLS_ENABLED } from '../constants/dev';
+import { DailyGameProvider } from '../contexts/DailyGameContext';
+
+SplashScreen.preventAutoHideAsync();
+
+export default function RootLayout() {
+  const [interLoaded] = useInterFonts({ Inter_400Regular });
+  const [monoLoaded] = useSpaceMonoFonts({ SpaceMono_400Regular });
+  const fontsReady = interLoaded && monoLoaded;
+
+  useEffect(() => {
+    if (fontsReady) {
+      void SplashScreen.hideAsync();
+    }
+  }, [fontsReady]);
+
+  if (!fontsReady) {
+    return <View className="flex-1 bg-canvas" style={{ backgroundColor: colors.canvas }} />;
+  }
+
+  return (
+    <GestureHandlerRootView className="flex-1 bg-canvas">
+      <SafeAreaProvider>
+        <DailyGameProvider>
+          <View className="flex-1">
+            <StatusBar style="light" />
+            <Stack
+              screenOptions={{
+                headerShown: false,
+                contentStyle: { backgroundColor: colors.canvas },
+                animation: 'fade',
+              }}
+            />
+            {DEV_TOOLS_ENABLED ? <DevToolsPanel /> : null}
+          </View>
+        </DailyGameProvider>
+      </SafeAreaProvider>
+    </GestureHandlerRootView>
+  );
+}

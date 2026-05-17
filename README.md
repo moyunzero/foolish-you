@@ -1,0 +1,182 @@
+# 傻了么 (Silaomo)
+
+一款极简的**每日益智**移动应用：每天打开，系统会在 **数独** 与 **8×8 二进制谜题（Takuzu / Binairo）** 中随机分配一局。玩完或认怂后，用带点毒舌的文案收尾；第二天 0 点自动换新题。
+
+无社交、无排行榜、无填格提示——专注「今天这一局」。
+
+---
+
+## 功能概览
+
+| 能力 | 说明 |
+|------|------|
+| 每日一题 | 按本地自然日 + 种子确定题型与盘面，同一天多次打开内容一致 |
+| 数独 | 9×9 标准数独，冲突高亮，完成 / 认怂 |
+| 二进制谜题 | 8×8，每行每列各 4 个 0 与 4 个 1，禁止三连、行列不重复 |
+| 离线优先 | 谜题在设备端生成与校验，无需联网 |
+| 进度持久化 | AsyncStorage 保存今日状态，杀进程后可续玩 |
+| 结果页 | 随机搞笑文案 + Reanimated 入场动效、「明天再来」提示 |
+| 本局计时 | 游戏页显示 `MM:SS` 用时 |
+| 规则说明 | 游戏页标题旁 `?` 弹窗查看玩法 |
+
+**v1 不包含：** 登录账号、推送提醒、提示功能、分享与排行榜（见 [路线图](#版本与规划)）。
+
+---
+
+## 技术栈
+
+- [Expo SDK 54](https://docs.expo.dev/) + [expo-router](https://docs.expo.dev/router/introduction/)（文件路由）
+- React Native 0.81 · React 19 · TypeScript
+- [NativeWind v4](https://www.nativewind.dev/)（Tailwind CSS）
+- [react-native-reanimated](https://docs.swmansion.com/react-native-reanimated/)（结果页动效）
+- [@react-native-async-storage/async-storage](https://react-native-async-storage.github.io/async-storage/)（本地存储）
+- 谜题逻辑：纯 TypeScript（`lib/puzzles/`），含生成器、求解器与校验
+
+支持 **iOS**、**Android**（托管工作流，未提交 `ios/` / `android/` 原生目录）。
+
+---
+
+## 环境要求
+
+- **Node.js** 20 LTS 或更高（推荐 20.x）
+- **npm** 10+（本项目以 `package-lock.json` 为准）
+- **iOS**：Xcode + 模拟器（仅 macOS），或 [Expo Go](https://expo.dev/go)
+- **Android**：Android Studio 模拟器，或真机 + Expo Go
+
+---
+
+## 快速开始
+
+```bash
+# 克隆仓库
+git clone https://github.com/<your-org>/foolish-you.git
+cd foolish-you
+
+# 安装依赖
+npm install
+
+# 启动开发服务器
+npm start
+```
+
+在终端按 `i` 打开 iOS 模拟器，按 `a` 打开 Android 模拟器，或扫码用 **Expo Go** 连接。
+
+若修改过 `babel.config.js`（如 Reanimated 插件）或原生依赖，请清缓存后启动：
+
+```bash
+npx expo start -c
+```
+
+---
+
+## 常用命令
+
+| 命令 | 说明 |
+|------|------|
+| `npm start` | 启动 Expo 开发服务器 |
+| `npm run ios` | 在 iOS 模拟器/设备上运行（需预构建或 dev client） |
+| `npm run android` | 在 Android 上运行 |
+| `npm run web` | Web 预览（非主要目标平台） |
+| `npm test` | 运行 Jest 单元测试（`lib/` 谜题与存储逻辑） |
+
+---
+
+## 项目结构
+
+```
+foolish-you/
+├── app/                    # expo-router 页面
+│   ├── index.tsx           # 入口：根据今日状态跳转 game / result
+│   ├── game.tsx            # 游戏主界面（数独 / 二进制分支）
+│   ├── result.tsx          # 完成 / 认怂结果页
+│   └── (auth)/login.tsx    # 登录占位（v1 未实现）
+├── components/
+│   ├── grid/               # SudokuGrid、BinaryGrid、数字键盘
+│   ├── game/               # 工具条、规则弹窗
+│   └── result/             # 结果页徽章与动效区块
+├── contexts/
+│   └── DailyGameContext.tsx  # 今日谜题状态、持久化、完成/放弃
+├── hooks/
+│   └── useElapsedTimer.ts  # 本局计时
+├── lib/
+│   ├── date/               # 本地自然日 dateKey
+│   ├── puzzles/            # 数独、二进制、每日选题、RNG
+│   ├── storage/            # AsyncStorage 读写
+│   └── copy/               # 文案（结果页、规则）
+├── constants/              # 配置、设计 token、开发开关
+├── assets/                 # 图标与启动图
+└── __tests__/              # Jest 测试
+```
+
+### 核心流程
+
+1. **启动** → `DailyGameContext` 读取或创建「今日档案」（`dateKey` + `seed` + `gameType` + 盘面）。
+2. **选题** → `lib/puzzles/dailySelector.ts` 根据日期种子在数独 / 二进制间稳定随机，并生成可解盘面。
+3. **游玩** → `app/game.tsx` 根据 `gameType` 渲染对应网格；进度防抖写入本地。
+4. **结束** → 完成或认怂 → `app/result.tsx` 展示文案与动效；次日 `dateKey` 变化后自动新局。
+
+---
+
+## 开发调试
+
+开发模式下（`__DEV__`）可在首页使用 **开发者面板**（重开今日、强制题型等），配置见 `constants/dev.ts`。
+
+```ts
+// constants/dev.ts
+export const DEV_FORCE_GAME_TYPE: GameType | null = 'sudoku'; // null = 与线上一致随机
+```
+
+正式 Release 构建不会包含该面板。
+
+---
+
+## 测试
+
+```bash
+npm test
+```
+
+当前覆盖：日期工具、RNG、每日选题、数独/二进制生成与校验、本地存储等。UI 组件以手测为主。
+
+---
+
+## 构建与发布（概要）
+
+使用 [EAS Build](https://docs.expo.dev/build/introduction/) 或本地预构建：
+
+```bash
+# 需先安装 eas-cli 并登录 Expo 账号
+npx eas build --platform ios
+npx eas build --platform android
+```
+
+`app.json` 中已配置应用名 **傻了么**、Bundle ID `com.moyunzero.foolish-you`、深色界面。发布前请自行替换图标、签名与商店元数据。
+
+---
+
+## 版本与规划
+
+| 版本 | 范围 |
+|------|------|
+| **v1.0（当前）** | 每日数独/二进制、本地进度、结果动效、计时、规则弹窗 |
+| **v2（规划）** | 登录与跨设备同步、本地推送提醒、历史记录等 |
+
+内部规划文档位于 `.planning/`（已加入 `.gitignore`，不随仓库公开）。
+
+---
+
+## 设计说明
+
+视觉与交互约定见本地 `DESIGN.md`（已加入 `.gitignore`，不随 GitHub 公开）。
+
+---
+
+## 许可证
+
+尚未指定开源许可证。若你 fork 或二次发布，请先与仓库维护者确认授权。
+
+---
+
+## 致谢
+
+谜题算法与产品灵感来自经典数独与 Takuzu/Binairo 规则；由 Expo 与 React Native 生态驱动交付。

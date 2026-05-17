@@ -1,0 +1,16 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --color-canvas: #0a0a0a;
+  --color-canvas-card: #191919;
+  --color-canvas-soft: #1a1c20;
+  --color-hairline: #212327;
+  --color-ink: #ffffff;
+  --color-body: #dadbdf;
+  --color-muted: #7d8187;
+  --color-accent-sunset: #ff7a17;
+  --color-primary: #ffffff;
+  --color-on-primary: #0a0a0a;
+}
