@@ -22,6 +22,11 @@ expo-env.d.ts
 *.key
 *.mobileprovision
 *.pem
+*.ipa
+*.aab
+*.apk
+GoogleService-Info.plist
+google-services.json
 
 # --- Native (managed workflow: regenerate locally) ---
 /ios

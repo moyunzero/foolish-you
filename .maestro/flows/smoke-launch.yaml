@@ -1,0 +1,7 @@
+appId: com.moyunzero.foolish-you
+---
+- launchApp
+- extendedWaitUntil:
+    visible: '傻了么'
+    timeout: 30000
+- assertVisible: '今日一题'
