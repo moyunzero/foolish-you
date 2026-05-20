@@ -1,0 +1,379 @@
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import {
+  act,
+  renderHook,
+  waitFor,
+} from '@testing-library/react-native';
+import React, { type ReactNode } from 'react';
+import { AppState, type AppStateStatus } from 'react-native';
+
+import { PLAY_STATE_DEBOUNCE_MS } from '../../constants/config';
+import {
+  DailyGameProvider,
+  useDailyGame,
+} from '../../contexts/DailyGameContext';
+import { getLocalDateKey } from '../../lib/date/localDay';
+import * as dailyStorage from '../../lib/storage/dailyStorage';
+import {
+  clearDailySnapshot,
+  saveDailySnapshot,
+} from '../../lib/storage/dailyStorage';
+import {
+  FIXTURE_TODAY,
+  FIXTURE_TOMORROW,
+  FIXTURE_YESTERDAY,
+  makeBinaryPlayingSnapshot,
+  makeSudokuPlayingSnapshot,
+  withOneFilledCell,
+} from '../helpers/dailyGameFixtures';
+
+const getLocalDateKeyMock = jest.mocked(getLocalDateKey);
+
+type AppStateHandler = (state: AppStateStatus) => void;
+const appStateHandlers: AppStateHandler[] = [];
+
+function wrapper({ children }: { children: ReactNode }) {
+  return <DailyGameProvider>{children}</DailyGameProvider>;
+}
+
+async function waitForHydrated(
+  result: { current: ReturnType<typeof useDailyGame> },
+) {
+  await waitFor(
+    () => {
+      expect(result.current.status).not.toBe('loading');
+    },
+    { timeout: 15_000 },
+  );
+}
+
+async function renderAndHydrate() {
+  const hook = renderHook(() => useDailyGame(), { wrapper });
+  await waitForHydrated(hook.result);
+  return hook;
+}
+
+function emitAppState(state: AppStateStatus) {
+  for (const handler of appStateHandlers) {
+    handler(state);
+  }
+}
+
+describe('DailyGameContext', () => {
+  beforeEach(async () => {
+    jest.useRealTimers();
+    await AsyncStorage.clear();
+    getLocalDateKeyMock.mockReturnValue(FIXTURE_TODAY);
+    appStateHandlers.length = 0;
+
+    jest.spyOn(AppState, 'addEventListener').mockImplementation((_, handler) => {
+      appStateHandlers.push(handler as AppStateHandler);
+      return { remove: jest.fn() };
+    });
+  });
+
+  afterEach(() => {
+    jest.restoreAllMocks();
+  });
+
+  it('throws when useDailyGame is used outside provider', () => {
+    expect(() => renderHook(() => useDailyGame())).toThrow(
+      'useDailyGame must be used within DailyGameProvider',
+    );
+  });
+
+  it('hydrates today snapshot from storage', async () => {
+    const stored = makeBinaryPlayingSnapshot({ status: 'playing' });
+    await saveDailySnapshot(stored);
+
+    const { result } = await renderAndHydrate();
+
+    expect(result.current.status).toBe('playing');
+    expect(result.current.dateKey).toBe(FIXTURE_TODAY);
+    expect(result.current.gameType).toBe('binary');
+    expect(result.current.puzzle).not.toBeNull();
+    expect(result.current.playState).not.toBeNull();
+  });
+
+  it('starts a new daily when stored dateKey is not today', async () => {
+    const yesterday = makeBinaryPlayingSnapshot({
+      dateKey: FIXTURE_YESTERDAY,
+      seed: 111,
+    });
+    await saveDailySnapshot(yesterday);
+
+    const { result } = await renderAndHydrate();
+
+    expect(result.current.status).toBe('playing');
+    expect(result.current.dateKey).toBe(FIXTURE_TODAY);
+    expect(result.current.dateKey).not.toBe(FIXTURE_YESTERDAY);
+    expect(result.current.seed).not.toBe(111);
+  });
+
+  it('repairs inconsistent snapshot on hydrate and exposes puzzle', async () => {
+    const sudoku = makeSudokuPlayingSnapshot();
+    const broken = { ...sudoku, gameType: 'binary' as const };
+    await saveDailySnapshot(broken);
+
+    const { result } = await renderAndHydrate();
+
+    expect(result.current.puzzle).not.toBeNull();
+    expect(result.current.gameType).toBe('binary');
+    expect(result.current.puzzle?.kind).toBe('binary');
+    expect(result.current.playState).not.toBeNull();
+  });
+
+  it('updatePlayState applies optimistic UI immediately', async () => {
+    const stored = makeBinaryPlayingSnapshot();
+    await saveDailySnapshot(stored);
+
+    const { result } = await renderAndHydrate();
+
+    const base = result.current.playState!;
+    const edited = withOneFilledCell(base);
+
+    act(() => {
+      result.current.updatePlayState(edited);
+    });
+
+    expect(result.current.playState).toEqual(edited);
+  });
+
+  it('debounces playState persistence', async () => {
+    jest.useFakeTimers();
+    const stored = makeBinaryPlayingSnapshot();
+    await saveDailySnapshot(stored);
+
+    const saveSpy = jest.spyOn(dailyStorage, 'saveDailySnapshot');
+
+    const { result } = await renderAndHydrate();
+
+    const initialSaveCount = saveSpy.mock.calls.length;
+    const edited = withOneFilledCell(result.current.playState!);
+
+    act(() => {
+      result.current.updatePlayState(edited);
+    });
+
+    expect(saveSpy.mock.calls.length).toBe(initialSaveCount);
+
+    await act(async () => {
+      jest.advanceTimersByTime(PLAY_STATE_DEBOUNCE_MS - 1);
+    });
+    expect(saveSpy.mock.calls.length).toBe(initialSaveCount);
+
+    await act(async () => {
+      jest.advanceTimersByTime(1);
+      await Promise.resolve();
+    });
+
+    await waitFor(() => {
+      expect(saveSpy.mock.calls.length).toBeGreaterThan(initialSaveCount);
+    });
+
+    const lastPayload = saveSpy.mock.calls.at(-1)?.[0];
+    expect(lastPayload?.playState).toEqual(edited);
+
+    saveSpy.mockRestore();
+    jest.useRealTimers();
+  });
+
+  it('markCompleted flushes pending playState before saving status', async () => {
+    jest.useFakeTimers();
+    const stored = makeBinaryPlayingSnapshot();
+    await saveDailySnapshot(stored);
+
+    const { result } = await renderAndHydrate();
+
+    const edited = withOneFilledCell(result.current.playState!);
+
+    act(() => {
+      result.current.updatePlayState(edited);
+    });
+
+    await act(async () => {
+      await result.current.markCompleted();
+    });
+
+    expect(result.current.status).toBe('completed');
+    expect(result.current.snapshot?.playState).toEqual(edited);
+    expect(result.current.snapshot?.finishedAt).toEqual(expect.any(Number));
+
+    jest.useRealTimers();
+  });
+
+  it('reverts optimistic playState when persistence fails', async () => {
+    jest.useFakeTimers();
+    const stored = makeBinaryPlayingSnapshot();
+    await saveDailySnapshot(stored);
+
+    const saveSpy = jest
+      .spyOn(dailyStorage, 'saveDailySnapshot')
+      .mockResolvedValueOnce(true)
+      .mockResolvedValue(false);
+
+    const { result } = await renderAndHydrate();
+
+    const before = result.current.playState!;
+    const edited = withOneFilledCell(before);
+
+    act(() => {
+      result.current.updatePlayState(edited);
+    });
+    expect(result.current.playState).toEqual(edited);
+
+    await act(async () => {
+      jest.advanceTimersByTime(PLAY_STATE_DEBOUNCE_MS);
+      await Promise.resolve();
+    });
+
+    await waitFor(() => {
+      expect(result.current.playState).toEqual(before);
+      expect(result.current.saveError).toBe(true);
+    });
+
+    saveSpy.mockResolvedValue(true);
+
+    await act(async () => {
+      await result.current.retrySave();
+    });
+
+    expect(result.current.saveError).toBe(false);
+
+    saveSpy.mockRestore();
+    jest.useRealTimers();
+  });
+
+  it('flushes pending playState on AppState background', async () => {
+    jest.useFakeTimers();
+    const stored = makeBinaryPlayingSnapshot();
+    await saveDailySnapshot(stored);
+
+    const saveSpy = jest.spyOn(dailyStorage, 'saveDailySnapshot');
+
+    const { result } = await renderAndHydrate();
+
+    const countAfterHydrate = saveSpy.mock.calls.length;
+    const edited = withOneFilledCell(result.current.playState!);
+
+    act(() => {
+      result.current.updatePlayState(edited);
+    });
+
+    await act(async () => {
+      emitAppState('background');
+      await Promise.resolve();
+    });
+
+    await waitFor(() => {
+      expect(saveSpy.mock.calls.length).toBeGreaterThan(countAfterHydrate);
+    });
+
+    const lastPayload = saveSpy.mock.calls.at(-1)?.[0];
+    expect(lastPayload?.playState).toEqual(edited);
+
+    saveSpy.mockRestore();
+    jest.useRealTimers();
+  });
+
+  it('starts a new playing daily when calendar day advances on AppState active', async () => {
+    await saveDailySnapshot(
+      makeBinaryPlayingSnapshot({ status: 'completed', dateKey: FIXTURE_TODAY }),
+    );
+
+    const { result } = await renderAndHydrate();
+    expect(result.current.status).toBe('completed');
+    expect(result.current.dateKey).toBe(FIXTURE_TODAY);
+
+    getLocalDateKeyMock.mockReturnValue(FIXTURE_TOMORROW);
+
+    await act(async () => {
+      emitAppState('active');
+      await Promise.resolve();
+    });
+
+    await waitFor(
+      () => {
+        expect(result.current.status).not.toBe('loading');
+        expect(result.current.dateKey).toBe(FIXTURE_TOMORROW);
+        expect(result.current.status).toBe('playing');
+      },
+      { timeout: 15_000 },
+    );
+  });
+
+  it('re-hydrates when AppState becomes active', async () => {
+    const stored = makeBinaryPlayingSnapshot({ status: 'completed' });
+    await saveDailySnapshot(stored);
+
+    const { result } = await renderAndHydrate();
+    expect(result.current.status).toBe('completed');
+
+    await saveDailySnapshot(
+      makeBinaryPlayingSnapshot({ status: 'playing', seed: 9999 }),
+    );
+
+    await act(async () => {
+      emitAppState('active');
+      await Promise.resolve();
+    });
+
+    await waitFor(() => {
+      expect(result.current.status).toBe('playing');
+      expect(result.current.seed).toBe(9999);
+    });
+  });
+
+  it('devRegenerateToday clears storage and builds a new snapshot', async () => {
+    const stored = makeBinaryPlayingSnapshot({ seed: 555 });
+    await saveDailySnapshot(stored);
+
+    const { result } = await renderAndHydrate();
+    expect(result.current.seed).toBe(555);
+
+    await act(async () => {
+      await result.current.devRegenerateToday('sudoku');
+    });
+
+    expect(result.current.status).toBe('playing');
+    expect(result.current.gameType).toBe('sudoku');
+    expect(result.current.seed).not.toBe(555);
+
+    const onDisk = await AsyncStorage.getItem('@foolish-you/daily-v1');
+    expect(onDisk).not.toBeNull();
+  });
+
+  it('markAbandoned persists abandoned status', async () => {
+    const stored = makeBinaryPlayingSnapshot();
+    await saveDailySnapshot(stored);
+
+    const { result } = await renderAndHydrate();
+
+    await act(async () => {
+      await result.current.markAbandoned();
+    });
+
+    expect(result.current.status).toBe('abandoned');
+    expect(result.current.snapshot?.status).toBe('abandoned');
+  });
+
+  it('refresh re-runs hydrate', async () => {
+    const stored = makeBinaryPlayingSnapshot({ status: 'completed' });
+    await saveDailySnapshot(stored);
+
+    const { result } = await renderAndHydrate();
+    expect(result.current.status).toBe('completed');
+
+    await clearDailySnapshot();
+    await saveDailySnapshot(
+      makeBinaryPlayingSnapshot({ status: 'playing', seed: 7777 }),
+    );
+
+    await act(async () => {
+      await result.current.refresh();
+    });
+
+    expect(result.current.status).toBe('playing');
+    expect(result.current.seed).toBe(7777);
+  });
+});

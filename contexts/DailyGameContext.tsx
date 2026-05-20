@@ -10,14 +10,16 @@ import {
 } from 'react';
 import { AppState, type AppStateStatus } from 'react-native';
 
-import { PLAY_STATE_DEBOUNCE_MS, STORAGE_VERSION } from '../constants/config';
-import { DEV_TOOLS_ENABLED, getDevForceGameType } from '../constants/dev';
+import {
+  buildNewDailySnapshot,
+  hydrateDailyGame,
+} from '../lib/daily/dailyHydrate';
+import { notifyDailySaveFailed } from '../lib/daily/saveFailureAlert';
+import { usePlayStatePersistence } from '../lib/daily/playStatePersistence';
+
+import { DEV_TOOLS_ENABLED } from '../constants/dev';
 import { getLocalDateKey } from '../lib/date/localDay';
-import { generateBinaryPuzzle } from '../lib/puzzles/binary/generator';
 import { createEmptyGrid as createEmptyBinaryGrid } from '../lib/puzzles/binary/grid';
-import { selectDailyGame } from '../lib/puzzles/dailySelector';
-import { deriveSubSeed } from '../lib/puzzles/rng';
-import { generateSudokuPuzzle } from '../lib/puzzles/sudoku/generator';
 import { createEmptyGrid as createEmptySudokuGrid } from '../lib/puzzles/sudoku/grid';
 import type {
   DailySnapshot,
@@ -26,12 +28,9 @@ import type {
   PlayState,
   PuzzlePayload,
 } from '../lib/puzzles/types';
-import { isBinaryPuzzle, isBinaryPuzzleStub, isSudokuPuzzle } from '../lib/puzzles/types';
-import {
-  clearDailySnapshot,
-  loadDailySnapshot,
-  saveDailySnapshot,
-} from '../lib/storage/dailyStorage';
+import { isBinaryPuzzle, isSudokuPuzzle } from '../lib/puzzles/types';
+import { clearDailySnapshot } from '../lib/storage/dailyStorage';
+import { isSnapshotPuzzleConsistent } from '../lib/storage/snapshotValidate';
 
 export type HydrateStatus = 'loading' | DailyStatus;
 
@@ -43,129 +42,55 @@ export type DailyGameState = {
   snapshot: DailySnapshot | null;
   puzzle: PuzzlePayload | null;
   playState: PlayState | null;
+  saveError: boolean;
   updatePlayState: (next: PlayState) => void;
   markCompleted: () => Promise<void>;
   markAbandoned: () => Promise<void>;
   refresh: () => Promise<void>;
+  retrySave: () => Promise<void>;
   /** 仅 __DEV__：清除并重新生成今日题目 */
   devRegenerateToday: (forceGameType?: GameType | null) => Promise<void>;
 };
 
 const DailyGameContext = createContext<DailyGameState | null>(null);
 
-function sudokuPuzzleFromSeed(seed: number): PuzzlePayload {
-  return generateSudokuPuzzle(deriveSubSeed(seed, 'migrate'));
-}
-
-function binaryPuzzleFromSeed(seed: number): PuzzlePayload {
-  return generateBinaryPuzzle(deriveSubSeed(seed, 'binary-migrate'));
-}
-
-function migrateLegacySnapshot(record: DailySnapshot): DailySnapshot {
-  if (record.puzzleStub?.placeholder) {
-    if (record.gameType === 'sudoku') {
-      const puzzle = sudokuPuzzleFromSeed(record.seed);
-      return {
-        ...record,
-        puzzle,
-        puzzleHash: puzzle.puzzleHash,
-        playState: record.playState ?? createEmptySudokuGrid(),
-        puzzleStub: undefined,
-      };
-    }
-    const puzzle = binaryPuzzleFromSeed(record.seed);
-    return {
-      ...record,
-      puzzle,
-      puzzleHash: puzzle.puzzleHash,
-      playState: record.playState ?? createEmptyBinaryGrid(),
-      puzzleStub: undefined,
-    };
-  }
-
-  if (record.puzzle != null && isBinaryPuzzleStub(record.puzzle)) {
-    const puzzle = binaryPuzzleFromSeed(record.seed);
-    return {
-      ...record,
-      puzzle,
-      puzzleHash: puzzle.puzzleHash,
-      playState: record.playState ?? createEmptyBinaryGrid(),
-    };
-  }
-
-  return record;
-}
-
-function resolveForceGameType(
-  explicit?: GameType | null,
-): GameType | undefined {
-  if (explicit === null) return undefined;
-  if (explicit != null) return explicit;
-  const fromConfig = getDevForceGameType();
-  return fromConfig ?? undefined;
-}
-
-async function buildNewDaily(
-  today: string,
-  previous: DailySnapshot | null,
-  forceGameType?: GameType | null,
-): Promise<DailySnapshot> {
-  const forced = resolveForceGameType(forceGameType);
-  const selected = selectDailyGame({
-    dateKey: today,
-    previous:
-      forced == null && previous
-        ? { gameType: previous.gameType, puzzleHash: previous.puzzleHash }
-        : undefined,
-    forceGameType: forced,
-  });
-
-  const now = Date.now();
-  const snapshot: DailySnapshot = {
-    version: STORAGE_VERSION,
-    dateKey: today,
-    gameType: selected.gameType,
-    seed: selected.seed,
-    status: 'playing',
-    puzzle: selected.puzzle,
-    puzzleHash: selected.puzzleHash,
-    playState:
-      selected.gameType === 'sudoku'
-        ? createEmptySudokuGrid()
-        : createEmptyBinaryGrid(),
-    startedAt: now,
-    lastGameType: previous?.gameType,
-    lastPuzzleHash: previous?.puzzleHash,
-  };
-
-  await saveDailySnapshot(snapshot);
-  return snapshot;
-}
-
 function useDailyGameProviderValue(): DailyGameState {
   const [status, setStatus] = useState<HydrateStatus>('loading');
   const [snapshot, setSnapshot] = useState<DailySnapshot | null>(null);
+  const [saveError, setSaveError] = useState(false);
   const hydratingRef = useRef(false);
-  const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const pendingPlayStateRef = useRef<PlayState | null>(null);
 
-  const flushPlayState = useCallback(async () => {
-    if (debounceRef.current != null) {
-      clearTimeout(debounceRef.current);
-      debounceRef.current = null;
+  const retrySaveRef = useRef<() => Promise<void>>(async () => {});
+
+  const handleSaveFailed = useCallback(() => {
+    setSaveError(true);
+    notifyDailySaveFailed(() => {
+      void retrySaveRef.current();
+    });
+  }, []);
+
+  const {
+    updatePlayState,
+    flushPlayState,
+    drainPendingInto,
+    persistSnapshot,
+    resetPending,
+  } = usePlayStatePersistence({
+    snapshot,
+    setSnapshot,
+    onSaveFailed: handleSaveFailed,
+  });
+
+  const retrySave = useCallback(async () => {
+    if (snapshot == null) return;
+    const current = drainPendingInto(snapshot);
+    const { saved } = await persistSnapshot(current);
+    if (saved) {
+      setSaveError(false);
     }
-    if (snapshot == null || pendingPlayStateRef.current == null) return;
+  }, [snapshot, drainPendingInto, persistSnapshot]);
 
-    const nextPlayState = pendingPlayStateRef.current;
-    pendingPlayStateRef.current = null;
-
-    const updated: DailySnapshot = {
-      ...snapshot,
-      playState: nextPlayState,
-    };
-    await saveDailySnapshot(updated);
-    setSnapshot(updated);
-  }, [snapshot]);
+  retrySaveRef.current = retrySave;
 
   const hydrate = useCallback(async () => {
     if (hydratingRef.current) return;
@@ -173,62 +98,34 @@ function useDailyGameProviderValue(): DailyGameState {
     setStatus('loading');
 
     try {
-      const today = getLocalDateKey();
-      let record = await loadDailySnapshot();
-
-      if (record != null && record.dateKey === today) {
-        record = migrateLegacySnapshot(record);
-        if (record.puzzleStub != null || record.puzzle == null) {
-          record = migrateLegacySnapshot(record);
-        }
-        if (
-          record.gameType === 'sudoku' &&
-          isSudokuPuzzle(record.puzzle) &&
-          record.playState == null
-        ) {
-          record = { ...record, playState: createEmptySudokuGrid() };
-          await saveDailySnapshot(record);
-        }
-        if (
-          record.gameType === 'binary' &&
-          isBinaryPuzzle(record.puzzle) &&
-          record.playState == null
-        ) {
-          record = { ...record, playState: createEmptyBinaryGrid() };
-          await saveDailySnapshot(record);
-        }
-        setSnapshot(record);
-        setStatus(record.status);
-        return;
-      }
-
-      const next = await buildNewDaily(today, record, getDevForceGameType());
+      const next = await hydrateDailyGame({ onSaveFailed: handleSaveFailed });
       setSnapshot(next);
       setStatus(next.status);
     } finally {
       hydratingRef.current = false;
     }
-  }, []);
+  }, [handleSaveFailed]);
 
   const devRegenerateToday = useCallback(
     async (forceGameType?: GameType | null) => {
       if (!DEV_TOOLS_ENABLED) return;
 
-      if (debounceRef.current != null) {
-        clearTimeout(debounceRef.current);
-        debounceRef.current = null;
-      }
-      pendingPlayStateRef.current = null;
+      resetPending();
 
       const today = getLocalDateKey();
       const previous = snapshot;
       await clearDailySnapshot();
 
-      const next = await buildNewDaily(today, previous, forceGameType);
+      const next = await buildNewDailySnapshot({
+        today,
+        previous,
+        forceGameType,
+        onSaveFailed: handleSaveFailed,
+      });
       setSnapshot(next);
       setStatus(next.status);
     },
-    [snapshot],
+    [snapshot, resetPending, handleSaveFailed],
   );
 
   useEffect(() => {
@@ -237,65 +134,35 @@ function useDailyGameProviderValue(): DailyGameState {
 
   useEffect(() => {
     const onChange = (next: AppStateStatus) => {
+      if (next === 'background' || next === 'inactive') {
+        void flushPlayState();
+        return;
+      }
       if (next === 'active') {
         void hydrate();
       }
     };
     const sub = AppState.addEventListener('change', onChange);
     return () => sub.remove();
-  }, [hydrate]);
-
-  useEffect(
-    () => () => {
-      if (debounceRef.current != null) {
-        clearTimeout(debounceRef.current);
-      }
-    },
-    [],
-  );
-
-  const updatePlayState = useCallback(
-    (next: PlayState) => {
-      if (snapshot == null) return;
-
-      pendingPlayStateRef.current = next;
-      const optimistic: DailySnapshot = { ...snapshot, playState: next };
-      setSnapshot(optimistic);
-
-      if (debounceRef.current != null) {
-        clearTimeout(debounceRef.current);
-      }
-      debounceRef.current = setTimeout(() => {
-        void flushPlayState();
-      }, PLAY_STATE_DEBOUNCE_MS);
-    },
-    [snapshot, flushPlayState],
-  );
+  }, [hydrate, flushPlayState]);
 
   const persistStatus = useCallback(
     async (nextStatus: DailyStatus) => {
-      if (debounceRef.current != null) {
-        clearTimeout(debounceRef.current);
-        debounceRef.current = null;
-      }
       if (snapshot == null) return;
 
-      let current = snapshot;
-      if (pendingPlayStateRef.current != null) {
-        current = { ...current, playState: pendingPlayStateRef.current };
-        pendingPlayStateRef.current = null;
-      }
-
+      const current = drainPendingInto(snapshot);
       const updated: DailySnapshot = {
         ...current,
         status: nextStatus,
         finishedAt: Date.now(),
       };
-      await saveDailySnapshot(updated);
-      setSnapshot(updated);
-      setStatus(nextStatus);
+      const { saved } = await persistSnapshot(updated);
+      if (saved) {
+        setStatus(nextStatus);
+        setSaveError(false);
+      }
     },
-    [snapshot],
+    [snapshot, drainPendingInto, persistSnapshot],
   );
 
   const markCompleted = useCallback(
@@ -308,11 +175,10 @@ function useDailyGameProviderValue(): DailyGameState {
     [persistStatus],
   );
 
-  const puzzle =
-    snapshot?.puzzle ??
-    (snapshot?.puzzleStub != null
-      ? ({ kind: snapshot.gameType, placeholder: true } as PuzzlePayload)
-      : null);
+  const puzzle: PuzzlePayload | null =
+    snapshot != null && isSnapshotPuzzleConsistent(snapshot)
+      ? snapshot.puzzle
+      : null;
 
   const playState = useMemo((): PlayState | null => {
     if (snapshot == null) return null;
@@ -334,10 +200,12 @@ function useDailyGameProviderValue(): DailyGameState {
       snapshot,
       puzzle,
       playState,
+      saveError,
       updatePlayState,
       markCompleted,
       markAbandoned,
       refresh: hydrate,
+      retrySave,
       devRegenerateToday,
     }),
     [
@@ -345,10 +213,12 @@ function useDailyGameProviderValue(): DailyGameState {
       snapshot,
       puzzle,
       playState,
+      saveError,
       updatePlayState,
       markCompleted,
       markAbandoned,
       hydrate,
+      retrySave,
       devRegenerateToday,
     ],
   );

@@ -1,0 +1,123 @@
+import { STORAGE_VERSION } from '../../constants/config';
+import { getDevForceGameType } from '../../constants/dev';
+import { getLocalDateKey } from '../date/localDay';
+import { createEmptyGrid as createEmptyBinaryGrid } from '../puzzles/binary/grid';
+import { selectDailyGame } from '../puzzles/dailySelector';
+import { createEmptyGrid as createEmptySudokuGrid } from '../puzzles/sudoku/grid';
+import type { DailySnapshot, GameType } from '../puzzles/types';
+import { isBinaryPuzzle, isSudokuPuzzle } from '../puzzles/types';
+import { runAfterInteractions } from '../platform/runAfterInteractions';
+import {
+  loadDailySnapshot,
+  saveDailySnapshot,
+} from '../storage/dailyStorage';
+import { prepareTodaySnapshot } from '../storage/snapshotPrep';
+
+export type BuildNewDailyParams = {
+  today: string;
+  previous: DailySnapshot | null;
+  forceGameType?: GameType | null;
+  onSaveFailed?: () => void;
+};
+
+export type HydrateDailyParams = {
+  today?: string;
+  forceGameType?: GameType | null;
+  onSaveFailed?: () => void;
+};
+
+function resolveForceGameType(
+  explicit?: GameType | null,
+): GameType | undefined {
+  if (explicit === null) return undefined;
+  if (explicit != null) return explicit;
+  return getDevForceGameType() ?? undefined;
+}
+
+function ensurePlayStateForSnapshot(snapshot: DailySnapshot): DailySnapshot {
+  if (
+    snapshot.gameType === 'sudoku' &&
+    isSudokuPuzzle(snapshot.puzzle) &&
+    snapshot.playState == null
+  ) {
+    return { ...snapshot, playState: createEmptySudokuGrid() };
+  }
+  if (
+    snapshot.gameType === 'binary' &&
+    isBinaryPuzzle(snapshot.puzzle) &&
+    snapshot.playState == null
+  ) {
+    return { ...snapshot, playState: createEmptyBinaryGrid() };
+  }
+  return snapshot;
+}
+
+export async function buildNewDailySnapshot(
+  params: BuildNewDailyParams,
+): Promise<DailySnapshot> {
+  const forced = resolveForceGameType(params.forceGameType);
+  const selected = selectDailyGame({
+    dateKey: params.today,
+    previous:
+      forced == null && params.previous
+        ? {
+            gameType: params.previous.gameType,
+            puzzleHash: params.previous.puzzleHash,
+          }
+        : undefined,
+    forceGameType: forced,
+  });
+
+  const now = Date.now();
+  const snapshot: DailySnapshot = {
+    version: STORAGE_VERSION,
+    dateKey: params.today,
+    gameType: selected.gameType,
+    seed: selected.seed,
+    status: 'playing',
+    puzzle: selected.puzzle,
+    puzzleHash: selected.puzzleHash,
+    playState:
+      selected.gameType === 'sudoku'
+        ? createEmptySudokuGrid()
+        : createEmptyBinaryGrid(),
+    startedAt: now,
+    lastGameType: params.previous?.gameType,
+    lastPuzzleHash: params.previous?.puzzleHash,
+  };
+
+  const saved = await saveDailySnapshot(snapshot);
+  if (!saved) {
+    params.onSaveFailed?.();
+  }
+  return snapshot;
+}
+
+/** Load or create today's snapshot (pure orchestration — no React). */
+export async function hydrateDailyGame(
+  params: HydrateDailyParams = {},
+): Promise<DailySnapshot> {
+  const today = params.today ?? getLocalDateKey();
+  const record = await loadDailySnapshot();
+
+  if (record != null && record.dateKey === today) {
+    let prepared = await runAfterInteractions(() =>
+      prepareTodaySnapshot(record),
+    );
+    prepared = ensurePlayStateForSnapshot(prepared);
+    const saved = await saveDailySnapshot(prepared);
+    if (!saved) {
+      params.onSaveFailed?.();
+    }
+    return prepared;
+  }
+
+  return runAfterInteractions(() =>
+    buildNewDailySnapshot({
+      today,
+      previous: record,
+      forceGameType: params.forceGameType ?? getDevForceGameType(),
+      onSaveFailed: params.onSaveFailed,
+    }),
+  );
+}
