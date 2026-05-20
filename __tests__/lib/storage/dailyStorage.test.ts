@@ -1,13 +1,29 @@
+import AsyncStorage from '@react-native-async-storage/async-storage';
+
+import { STORAGE_KEY, STORAGE_VERSION } from '../../../constants/config';
 import { clearDailySnapshot, loadDailySnapshot, saveDailySnapshot } from '../../../lib/storage/dailyStorage';
 import type { DailySnapshot } from '../../../lib/puzzles/types';
 
 const sample: DailySnapshot = {
-  version: 1,
+  version: STORAGE_VERSION,
   dateKey: '2026-05-16',
   gameType: 'binary',
   seed: 12345,
   status: 'playing',
-  puzzle: { kind: 'binary', placeholder: true },
+  puzzle: {
+    kind: 'binary',
+    givens: [
+      [0, 0, 0, 0, 0, 0, 0, 0],
+      [0, 0, 0, 0, 0, 0, 0, 0],
+      [0, 0, 0, 0, 0, 0, 0, 0],
+      [0, 0, 0, 0, 0, 0, 0, 0],
+      [0, 0, 0, 0, 0, 0, 0, 0],
+      [0, 0, 0, 0, 0, 0, 0, 0],
+      [0, 0, 0, 0, 0, 0, 0, 0],
+      [0, 0, 0, 0, 0, 0, 0, 0],
+    ],
+    puzzleHash: 'binary-stub-v1',
+  },
   puzzleHash: 'binary-stub-v1',
 };
 
@@ -24,11 +40,43 @@ describe('dailyStorage', () => {
     await saveDailySnapshot(sample);
     const loaded = await loadDailySnapshot();
     expect(loaded).toMatchObject({
+      version: STORAGE_VERSION,
       dateKey: sample.dateKey,
       gameType: sample.gameType,
       seed: sample.seed,
       status: sample.status,
       puzzleHash: sample.puzzleHash,
     });
+    expect(loaded).not.toHaveProperty('puzzleStub');
+  });
+
+  it('upgrades v1 blob on load and persists v2', async () => {
+    const v1 = {
+      version: 1,
+      dateKey: '2026-05-16',
+      gameType: 'binary',
+      seed: 99,
+      status: 'playing',
+      puzzle: { kind: 'binary', placeholder: true },
+      puzzleHash: 'old',
+      puzzleStub: { kind: 'binary', placeholder: true },
+    };
+    await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(v1));
+    const loaded = await loadDailySnapshot();
+    expect(loaded?.version).toBe(2);
+    expect(loaded).not.toHaveProperty('puzzleStub');
+    expect(loaded?.puzzle.kind).toBe('binary');
+    expect('givens' in (loaded?.puzzle ?? {})).toBe(true);
+  });
+
+  it('returns false when AsyncStorage write fails', async () => {
+    const setItem = jest
+      .spyOn(AsyncStorage, 'setItem')
+      .mockRejectedValueOnce(new Error('disk full'));
+
+    const ok = await saveDailySnapshot(sample);
+    expect(ok).toBe(false);
+
+    setItem.mockRestore();
   });
 });

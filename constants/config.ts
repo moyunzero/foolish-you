@@ -1,6 +1,11 @@
+/**
+ * 每日谜题种子盐（写在客户端源码里，非秘密）。
+ * 产品约束：任何人都能离线复现同一自然日的题目；不要在此基础上做竞技排行榜或防作弊。
+ */
 export const APP_SALT = 'foolish-you-v1';
 export const STORAGE_KEY = '@foolish-you/daily-v1';
-export const STORAGE_VERSION = 1;
+/** Bump when persisted snapshot shape changes; v2 drops puzzleStub / placeholders. */
+export const STORAGE_VERSION = 2;
 
 export const SUDOKU_GIVEN_COUNT = 30;
 export const SUDOKU_MAX_GEN_ATTEMPTS = 50;
