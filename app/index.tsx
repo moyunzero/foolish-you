@@ -5,7 +5,7 @@ import { colors } from '../constants/design';
 import { useDailyGame } from '../contexts/DailyGameContext';
 
 export default function IndexScreen() {
-  const { status } = useDailyGame();
+  const { status, refresh } = useDailyGame();
 
   if (status === 'loading') {
     return (
@@ -40,5 +40,18 @@ export default function IndexScreen() {
     return <Redirect href="/result" />;
   }
 
-  return null;
+  return (
+    <View className="flex-1 items-center justify-center bg-canvas px-6">
+      <Text className="text-center text-base text-muted">
+        状态异常，正在重新加载今日题目…
+      </Text>
+      <ActivityIndicator className="mt-6" color={colors.ink} size="small" />
+      <Text
+        className="mt-6 text-sm text-accent-sunset"
+        onPress={() => void refresh()}
+      >
+        点此重试
+      </Text>
+    </View>
+  );
 }

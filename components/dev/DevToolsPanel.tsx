@@ -54,7 +54,7 @@ export default function DevToolsPanel() {
       ? snapshot.puzzle.puzzleHash
       : null;
 
-  const regenerate = async (force: GameType | null) => {
+  const regenerate = async (force?: GameType | null) => {
     await devRegenerateToday(force);
     router.replace('/game');
   };
@@ -103,7 +103,7 @@ export default function DevToolsPanel() {
             <DevButton label="数独" active={gameType === 'sudoku'} onPress={() => void regenerate('sudoku')} />
             <DevButton label="二进制" active={gameType === 'binary'} onPress={() => void regenerate('binary')} />
             <DevButton label="自然随机" onPress={() => void regenerate(null)} />
-            <DevButton label="重开今日" onPress={() => void regenerate(undefined)} />
+            <DevButton label="重开今日" onPress={() => void regenerate()} />
           </View>
 
           <Text className="text-[10px] leading-4 text-muted">

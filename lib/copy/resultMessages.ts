@@ -1,3 +1,6 @@
+import { Platform } from 'react-native';
+
+import { deriveSeed, deriveSubSeed, mulberry32 } from '../puzzles/rng';
 import type { DailyStatus } from '../puzzles/types';
 
 export type CompletedResultCopy = {
@@ -75,32 +78,36 @@ const FAIL_CTAS = [
   '明天见，我要赢',
 ];
 
-const FOOTER_HINT = '明天 0 点后刷新，题型会变哦';
+const FOOTER_HINT_DEFAULT = '明天 0 点后刷新，题型会变哦';
+const FOOTER_HINT_IOS =
+  '明天 0 点后刷新，题型会变哦。iOS 上点按钮后请从屏幕底部上滑回主屏幕。';
 
 export function getResultFooterHint(): string {
-  return FOOTER_HINT;
+  return Platform.OS === 'ios' ? FOOTER_HINT_IOS : FOOTER_HINT_DEFAULT;
 }
 
-function pickRandom<T>(items: T[]): T {
-  return items[Math.floor(Math.random() * items.length)] ?? items[0];
+function pickFromPool<T>(rng: () => number, items: readonly T[]): T {
+  const idx = Math.floor(rng() * items.length);
+  return items[idx] ?? items[0];
 }
 
 function pickUniquePlainLines(
-  pool: string[],
+  rng: () => number,
+  pool: readonly string[],
   count: number,
   exclude: string[] = [],
 ): string[] {
   const filtered = pool.filter((line) => !exclude.includes(line));
-  const shuffled = [...filtered].sort(() => Math.random() - 0.5);
+  const shuffled = [...filtered].sort(() => (rng() < 0.5 ? -1 : 1));
   return shuffled.slice(0, count);
 }
 
-function randomFoolIndexPercent(): number {
-  return 72 + Math.floor(Math.random() * 24);
+function seededFoolIndexPercent(rng: () => number): number {
+  return 72 + Math.floor(rng() * 24);
 }
 
-function randomBrainCells(): number {
-  return 500 + Math.floor(Math.random() * 700);
+function seededBrainCells(rng: () => number): number {
+  return 500 + Math.floor(rng() * 700);
 }
 
 export function formatElapsedDuration(ms: number): string {
@@ -121,34 +128,38 @@ function formatElapsedClock(ms: number): string {
 export function pickResultCopy(
   status: Exclude<DailyStatus, 'playing'>,
   elapsedMs: number,
+  dateKey: string,
+  seed?: number | null,
 ): ResultCopy {
+  const baseSeed = seed ?? deriveSeed(dateKey);
+  const rng = mulberry32(deriveSubSeed(baseSeed, `result-${status}`));
   const elapsedDisplay = formatElapsedDuration(elapsedMs);
 
   if (status === 'completed') {
-    const punchline = pickRandom(SUCCESS_PUNCHLINES);
-    const sublines = pickUniquePlainLines(SUCCESS_SUBLINES, 2, [punchline]);
+    const punchline = pickFromPool(rng, SUCCESS_PUNCHLINES);
+    const sublines = pickUniquePlainLines(rng, SUCCESS_SUBLINES, 2, [punchline]);
 
     return {
       mode: 'completed',
-      headline: pickRandom(SUCCESS_HEADLINES),
+      headline: pickFromPool(rng, SUCCESS_HEADLINES),
       punchline,
       sublines,
       elapsedDisplay,
-      cta: pickRandom(SUCCESS_CTAS),
+      cta: pickFromPool(rng, SUCCESS_CTAS),
     };
   }
 
-  const punchline = pickRandom(FAIL_PUNCHLINES);
-  const sublines = pickUniquePlainLines(FAIL_SUBLINES, 2, [punchline]);
+  const punchline = pickFromPool(rng, FAIL_PUNCHLINES);
+  const sublines = pickUniquePlainLines(rng, FAIL_SUBLINES, 2, [punchline]);
 
   return {
     mode: 'abandoned',
-    headline: pickRandom(FAIL_HEADLINES),
+    headline: pickFromPool(rng, FAIL_HEADLINES),
     punchline,
     sublines,
-    foolIndexPercent: randomFoolIndexPercent(),
-    foolIndexHint: pickRandom(FOOL_INDEX_HINTS),
-    statsLine: `本次用时 ${formatElapsedClock(elapsedMs)} | 脑细胞阵亡 ${randomBrainCells()} 个`,
-    cta: pickRandom(FAIL_CTAS),
+    foolIndexPercent: seededFoolIndexPercent(rng),
+    foolIndexHint: pickFromPool(rng, FOOL_INDEX_HINTS),
+    statsLine: `本次用时 ${formatElapsedClock(elapsedMs)} | 脑细胞阵亡 ${seededBrainCells(rng)} 个`,
+    cta: pickFromPool(rng, FAIL_CTAS),
   };
 }

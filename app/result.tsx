@@ -25,7 +25,7 @@ const FOOTER_HINT = getResultFooterHint();
 export default function ResultScreen() {
   const router = useRouter();
   const insets = useSafeAreaInsets();
-  const { status, snapshot, dateKey } = useDailyGame();
+  const { status, snapshot, dateKey, seed } = useDailyGame();
 
   const isSuccess = status === 'completed';
   const isFail = status === 'abandoned';
@@ -34,8 +34,14 @@ export default function ResultScreen() {
     if (!isSuccess && !isFail) return null;
     const startedAt = snapshot?.startedAt ?? Date.now();
     const finishedAt = snapshot?.finishedAt ?? Date.now();
-    return pickResultCopy(isSuccess ? 'completed' : 'abandoned', finishedAt - startedAt);
-  }, [isSuccess, isFail, snapshot?.startedAt, snapshot?.finishedAt]);
+    const key = dateKey ?? snapshot?.dateKey ?? '';
+    return pickResultCopy(
+      isSuccess ? 'completed' : 'abandoned',
+      finishedAt - startedAt,
+      key,
+      seed ?? snapshot?.seed,
+    );
+  }, [isSuccess, isFail, snapshot?.startedAt, snapshot?.finishedAt, snapshot?.dateKey, snapshot?.seed, dateKey, seed]);
 
   const bottomPadding = useDevBottomInset(insets.bottom + 16);
 
