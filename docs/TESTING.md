@@ -1,0 +1,162 @@
+<!-- generated-by: gsd-doc-writer -->
+
+# Testing — 傻了么 (Silaomo)
+
+This document describes how tests are organized, how to run them locally, how CI enforces quality gates, and when to use manual QA on device.
+
+## Test framework and setup
+
+The project uses **Jest 29** with a **dual-project** configuration defined in `jest.config.js`:
+
+| Project | Preset | Environment | File pattern | Purpose |
+|---------|--------|-------------|--------------|---------|
+| `unit` | `ts-jest` | `node` | `**/__tests__/**/*.test.ts` | Pure logic: puzzles, storage, date, copy |
+| `rtl` | `jest-expo` | React Native (via jest-expo) | `**/__tests__/**/*.test.tsx` | Components, hooks, contexts, screens |
+
+**Dev dependencies:** `jest`, `jest-expo`, `ts-jest`, `@testing-library/react-native`, `react-test-renderer`, `@types/jest`.
+
+**Setup files:**
+
+- `jest.setup.js` — shared by both projects. Mocks AsyncStorage and Reanimated.
+- `jest.setup.rtl.js` — RTL-only. Mocks `expo-router`, `localDay` (fixed `dateKey`), safe-area context, and `runAfterInteractions`.
+
+Install dependencies before running tests:
+
+```bash
+npm ci   # or npm install for local dev
+```
+
+The RTL project runs with `maxWorkers: 1` in Jest config to reduce flakiness. The `test:rtl` script also sets `--testTimeout=20000` for slower screen tests.
+
+## Running tests
+
+Run the full suite (both projects):
+
+```bash
+npm test
+```
+
+Run projects separately:
+
+```bash
+npm run test:unit   # jest --selectProjects unit
+npm run test:rtl    # jest --selectProjects rtl --testTimeout=20000
+```
+
+Run a single file:
+
+```bash
+npm test -- __tests__/lib/puzzles/dailySelector.test.ts
+npm test -- __tests__/screens/game.test.tsx
+```
+
+Filter by test name:
+
+```bash
+npm test -- -t "returns stable gameType"
+```
+
+**Related checks** (same bar as CI):
+
+```bash
+npm run typecheck   # tsc --noEmit
+npm run lint        # expo lint
+```
+
+## `__tests__/` layout
+
+```
+__tests__/
+├── lib/                    # Unit tests (*.test.ts)
+│   ├── puzzles/            # Generators, validators, solvers, dailySelector
+│   ├── storage/            # Snapshot read/write, validation, migration
+│   ├── date/               # Local calendar day helpers
+│   ├── daily/              # Hydrate/build orchestration
+│   ├── streak/             # Streak logic
+│   └── copy/               # User-facing string helpers
+├── contexts/               # DailyGameContext RTL
+├── hooks/                  # useSudokuBoard, useBinaryBoard
+├── components/grid/        # SudokuGrid, BinaryGrid
+├── screens/                # index, game, result, privacy
+└── helpers/                # Shared fixtures and mocks
+    ├── dailyGameFixtures.ts
+    ├── expoRouterMocks.ts
+    └── screenTestUtils.tsx
+```
+
+### Writing new tests
+
+**Unit tests (`.test.ts`):**
+
+- Place under `__tests__/lib/` mirroring the source path (e.g. `lib/puzzles/foo.ts` → `__tests__/lib/puzzles/foo.test.ts`).
+- Import from `lib/` with relative paths; no React or RN imports.
+- Prefer deterministic inputs (fixed `dateKey`, seeds) for puzzle and daily-selection tests.
+
+**RTL tests (`.test.tsx`):**
+
+- Place under `__tests__/contexts/`, `__tests__/hooks/`, `__tests__/components/`, or `__tests__/screens/` depending on what you are testing.
+- Use `@testing-library/react-native` (`render`, `screen`, `fireEvent`, `waitFor`, `act`).
+- Wrap screens in `ScreenProviders` from `__tests__/helpers/screenTestUtils.tsx` when `DailyGameContext` or dev UI state is required.
+- Use `dailyGameFixtures.ts` for snapshot fixtures and `expoRouterMocks.ts` for navigation assertions.
+
+**What to test where:**
+
+| Layer | Test type | Location |
+|-------|-----------|----------|
+| Puzzle algorithms, storage, date | Unit | `__tests__/lib/` |
+| Context orchestration | RTL | `__tests__/contexts/` |
+| Board hooks | RTL | `__tests__/hooks/` |
+| Grid components | RTL | `__tests__/components/` |
+| Route screens | RTL | `__tests__/screens/` |
+| Visual polish, animations, gestures | Manual QA | Device/simulator |
+
+## Coverage requirements
+
+No coverage threshold is configured in `jest.config.js` or CI. Coverage output is not enforced on pull requests.
+
+To generate a local coverage report (optional):
+
+```bash
+npm test -- --coverage
+```
+
+The `coverage/` directory is gitignored.
+
+## CI integration
+
+Workflow: `.github/workflows/ci.yml` — job **`verify`**
+
+| Trigger | `push` and `pull_request` to `main` or `master` |
+|---------|--------------------------------------------------|
+| Runner | `ubuntu-latest`, Node.js 20 |
+| Install | `npm ci` |
+
+Steps (in order):
+
+1. **Typecheck** — `npm run typecheck`
+2. **Unit tests** — `npm test` (runs both `unit` and `rtl` projects)
+3. **Lint** — `npm run lint`
+
+All three must pass before merging. Locally, run the same three commands before claiming a change is done.
+
+## Manual QA checklist
+
+Automated tests cover logic and component behavior; they do not replace on-device checks for layout, animations, and persistence across app restarts. Use this checklist after UI or storage changes:
+
+- [ ] **Fresh install / clear storage** — Open app; today’s puzzle loads with correct type (Sudoku or Binary) for the local day.
+- [ ] **Mid-game persistence** — Fill some cells, kill the app, reopen; progress and timer restore.
+- [ ] **Complete flow** — Finish today’s puzzle; result screen shows copy, stats, and animations.
+- [ ] **Surrender flow** — Abandon from game screen; result screen reflects surrender state.
+- [ ] **Conflict feedback** — Enter invalid Sudoku/Binary values; conflict highlighting appears as expected.
+- [ ] **Rules modal** — Open in-game rules; content matches current game type.
+- [ ] **Streak (if applicable)** — Win on consecutive days; streak count and copy update; skip a day resets as designed.
+- [ ] **Dev panel (`__DEV__` only)** — Force game type / reset today works in development; confirm no dev shortcuts affect release builds.
+
+Start the dev server for manual testing:
+
+```bash
+npm start
+# or: npx expo start
+```
+
+For release confidence, also verify on at least one iOS and one Android device or simulator before shipping store builds (see `eas.json` profiles).

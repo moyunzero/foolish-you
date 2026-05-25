@@ -93,7 +93,7 @@ foolish-you/
 │   └── (auth)/login.tsx      # Login placeholder (v1 not implemented)
 ├── components/
 │   ├── grid/                 # SudokuGrid, BinaryGrid, SudokuNumpad
-│   ├── game/                 # GameToolbar, rules modal/button
+│   ├── game/                 # GameScreenHeader, GameScreenFooter, rules modal/button
 │   ├── result/               # Result badges, stats, animated body
 │   ├── ui/                   # Shared UI (e.g. OutlinePillButton, HairlineCard)
 │   ├── legal/                # Privacy policy blocks

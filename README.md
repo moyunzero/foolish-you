@@ -94,7 +94,7 @@ foolish-you/
 │   └── (auth)/login.tsx    # 登录占位（v1 未实现）
 ├── components/
 │   ├── grid/               # SudokuGrid、BinaryGrid、数字键盘
-│   ├── game/               # 工具条、规则弹窗
+│   ├── game/               # GameScreenHeader/Footer、规则弹窗
 │   └── result/             # 结果页徽章与动效区块
 ├── contexts/
 │   └── DailyGameContext.tsx  # 今日谜题状态、持久化、完成/放弃
@@ -182,3 +182,49 @@ npx eas build --platform android
 ## 致谢
 
 谜题算法与产品灵感来自经典数独与 Takuzu/Binairo 规则；由 Expo 与 React Native 生态驱动交付。
+
+## 徽章
+
+![version](https://img.shields.io/badge/version-1.0.0-blue)
+
+## 使用示例
+
+### 玩家：完成今日一局
+
+1. 启动 App → `app/index.tsx` 根据今日档案跳转到 `app/game.tsx`。
+2. 游戏页顶栏 `GameScreenHeader` 显示日期、本局用时、题型标题，以及连签副文案（来自 `DailyGameContext` 的 `streakLine`）。
+3. 填完盘面后点底栏 **完成今日**（`GameScreenFooter`）→ 校验通过则进入结果页；**认怂**不计入连签。
+4. 次日本地 `dateKey` 变更后自动换新题。
+
+### 连签（通关入账）
+
+- **仅通关计入连签**，认怂不调用 `applyCheckIn`（见 `contexts/DailyGameContext.tsx`）。
+- 逻辑：`lib/streak/streakLogic.ts`（连续自然日 +1，断档归零）；持久化：`lib/storage/streakStorage.ts`（键 `@foolish-you/streak-v1`）。
+- 文案：`lib/copy/streak.ts` 的 `formatStreakLine()`；今日已入账时顶栏连签高亮（`streakHighlight`）。
+
+### 开发者：提交前本地检查（与 CI 一致）
+
+GitHub Actions 工作流 `.github/workflows/ci.yml` 在 `main` / `master` 的 push 与 PR 上执行：
+
+```bash
+npm run typecheck   # tsc --noEmit
+npm test            # Jest：unit（*.test.ts）+ rtl（*.test.tsx）
+npm run lint        # expo lint
+```
+
+可选拆分：
+
+```bash
+npm run test:unit   # 谜题、存储、连签等纯逻辑
+npm run test:rtl    # Context 与屏幕级 RTL 测试
+```
+
+## 文档
+
+| 文档 | 说明 |
+|------|------|
+| [docs/ARCHITECTURE.md](./docs/ARCHITECTURE.md) | 架构、数据流、离线优先与持久化 |
+| [docs/GETTING-STARTED.md](./docs/GETTING-STARTED.md) | 安装与首次运行 |
+| [docs/DEVELOPMENT.md](./docs/DEVELOPMENT.md) | 日常开发、CI 校验、DevTools |
+| [docs/TESTING.md](./docs/TESTING.md) | Jest 双项目与手测清单 |
+| [docs/CONFIGURATION.md](./docs/CONFIGURATION.md) | app.json、EAS、常量与存储键 |
