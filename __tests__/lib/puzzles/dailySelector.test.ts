@@ -1,6 +1,6 @@
 import { selectDailyGame } from '../../../lib/puzzles/dailySelector';
 import { deriveSeed } from '../../../lib/puzzles/rng';
-import { isBinaryPuzzle, isSudokuPuzzle } from '../../../lib/puzzles/types';
+import { isBinaryPuzzle, isNonogramPuzzle, isSudokuPuzzle } from '../../../lib/puzzles/types';
 
 describe('selectDailyGame', () => {
   it('returns stable gameType for the same dateKey', () => {
@@ -55,5 +55,15 @@ describe('selectDailyGame', () => {
       expect(result.puzzle.puzzleHash).toBe(result.puzzleHash);
       expect(result.puzzleHash).toMatch(/^bin-/);
     }
+  });
+
+  it('returns real nonogram puzzle when type is nonogram', () => {
+    const result = selectDailyGame({
+      dateKey: '2026-05-16',
+      forceGameType: 'nonogram',
+    });
+    expect(result.gameType).toBe('nonogram');
+    expect(isNonogramPuzzle(result.puzzle)).toBe(true);
+    expect(result.puzzleHash).toMatch(/^nono-/);
   });
 });

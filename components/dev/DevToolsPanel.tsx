@@ -102,12 +102,13 @@ export default function DevToolsPanel() {
           <View className="flex-row flex-wrap gap-2">
             <DevButton label="数独" active={gameType === 'sudoku'} onPress={() => void regenerate('sudoku')} />
             <DevButton label="二进制" active={gameType === 'binary'} onPress={() => void regenerate('binary')} />
+            <DevButton label="数绘" active={gameType === 'nonogram'} onPress={() => void regenerate('nonogram')} />
             <DevButton label="自然随机" onPress={() => void regenerate(null)} />
             <DevButton label="重开今日" onPress={() => void regenerate()} />
           </View>
 
           <Text className="text-[10px] leading-4 text-muted">
-            点「数独/二进制」会清今日存档并按选定题型重建；「自然随机」走日期算法。也可改 constants/dev.ts 里 DEV_FORCE_GAME_TYPE。截图时点「隐藏」；长按页脚「隐私政策」可再唤出。
+            点「数独/二进制/数绘」会清今日存档并按选定题型重建；「自然随机」走日期算法。也可改 constants/dev.ts 里 DEV_FORCE_GAME_TYPE。截图时点「隐藏」；长按页脚「隐私政策」可再唤出。
           </Text>
         </View>
       ) : null}

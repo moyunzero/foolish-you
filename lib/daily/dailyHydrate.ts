@@ -3,9 +3,10 @@ import { getDevForceGameType } from '../../constants/dev';
 import { getLocalDateKey } from '../date/localDay';
 import { createEmptyGrid as createEmptyBinaryGrid } from '../puzzles/binary/grid';
 import { selectDailyGame } from '../puzzles/dailySelector';
+import { createEmptyGrid as createEmptyNonogramGrid } from '../puzzles/nonogram/grid';
 import { createEmptyGrid as createEmptySudokuGrid } from '../puzzles/sudoku/grid';
 import type { DailySnapshot, GameType } from '../puzzles/types';
-import { isBinaryPuzzle, isSudokuPuzzle } from '../puzzles/types';
+import { isBinaryPuzzle, isNonogramPuzzle, isSudokuPuzzle } from '../puzzles/types';
 import { runAfterInteractions } from '../platform/runAfterInteractions';
 import {
   loadDailySnapshot,
@@ -49,7 +50,20 @@ function ensurePlayStateForSnapshot(snapshot: DailySnapshot): DailySnapshot {
   ) {
     return { ...snapshot, playState: createEmptyBinaryGrid() };
   }
+  if (
+    snapshot.gameType === 'nonogram' &&
+    isNonogramPuzzle(snapshot.puzzle) &&
+    snapshot.playState == null
+  ) {
+    return { ...snapshot, playState: createEmptyNonogramGrid() };
+  }
   return snapshot;
+}
+
+function emptyPlayStateForGameType(gameType: GameType) {
+  if (gameType === 'sudoku') return createEmptySudokuGrid();
+  if (gameType === 'binary') return createEmptyBinaryGrid();
+  return createEmptyNonogramGrid();
 }
 
 export async function buildNewDailySnapshot(
@@ -77,10 +91,7 @@ export async function buildNewDailySnapshot(
     status: 'playing',
     puzzle: selected.puzzle,
     puzzleHash: selected.puzzleHash,
-    playState:
-      selected.gameType === 'sudoku'
-        ? createEmptySudokuGrid()
-        : createEmptyBinaryGrid(),
+    playState: emptyPlayStateForGameType(selected.gameType),
     startedAt: now,
     lastGameType: params.previous?.gameType,
     lastPuzzleHash: params.previous?.puzzleHash,

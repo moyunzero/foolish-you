@@ -31,6 +31,7 @@ import {
 } from '../lib/streak/reconcileStreak';
 import type { StreakState } from '../lib/streak/types';
 import { createEmptyGrid as createEmptyBinaryGrid } from '../lib/puzzles/binary/grid';
+import { createEmptyGrid as createEmptyNonogramGrid } from '../lib/puzzles/nonogram/grid';
 import { createEmptyGrid as createEmptySudokuGrid } from '../lib/puzzles/sudoku/grid';
 import type {
   DailySnapshot,
@@ -39,7 +40,7 @@ import type {
   PlayState,
   PuzzlePayload,
 } from '../lib/puzzles/types';
-import { isBinaryPuzzle, isSudokuPuzzle } from '../lib/puzzles/types';
+import { isBinaryPuzzle, isNonogramPuzzle, isSudokuPuzzle } from '../lib/puzzles/types';
 import { clearDailySnapshot } from '../lib/storage/dailyStorage';
 import { loadStreakState, saveStreakState } from '../lib/storage/streakStorage';
 import { isSnapshotPuzzleConsistent } from '../lib/storage/snapshotValidate';
@@ -301,6 +302,9 @@ function useDailyGameProviderValue(): DailyGameState {
     }
     if (snapshot.gameType === 'binary' && isBinaryPuzzle(snapshot.puzzle)) {
       return snapshot.playState ?? createEmptyBinaryGrid();
+    }
+    if (snapshot.gameType === 'nonogram' && isNonogramPuzzle(snapshot.puzzle)) {
+      return snapshot.playState ?? createEmptyNonogramGrid();
     }
     return null;
   }, [snapshot]);

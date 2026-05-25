@@ -1,9 +1,15 @@
 import { BINARY_EMPTY, BINARY_ONE, BINARY_ZERO } from '../puzzles/binary/grid';
 import { BINARY_SIZE } from '../puzzles/binary/spec';
+import {
+  NONOGRAM_COLS,
+  NONOGRAM_EMPTY,
+  NONOGRAM_FILL,
+  NONOGRAM_ROWS,
+} from '../puzzles/nonogram/spec';
 import { SUDOKU_SIZE } from '../puzzles/sudoku/grid';
 import { STORAGE_VERSION } from '../../constants/config';
 import type { DailySnapshot, GameType } from '../puzzles/types';
-import { isBinaryPuzzle, isSudokuPuzzle } from '../puzzles/types';
+import { isBinaryPuzzle, isNonogramPuzzle, isSudokuPuzzle } from '../puzzles/types';
 import type { PersistedSnapshot } from './snapshotLegacy';
 
 function isSizedGrid(
@@ -23,6 +29,36 @@ export function isValidSudokuGivens(givens: unknown): givens is number[][] {
   if (!isSizedGrid(givens, SUDOKU_SIZE)) return false;
   return givens.every((row) =>
     row.every((cell) => cell >= 0 && cell <= 9 && Number.isInteger(cell)),
+  );
+}
+
+function isNonogramGrid(grid: unknown): grid is number[][] {
+  if (!isSizedGrid(grid, NONOGRAM_ROWS)) return false;
+  return grid.every((row) =>
+    row.every(
+      (cell) =>
+        cell === NONOGRAM_EMPTY ||
+        cell === 0 ||
+        cell === NONOGRAM_FILL,
+    ),
+  );
+}
+
+export function isValidNonogramPuzzle(puzzle: unknown): boolean {
+  if (puzzle == null || typeof puzzle !== 'object') return false;
+  const p = puzzle as Record<string, unknown>;
+  if (p.kind !== 'nonogram') return false;
+  if (p.rows !== NONOGRAM_ROWS || p.cols !== NONOGRAM_COLS) return false;
+  if (typeof p.pictureTitle !== 'string') return false;
+  if (typeof p.puzzleHash !== 'string') return false;
+  if (!Array.isArray(p.rowClues) || !Array.isArray(p.colClues)) return false;
+  if (!Array.isArray(p.solution)) return false;
+  if (p.solution.length !== NONOGRAM_ROWS) return false;
+  return p.solution.every(
+    (row) =>
+      Array.isArray(row) &&
+      row.length === NONOGRAM_COLS &&
+      row.every((cell) => typeof cell === 'boolean'),
   );
 }
 
@@ -48,7 +84,7 @@ export function isPersistedSnapshotShape(
   const hasLegacyStub = v.puzzleStub != null && typeof v.puzzleStub === 'object';
   return (
     typeof v.dateKey === 'string' &&
-    (v.gameType === 'sudoku' || v.gameType === 'binary') &&
+    (v.gameType === 'sudoku' || v.gameType === 'binary' || v.gameType === 'nonogram') &&
     typeof v.seed === 'number' &&
     (v.status === 'playing' ||
       v.status === 'completed' ||
@@ -77,6 +113,13 @@ export function isSnapshotPuzzleConsistent(snapshot: DailySnapshot): boolean {
     );
   }
 
+  if (snapshot.gameType === 'nonogram') {
+    return (
+      isNonogramPuzzle(snapshot.puzzle) &&
+      isValidNonogramPuzzle(snapshot.puzzle)
+    );
+  }
+
   return false;
 }
 
@@ -87,11 +130,14 @@ export function isPlayStateConsistent(
   if (snapshot.gameType === 'sudoku') {
     return isSizedGrid(snapshot.playState, SUDOKU_SIZE);
   }
-  return isSizedGrid(snapshot.playState, BINARY_SIZE);
+  if (snapshot.gameType === 'binary') {
+    return isSizedGrid(snapshot.playState, BINARY_SIZE);
+  }
+  return isNonogramGrid(snapshot.playState);
 }
 
 export function isGameType(value: unknown): value is GameType {
-  return value === 'sudoku' || value === 'binary';
+  return value === 'sudoku' || value === 'binary' || value === 'nonogram';
 }
 
 /** Strip legacy keys and stamp version before writing AsyncStorage. */
