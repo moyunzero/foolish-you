@@ -76,9 +76,9 @@ High-level map (detail and layer rules in AGENTS.md):
 foolish-you/
 ├── app/                      # expo-router screens only (no puzzle algorithms)
 ├── components/
-│   ├── grid/                 # SudokuGrid, BinaryGrid, numpad
+│   ├── grid/                 # SudokuGrid, BinaryGrid, NonogramGrid, numpad
 │   ├── game/                 # Game sections, header/footer, rules UI
-│   ├── result/               # Result badges, stats, animations
+│   ├── result/               # Result badges, stats, NonogramRevealCard, animations
 │   ├── ui/                   # Shared primitives
 │   ├── legal/                # Privacy blocks
 │   └── dev/                  # DevToolsPanel (__DEV__ only)
@@ -135,7 +135,7 @@ Dev features are gated by React Native’s `__DEV__` and [`constants/dev.ts`](..
 |--------|------|
 | `DEV_TOOLS_ENABLED` | `__DEV__` — enables dev UI |
 | `DEV_TOOLS_BAR_HIDDEN_DEFAULT` | Initial visibility of bottom dev bar (`false` = visible on launch) |
-| `DEV_FORCE_GAME_TYPE` | `'sudoku'` \| `'binary'` \| `null` — force type when creating a **new** today snapshot; `null` = date-seed random (production behavior) |
+| `DEV_FORCE_GAME_TYPE` | `'sudoku'` \| `'binary'` \| `'nonogram'` \| `null` — force type when creating a **new** today snapshot; `null` = date-seed random (production behavior) |
 | `getDevForceGameType()` | Returns `null` outside `__DEV__` even if the constant is set |
 
 Used by [`lib/daily/dailyHydrate.ts`](../lib/daily/dailyHydrate.ts) when hydrating or regenerating today’s game. Changing `DEV_FORCE_GAME_TYPE` alone does not rewrite an existing saved snapshot until you reset today (dev panel or clear storage).
@@ -147,7 +147,7 @@ Rendered from [`app/_layout.tsx`](../app/_layout.tsx) only when `DEV_TOOLS_ENABL
 **Capabilities (expanded panel):**
 
 - Show `dateKey`, `gameType`, status, puzzle hash (and Sudoku hash when applicable)
-- **数独 / 二进制 / 自然随机 / 重开今日** — regenerate today via `devRegenerateToday` and navigate to `/game`
+- **数独 / 二进制 / 数绘 / 自然随机 / 重开今日** — regenerate today via `devRegenerateToday` and navigate to `/game`
 - **隐藏** — hide the bottom bar for screenshots (preference persisted in AsyncStorage)
 
 **Bar visibility:** [`contexts/DevToolsUiContext.tsx`](../contexts/DevToolsUiContext.tsx) stores `@foolish-you/dev-tools-bar-visible`. Long-press the footer **隐私政策** link ([`PrivacyPolicyFooterLink`](../components/legal/PrivacyPolicyFooterLink.tsx)) to toggle the bar back. Game/result/privacy screens use `useDevBottomInset()` so content clears the bar when visible.

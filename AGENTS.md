@@ -26,7 +26,7 @@ Think like a senior mobile developer: ship carefully, preserve offline-first beh
 
 **傻了么 (Silaomo)** — a minimal, offline-first daily puzzle mobile app (Expo).
 
-- One puzzle per local calendar day: randomly **Sudoku 9×9** or **Binary/Takuzu 8×8**
+- One puzzle per local calendar day: randomly **Sudoku 9×9**, **Binary/Takuzu 8×8**, or **Nonogram/Picross 8×8**
 - Deterministic daily generation from date seed
 - Local generation, validation, solving in `lib/puzzles/`
 - Progress persistence via AsyncStorage
@@ -87,14 +87,14 @@ The app should stay **polished, stable, and offline-first** — same bar as a sm
 foolish-you/
 ├── app/                      # expo-router screens only
 │   ├── index.tsx             # Entry: hydrate → game / result
-│   ├── game.tsx              # Main play screen (sudoku | binary)
+│   ├── game.tsx              # Main play screen (sudoku | binary | nonogram)
 │   ├── result.tsx            # Win / surrender outcome
 │   ├── privacy.tsx           # Privacy policy screen
 │   └── (auth)/login.tsx      # Login placeholder (v1 not implemented)
 ├── components/
-│   ├── grid/                 # SudokuGrid, BinaryGrid, SudokuNumpad
-│   ├── game/                 # GameScreenHeader, GameScreenFooter, rules modal/button
-│   ├── result/               # Result badges, stats, animated body
+│   ├── grid/                 # SudokuGrid, BinaryGrid, NonogramGrid, SudokuNumpad
+│   ├── game/                 # GameScreenHeader, GameScreenFooter, rules modal/button, *GameSection
+│   ├── result/               # Result badges, stats, NonogramRevealCard, animated body
 │   ├── ui/                   # Shared UI (e.g. OutlinePillButton, HairlineCard)
 │   ├── legal/                # Privacy policy blocks
 │   └── dev/                  # DevToolsPanel (__DEV__ only)
@@ -103,6 +103,8 @@ foolish-you/
 │   └── DevToolsUiContext.tsx # Dev panel UI state
 ├── hooks/
 │   ├── useDailyGame.ts       # Re-export of DailyGameContext API
+│   ├── useGameBoardSession.ts # Routes to sudoku / binary / nonogram board hooks
+│   ├── useSudokuBoard.ts / useBinaryBoard.ts / useNonogramBoard.ts
 │   └── useElapsedTimer.ts    # In-game elapsed timer
 ├── lib/
 │   ├── date/                 # Local calendar day (dateKey)
@@ -153,7 +155,7 @@ When unsure whether to extract a component, **ask** or mirror the nearest existi
 - **Deterministic per local day:** use date-based seed via `lib/date/` + `dailySelector`.
 - **Fully offline** for core gameplay — no network for puzzle generation or validation.
 - **Unit test** generators, validators, solvers, and `dailySelector`.
-- Types in `lib/puzzles/types.ts` — avoid `any`; use `SudokuBoard`, `BinaryBoard`, `DailySnapshot`, etc.
+- Types in `lib/puzzles/types.ts` — avoid `any`; use `SudokuBoard`, `BinaryBoard`, `NonogramPuzzle`, `DailySnapshot`, etc.
 
 ---
 
@@ -162,7 +164,7 @@ When unsure whether to extract a component, **ask** or mirror the nearest existi
 - Match existing design: minimal, dark-friendly, playful but focused.
 - Use **NativeWind v4** `className` as the default.
 - Design tokens: `constants/design.ts`, CSS variables in `global.css`, `tailwind.config.js`.
-- Soft shadows, generous touch targets, clear conflict feedback (see Sudoku/Binary grids).
+- Soft shadows, generous touch targets, clear conflict feedback on Sudoku/Binary grids (Nonogram validates on complete only).
 
 ### When inline `style={{ }}` is OK
 
@@ -224,7 +226,7 @@ Run the same checks as CI (`.github/workflows/ci.yml`):
 
 ```bash
 npm run typecheck    # tsc --noEmit
-npm test             # unit + rtl (134 tests)
+npm test             # unit + rtl (205 tests)
 npm run lint         # expo lint
 ```
 

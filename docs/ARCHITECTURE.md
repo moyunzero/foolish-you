@@ -4,7 +4,7 @@
 
 ## System overview
 
-傻了么 is an offline-first Expo (React Native) daily puzzle app. Each local calendar day, the app assigns exactly one puzzle—either a 9×9 Sudoku or an 8×8 Binary (Takuzu/Binairo)—derived deterministically from that day’s `dateKey` and a client-side seed salt. Users play in-app, progress is saved locally, and completion or surrender routes to a result screen with humorous copy. There is no network dependency for puzzle generation, validation, or persistence in v1.
+傻了么 is an offline-first Expo (React Native) daily puzzle app. Each local calendar day, the app assigns exactly one puzzle—**9×9 Sudoku**, **8×8 Binary (Takuzu/Binairo)**, or **8×8 Nonogram (Picross)**—derived deterministically from that day’s `dateKey` and a client-side seed salt. Users play in-app, progress is saved locally, and completion or surrender routes to a result screen with humorous copy (Nonogram wins also show a pattern reveal card). There is no network dependency for puzzle generation, validation, or persistence in v1.
 
 The architecture is layered: **expo-router screens** compose UI; **`DailyGameContext`** is the single source of truth for today’s game; **`lib/daily/`** orchestrates hydrate/build flows without React; **`lib/puzzles/`** holds pure TypeScript puzzle engines; **`lib/storage/`** reads/writes AsyncStorage with validation and migration; **`lib/streak/`** tracks consecutive-day check-ins on win. Styling uses NativeWind; animations use Reanimated on the result flow.
 
@@ -19,7 +19,7 @@ graph TD
   end
 
   subgraph ui["components/"]
-    Grids[grid/ SudokuGrid, BinaryGrid]
+    Grids[grid/ SudokuGrid, BinaryGrid, NonogramGrid]
     GameUI[game/ sections, header, footer]
     ResultUI[result/ badges, stats]
   end
@@ -31,7 +31,7 @@ graph TD
 
   subgraph hooks["hooks/"]
     UDG[useDailyGame re-export]
-    Board[useSudokuBoard / useBinaryBoard]
+    Board[useSudokuBoard / useBinaryBoard / useNonogramBoard]
     Session[useGameBoardSession]
     Timer[useElapsedTimer]
   end
@@ -45,6 +45,7 @@ graph TD
     Selector[dailySelector]
     Sudoku[sudoku/ gen, validate, solver]
     Binary[binary/ gen, validate, solver]
+    Nonogram[nonogram/ patterns, clues, validate]
     RNG[rng.ts]
   end
 
@@ -72,6 +73,7 @@ graph TD
   Hydrate --> DailyStore
   Selector --> Sudoku
   Selector --> Binary
+  Selector --> Nonogram
   Selector --> RNG
   Persist --> DailyStore
   DGC --> Logic
@@ -102,7 +104,7 @@ graph TD
 
 ### In-game play state
 
-1. **`app/game.tsx`** uses **`useGameBoardSession`** → **`useSudokuBoard`** or **`useBinaryBoard`** for cell edits, conflicts, and completion checks.
+1. **`app/game.tsx`** uses **`useGameBoardSession`** → **`useSudokuBoard`**, **`useBinaryBoard`**, or **`useNonogramBoard`** for cell edits, conflicts (Sudoku/Binary only), and completion checks.
 2. Board hooks call **`updatePlayState`** from context, implemented by **`usePlayStatePersistence`** (`lib/daily/playStatePersistence.ts`): optimistic React state update, debounced **`saveDailySnapshot`** (`PLAY_STATE_DEBOUNCE_MS` = 300ms).
 3. On app background/inactive, context **`flushPlayState()`** so pending cells are not lost.
 4. On app foreground (`active`), context re-**`hydrate()`** so a calendar rollover picks up a new day.
@@ -136,14 +138,14 @@ Same `dateKey` + app version → same `seed`, same game type (unless dev overrid
 | Abstraction | Location | Purpose |
 |-------------|----------|---------|
 | `DailySnapshot` | `lib/puzzles/types.ts` | Canonical persisted record: version, dateKey, gameType, seed, status, puzzle, puzzleHash, playState, timestamps |
-| `PuzzlePayload` / `PlayState` | `lib/puzzles/types.ts` | Discriminated sudoku vs binary puzzle and grid state |
+| `PuzzlePayload` / `PlayState` | `lib/puzzles/types.ts` | Discriminated sudoku, binary, or nonogram puzzle and grid state |
 | `selectDailyGame` | `lib/puzzles/dailySelector.ts` | Deterministic daily type + puzzle selection |
 | `hydrateDailyGame` / `buildNewDailySnapshot` | `lib/daily/dailyHydrate.ts` | Non-React orchestration for load/create today |
 | `usePlayStatePersistence` | `lib/daily/playStatePersistence.ts` | Debounced play-state writes and flush on lifecycle |
 | `DailyGameContext` / `useDailyGame` | `contexts/DailyGameContext.tsx`, `hooks/useDailyGame.ts` | App-wide daily state, streak UI fields, complete/abandon |
 | `migrateSnapshot` / `sanitizeSnapshotForSave` | `lib/storage/snapshotMigration.ts`, `snapshotValidate.ts` | Safe upgrades (v1→v2) and save-time consistency |
 | `StreakState` / `applyCheckIn` | `lib/streak/types.ts`, `streakLogic.ts` | Consecutive local-day wins |
-| `useSudokuBoard` / `useBinaryBoard` | `hooks/useSudokuBoard.ts`, `useBinaryBoard.ts` | Ephemeral board logic wired to context updates |
+| `useSudokuBoard` / `useBinaryBoard` / `useNonogramBoard` | `hooks/useSudokuBoard.ts`, `useBinaryBoard.ts`, `useNonogramBoard.ts` | Ephemeral board logic wired to context updates |
 | `getLocalDateKey` | `lib/date/localDay.ts` | Single definition of “today” for product rules |
 
 ## Directory structure rationale
@@ -153,7 +155,7 @@ Same `dateKey` + app version → same `seed`, same game type (unless dev overrid
 | **`app/`** | File-based routes only: entry redirect (`index`), play (`game`), outcome (`result`), legal (`privacy`), auth stub (`(auth)/login`). No puzzle algorithms here. |
 | **`contexts/`** | React providers: **`DailyGameContext`** (canonical daily + persistence orchestration), **`DevToolsUiContext`** (dev panel layout). |
 | **`hooks/`** | Thin or focused hooks: re-export **`useDailyGame`**, board sessions, elapsed timer, screen actions. Avoid duplicating context orchestration. |
-| **`components/grid/`** | Sudoku/Binary grids and numpad—presentation and gestures. |
+| **`components/grid/`** | Sudoku/Binary/Nonogram grids and numpad—presentation and gestures. |
 | **`components/game/`** | Game screen chrome: header, footer, rules, per-type sections. |
 | **`components/result/`** | Result animations and stat presentation. |
 | **`components/ui/`** | Shared primitives (e.g. `OutlinePillButton`, `HairlineCard`). |
@@ -161,6 +163,7 @@ Same `dateKey` + app version → same `seed`, same game type (unless dev overrid
 | **`lib/puzzles/`** | All generation, validation, solving, hashing, RNG, and shared types. Unit-tested heavily. |
 | **`lib/puzzles/sudoku/`** | 9×9 generator, validator, solver, display helpers. |
 | **`lib/puzzles/binary/`** | 8×8 Takuzu generator, validator, solver, spec. |
+| **`lib/puzzles/nonogram/`** | 8×8 pattern library, clue derivation, mirror transforms, completion validator. |
 | **`lib/daily/`** | Hydrate/build snapshot, debounced persistence hook, save-failure alert copy. |
 | **`lib/storage/`** | AsyncStorage I/O, snapshot migration/prep/legacy, streak storage. |
 | **`lib/streak/`** | Streak types and calendar-day check-in logic (separate key from daily snapshot). |

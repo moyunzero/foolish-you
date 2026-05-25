@@ -68,15 +68,16 @@ npm run lint        # expo lint
 ```
 __tests__/
 ├── lib/                    # Unit tests (*.test.ts)
-│   ├── puzzles/            # Generators, validators, solvers, dailySelector
+│   ├── puzzles/            # Generators, validators, solvers, dailySelector, nonogram patterns
 │   ├── storage/            # Snapshot read/write, validation, migration
 │   ├── date/               # Local calendar day helpers
 │   ├── daily/              # Hydrate/build orchestration
 │   ├── streak/             # Streak logic
 │   └── copy/               # User-facing string helpers
 ├── contexts/               # DailyGameContext RTL
-├── hooks/                  # useSudokuBoard, useBinaryBoard
-├── components/grid/        # SudokuGrid, BinaryGrid
+├── hooks/                  # useSudokuBoard, useBinaryBoard, useNonogramBoard
+├── components/grid/        # SudokuGrid, BinaryGrid, NonogramGrid
+├── components/game/        # GameScreenHeader, GameScreenFooter
 ├── screens/                # index, game, result, privacy
 └── helpers/                # Shared fixtures and mocks
     ├── dailyGameFixtures.ts
@@ -143,11 +144,12 @@ All three must pass before merging. Locally, run the same three commands before 
 
 Automated tests cover logic and component behavior; they do not replace on-device checks for layout, animations, and persistence across app restarts. Use this checklist after UI or storage changes:
 
-- [ ] **Fresh install / clear storage** — Open app; today’s puzzle loads with correct type (Sudoku or Binary) for the local day.
+- [ ] **Fresh install / clear storage** — Open app; today’s puzzle loads with correct type (Sudoku, Binary, or Nonogram) for the local day.
 - [ ] **Mid-game persistence** — Fill some cells, kill the app, reopen; progress and timer restore.
 - [ ] **Complete flow** — Finish today’s puzzle; result screen shows copy, stats, and animations.
 - [ ] **Surrender flow** — Abandon from game screen; result screen reflects surrender state.
-- [ ] **Conflict feedback** — Enter invalid Sudoku/Binary values; conflict highlighting appears as expected.
+- [ ] **Conflict feedback** — Enter invalid Sudoku/Binary values; conflict highlighting appears as expected. (Nonogram has no mid-game conflict UI; complete validates against the hidden solution.)
+- [ ] **Nonogram complete** — Finish a nonogram day; result screen shows pattern reveal card with correct title.
 - [ ] **Rules modal** — Open in-game rules; content matches current game type.
 - [ ] **Streak (if applicable)** — Win on consecutive days; streak count and copy update; skip a day resets as designed.
 - [ ] **Dev panel (`__DEV__` only)** — Force game type / reset today works in development; confirm no dev shortcuts affect release builds.

@@ -88,7 +88,7 @@ For most contributors, **Expo Go + `npm start`** is enough. Use a **development 
 2. **Hydrate** — `DailyGameContext` loads or creates today’s snapshot from AsyncStorage (`@foolish-you/daily-v1`). While loading, the index screen shows **「傻了么」** and **「正在翻出今天的傻题…」**.
 
 3. **Route by status**
-   - **`playing`** → redirect to **`/game`** (Sudoku or Binary grid for today).
+   - **`playing`** → redirect to **`/game`** (Sudoku, Binary, or Nonogram grid for today).
    - **`completed`** or **`abandoned`** → redirect to **`/result`** (outcome copy and animations).
    - **Error** → retry UI on the index screen (`refresh()`).
 
