@@ -29,6 +29,7 @@ describe('BinaryGrid', () => {
         selected={null}
         conflictCells={[]}
         onPressCell={onPressCell}
+        onLongPressCell={jest.fn()}
       />,
     );
 
@@ -36,5 +37,28 @@ describe('BinaryGrid', () => {
       screen.getByLabelText(`第 ${row + 1} 行第 ${col + 1} 列，空`),
     );
     expect(onPressCell).toHaveBeenCalledWith(row, col);
+  });
+
+  it('calls onLongPressCell when a cell is long pressed', () => {
+    const puzzle = generateBinaryPuzzle(707);
+    const onLongPressCell = jest.fn();
+    const { row, col } = firstEmptyCoord(puzzle.givens);
+
+    render(
+      <BinaryGrid
+        givens={puzzle.givens}
+        playState={createEmptyGrid()}
+        selected={null}
+        conflictCells={[]}
+        onPressCell={jest.fn()}
+        onLongPressCell={onLongPressCell}
+      />,
+    );
+
+    fireEvent(
+      screen.getByLabelText(`第 ${row + 1} 行第 ${col + 1} 列，空`),
+      'longPress',
+    );
+    expect(onLongPressCell).toHaveBeenCalledWith(row, col);
   });
 });

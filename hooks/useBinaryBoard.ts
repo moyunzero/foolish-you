@@ -58,7 +58,7 @@ export function useBinaryBoard({
   const statusHint = useMemo(() => {
     if (canComplete) return '规则都满足了，可以收工';
     if (conflicts.length > 0) return '有违规，检查一下标红的格子';
-    return '点格子在 0 和 1 之间切换';
+    return '点格子切换 · 长按清空';
   }, [canComplete, conflicts.length]);
 
   const handlePress = useCallback(
@@ -79,11 +79,25 @@ export function useBinaryBoard({
     [givens, playState, updatePlayState],
   );
 
+  const handleLongPress = useCallback(
+    (row: number, col: number) => {
+      setSelected({ row, col });
+      if (!isBinaryEditable(givens, row, col)) return;
+      if (playState[row][col] === BINARY_EMPTY) return;
+
+      const next = cloneBinaryGrid(playState);
+      next[row][col] = BINARY_EMPTY;
+      updatePlayState(next);
+    },
+    [givens, playState, updatePlayState],
+  );
+
   return {
     selected,
     conflicts,
     canComplete,
     statusHint,
     handlePress,
+    handleLongPress,
   };
 }

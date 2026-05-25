@@ -12,6 +12,7 @@ type SudokuGridProps = {
   selected: CellCoord | null;
   conflictCells: CellCoord[];
   onSelectCell: (row: number, col: number) => void;
+  onLongPressCell: (row: number, col: number) => void;
 };
 
 function isConflict(
@@ -70,6 +71,7 @@ export default function SudokuGrid({
   selected,
   conflictCells,
   onSelectCell,
+  onLongPressCell,
 }: SudokuGridProps) {
   return (
     <View
@@ -109,9 +111,11 @@ export default function SudokuGrid({
                     ? '题目给定数字，不可修改'
                     : conflict
                       ? '与同行、同列或同宫有重复数字'
-                      : undefined
+                      : '点按选中，长按清空'
                 }
                 onPress={() => onSelectCell(row, col)}
+                onLongPress={() => onLongPressCell(row, col)}
+                delayLongPress={400}
                 style={[
                   {
                     flex: 1,

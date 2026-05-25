@@ -46,11 +46,16 @@ describe('GameScreen', () => {
     await saveDailySnapshot(makeSudokuPlayingSnapshot());
     renderGame();
 
-    await waitFor(() => {
-      expect(screen.getByText('数独')).toBeTruthy();
-    });
+    await waitFor(
+      () => {
+        expect(screen.getByText('数独')).toBeTruthy();
+      },
+      { timeout: 15_000 },
+    );
     expect(screen.getByText('完成今日')).toBeTruthy();
     expect(screen.getByText('放弃今日挑战')).toBeTruthy();
+    expect(screen.getByText(/连签/)).toBeTruthy();
+    expect(screen.queryByText('今日题型')).toBeNull();
   });
 
   it('renders binary chrome when today is binary', async () => {

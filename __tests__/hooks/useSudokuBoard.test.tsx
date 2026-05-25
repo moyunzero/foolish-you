@@ -61,4 +61,28 @@ describe('useSudokuBoard', () => {
     const next = updatePlayState.mock.calls.at(-1)?.[0];
     expect(next[row][col]).toBe(5);
   });
+
+  it('clears editable cell on long press', () => {
+    const puzzle = generateSudokuPuzzle(303);
+    const updatePlayState = jest.fn();
+    const { row, col } = firstEmptyCell(puzzle.givens);
+    const playState = createEmptyGrid();
+    playState[row][col] = 5;
+
+    const { result } = renderHook(() =>
+      useSudokuBoard({
+        givens: puzzle.givens,
+        playState,
+        updatePlayState,
+      }),
+    );
+
+    act(() => {
+      result.current.handleLongPress(row, col);
+    });
+
+    expect(updatePlayState).toHaveBeenCalled();
+    const next = updatePlayState.mock.calls.at(-1)?.[0];
+    expect(next[row][col]).toBe(0);
+  });
 });

@@ -132,7 +132,7 @@ foolish-you/
 | **`lib/puzzles/`** | All generation, validation, solving; must be deterministic and unit-tested. |
 | **`lib/storage/`** | Snapshot read/write, validation, migration. |
 | **`lib/copy/`** | Centralize copy; keep tone playful/sarcastic for results. |
-| **`constants/`** | `config.ts` (storage keys, debounce), `design.ts` (colors), `dev.ts` (dev overrides). |
+| **`constants/`** | `config.ts` (storage keys, debounce, `STORAGE_VERSION`, `STREAK_STORAGE_VERSION`), `design.ts` (colors), `dev.ts` (dev overrides). |
 
 When unsure whether to extract a component, **ask** or mirror the nearest existing pattern (`components/game/`, `components/grid/`).
 
@@ -205,6 +205,17 @@ Prefer adding a **repeated** pattern to `global.css` (BEM-style utilities) or `t
 6. Verify before claiming done (see below).
 7. Explain changes concisely + manual test steps for UI.
 
+### Storage version bumps
+
+When changing persisted JSON shape:
+
+| Store | Constant | Touch |
+|-------|----------|--------|
+| Daily snapshot | `STORAGE_VERSION` in `constants/config.ts` | `snapshotValidate.ts`, `snapshotPrep.ts`, `snapshotMigration.ts`, `snapshotLegacy.ts`, golden fixtures in `__tests__/lib/storage/` |
+| Streak | `STREAK_STORAGE_VERSION` in `constants/config.ts` | `lib/storage/streakStorage.ts`, `__tests__/lib/storage/streakStorage.test.ts` |
+
+Never bump without migration/read path for existing installs and unit tests for each supported legacy version.
+
 ---
 
 ## Verification (before finishing)
@@ -213,7 +224,7 @@ Run the same checks as CI (`.github/workflows/ci.yml`):
 
 ```bash
 npm run typecheck    # tsc --noEmit
-npm test             # unit + rtl (79 tests)
+npm test             # unit + rtl (134 tests)
 npm run lint         # expo lint
 ```
 
@@ -230,7 +241,7 @@ For UI changes, suggest manual steps, e.g.:
 
 - Fresh install / clear storage → today’s puzzle loads
 - Kill app mid-game → progress restores
-- Complete and surrender → result copy and animations
+- Complete and surrender → result copy, streak line on win, and animations
 - Dev panel (`__DEV__`) → force game type / reset today (must not affect release builds)
 
 ---

@@ -17,6 +17,7 @@ type BinaryGridProps = {
   selected: CellCoord | null;
   conflictCells: CellCoord[];
   onPressCell: (row: number, col: number) => void;
+  onLongPressCell: (row: number, col: number) => void;
 };
 
 function isConflict(
@@ -68,6 +69,7 @@ export default function BinaryGrid({
   selected,
   conflictCells,
   onPressCell,
+  onLongPressCell,
 }: BinaryGridProps) {
   const merged = mergePlayAndGivens(givens, playState);
 
@@ -90,6 +92,8 @@ export default function BinaryGrid({
                 accessibilityRole="button"
                 accessibilityLabel={cellA11yLabel(row, col, value, given, conflict)}
                 onPress={() => onPressCell(row, col)}
+                onLongPress={() => onLongPressCell(row, col)}
+                delayLongPress={400}
                 className="flex-1 items-center justify-center"
                 style={{
                   backgroundColor: bg,
@@ -104,7 +108,7 @@ export default function BinaryGrid({
                   style={{
                     fontFamily: given ? 'SpaceMono_400Regular' : 'SpaceMono_700Bold',
                     fontSize: given ? 17 : 20,
-                    color: given ? colors.muted : colors.ink,
+                    color: given ? colors.sudokuGiven : colors.ink,
                   }}
                 >
                   {displayChar(value)}

@@ -54,6 +54,7 @@ describe('ResultScreen', () => {
     await waitFor(() => {
       expect(screen.getByText(/今日战绩 · 通关/)).toBeTruthy();
     });
+    expect(screen.getByText(/连续 1 天/)).toBeTruthy();
     expect(screen.getByText(/傻了么/)).toBeTruthy();
   });
 

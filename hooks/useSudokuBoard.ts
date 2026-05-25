@@ -74,14 +74,30 @@ export function useSudokuBoard({
     [selected, givens, playState, updatePlayState],
   );
 
+  const clearCell = useCallback(
+    (row: number, col: number) => {
+      if (!isSudokuEditable(givens, row, col)) return;
+      if (playState[row][col] === 0) return;
+
+      const next = cloneGrid(playState);
+      next[row][col] = 0;
+      updatePlayState(next);
+    },
+    [givens, playState, updatePlayState],
+  );
+
   const handleClear = useCallback(() => {
     if (selected == null) return;
-    if (!isSudokuEditable(givens, selected.row, selected.col)) return;
+    clearCell(selected.row, selected.col);
+  }, [selected, clearCell]);
 
-    const next = cloneGrid(playState);
-    next[selected.row][selected.col] = 0;
-    updatePlayState(next);
-  }, [selected, givens, playState, updatePlayState]);
+  const handleLongPress = useCallback(
+    (row: number, col: number) => {
+      setSelected({ row, col });
+      clearCell(row, col);
+    },
+    [clearCell],
+  );
 
   return {
     selected,
@@ -93,5 +109,6 @@ export function useSudokuBoard({
     handleSelect,
     handleDigit,
     handleClear,
+    handleLongPress,
   };
 }

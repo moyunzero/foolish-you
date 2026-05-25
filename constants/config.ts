@@ -4,6 +4,9 @@
  */
 export const APP_SALT = 'foolish-you-v1';
 export const STORAGE_KEY = '@foolish-you/daily-v1';
+export const STREAK_STORAGE_KEY = '@foolish-you/streak-v1';
+/** Bump when persisted streak JSON shape changes (see AGENTS.md storage checklist). */
+export const STREAK_STORAGE_VERSION = 1;
 /** Bump when persisted snapshot shape changes; v2 drops puzzleStub / placeholders. */
 export const STORAGE_VERSION = 2;
 

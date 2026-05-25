@@ -24,7 +24,7 @@ export default function SudokuGameSection({
   cardStyle,
 }: SudokuGameSectionProps) {
   return (
-    <View className="mt-3 flex-1">
+    <View className="flex-1">
       <View className="items-center">
         <HairlineCard
           className="w-full p-3"
@@ -36,6 +36,7 @@ export default function SudokuGameSection({
             selected={board.selected}
             conflictCells={board.conflicts}
             onSelectCell={board.handleSelect}
+            onLongPressCell={board.handleLongPress}
           />
         </HairlineCard>
       </View>

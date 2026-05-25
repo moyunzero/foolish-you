@@ -8,6 +8,7 @@ import FoolFaceBadge from '../components/result/FoolFaceBadge';
 import ResultOutcomeBody from '../components/result/ResultOutcomeBody';
 import ResultStatCard from '../components/result/ResultStatCard';
 import WinFaceBadge from '../components/result/WinFaceBadge';
+import GameSaveErrorBanner from '../components/game/GameSaveErrorBanner';
 import PrivacyPolicyFooterLink from '../components/legal/PrivacyPolicyFooterLink';
 import OutlinePillButton from '../components/ui/OutlinePillButton';
 import { colors } from '../constants/design';
@@ -17,6 +18,7 @@ import {
   getResultFooterHint,
   pickResultCopy,
 } from '../lib/copy/resultMessages';
+import { STREAK_SAVE_ERROR_MESSAGE } from '../lib/daily/saveFailureAlert';
 import { exitApplication } from '../lib/platform/exitApp';
 
 const HORIZONTAL_PADDING = 24;
@@ -25,7 +27,8 @@ const FOOTER_HINT = getResultFooterHint();
 export default function ResultScreen() {
   const router = useRouter();
   const insets = useSafeAreaInsets();
-  const { status, snapshot, dateKey, seed } = useDailyGame();
+  const { status, snapshot, dateKey, seed, streakLine, streakHighlight, streakSaveError, retryStreakSave } =
+    useDailyGame();
 
   const isSuccess = status === 'completed';
   const isFail = status === 'abandoned';
@@ -76,6 +79,29 @@ export default function ResultScreen() {
         >
           {`今日 · ${dateKey ?? '—'}`}
         </Text>
+
+        {isSuccess ? (
+          <Text
+            className={streakHighlight ? 'text-accent-sunset' : 'text-muted'}
+            style={{
+              fontFamily: 'SpaceMono_400Regular',
+              fontSize: 12,
+              lineHeight: 16,
+              marginTop: 4,
+            }}
+          >
+            {streakLine}
+          </Text>
+        ) : null}
+
+        {streakSaveError ? (
+          <GameSaveErrorBanner
+            message={STREAK_SAVE_ERROR_MESSAGE}
+            retryLabel="重试连签"
+            horizontalPadding={0}
+            onRetry={() => void retryStreakSave()}
+          />
+        ) : null}
 
         <View className="mt-6 flex-1">
           {copy.mode === 'completed' ? (

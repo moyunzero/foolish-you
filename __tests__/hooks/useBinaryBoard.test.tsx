@@ -47,7 +47,31 @@ describe('useBinaryBoard', () => {
       }),
     );
 
-    expect(result.current.statusHint).toMatch(/点格子/);
+    expect(result.current.statusHint).toMatch(/长按清空/);
     expect(result.current.canComplete).toBe(false);
+  });
+
+  it('clears editable cell on long press', () => {
+    const puzzle = generateBinaryPuzzle(606);
+    const updatePlayState = jest.fn();
+    const { row, col } = firstEditableCell(puzzle.givens);
+    const playState = createEmptyGrid();
+    playState[row][col] = 1;
+
+    const { result } = renderHook(() =>
+      useBinaryBoard({
+        givens: puzzle.givens,
+        playState,
+        updatePlayState,
+      }),
+    );
+
+    act(() => {
+      result.current.handleLongPress(row, col);
+    });
+
+    expect(updatePlayState).toHaveBeenCalled();
+    const cleared = updatePlayState.mock.calls.at(-1)?.[0] as number[][];
+    expect(cleared[row][col]).toBe(BINARY_EMPTY);
   });
 });

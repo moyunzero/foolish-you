@@ -26,6 +26,7 @@ describe('SudokuGrid', () => {
         selected={null}
         conflictCells={[]}
         onSelectCell={onSelectCell}
+        onLongPressCell={jest.fn()}
       />,
     );
 
@@ -56,6 +57,7 @@ describe('SudokuGrid', () => {
         selected={null}
         conflictCells={[]}
         onSelectCell={jest.fn()}
+        onLongPressCell={jest.fn()}
       />,
     );
 
@@ -65,5 +67,28 @@ describe('SudokuGrid', () => {
         `第 ${givenRow + 1} 行第 ${givenCol + 1} 列，已知数 ${value}`,
       ),
     ).toBeTruthy();
+  });
+
+  it('calls onLongPressCell when a cell is long pressed', () => {
+    const puzzle = generateSudokuPuzzle(505);
+    const onLongPressCell = jest.fn();
+    const { row, col } = firstEmptyCoord(puzzle.givens);
+
+    render(
+      <SudokuGrid
+        givens={puzzle.givens}
+        playState={createEmptyGrid()}
+        selected={null}
+        conflictCells={[]}
+        onSelectCell={jest.fn()}
+        onLongPressCell={onLongPressCell}
+      />,
+    );
+
+    fireEvent(
+      screen.getByLabelText(`第 ${row + 1} 行第 ${col + 1} 列，空`),
+      'longPress',
+    );
+    expect(onLongPressCell).toHaveBeenCalledWith(row, col);
   });
 });

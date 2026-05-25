@@ -6,7 +6,9 @@ import { Alert } from 'react-native';
 
 import {
   notifyDailySaveFailed,
+  notifyStreakSaveFailed,
   SAVE_ERROR_MESSAGE,
+  STREAK_SAVE_ERROR_MESSAGE,
 } from '../../../lib/daily/saveFailureAlert';
 
 describe('saveFailureAlert', () => {
@@ -40,6 +42,20 @@ describe('saveFailureAlert', () => {
       SAVE_ERROR_MESSAGE,
       expect.arrayContaining([
         expect.objectContaining({ text: '知道了' }),
+      ]),
+    );
+  });
+
+  it('shows streak retry button when onRetry is provided', () => {
+    const onRetry = jest.fn();
+    notifyStreakSaveFailed(onRetry);
+
+    expect(Alert.alert).toHaveBeenCalledWith(
+      '连签保存失败',
+      STREAK_SAVE_ERROR_MESSAGE,
+      expect.arrayContaining([
+        expect.objectContaining({ text: '稍后' }),
+        expect.objectContaining({ text: '重试连签', onPress: onRetry }),
       ]),
     );
   });

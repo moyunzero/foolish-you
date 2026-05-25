@@ -14,11 +14,22 @@ import {
   buildNewDailySnapshot,
   hydrateDailyGame,
 } from '../lib/daily/dailyHydrate';
-import { notifyDailySaveFailed } from '../lib/daily/saveFailureAlert';
+import { createPersistenceCoordinator } from '../lib/daily/persistenceCoordinator';
+import {
+  notifyDailySaveFailed,
+  notifyStreakSaveFailed,
+} from '../lib/daily/saveFailureAlert';
 import { usePlayStatePersistence } from '../lib/daily/playStatePersistence';
 
 import { DEV_TOOLS_ENABLED } from '../constants/dev';
+import { formatStreakLine } from '../lib/copy/streak';
 import { getLocalDateKey } from '../lib/date/localDay';
+import { applyCheckIn, getStreakDisplay } from '../lib/streak/streakLogic';
+import {
+  needsStreakReconcile,
+  reconcileStreakForCompletedDay,
+} from '../lib/streak/reconcileStreak';
+import type { StreakState } from '../lib/streak/types';
 import { createEmptyGrid as createEmptyBinaryGrid } from '../lib/puzzles/binary/grid';
 import { createEmptyGrid as createEmptySudokuGrid } from '../lib/puzzles/sudoku/grid';
 import type {
@@ -30,6 +41,7 @@ import type {
 } from '../lib/puzzles/types';
 import { isBinaryPuzzle, isSudokuPuzzle } from '../lib/puzzles/types';
 import { clearDailySnapshot } from '../lib/storage/dailyStorage';
+import { loadStreakState, saveStreakState } from '../lib/storage/streakStorage';
 import { isSnapshotPuzzleConsistent } from '../lib/storage/snapshotValidate';
 
 export type HydrateStatus = 'loading' | DailyStatus;
@@ -43,11 +55,17 @@ export type DailyGameState = {
   puzzle: PuzzlePayload | null;
   playState: PlayState | null;
   saveError: boolean;
+  streakSaveError: boolean;
+  /** 游戏页连签副文案（通关计连签） */
+  streakLine: string;
+  /** 今日已通关入账时顶栏连签高亮 */
+  streakHighlight: boolean;
   updatePlayState: (next: PlayState) => void;
   markCompleted: () => Promise<void>;
   markAbandoned: () => Promise<void>;
   refresh: () => Promise<void>;
   retrySave: () => Promise<void>;
+  retryStreakSave: () => Promise<void>;
   /** 仅 __DEV__：清除并重新生成今日题目 */
   devRegenerateToday: (forceGameType?: GameType | null) => Promise<void>;
 };
@@ -57,10 +75,20 @@ const DailyGameContext = createContext<DailyGameState | null>(null);
 function useDailyGameProviderValue(): DailyGameState {
   const [status, setStatus] = useState<HydrateStatus>('loading');
   const [snapshot, setSnapshot] = useState<DailySnapshot | null>(null);
+  const [streak, setStreak] = useState<StreakState | null>(null);
   const [saveError, setSaveError] = useState(false);
+  const [streakSaveError, setStreakSaveError] = useState(false);
   const hydratingRef = useRef(false);
+  const coordinatorRef = useRef(createPersistenceCoordinator());
+  const pendingStreakRef = useRef<StreakState | null>(null);
+  const snapshotRef = useRef<DailySnapshot | null>(null);
+  const streakRef = useRef<StreakState | null>(null);
+
+  snapshotRef.current = snapshot;
+  streakRef.current = streak;
 
   const retrySaveRef = useRef<() => Promise<void>>(async () => {});
+  const retryStreakSaveRef = useRef<() => Promise<void>>(async () => {});
 
   const handleSaveFailed = useCallback(() => {
     setSaveError(true);
@@ -81,6 +109,9 @@ function useDailyGameProviderValue(): DailyGameState {
     onSaveFailed: handleSaveFailed,
   });
 
+  const flushPlayStateRef = useRef(flushPlayState);
+  flushPlayStateRef.current = flushPlayState;
+
   const retrySave = useCallback(async () => {
     if (snapshot == null) return;
     const current = drainPendingInto(snapshot);
@@ -92,40 +123,101 @@ function useDailyGameProviderValue(): DailyGameState {
 
   retrySaveRef.current = retrySave;
 
-  const hydrate = useCallback(async () => {
+  const persistStreakState = useCallback(async (next: StreakState) => {
+    const saved = await saveStreakState(next);
+    if (saved) {
+      setStreak(next);
+      setStreakSaveError(false);
+      pendingStreakRef.current = null;
+      return true;
+    }
+
+    pendingStreakRef.current = next;
+    setStreakSaveError(true);
+    notifyStreakSaveFailed(() => {
+      void retryStreakSaveRef.current();
+    });
+    return false;
+  }, []);
+
+  const retryStreakSave = useCallback(async () => {
+    const pending = pendingStreakRef.current;
+    if (pending == null) return;
+
+    await coordinatorRef.current.enqueue(async () => {
+      await persistStreakState(pending);
+    });
+  }, [persistStreakState]);
+
+  retryStreakSaveRef.current = retryStreakSave;
+
+  const loadHydratedState = useCallback(async () => {
+    const [next, loadedStreak] = await Promise.all([
+      hydrateDailyGame({ onSaveFailed: handleSaveFailed }),
+      loadStreakState(),
+    ]);
+
+    let streakState = loadedStreak;
+
+    if (needsStreakReconcile(next, loadedStreak)) {
+      const reconciled = reconcileStreakForCompletedDay(next, loadedStreak);
+      const saved = await saveStreakState(reconciled);
+      if (saved) {
+        streakState = reconciled;
+      } else {
+        pendingStreakRef.current = reconciled;
+        setStreakSaveError(true);
+      }
+    }
+
+    setSnapshot(next);
+    setStatus(next.status);
+    setStreak(streakState);
+  }, [handleSaveFailed]);
+
+  const loadHydratedStateRef = useRef(loadHydratedState);
+  loadHydratedStateRef.current = loadHydratedState;
+
+  const hydrateCore = useCallback(async () => {
     if (hydratingRef.current) return;
     hydratingRef.current = true;
     setStatus('loading');
 
     try {
-      const next = await hydrateDailyGame({ onSaveFailed: handleSaveFailed });
-      setSnapshot(next);
-      setStatus(next.status);
+      await flushPlayStateRef.current();
+      await loadHydratedStateRef.current();
     } finally {
       hydratingRef.current = false;
     }
-  }, [handleSaveFailed]);
+  }, []);
+
+  const hydrate = useCallback(
+    () => coordinatorRef.current.enqueue(() => hydrateCore()),
+    [hydrateCore],
+  );
 
   const devRegenerateToday = useCallback(
     async (forceGameType?: GameType | null) => {
       if (!DEV_TOOLS_ENABLED) return;
 
-      resetPending();
+      await coordinatorRef.current.enqueue(async () => {
+        resetPending();
 
-      const today = getLocalDateKey();
-      const previous = snapshot;
-      await clearDailySnapshot();
+        const today = getLocalDateKey();
+        const previous = snapshotRef.current;
+        await clearDailySnapshot();
 
-      const next = await buildNewDailySnapshot({
-        today,
-        previous,
-        forceGameType,
-        onSaveFailed: handleSaveFailed,
+        const next = await buildNewDailySnapshot({
+          today,
+          previous,
+          forceGameType,
+          onSaveFailed: handleSaveFailed,
+        });
+        setSnapshot(next);
+        setStatus(next.status);
       });
-      setSnapshot(next);
-      setStatus(next.status);
     },
-    [snapshot, resetPending, handleSaveFailed],
+    [resetPending, handleSaveFailed],
   );
 
   useEffect(() => {
@@ -135,7 +227,7 @@ function useDailyGameProviderValue(): DailyGameState {
   useEffect(() => {
     const onChange = (next: AppStateStatus) => {
       if (next === 'background' || next === 'inactive') {
-        void flushPlayState();
+        void flushPlayStateRef.current();
         return;
       }
       if (next === 'active') {
@@ -144,25 +236,47 @@ function useDailyGameProviderValue(): DailyGameState {
     };
     const sub = AppState.addEventListener('change', onChange);
     return () => sub.remove();
-  }, [hydrate, flushPlayState]);
+  }, [hydrate]);
+
+  const recordStreakCheckIn = useCallback(
+    async (todayKey: string) => {
+      const next = applyCheckIn(streakRef.current, todayKey);
+      await persistStreakState(next);
+    },
+    [persistStreakState],
+  );
 
   const persistStatus = useCallback(
     async (nextStatus: DailyStatus) => {
-      if (snapshot == null) return;
+      if (snapshotRef.current == null) return;
 
-      const current = drainPendingInto(snapshot);
-      const updated: DailySnapshot = {
-        ...current,
-        status: nextStatus,
-        finishedAt: Date.now(),
-      };
-      const { saved } = await persistSnapshot(updated);
-      if (saved) {
-        setStatus(nextStatus);
-        setSaveError(false);
-      }
+      await coordinatorRef.current.enqueue(async () => {
+        await flushPlayStateRef.current();
+
+        const base = snapshotRef.current;
+        if (base == null) return;
+
+        const current = drainPendingInto(base);
+        const updated: DailySnapshot = {
+          ...current,
+          status: nextStatus,
+          finishedAt: Date.now(),
+        };
+        const { saved } = await persistSnapshot(updated);
+        if (saved) {
+          setStatus(nextStatus);
+          setSaveError(false);
+          if (nextStatus === 'completed') {
+            await recordStreakCheckIn(updated.dateKey);
+          }
+        }
+      });
     },
-    [snapshot, drainPendingInto, persistSnapshot],
+    [
+      drainPendingInto,
+      persistSnapshot,
+      recordStreakCheckIn,
+    ],
   );
 
   const markCompleted = useCallback(
@@ -191,6 +305,18 @@ function useDailyGameProviderValue(): DailyGameState {
     return null;
   }, [snapshot]);
 
+  const streakDisplay = useMemo(() => {
+    const todayKey = snapshot?.dateKey ?? getLocalDateKey();
+    return getStreakDisplay(streak, todayKey);
+  }, [streak, snapshot?.dateKey]);
+
+  const streakLine = useMemo(
+    () => formatStreakLine(streakDisplay),
+    [streakDisplay],
+  );
+
+  const streakHighlight = streakDisplay.checkedInToday;
+
   return useMemo(
     () => ({
       status,
@@ -201,11 +327,15 @@ function useDailyGameProviderValue(): DailyGameState {
       puzzle,
       playState,
       saveError,
+      streakSaveError,
+      streakLine,
+      streakHighlight,
       updatePlayState,
       markCompleted,
       markAbandoned,
       refresh: hydrate,
       retrySave,
+      retryStreakSave,
       devRegenerateToday,
     }),
     [
@@ -214,11 +344,15 @@ function useDailyGameProviderValue(): DailyGameState {
       puzzle,
       playState,
       saveError,
+      streakSaveError,
+      streakLine,
+      streakHighlight,
       updatePlayState,
       markCompleted,
       markAbandoned,
       hydrate,
       retrySave,
+      retryStreakSave,
       devRegenerateToday,
     ],
   );

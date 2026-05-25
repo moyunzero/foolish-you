@@ -23,7 +23,7 @@ export default function BinaryGameSection({
   cardStyle,
 }: BinaryGameSectionProps) {
   return (
-    <View className="mt-3 flex-1">
+    <View className="flex-1">
       <View className="items-center">
         <HairlineCard
           className="w-full p-3"
@@ -35,6 +35,7 @@ export default function BinaryGameSection({
             selected={board.selected}
             conflictCells={board.conflicts}
             onPressCell={board.handlePress}
+            onLongPressCell={board.handleLongPress}
           />
         </HairlineCard>
       </View>

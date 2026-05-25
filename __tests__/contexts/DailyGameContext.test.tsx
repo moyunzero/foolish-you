@@ -14,10 +14,12 @@ import {
 } from '../../contexts/DailyGameContext';
 import { getLocalDateKey } from '../../lib/date/localDay';
 import * as dailyStorage from '../../lib/storage/dailyStorage';
+import * as streakStorage from '../../lib/storage/streakStorage';
 import {
   clearDailySnapshot,
   saveDailySnapshot,
 } from '../../lib/storage/dailyStorage';
+import { loadStreakState } from '../../lib/storage/streakStorage';
 import {
   FIXTURE_TODAY,
   FIXTURE_TOMORROW,
@@ -198,8 +200,88 @@ describe('DailyGameContext', () => {
     expect(result.current.status).toBe('completed');
     expect(result.current.snapshot?.playState).toEqual(edited);
     expect(result.current.snapshot?.finishedAt).toEqual(expect.any(Number));
+    expect(result.current.streakLine).toBe('连续 1 天 · 今天没傻过');
+
+    await expect(loadStreakState()).resolves.toEqual({
+      currentStreak: 1,
+      lastCheckInDateKey: FIXTURE_TODAY,
+    });
 
     jest.useRealTimers();
+  });
+
+  it('markAbandoned does not record streak check-in', async () => {
+    const stored = makeBinaryPlayingSnapshot();
+    await saveDailySnapshot(stored);
+
+    const { result } = await renderAndHydrate();
+
+    await act(async () => {
+      await result.current.markAbandoned();
+    });
+
+    expect(result.current.status).toBe('abandoned');
+    await expect(loadStreakState()).resolves.toBeNull();
+    expect(result.current.streakLine).toBe('连签战绩 · 完成今日入账');
+  });
+
+  it('reconciles streak on hydrate when daily is already completed', async () => {
+    const stored = makeBinaryPlayingSnapshot({
+      status: 'completed',
+      finishedAt: Date.now(),
+    });
+    await saveDailySnapshot(stored);
+
+    const { result } = await renderAndHydrate();
+
+    expect(result.current.streakLine).toBe('连续 1 天 · 今天没傻过');
+    await expect(loadStreakState()).resolves.toEqual({
+      currentStreak: 1,
+      lastCheckInDateKey: FIXTURE_TODAY,
+    });
+  });
+
+  it('surfaces streak save failure after markCompleted', async () => {
+    const stored = makeBinaryPlayingSnapshot();
+    await saveDailySnapshot(stored);
+
+    jest.spyOn(streakStorage, 'saveStreakState').mockResolvedValue(false);
+
+    const { result } = await renderAndHydrate();
+
+    await act(async () => {
+      await result.current.markCompleted();
+    });
+
+    expect(result.current.status).toBe('completed');
+    expect(result.current.streakSaveError).toBe(true);
+    expect(result.current.streakLine).toBe('连签战绩 · 完成今日入账');
+  });
+
+  it('retryStreakSave clears streakSaveError when persistence succeeds', async () => {
+    const stored = makeBinaryPlayingSnapshot();
+    await saveDailySnapshot(stored);
+
+    const saveStreakSpy = jest
+      .spyOn(streakStorage, 'saveStreakState')
+      .mockResolvedValueOnce(false)
+      .mockResolvedValueOnce(true);
+
+    const { result } = await renderAndHydrate();
+
+    await act(async () => {
+      await result.current.markCompleted();
+    });
+
+    expect(result.current.streakSaveError).toBe(true);
+
+    await act(async () => {
+      await result.current.retryStreakSave();
+    });
+
+    expect(result.current.streakSaveError).toBe(false);
+    expect(result.current.streakLine).toBe('连续 1 天 · 今天没傻过');
+    expect(saveStreakSpy).toHaveBeenCalledTimes(2);
   });
 
   it('reverts optimistic playState when persistence fails', async () => {
