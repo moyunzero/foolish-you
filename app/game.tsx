@@ -10,6 +10,7 @@ import BinaryGameSection from '../components/game/BinaryGameSection';
 import GameSaveErrorBanner from '../components/game/GameSaveErrorBanner';
 import GameScreenFooter from '../components/game/GameScreenFooter';
 import GameScreenHeader from '../components/game/GameScreenHeader';
+import NonogramGameSection from '../components/game/NonogramGameSection';
 import SudokuGameSection from '../components/game/SudokuGameSection';
 import OutlinePillButton from '../components/ui/OutlinePillButton';
 import { useDailyGame } from '../contexts/DailyGameContext';
@@ -144,6 +145,15 @@ export default function GameScreen() {
                 playState={session.binaryPlay}
                 maxWidth={gridMaxWidth}
                 board={session.binaryBoard}
+              />
+            ) : null}
+
+            {session.isNonogram && session.nonogramPuzzle != null ? (
+              <NonogramGameSection
+                puzzle={session.nonogramPuzzle}
+                playState={session.nonogramPlay}
+                maxWidth={gridMaxWidth}
+                board={session.nonogramBoard}
               />
             ) : null}
           </ScrollView>

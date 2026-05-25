@@ -5,6 +5,7 @@ import Animated, { FadeIn } from 'react-native-reanimated';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import FoolFaceBadge from '../components/result/FoolFaceBadge';
+import NonogramRevealCard from '../components/result/NonogramRevealCard';
 import ResultOutcomeBody from '../components/result/ResultOutcomeBody';
 import ResultStatCard from '../components/result/ResultStatCard';
 import WinFaceBadge from '../components/result/WinFaceBadge';
@@ -20,6 +21,7 @@ import {
 } from '../lib/copy/resultMessages';
 import { STREAK_SAVE_ERROR_MESSAGE } from '../lib/daily/saveFailureAlert';
 import { exitApplication } from '../lib/platform/exitApp';
+import { isNonogramPuzzle } from '../lib/puzzles/types';
 
 const HORIZONTAL_PADDING = 24;
 const FOOTER_HINT = getResultFooterHint();
@@ -47,6 +49,13 @@ export default function ResultScreen() {
   }, [isSuccess, isFail, snapshot?.startedAt, snapshot?.finishedAt, snapshot?.dateKey, snapshot?.seed, dateKey, seed]);
 
   const bottomPadding = useDevBottomInset(insets.bottom + 16);
+
+  const nonogramPuzzle =
+    isSuccess &&
+    snapshot?.puzzle != null &&
+    isNonogramPuzzle(snapshot.puzzle)
+      ? snapshot.puzzle
+      : null;
 
   if (copy == null) {
     return (
@@ -105,7 +114,13 @@ export default function ResultScreen() {
 
         <View className="mt-6 flex-1">
           {copy.mode === 'completed' ? (
-            <ResultOutcomeBody
+            <>
+              {nonogramPuzzle != null ? (
+                <View className="mb-8">
+                  <NonogramRevealCard puzzle={nonogramPuzzle} />
+                </View>
+              ) : null}
+              <ResultOutcomeBody
               badge={<WinFaceBadge />}
               statusLabel="通关"
               statusTone="victory"
@@ -118,7 +133,8 @@ export default function ResultScreen() {
                   elapsed={copy.elapsedDisplay}
                 />
               }
-            />
+              />
+            </>
           ) : (
             <ResultOutcomeBody
               badge={<FoolFaceBadge />}

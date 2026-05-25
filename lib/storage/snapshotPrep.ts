@@ -1,10 +1,17 @@
 import { STORAGE_VERSION } from '../../constants/config';
 import { generateBinaryPuzzle } from '../puzzles/binary/generator';
 import { createEmptyGrid as createEmptyBinaryGrid } from '../puzzles/binary/grid';
+import { generateNonogramPuzzle } from '../puzzles/nonogram/generator';
+import { createEmptyGrid as createEmptyNonogramGrid } from '../puzzles/nonogram/grid';
 import { deriveSubSeed } from '../puzzles/rng';
 import { generateSudokuPuzzle } from '../puzzles/sudoku/generator';
 import { createEmptyGrid as createEmptySudokuGrid } from '../puzzles/sudoku/grid';
-import type { BinaryPuzzle, DailySnapshot, SudokuPuzzle } from '../puzzles/types';
+import type {
+  BinaryPuzzle,
+  DailySnapshot,
+  NonogramPuzzle,
+  SudokuPuzzle,
+} from '../puzzles/types';
 import {
   isPersistedPuzzlePlaceholder,
   type PersistedSnapshot,
@@ -21,6 +28,10 @@ function sudokuPuzzleFromSeed(seed: number): SudokuPuzzle {
 
 function binaryPuzzleFromSeed(seed: number): BinaryPuzzle {
   return generateBinaryPuzzle(deriveSubSeed(seed, 'binary-migrate'));
+}
+
+function nonogramPuzzleFromSeed(seed: number): NonogramPuzzle {
+  return generateNonogramPuzzle(deriveSubSeed(seed, 'nonogram-migrate'));
 }
 
 function persistedToDailyBase(persisted: PersistedSnapshot): DailySnapshot {
@@ -53,12 +64,22 @@ function upgradePlaceholderFields(
     };
   }
 
-  const puzzle = binaryPuzzleFromSeed(persisted.seed);
+  if (persisted.gameType === 'binary') {
+    const puzzle = binaryPuzzleFromSeed(persisted.seed);
+    return {
+      ...persistedToDailyBase(persisted),
+      puzzle,
+      puzzleHash: puzzle.puzzleHash,
+      playState: persisted.playState ?? createEmptyBinaryGrid(),
+    };
+  }
+
+  const puzzle = nonogramPuzzleFromSeed(persisted.seed);
   return {
     ...persistedToDailyBase(persisted),
     puzzle,
     puzzleHash: puzzle.puzzleHash,
-    playState: persisted.playState ?? createEmptyBinaryGrid(),
+    playState: persisted.playState ?? createEmptyNonogramGrid(),
   };
 }
 
@@ -97,7 +118,20 @@ export function repairSnapshotPuzzle(record: DailySnapshot): DailySnapshot {
     };
   }
 
-  const puzzle = binaryPuzzleFromSeed(record.seed);
+  if (record.gameType === 'binary') {
+    const puzzle = binaryPuzzleFromSeed(record.seed);
+    return {
+      ...record,
+      version: STORAGE_VERSION,
+      puzzle,
+      puzzleHash: puzzle.puzzleHash,
+      playState: isPlayStateConsistent(record)
+        ? record.playState
+        : createEmptyBinaryGrid(),
+    };
+  }
+
+  const puzzle = nonogramPuzzleFromSeed(record.seed);
   return {
     ...record,
     version: STORAGE_VERSION,
@@ -105,7 +139,7 @@ export function repairSnapshotPuzzle(record: DailySnapshot): DailySnapshot {
     puzzleHash: puzzle.puzzleHash,
     playState: isPlayStateConsistent(record)
       ? record.playState
-      : createEmptyBinaryGrid(),
+      : createEmptyNonogramGrid(),
   };
 }
 

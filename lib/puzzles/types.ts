@@ -1,4 +1,4 @@
-export type GameType = 'sudoku' | 'binary';
+export type GameType = 'sudoku' | 'binary' | 'nonogram';
 
 export type DailyStatus = 'playing' | 'completed' | 'abandoned';
 
@@ -20,9 +20,24 @@ export type BinaryPuzzle = {
   puzzleHash: string;
 };
 
-export type PuzzlePayload = SudokuPuzzle | BinaryPuzzle;
+export type NonogramCellState = -1 | 0 | 1;
 
-export type PlayState = SudokuPlayState | BinaryPlayState;
+export type NonogramPlayState = NonogramCellState[][];
+
+export type NonogramPuzzle = {
+  kind: 'nonogram';
+  rows: number;
+  cols: number;
+  rowClues: number[][];
+  colClues: number[][];
+  solution: boolean[][];
+  pictureTitle: string;
+  puzzleHash: string;
+};
+
+export type PuzzlePayload = SudokuPuzzle | BinaryPuzzle | NonogramPuzzle;
+
+export type PlayState = SudokuPlayState | BinaryPlayState | NonogramPlayState;
 
 export function isSudokuPuzzle(
   puzzle: PuzzlePayload,
@@ -34,6 +49,12 @@ export function isBinaryPuzzle(
   puzzle: PuzzlePayload,
 ): puzzle is BinaryPuzzle {
   return puzzle.kind === 'binary' && 'givens' in puzzle;
+}
+
+export function isNonogramPuzzle(
+  puzzle: PuzzlePayload,
+): puzzle is NonogramPuzzle {
+  return puzzle.kind === 'nonogram';
 }
 
 export type DailySnapshot = {

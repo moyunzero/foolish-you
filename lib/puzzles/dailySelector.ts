@@ -1,9 +1,10 @@
 import { generateBinaryPuzzle } from './binary/generator';
+import { generateNonogramPuzzle } from './nonogram/generator';
 import { generateSudokuPuzzle } from './sudoku/generator';
 import type { BinaryPuzzle, DailySnapshot, GameType, PuzzlePayload } from './types';
 import { deriveSeed, deriveSubSeed, mulberry32 } from './rng';
 
-const GAME_TYPES: GameType[] = ['sudoku', 'binary'];
+const GAME_TYPES: GameType[] = ['sudoku', 'binary', 'nonogram'];
 
 export type SelectDailyGameParams = {
   dateKey: string;
@@ -65,8 +66,25 @@ export function selectDailyGame(
     return { gameType, seed, puzzle, puzzleHash };
   }
 
-  const puzzle = buildBinaryPuzzle(seed, params.previous?.puzzleHash);
+  if (gameType === 'binary') {
+    const puzzle = buildBinaryPuzzle(seed, params.previous?.puzzleHash);
+    return { gameType, seed, puzzle, puzzleHash: puzzle.puzzleHash };
+  }
+
+  const puzzle = buildNonogramPuzzle(seed, params.previous?.puzzleHash);
   return { gameType, seed, puzzle, puzzleHash: puzzle.puzzleHash };
+}
+
+function buildNonogramPuzzle(seed: number, avoidHash?: string) {
+  for (let attempt = 0; attempt < 50; attempt += 1) {
+    const puzzle = generateNonogramPuzzle(
+      deriveSubSeed(seed, `daily-nono-${attempt}`),
+    );
+    if (avoidHash == null || puzzle.puzzleHash !== avoidHash) {
+      return puzzle;
+    }
+  }
+  return generateNonogramPuzzle(deriveSubSeed(seed, 'daily-nono-fallback'));
 }
 
 function buildBinaryPuzzle(seed: number, avoidHash?: string): BinaryPuzzle {
