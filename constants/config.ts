@@ -6,7 +6,15 @@ export const APP_SALT = 'foolish-you-v1';
 export const STORAGE_KEY = '@foolish-you/daily-v1';
 export const STREAK_STORAGE_KEY = '@foolish-you/streak-v1';
 /** Bump when persisted streak JSON shape changes (see AGENTS.md storage checklist). */
-export const STREAK_STORAGE_VERSION = 1;
+export const STREAK_STORAGE_VERSION = 2;
+export const COMPLETION_HISTORY_STORAGE_KEY = '@foolish-you/completion-history-v1';
+export const COMPLETION_HISTORY_STORAGE_VERSION = 1;
+export const COMPLETION_HISTORY_MAX_ENTRIES = 90;
+export const RECOVERY_LOG_STORAGE_KEY = '@foolish-you/snapshot-recovery-log-v1';
+export const RECOVERY_LOG_MAX_ENTRIES = 10;
+export const RATING_STORAGE_KEY = '@foolish-you/rating-v1';
+/** Bump when persisted rating JSON shape changes (see AGENTS.md storage checklist). */
+export const RATING_STORAGE_VERSION = 1;
 /** Bump when persisted snapshot shape changes; v2 drops puzzleStub / placeholders. */
 export const STORAGE_VERSION = 2;
 

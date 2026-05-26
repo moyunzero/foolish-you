@@ -17,7 +17,7 @@ The project uses **Jest 29** with a **dual-project** configuration defined in `j
 
 **Setup files:**
 
-- `jest.setup.js` — shared by both projects. Mocks AsyncStorage and Reanimated.
+- `jest.setup.js` — shared by both projects. Mocks AsyncStorage and Reanimated; sets `global.__DEV__ = true` for unit tests.
 - `jest.setup.rtl.js` — RTL-only. Mocks `expo-router`, `localDay` (fixed `dateKey`), safe-area context, and `runAfterInteractions`.
 
 Install dependencies before running tests:
@@ -39,8 +39,9 @@ npm test
 Run projects separately:
 
 ```bash
-npm run test:unit   # jest --selectProjects unit
-npm run test:rtl    # jest --selectProjects rtl --testTimeout=20000
+npm run test:unit       # jest --selectProjects unit
+npm run test:rtl        # jest --selectProjects rtl --testTimeout=20000
+npm run test:migration  # migration golden fixtures under __tests__/lib/storage/migration/
 ```
 
 Run a single file:
@@ -59,8 +60,9 @@ npm test -- -t "returns stable gameType"
 **Related checks** (same bar as CI):
 
 ```bash
-npm run typecheck   # tsc --noEmit
-npm run lint        # expo lint
+npm run typecheck      # tsc --noEmit
+npm run test:migration # storage migration golden fixtures (also in CI)
+npm run lint           # expo lint
 ```
 
 ## `__tests__/` layout
@@ -68,8 +70,13 @@ npm run lint        # expo lint
 ```
 __tests__/
 ├── lib/                    # Unit tests (*.test.ts)
-│   ├── puzzles/            # Generators, validators, solvers, dailySelector, nonogram patterns
-│   ├── storage/            # Snapshot read/write, validation, migration
+│   ├── puzzles/            # Generators, validators, solvers, dailySelector, dailySelectorSafe, isSolvable
+│   ├── storage/            # Snapshot read/write, validation, migration, recover, recoveryLog
+│   │   └── migration/      # Golden fixtures (v1→current, v2 snapshots); run via test:migration
+│   ├── share/              # buildShareCard
+│   ├── stats/              # computeStatsCards, weeklyCompletedCount
+│   ├── rating/             # shouldPromptRating, maybePromptAppReview
+│   ├── time/               # formatElapsedClock, computeElapsedMs
 │   ├── date/               # Local calendar day helpers
 │   ├── daily/              # Hydrate/build orchestration
 │   ├── streak/             # Streak logic
@@ -135,10 +142,11 @@ Workflow: `.github/workflows/ci.yml` — job **`verify`**
 Steps (in order):
 
 1. **Typecheck** — `npm run typecheck`
-2. **Unit tests** — `npm test` (runs both `unit` and `rtl` projects)
-3. **Lint** — `npm run lint`
+2. **Tests** — `npm test` (runs both `unit` and `rtl` projects; currently ~272 tests)
+3. **Migration tests** — `npm run test:migration`
+4. **Lint** — `npm run lint`
 
-All three must pass before merging. Locally, run the same three commands before claiming a change is done.
+All four must pass before merging. Locally, run the same commands before claiming a change is done.
 
 ## Manual QA checklist
 
@@ -146,13 +154,15 @@ Automated tests cover logic and component behavior; they do not replace on-devic
 
 - [ ] **Fresh install / clear storage** — Open app; today’s puzzle loads with correct type (Sudoku, Binary, or Nonogram) for the local day.
 - [ ] **Mid-game persistence** — Fill some cells, kill the app, reopen; progress and timer restore.
-- [ ] **Complete flow** — Finish today’s puzzle; result screen shows copy, stats, and animations.
-- [ ] **Surrender flow** — Abandon from game screen; result screen reflects surrender state.
+- [ ] **Complete flow** — Finish today’s puzzle; result screen shows copy, three stats cards, share button (if `playState` valid), and animations.
+- [ ] **Share card** — Tap「拷贝战报」; clipboard contains emoji grid + timing/streak line.
+- [ ] **Surrender flow** — Abandon from game screen; result screen reflects surrender state (no streak check-in).
+- [ ] **Recovery** — Dev「注入坏盘面」→ kill app → reopen; outcome preserved, share hidden if board stripped.
 - [ ] **Conflict feedback** — Enter invalid Sudoku/Binary values; conflict highlighting appears as expected. (Nonogram has no mid-game conflict UI; complete validates against the hidden solution.)
 - [ ] **Nonogram complete** — Finish a nonogram day; result screen shows pattern reveal card with correct title.
 - [ ] **Rules modal** — Open in-game rules; content matches current game type.
 - [ ] **Streak (if applicable)** — Win on consecutive days; streak count and copy update; skip a day resets as designed.
-- [ ] **Dev panel (`__DEV__` only)** — Force game type / reset today works in development; confirm no dev shortcuts affect release builds.
+- [ ] **Dev panel (`__DEV__` only)** — Force game type / reset today / inject recovery / clear logs; confirm no dev shortcuts affect release builds.
 
 Start the dev server for manual testing:
 

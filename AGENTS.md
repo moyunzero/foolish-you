@@ -33,7 +33,8 @@ Think like a senior mobile developer: ship carefully, preserve offline-first beh
 - Timer, conflict highlighting, complete / surrender flow
 - Humorous result screen with Reanimated animations
 - Rule explanations in-game
-- **v1 (live):** no social, leaderboards, hints, or network for core gameplay — focus on “today’s puzzle”
+- **v1.1 (current):** emoji share card (clipboard), result stats cards, in-app review prompt (gated), defensive daily selection + snapshot recovery
+- **Still out of scope:** social, leaderboards, hints, remote puzzle config — focus on “today’s puzzle”
 
 **Production status:** This is a **real app in use** (store builds via EAS; see `eas.json`, `app.json`). Changes must be safe for existing installs: respect snapshot migration, avoid breaking daily seeds, and keep `__DEV__` tooling out of release builds.
 
@@ -108,8 +109,12 @@ foolish-you/
 │   └── useElapsedTimer.ts    # In-game elapsed timer
 ├── lib/
 │   ├── date/                 # Local calendar day (dateKey)
-│   ├── puzzles/              # Generation, validation, solvers, dailySelector
-│   ├── storage/              # AsyncStorage, snapshot validate/migrate
+│   ├── puzzles/              # Generation, validation, solvers, dailySelectorSafe
+│   ├── storage/              # AsyncStorage, snapshot validate/migrate/recover
+│   ├── share/                # Share card builder (emoji grid)
+│   ├── stats/                # Result stats cards
+│   ├── rating/               # App Store review gating
+│   ├── time/                 # Elapsed ms + clock formatting
 │   ├── copy/                 # All user-facing strings
 │   └── platform/             # Platform helpers (e.g. exitApp)
 ├── constants/                # config, design tokens, dev flags, legal
@@ -152,7 +157,7 @@ When unsure whether to extract a component, **ask** or mirror the nearest existi
 ## Puzzle Logic Rules
 
 - All puzzle logic lives under **`lib/puzzles/`**.
-- **Deterministic per local day:** use date-based seed via `lib/date/` + `dailySelector`.
+- **Deterministic per local day:** use date-based seed via `lib/date/` + `dailySelector` (hydrate uses `selectDailyGameSafe` for solvability).
 - **Fully offline** for core gameplay — no network for puzzle generation or validation.
 - **Unit test** generators, validators, solvers, and `dailySelector`.
 - Types in `lib/puzzles/types.ts` — avoid `any`; use `SudokuBoard`, `BinaryBoard`, `NonogramPuzzle`, `DailySnapshot`, etc.
@@ -215,6 +220,8 @@ When changing persisted JSON shape:
 |-------|----------|--------|
 | Daily snapshot | `STORAGE_VERSION` in `constants/config.ts` | `snapshotValidate.ts`, `snapshotPrep.ts`, `snapshotMigration.ts`, `snapshotLegacy.ts`, golden fixtures in `__tests__/lib/storage/` |
 | Streak | `STREAK_STORAGE_VERSION` in `constants/config.ts` | `lib/storage/streakStorage.ts`, `__tests__/lib/storage/streakStorage.test.ts` |
+| Completion history | `COMPLETION_HISTORY_STORAGE_VERSION` | `lib/storage/completionHistoryStorage.ts`, `backfillCompletionHistory.ts` |
+| Rating prompt state | `RATING_STORAGE_VERSION` | `lib/storage/ratingStorage.ts` |
 
 Never bump without migration/read path for existing installs and unit tests for each supported legacy version.
 
@@ -225,9 +232,10 @@ Never bump without migration/read path for existing installs and unit tests for 
 Run the same checks as CI (`.github/workflows/ci.yml`):
 
 ```bash
-npm run typecheck    # tsc --noEmit
-npm test             # unit + rtl (205 tests)
-npm run lint         # expo lint
+npm run typecheck       # tsc --noEmit
+npm test                # unit + rtl (272 tests)
+npm run test:migration  # snapshot migration golden fixtures
+npm run lint            # expo lint
 ```
 
 Optional splits:
@@ -237,14 +245,15 @@ npm run test:unit
 npm run test:rtl
 ```
 
-Do not claim verification passed unless all three succeed. Fix TypeScript, test, and lint failures.
+Do not claim verification passed unless typecheck, full test suite, migration tests, and lint all succeed.
 
 For UI changes, suggest manual steps, e.g.:
 
 - Fresh install / clear storage → today’s puzzle loads
 - Kill app mid-game → progress restores
-- Complete and surrender → result copy, streak line on win, and animations
-- Dev panel (`__DEV__`) → force game type / reset today (must not affect release builds)
+- Complete and surrender → result copy, stats cards, share button (when `playState` valid), streak line on win, and animations
+- Recovery path → `completed` with stripped `playState` shows outcome but no share button
+- Dev panel (`__DEV__`) → force game type / reset today / inject recovery scenario (must not affect release builds)
 
 ---
 
@@ -262,7 +271,7 @@ For UI changes, suggest manual steps, e.g.:
 |--------------|--------|
 | Auth / backend | `(auth)/login.tsx` is placeholder only |
 | Notifications | Defer |
-| Hints, history, social, leaderboards | Defer |
+| Hints, full history UI, social, leaderboards | Defer |
 | Remote puzzle config | Violates offline-first |
 | Heavy date libraries | Use `lib/date/localDay.ts` |
 

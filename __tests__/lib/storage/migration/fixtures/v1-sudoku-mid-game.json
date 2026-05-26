@@ -1,0 +1,11 @@
+{
+  "version": 1,
+  "dateKey": "2026-05-18",
+  "gameType": "sudoku",
+  "seed": 4242,
+  "status": "playing",
+  "puzzle": { "kind": "sudoku", "placeholder": true },
+  "puzzleHash": "legacy-sudoku",
+  "puzzleStub": { "kind": "sudoku", "placeholder": true },
+  "startedAt": 1710000000000
+}

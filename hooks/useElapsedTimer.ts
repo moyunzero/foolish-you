@@ -1,24 +1,32 @@
 import { useEffect, useState } from 'react';
+import { AppState, type AppStateStatus } from 'react-native';
 
-function formatClock(ms: number): string {
-  const totalSeconds = Math.max(0, Math.floor(ms / 1000));
-  const minutes = Math.floor(totalSeconds / 60);
-  const seconds = totalSeconds % 60;
-  return `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
-}
+import { computeElapsedMs } from '../lib/time/computeElapsedMs';
+import { formatElapsedClock } from '../lib/time/formatElapsedClock';
 
-/** 从 startedAt 起每秒刷新，用于游戏页计时显示 */
+/** 从 `startedAt` 起每秒刷新；前后台切换时立即重算，避免 timer 挂起导致用时偏少。 */
 export function useElapsedTimer(startedAt: number | undefined): string {
   const [now, setNow] = useState(() => Date.now());
 
   useEffect(() => {
     if (startedAt == null) return undefined;
 
-    setNow(Date.now());
-    const id = setInterval(() => setNow(Date.now()), 1000);
-    return () => clearInterval(id);
+    const tick = () => setNow(Date.now());
+    tick();
+
+    const intervalId = setInterval(tick, 1000);
+    const sub = AppState.addEventListener('change', (next: AppStateStatus) => {
+      if (next === 'active') {
+        tick();
+      }
+    });
+
+    return () => {
+      clearInterval(intervalId);
+      sub.remove();
+    };
   }, [startedAt]);
 
   if (startedAt == null) return '00:00';
-  return formatClock(now - startedAt);
+  return formatElapsedClock(computeElapsedMs(startedAt, now));
 }

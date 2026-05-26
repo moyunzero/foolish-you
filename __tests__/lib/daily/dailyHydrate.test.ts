@@ -61,6 +61,24 @@ describe('dailyHydrate', () => {
     expect(result.seed).not.toBe(42);
   });
 
+  it('does not add empty playState when status is completed', async () => {
+    const completed = makeBinaryPlayingSnapshot({
+      status: 'completed',
+      finishedAt: Date.now(),
+    });
+    const { playState: _omit, ...withoutPlay } = completed;
+    jest.spyOn(dailyStorage, 'loadDailySnapshot').mockResolvedValue(withoutPlay);
+    jest.spyOn(dailyStorage, 'saveDailySnapshot').mockResolvedValue(true);
+    jest
+      .spyOn(snapshotPrep, 'prepareTodaySnapshot')
+      .mockImplementation((s) => s);
+
+    const result = await hydrateDailyGame();
+
+    expect(result.status).toBe('completed');
+    expect(result.playState).toBeUndefined();
+  });
+
   it('buildNewDailySnapshot invokes onSaveFailed when save fails', async () => {
     jest.spyOn(dailyStorage, 'saveDailySnapshot').mockResolvedValue(false);
     const onSaveFailed = jest.fn();

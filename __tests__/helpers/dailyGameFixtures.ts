@@ -2,8 +2,13 @@ import { STORAGE_VERSION } from '../../constants/config';
 import { generateBinaryPuzzle } from '../../lib/puzzles/binary/generator';
 import { createEmptyGrid as createEmptyBinaryGrid } from '../../lib/puzzles/binary/grid';
 import { generateSudokuPuzzle } from '../../lib/puzzles/sudoku/generator';
-import { createEmptyGrid as createEmptySudokuGrid } from '../../lib/puzzles/sudoku/grid';
-import type { DailySnapshot, PlayState } from '../../lib/puzzles/types';
+import {
+  createEmptyGrid as createEmptySudokuGrid,
+  mergePlayAndGivens,
+} from '../../lib/puzzles/sudoku/grid';
+import { solveInPlace as solveSudokuInPlace } from '../../lib/puzzles/sudoku/solver';
+import type { DailySnapshot, PlayState, SudokuPuzzle } from '../../lib/puzzles/types';
+import { isSudokuPuzzle } from '../../lib/puzzles/types';
 
 export const FIXTURE_TODAY = '2026-05-19';
 export const FIXTURE_YESTERDAY = '2026-05-18';
@@ -23,6 +28,44 @@ export function makeBinaryPlayingSnapshot(
     puzzleHash: puzzle.puzzleHash,
     playState: createEmptyBinaryGrid(),
     startedAt: 1_700_000_000_000,
+    ...overrides,
+  };
+}
+
+/** User fills for a completed sudoku (passes recovery + share validation). */
+export function solvedSudokuPlayState(puzzle: SudokuPuzzle): number[][] {
+  const merged = mergePlayAndGivens(puzzle.givens, createEmptySudokuGrid());
+  const working = merged.map((row) => [...row]);
+  if (!solveSudokuInPlace(working)) {
+    throw new Error('fixture sudoku puzzle not solvable');
+  }
+  return working;
+}
+
+export function makeSudokuCompletedSnapshot(
+  overrides: Partial<DailySnapshot> = {},
+): DailySnapshot {
+  const base = makeSudokuPlayingSnapshot();
+  let puzzle: SudokuPuzzle;
+  if (overrides.puzzle != null && isSudokuPuzzle(overrides.puzzle)) {
+    puzzle = overrides.puzzle;
+  } else if (isSudokuPuzzle(base.puzzle)) {
+    puzzle = base.puzzle;
+  } else {
+    puzzle = generateSudokuPuzzle(9001);
+  }
+  const playState =
+    'playState' in overrides
+      ? overrides.playState
+      : solvedSudokuPlayState(puzzle);
+
+  return {
+    ...base,
+    puzzle,
+    puzzleHash: puzzle.puzzleHash,
+    status: 'completed',
+    playState,
+    finishedAt: 1_700_000_900_000,
     ...overrides,
   };
 }

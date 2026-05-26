@@ -16,6 +16,7 @@ describe('reconcileStreak', () => {
       needsStreakReconcile(snapshot, {
         currentStreak: 1,
         lastCheckInDateKey: snapshot.dateKey,
+        historicalMax: 1,
       }),
     ).toBe(false);
   });
@@ -29,6 +30,7 @@ describe('reconcileStreak', () => {
     expect(reconcileStreakForCompletedDay(snapshot, null)).toEqual({
       currentStreak: 1,
       lastCheckInDateKey: snapshot.dateKey,
+      historicalMax: 1,
     });
   });
 });

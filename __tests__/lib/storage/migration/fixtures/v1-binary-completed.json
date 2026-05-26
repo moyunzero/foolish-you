@@ -1,0 +1,11 @@
+{
+  "version": 1,
+  "dateKey": "2026-05-17",
+  "gameType": "binary",
+  "seed": 99,
+  "status": "completed",
+  "puzzle": { "kind": "binary", "placeholder": true },
+  "puzzleHash": "legacy-binary",
+  "startedAt": 1710000000000,
+  "finishedAt": 1710001800000
+}

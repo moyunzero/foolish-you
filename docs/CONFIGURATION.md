@@ -26,7 +26,7 @@ Primary Expo configuration (static JSON, no `app.config.js`).
 |------|-------|-------|
 | Display name | 傻了么 | User-facing app name |
 | Slug / scheme | `foolish-you` | Deep links and Expo project slug |
-| Version | `1.0.0` | Marketing version |
+| Version | `1.1.0` | Marketing version (aligned with `package.json`) |
 | UI style | `dark` | System appearance default |
 | New architecture | `true` | React Native new arch enabled |
 | Entry | `expo-router/entry` | Set in `package.json` `main` |
@@ -66,6 +66,14 @@ Central runtime constants for puzzles, persistence, and debouncing.
 | `APP_SALT` | `foolish-you-v1` | Date-seed salt (client-visible, not a secret). Same calendar day + device → same daily puzzle. |
 | `STORAGE_KEY` | `@foolish-you/daily-v1` | AsyncStorage key for daily game snapshot |
 | `STREAK_STORAGE_KEY` | `@foolish-you/streak-v1` | AsyncStorage key for streak state |
+| `STREAK_STORAGE_VERSION` | `2` | Streak schema (adds `historicalMax`) |
+| `COMPLETION_HISTORY_STORAGE_KEY` | `@foolish-you/completion-history-v1` | Rolling completion records for stats |
+| `COMPLETION_HISTORY_STORAGE_VERSION` | `1` | Completion history schema |
+| `COMPLETION_HISTORY_MAX_ENTRIES` | `90` | Cap on stored completion rows |
+| `RATING_STORAGE_KEY` | `@foolish-you/rating-v1` | Rating prompt counters / last prompt date |
+| `RATING_STORAGE_VERSION` | `1` | Rating state schema |
+| `RECOVERY_LOG_STORAGE_KEY` | `@foolish-you/snapshot-recovery-log-v1` | Ring buffer of snapshot recovery events |
+| `RECOVERY_LOG_MAX_ENTRIES` | `10` | Max recovery log entries retained |
 | `STORAGE_VERSION` | `2` | Persisted snapshot schema version (v2 drops legacy `puzzleStub`) |
 | `SUDOKU_GIVEN_COUNT` | `30` | Given cells for 9×9 Sudoku |
 | `SUDOKU_MAX_GEN_ATTEMPTS` | `50` | Generator retry cap |
@@ -117,10 +125,15 @@ See `DESIGN.md` for product-level design rules.
 | Key | Defined in | Payload | Access |
 |-----|------------|---------|--------|
 | `@foolish-you/daily-v1` | `constants/config.ts` → `STORAGE_KEY` | `DailySnapshot` JSON (versioned, migrated on load) | `lib/storage/dailyStorage.ts` |
-| `@foolish-you/streak-v1` | `constants/config.ts` → `STREAK_STORAGE_KEY` | `StreakState`: `{ currentStreak, lastCheckInDateKey }` | `lib/storage/streakStorage.ts` |
+| `@foolish-you/streak-v1` | `constants/config.ts` → `STREAK_STORAGE_KEY` | `StreakState`: `{ currentStreak, lastCheckInDateKey, historicalMax }` (schema v2) | `lib/storage/streakStorage.ts` |
+| `@foolish-you/completion-history-v1` | `COMPLETION_HISTORY_STORAGE_KEY` | Completion records for weekly stats / backfill | `lib/storage/completionHistoryStorage.ts` |
+| `@foolish-you/rating-v1` | `RATING_STORAGE_KEY` | Rating prompt state | `lib/storage/ratingStorage.ts` |
+| `@foolish-you/snapshot-recovery-log-v1` | `RECOVERY_LOG_STORAGE_KEY` | Recovery event log (dev-visible) | `lib/storage/recoveryLog.ts` |
 | `@foolish-you/dev-tools-bar-visible` | `contexts/DevToolsUiContext.tsx` (local constant) | `'1'` / `'0'` for dev bar visibility | Dev builds only |
 
-**Daily snapshot migration:** On load, `migrateSnapshot()` in `lib/storage/snapshotMigration.ts` normalizes v0/v1 data to `STORAGE_VERSION` (2). Snapshots with `version > STORAGE_VERSION` are rejected with a warning.
+**Daily snapshot migration:** On load, `migrateSnapshot()` in `lib/storage/snapshotMigration.ts` normalizes v0/v1 data to `STORAGE_VERSION` (2). Snapshots with `version > STORAGE_VERSION` are rejected with a warning. **`recoverSnapshot()`** may repair puzzle data or strip invalid `playState` when `status: 'completed'` but the board is incomplete.
+
+**Native modules (v1.1):** `expo-clipboard` (share card), `expo-store-review` (rating prompt) — bundled with Expo SDK 54; no extra env config.
 
 **Required for gameplay:** None of these keys are pre-seeded; missing keys mean a fresh install flow.
 

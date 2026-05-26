@@ -17,7 +17,11 @@ describe('streakStorage', () => {
   });
 
   it('round-trips streak state with version metadata', async () => {
-    const state = { currentStreak: 3, lastCheckInDateKey: '2026-05-24' };
+    const state = {
+      currentStreak: 3,
+      lastCheckInDateKey: '2026-05-24',
+      historicalMax: 5,
+    };
     await expect(saveStreakState(state)).resolves.toBe(true);
     await expect(loadStreakState()).resolves.toEqual(state);
     const raw = await AsyncStorage.getItem(STREAK_STORAGE_KEY);
@@ -36,6 +40,40 @@ describe('streakStorage', () => {
     await expect(loadStreakState()).resolves.toEqual({
       currentStreak: 2,
       lastCheckInDateKey: '2026-05-20',
+      historicalMax: 2,
+    });
+  });
+
+  it('migrates v1 payload without historicalMax using currentStreak', async () => {
+    await AsyncStorage.setItem(
+      STREAK_STORAGE_KEY,
+      JSON.stringify({
+        version: 1,
+        currentStreak: 4,
+        lastCheckInDateKey: '2026-05-18',
+      }),
+    );
+    await expect(loadStreakState()).resolves.toEqual({
+      currentStreak: 4,
+      lastCheckInDateKey: '2026-05-18',
+      historicalMax: 4,
+    });
+  });
+
+  it('preserves historicalMax when greater than current', async () => {
+    await AsyncStorage.setItem(
+      STREAK_STORAGE_KEY,
+      JSON.stringify({
+        version: 2,
+        currentStreak: 3,
+        lastCheckInDateKey: '2026-05-19',
+        historicalMax: 12,
+      }),
+    );
+    await expect(loadStreakState()).resolves.toEqual({
+      currentStreak: 3,
+      lastCheckInDateKey: '2026-05-19',
+      historicalMax: 12,
     });
   });
 

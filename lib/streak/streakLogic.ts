@@ -1,4 +1,6 @@
 import type { StreakDisplay, StreakState } from './types';
+import { EMPTY_STREAK_STATE } from './types';
+import { bumpHistoricalMax } from '../storage/streakStorage';
 
 function parseDateKey(dateKey: string): Date {
   const [year, month, day] = dateKey.split('-').map(Number);
@@ -16,10 +18,7 @@ export function applyCheckIn(
   state: StreakState | null,
   todayKey: string,
 ): StreakState {
-  const base: StreakState = state ?? {
-    currentStreak: 0,
-    lastCheckInDateKey: null,
-  };
+  const base: StreakState = state ?? EMPTY_STREAK_STATE;
 
   if (base.lastCheckInDateKey === todayKey) {
     return base;
@@ -33,20 +32,18 @@ export function applyCheckIn(
     }
   }
 
-  return {
+  return bumpHistoricalMax({
     currentStreak: nextStreak,
     lastCheckInDateKey: todayKey,
-  };
+    historicalMax: base.historicalMax,
+  });
 }
 
 export function getStreakDisplay(
   state: StreakState | null,
   todayKey: string,
 ): StreakDisplay {
-  const base: StreakState = state ?? {
-    currentStreak: 0,
-    lastCheckInDateKey: null,
-  };
+  const base: StreakState = state ?? EMPTY_STREAK_STATE;
 
   if (base.lastCheckInDateKey == null) {
     return {

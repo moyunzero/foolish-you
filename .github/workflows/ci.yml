@@ -26,5 +26,8 @@ jobs:
       - name: Unit tests
         run: npm test
 
+      - name: Migration tests
+        run: npm run test:migration
+
       - name: Lint
         run: npm run lint

@@ -1,13 +1,16 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 import { STREAK_STORAGE_KEY, STREAK_STORAGE_VERSION } from '../../constants/config';
-import type { StreakState } from '../streak/types';
+import { EMPTY_STREAK_STATE, type StreakState } from '../streak/types';
 
 type PersistedStreakPayload = StreakState & {
   version: number;
 };
 
-function isStreakState(value: unknown): value is StreakState {
+function isStreakCore(value: unknown): value is {
+  currentStreak: number;
+  lastCheckInDateKey: string | null;
+} {
   if (value == null || typeof value !== 'object') return false;
   const row = value as Record<string, unknown>;
   return (
@@ -20,12 +23,19 @@ function isStreakState(value: unknown): value is StreakState {
   );
 }
 
+export function bumpHistoricalMax(state: StreakState): StreakState {
+  return {
+    ...state,
+    historicalMax: Math.max(state.historicalMax, state.currentStreak),
+  };
+}
+
 function normalizePersistedStreak(raw: unknown): StreakState | null {
   if (raw == null || typeof raw !== 'object') return null;
   const row = raw as Record<string, unknown>;
   const version = typeof row.version === 'number' ? row.version : 1;
 
-  if (!isStreakState(row)) return null;
+  if (!isStreakCore(row)) return null;
 
   if (version > STREAK_STORAGE_VERSION) {
     console.warn(
@@ -37,10 +47,26 @@ function normalizePersistedStreak(raw: unknown): StreakState | null {
     return null;
   }
 
-  return {
-    currentStreak: Math.floor(row.currentStreak as number),
-    lastCheckInDateKey: row.lastCheckInDateKey as string | null,
-  };
+  const currentStreak = Math.floor(row.currentStreak as number);
+  const lastCheckInDateKey = row.lastCheckInDateKey as string | null;
+
+  const rawHistoricalMax = (row as Record<string, unknown>).historicalMax;
+  let historicalMax: number;
+  if (
+    typeof rawHistoricalMax === 'number' &&
+    Number.isFinite(rawHistoricalMax) &&
+    rawHistoricalMax >= 0
+  ) {
+    historicalMax = Math.floor(rawHistoricalMax);
+  } else {
+    historicalMax = currentStreak;
+  }
+
+  return bumpHistoricalMax({
+    currentStreak,
+    lastCheckInDateKey,
+    historicalMax: Math.max(historicalMax, currentStreak),
+  });
 }
 
 export async function loadStreakState(): Promise<StreakState | null> {
@@ -63,7 +89,7 @@ export async function loadStreakState(): Promise<StreakState | null> {
 export async function saveStreakState(state: StreakState): Promise<boolean> {
   try {
     const payload: PersistedStreakPayload = {
-      ...state,
+      ...bumpHistoricalMax(state),
       version: STREAK_STORAGE_VERSION,
     };
     await AsyncStorage.setItem(STREAK_STORAGE_KEY, JSON.stringify(payload));
@@ -77,3 +103,5 @@ export async function saveStreakState(state: StreakState): Promise<boolean> {
 export async function clearStreakState(): Promise<void> {
   await AsyncStorage.removeItem(STREAK_STORAGE_KEY);
 }
+
+export { EMPTY_STREAK_STATE };

@@ -33,22 +33,24 @@ Use `npm install` (not `npm ci`) for day-to-day work unless you are reproducing 
 Before opening a PR or calling a change done, run the same checks as [`.github/workflows/ci.yml`](../.github/workflows/ci.yml):
 
 ```bash
-npm run typecheck   # tsc --noEmit (strict)
-npm test            # Jest: unit + rtl projects
-npm run lint        # expo lint (ESLint flat config)
+npm run typecheck      # tsc --noEmit (strict)
+npm test               # Jest: unit + rtl projects (~272 tests)
+npm run test:migration # snapshot migration golden fixtures only
+npm run lint           # expo lint (ESLint flat config)
 ```
 
 | Command | What it runs |
 |---------|----------------|
 | `npm run typecheck` | TypeScript `tsc --noEmit` (`tsconfig.json` extends `expo/tsconfig.base`, `strict: true`) |
 | `npm test` | Full Jest suite (both projects below) |
+| `npm run test:migration` | `jest --selectProjects unit --testPathPattern=__tests__/lib/storage/migration` |
 | `npm run test:unit` | `jest --selectProjects unit` — `**/__tests__/**/*.test.ts` in Node |
 | `npm run test:rtl` | `jest --selectProjects rtl` — `**/__tests__/**/*.test.tsx` with jest-expo (20s timeout) |
 | `npm run lint` | `expo lint` → ESLint via [`eslint.config.js`](../eslint.config.js) (`eslint-config-expo` flat preset) |
 
 **When to split tests:** Use `test:unit` for puzzle/storage/date logic; use `test:rtl` for screens and `DailyGameContext` when iterating on UI. RTL runs with `maxWorkers: 1` in [`jest.config.js`](../jest.config.js).
 
-**CI order:** typecheck → `npm test` → lint (on push/PR to `main` / `master`).
+**CI order:** typecheck → `npm test` → `test:migration` → lint (on push/PR to `main` / `master`).
 
 ---
 
@@ -89,8 +91,12 @@ foolish-you/
 ├── lib/
 │   ├── date/                 # Local calendar day (dateKey)
 │   ├── daily/                # Hydrate/build orchestration (non-React)
-│   ├── puzzles/              # Generation, validation, solvers, dailySelector
-│   ├── storage/              # AsyncStorage, snapshot validate/migrate
+│   ├── puzzles/              # Generation, validation, solvers, dailySelectorSafe
+│   ├── storage/              # AsyncStorage, validate/migrate/recover, history, rating
+│   ├── share/                # Emoji share card builder
+│   ├── stats/                # Result stats cards
+│   ├── rating/               # App Store review gating
+│   ├── time/                 # Elapsed ms + clock formatting
 │   ├── streak/               # Consecutive-day streak logic + storage
 │   ├── copy/                 # User-facing strings
 │   └── platform/             # e.g. exitApp
@@ -148,6 +154,10 @@ Rendered from [`app/_layout.tsx`](../app/_layout.tsx) only when `DEV_TOOLS_ENABL
 
 - Show `dateKey`, `gameType`, status, puzzle hash (and Sudoku hash when applicable)
 - **数独 / 二进制 / 数绘 / 自然随机 / 重开今日** — regenerate today via `devRegenerateToday` and navigate to `/game`
+- **弹出评分** — call `requestAppStoreReview()` directly (bypasses gates)
+- **重置通关记录** / **重置评分** — clear completion history or rating prompt state
+- **注入坏盘面** — write `completed` + empty `playState` to exercise `recoverSnapshot` on next load
+- **清恢复日志** — clear `@foolish-you/snapshot-recovery-log-v1`; recent entries shown when expanded
 - **隐藏** — hide the bottom bar for screenshots (preference persisted in AsyncStorage)
 
 **Bar visibility:** [`contexts/DevToolsUiContext.tsx`](../contexts/DevToolsUiContext.tsx) stores `@foolish-you/dev-tools-bar-visible`. Long-press the footer **隐私政策** link ([`PrivacyPolicyFooterLink`](../components/legal/PrivacyPolicyFooterLink.tsx)) to toggle the bar back. Game/result/privacy screens use `useDevBottomInset()` so content clears the bar when visible.
@@ -156,8 +166,9 @@ Rendered from [`app/_layout.tsx`](../app/_layout.tsx) only when `DEV_TOOLS_ENABL
 
 - Fresh install or cleared storage → today’s puzzle loads
 - Kill app mid-game → progress restores
-- Complete and surrender → result copy and animations
-- Dev panel: force game type / reset today — confirm behavior matches intent and does not affect release builds
+- Complete and surrender → result copy, stats cards, share button (when `playState` present), animations
+- Recovery path: inject bad snapshot → restart → result without share button but outcome preserved
+- Dev panel: force game type / reset today / rating & history resets — confirm no effect on release builds
 
 ---
 
@@ -166,7 +177,7 @@ Rendered from [`app/_layout.tsx`](../app/_layout.tsx) only when `DEV_TOOLS_ENABL
 - **Default branch:** `main` (CI also accepts `master`).
 - **Branch naming:** No documented convention in the repo; use clear prefixes (e.g. `feat/`, `fix/`) if your team agrees.
 - **Pull requests:** No `CONTRIBUTING.md` or PR template in `.github/` yet. For each PR:
-  - Run `typecheck`, `npm test`, and `lint`
+  - Run `typecheck`, `npm test`, `test:migration`, and `lint`
   - Describe impact on **existing users** (storage, daily seed, routes) when relevant
   - Note manual device QA for UI-only changes
   - Avoid changing daily puzzle determinism for a given `dateKey` without explicit product approval

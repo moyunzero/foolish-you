@@ -2,7 +2,7 @@ import { STORAGE_VERSION } from '../../constants/config';
 import { getDevForceGameType } from '../../constants/dev';
 import { getLocalDateKey } from '../date/localDay';
 import { createEmptyGrid as createEmptyBinaryGrid } from '../puzzles/binary/grid';
-import { selectDailyGame } from '../puzzles/dailySelector';
+import { selectDailyGameSafe } from '../puzzles/dailySelectorSafe';
 import { createEmptyGrid as createEmptyNonogramGrid } from '../puzzles/nonogram/grid';
 import { createEmptyGrid as createEmptySudokuGrid } from '../puzzles/sudoku/grid';
 import type { DailySnapshot, GameType } from '../puzzles/types';
@@ -36,6 +36,9 @@ function resolveForceGameType(
 }
 
 function ensurePlayStateForSnapshot(snapshot: DailySnapshot): DailySnapshot {
+  if (snapshot.status !== 'playing') {
+    return snapshot;
+  }
   if (
     snapshot.gameType === 'sudoku' &&
     isSudokuPuzzle(snapshot.puzzle) &&
@@ -70,7 +73,7 @@ export async function buildNewDailySnapshot(
   params: BuildNewDailyParams,
 ): Promise<DailySnapshot> {
   const forced = resolveForceGameType(params.forceGameType);
-  const selected = selectDailyGame({
+  const selected = selectDailyGameSafe({
     dateKey: params.today,
     previous:
       forced == null && params.previous

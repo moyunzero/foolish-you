@@ -1,5 +1,7 @@
+import { isCompleteAndValid as isBinaryComplete } from '../puzzles/binary/validate';
 import { BINARY_EMPTY, BINARY_ONE, BINARY_ZERO } from '../puzzles/binary/grid';
 import { BINARY_SIZE } from '../puzzles/binary/spec';
+import { isCompleteAndValid as isNonogramComplete } from '../puzzles/nonogram/validate';
 import {
   NONOGRAM_COLS,
   NONOGRAM_EMPTY,
@@ -7,8 +9,9 @@ import {
   NONOGRAM_ROWS,
 } from '../puzzles/nonogram/spec';
 import { SUDOKU_SIZE } from '../puzzles/sudoku/grid';
+import { isCompleteAndValid as isSudokuComplete } from '../puzzles/sudoku/validate';
 import { STORAGE_VERSION } from '../../constants/config';
-import type { DailySnapshot, GameType } from '../puzzles/types';
+import type { DailySnapshot, GameType, NonogramPlayState } from '../puzzles/types';
 import { isBinaryPuzzle, isNonogramPuzzle, isSudokuPuzzle } from '../puzzles/types';
 import type { PersistedSnapshot } from './snapshotLegacy';
 
@@ -32,7 +35,7 @@ export function isValidSudokuGivens(givens: unknown): givens is number[][] {
   );
 }
 
-function isNonogramGrid(grid: unknown): grid is number[][] {
+function isNonogramGrid(grid: unknown): grid is NonogramPlayState {
   if (!isSizedGrid(grid, NONOGRAM_ROWS)) return false;
   return grid.every((row) =>
     row.every(
@@ -134,6 +137,39 @@ export function isPlayStateConsistent(
     return isSizedGrid(snapshot.playState, BINARY_SIZE);
   }
   return isNonogramGrid(snapshot.playState);
+}
+
+/** True when `status: completed` matches a filled, valid board (or no playState). */
+export function isCompletedPlayStateSatisfied(
+  snapshot: DailySnapshot,
+): boolean {
+  if (snapshot.status !== 'completed' || snapshot.playState == null) {
+    return true;
+  }
+  if (!isPlayStateConsistent(snapshot)) {
+    return false;
+  }
+
+  switch (snapshot.gameType) {
+    case 'sudoku':
+      return (
+        isSudokuPuzzle(snapshot.puzzle) &&
+        isSudokuComplete(snapshot.playState, snapshot.puzzle.givens)
+      );
+    case 'binary':
+      return (
+        isBinaryPuzzle(snapshot.puzzle) &&
+        isBinaryComplete(snapshot.playState, snapshot.puzzle.givens)
+      );
+    case 'nonogram': {
+      if (!isNonogramPuzzle(snapshot.puzzle)) return false;
+      const play = snapshot.playState;
+      if (!isNonogramGrid(play)) return false;
+      return isNonogramComplete(play, snapshot.puzzle.solution);
+    }
+    default:
+      return false;
+  }
 }
 
 export function isGameType(value: unknown): value is GameType {

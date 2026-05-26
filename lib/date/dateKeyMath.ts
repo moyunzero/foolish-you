@@ -1,0 +1,22 @@
+import { getLocalDateKey } from './localDay';
+
+function parseDateKey(dateKey: string): Date {
+  const [year, month, day] = dateKey.split('-').map(Number);
+  return new Date(year, month - 1, day);
+}
+
+/** 本地日历日加减（用于滚动 7 日窗口） */
+export function addDaysToDateKey(dateKey: string, deltaDays: number): string {
+  const date = parseDateKey(dateKey);
+  date.setDate(date.getDate() + deltaDays);
+  return getLocalDateKey(date);
+}
+
+/** 含 today 在内、向前共 `count` 个自然日的 dateKey（升序） */
+export function getRollingDateKeysEnding(today: string, count: number): string[] {
+  const keys: string[] = [];
+  for (let offset = count - 1; offset >= 0; offset -= 1) {
+    keys.push(addDaysToDateKey(today, -offset));
+  }
+  return keys;
+}

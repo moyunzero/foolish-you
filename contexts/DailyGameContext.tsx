@@ -41,6 +41,8 @@ import type {
   PuzzlePayload,
 } from '../lib/puzzles/types';
 import { isBinaryPuzzle, isNonogramPuzzle, isSudokuPuzzle } from '../lib/puzzles/types';
+import { recordCompletion } from '../lib/storage/completionHistoryStorage';
+import { incrementRatingCompletedCount } from '../lib/storage/ratingStorage';
 import { clearDailySnapshot } from '../lib/storage/dailyStorage';
 import { loadStreakState, saveStreakState } from '../lib/storage/streakStorage';
 import { isSnapshotPuzzleConsistent } from '../lib/storage/snapshotValidate';
@@ -61,6 +63,8 @@ export type DailyGameState = {
   streakLine: string;
   /** 今日已通关入账时顶栏连签高亮 */
   streakHighlight: boolean;
+  /** 连签展示天数（结果页战报等） */
+  displayStreak: number;
   updatePlayState: (next: PlayState) => void;
   markCompleted: () => Promise<void>;
   markAbandoned: () => Promise<void>;
@@ -171,6 +175,12 @@ function useDailyGameProviderValue(): DailyGameState {
       }
     }
 
+    if (next.status === 'completed') {
+      const startedAt = next.startedAt ?? Date.now();
+      const finishedAt = next.finishedAt ?? Date.now();
+      await recordCompletion(next.dateKey, finishedAt - startedAt);
+    }
+
     setSnapshot(next);
     setStatus(next.status);
     setStreak(streakState);
@@ -268,7 +278,11 @@ function useDailyGameProviderValue(): DailyGameState {
           setStatus(nextStatus);
           setSaveError(false);
           if (nextStatus === 'completed') {
+            const startedAt = updated.startedAt ?? Date.now();
+            const finishedAt = updated.finishedAt ?? Date.now();
+            await recordCompletion(updated.dateKey, finishedAt - startedAt);
             await recordStreakCheckIn(updated.dateKey);
+            await incrementRatingCompletedCount();
           }
         }
       });
@@ -297,6 +311,9 @@ function useDailyGameProviderValue(): DailyGameState {
 
   const playState = useMemo((): PlayState | null => {
     if (snapshot == null) return null;
+    if (snapshot.status !== 'playing') {
+      return snapshot.playState ?? null;
+    }
     if (snapshot.gameType === 'sudoku' && isSudokuPuzzle(snapshot.puzzle)) {
       return snapshot.playState ?? createEmptySudokuGrid();
     }
@@ -320,6 +337,7 @@ function useDailyGameProviderValue(): DailyGameState {
   );
 
   const streakHighlight = streakDisplay.checkedInToday;
+  const displayStreak = streakDisplay.displayStreak;
 
   return useMemo(
     () => ({
@@ -334,6 +352,7 @@ function useDailyGameProviderValue(): DailyGameState {
       streakSaveError,
       streakLine,
       streakHighlight,
+      displayStreak,
       updatePlayState,
       markCompleted,
       markAbandoned,
@@ -351,6 +370,7 @@ function useDailyGameProviderValue(): DailyGameState {
       streakSaveError,
       streakLine,
       streakHighlight,
+      displayStreak,
       updatePlayState,
       markCompleted,
       markAbandoned,

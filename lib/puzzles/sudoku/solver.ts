@@ -73,6 +73,12 @@ function countSolutions(grid: number[][], limit: number): number {
   return total;
 }
 
+/** Fills `grid` with a solution when one exists (mutates in place). */
+export function solveInPlace(grid: number[][]): boolean {
+  return solveBacktrack(grid);
+}
+
+/** Returns whether `grid` has a solution without mutating the input. */
 export function solve(grid: number[][]): boolean {
   const working = grid.map((row) => [...row]);
   return solveBacktrack(working);

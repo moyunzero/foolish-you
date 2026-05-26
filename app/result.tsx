@@ -1,9 +1,11 @@
 import { useRouter } from 'expo-router';
-import { useMemo } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { ScrollView, Text, View } from 'react-native';
 import Animated, { FadeIn } from 'react-native-reanimated';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 
+import ShareButton from '../components/result/ShareButton';
+import StatsCards from '../components/result/StatsCards';
 import FoolFaceBadge from '../components/result/FoolFaceBadge';
 import NonogramRevealCard from '../components/result/NonogramRevealCard';
 import ResultOutcomeBody from '../components/result/ResultOutcomeBody';
@@ -21,6 +23,10 @@ import {
 } from '../lib/copy/resultMessages';
 import { STREAK_SAVE_ERROR_MESSAGE } from '../lib/daily/saveFailureAlert';
 import { exitApplication } from '../lib/platform/exitApp';
+import { RATING_PROMPT_DELAY_MS } from '../lib/rating/constants';
+import { maybePromptAppReview } from '../lib/rating/maybePromptAppReview';
+import { computeStatsCards, type StatsCardsData } from '../lib/stats/computeStatsCards';
+import { buildShareCard } from '../lib/share/buildShareCard';
 import { isNonogramPuzzle } from '../lib/puzzles/types';
 
 const HORIZONTAL_PADDING = 24;
@@ -29,7 +35,7 @@ const FOOTER_HINT = getResultFooterHint();
 export default function ResultScreen() {
   const router = useRouter();
   const insets = useSafeAreaInsets();
-  const { status, snapshot, dateKey, seed, streakLine, streakHighlight, streakSaveError, retryStreakSave } =
+  const { status, snapshot, dateKey, seed, streakLine, streakHighlight, streakSaveError, retryStreakSave, gameType, puzzle, playState, displayStreak } =
     useDailyGame();
 
   const isSuccess = status === 'completed';
@@ -48,7 +54,70 @@ export default function ResultScreen() {
     );
   }, [isSuccess, isFail, snapshot?.startedAt, snapshot?.finishedAt, snapshot?.dateKey, snapshot?.seed, dateKey, seed]);
 
+  const shareText = useMemo(() => {
+    if (copy == null || snapshot == null || puzzle == null || playState == null || gameType == null || dateKey == null) {
+      return null;
+    }
+    const startedAt = snapshot.startedAt ?? Date.now();
+    const finishedAt = snapshot.finishedAt ?? Date.now();
+    const outcome = status === 'completed' ? 'completed' : 'abandoned';
+    if (outcome !== 'completed' && outcome !== 'abandoned') return null;
+
+    return buildShareCard({
+      gameType,
+      dateKey,
+      elapsedMs: finishedAt - startedAt,
+      status: outcome,
+      playState,
+      puzzle,
+      seed: seed ?? snapshot.seed,
+      streakDays: outcome === 'completed' ? Math.max(1, displayStreak) : undefined,
+    });
+  }, [copy, snapshot, puzzle, playState, gameType, dateKey, seed, status, displayStreak]);
+
   const bottomPadding = useDevBottomInset(insets.bottom + 16);
+  const ratingPromptAttemptedRef = useRef(false);
+  const [statsCards, setStatsCards] = useState<StatsCardsData | null>(null);
+
+  useEffect(() => {
+    if (copy == null || snapshot == null || dateKey == null) {
+      setStatsCards(null);
+      return;
+    }
+
+    const startedAt = snapshot.startedAt ?? Date.now();
+    const finishedAt = snapshot.finishedAt ?? Date.now();
+    let cancelled = false;
+
+    void computeStatsCards({
+      elapsedMs: finishedAt - startedAt,
+      today: dateKey,
+      seed: seed ?? snapshot.seed,
+    }).then((data) => {
+      if (!cancelled) setStatsCards(data);
+    });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [copy, snapshot, dateKey, seed]);
+
+  useEffect(() => {
+    if (!isSuccess || dateKey == null || ratingPromptAttemptedRef.current) {
+      return;
+    }
+    ratingPromptAttemptedRef.current = true;
+
+    const timer = setTimeout(() => {
+      void maybePromptAppReview({
+        outcome: 'completed',
+        streak: displayStreak,
+        dateKey,
+      });
+    }, RATING_PROMPT_DELAY_MS);
+
+    return () => clearTimeout(timer);
+  }, [isSuccess, dateKey, displayStreak]);
 
   const nonogramPuzzle =
     isSuccess &&
@@ -155,7 +224,19 @@ export default function ResultScreen() {
           )}
         </View>
 
-        <Animated.View entering={FadeIn.delay(1000).duration(500)} style={{ marginTop: 48 }}>
+        {statsCards != null ? <StatsCards data={statsCards} /> : null}
+
+        <Animated.View entering={FadeIn.delay(900).duration(450)} style={{ marginTop: 32 }}>
+          {shareText != null ? (
+            <ShareButton
+              shareText={shareText}
+              dateKey={dateKey}
+              seed={seed ?? snapshot?.seed}
+            />
+          ) : null}
+        </Animated.View>
+
+        <Animated.View entering={FadeIn.delay(1000).duration(500)} style={{ marginTop: 12 }}>
           <OutlinePillButton
             label={copy.cta}
             variant="primary"

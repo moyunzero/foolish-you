@@ -205,6 +205,7 @@ describe('DailyGameContext', () => {
     await expect(loadStreakState()).resolves.toEqual({
       currentStreak: 1,
       lastCheckInDateKey: FIXTURE_TODAY,
+      historicalMax: 1,
     });
 
     jest.useRealTimers();
@@ -238,6 +239,7 @@ describe('DailyGameContext', () => {
     await expect(loadStreakState()).resolves.toEqual({
       currentStreak: 1,
       lastCheckInDateKey: FIXTURE_TODAY,
+      historicalMax: 1,
     });
   });
 

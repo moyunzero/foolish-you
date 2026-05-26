@@ -1,0 +1,41 @@
+import { solve as solveBinary } from './binary/solver';
+import { countSolutionsUpTo as countSudokuSolutions } from './sudoku/solver';
+import type { BinaryPuzzle, GameType, NonogramPuzzle, PuzzlePayload, SudokuPuzzle } from './types';
+import { isBinaryPuzzle, isNonogramPuzzle, isSudokuPuzzle } from './types';
+
+function cloneSudokuGivens(givens: number[][]): number[][] {
+  return givens.map((row) => [...row]);
+}
+
+export function isSudokuPuzzleSolvable(puzzle: SudokuPuzzle): boolean {
+  const grid = cloneSudokuGivens(puzzle.givens);
+  return countSudokuSolutions(grid, 1) >= 1;
+}
+
+export function isBinaryPuzzleSolvable(puzzle: BinaryPuzzle): boolean {
+  return solveBinary(puzzle.givens);
+}
+
+/** Validates embedded solution grid shape (not a full solver check). */
+export function isNonogramPuzzleStructurallyValid(puzzle: NonogramPuzzle): boolean {
+  if (puzzle.solution.length !== puzzle.rows) return false;
+  return puzzle.solution.every(
+    (row) => Array.isArray(row) && row.length === puzzle.cols,
+  );
+}
+
+export function isPuzzleSolvable(
+  gameType: GameType,
+  puzzle: PuzzlePayload,
+): boolean {
+  if (gameType === 'sudoku' && isSudokuPuzzle(puzzle)) {
+    return isSudokuPuzzleSolvable(puzzle);
+  }
+  if (gameType === 'binary' && isBinaryPuzzle(puzzle)) {
+    return isBinaryPuzzleSolvable(puzzle);
+  }
+  if (gameType === 'nonogram' && isNonogramPuzzle(puzzle)) {
+    return isNonogramPuzzleStructurallyValid(puzzle);
+  }
+  return false;
+}

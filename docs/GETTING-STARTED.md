@@ -92,9 +92,11 @@ For most contributors, **Expo Go + `npm start`** is enough. Use a **development 
    - **`completed`** or **`abandoned`** → redirect to **`/result`** (outcome copy and animations).
    - **Error** → retry UI on the index screen (`refresh()`).
 
-4. **Play** — On the game screen, fill the grid, use the rules (`?`) if needed, then **complete** or **surrender** via the footer. Progress is saved locally (debounced).
+4. **Play** — On the game screen, fill the grid, use the rules (`?`) if needed, then **complete** or **surrender** via the footer. Progress is saved locally (debounced). The header shows elapsed time (`MM:SS`).
 
-5. **Next day** — When the local calendar `dateKey` changes, a new daily puzzle is selected deterministically (same day = same puzzle on the same device).
+5. **Result (v1.1)** — On **complete**, you see outcome copy, three stats cards (today’s time, weekly completions, historical max streak), and optionally **拷贝战报** (emoji grid to clipboard). A system rating prompt may appear after gated delays. **Surrender** skips streak check-in.
+
+6. **Next day** — When the local calendar `dateKey` changes, a new daily puzzle is selected deterministically via `selectDailyGameSafe` (same day = same puzzle on the same device).
 
 **Development-only:** In `__DEV__`, a dev tools panel can force game type or reset today (`constants/dev.ts`). It is not included in release builds.
 
@@ -107,7 +109,7 @@ For most contributors, **Expo Go + `npm start`** is enough. Use a **development 
 | **Simulator not opening** | iOS: Xcode installed, simulator booted; Android: AVD running before pressing `a`. |
 | **`expo run:ios` / `android` fails** | No native folders in git — run prebuild or use EAS; see [CONFIGURATION.md](./CONFIGURATION.md) EAS profiles. |
 | **Wrong Node version** | Use Node 20+ (`node -v`). No `.nvmrc` in repo; align with README. |
-| **Tests fail before UI work** | Run `npm install`, then `npm run typecheck`, `npm test`, `npm run lint` (same as CI). |
+| **Tests fail before UI work** | Run `npm install`, then `npm run typecheck`, `npm test`, `npm run test:migration`, `npm run lint` (same as CI). |
 
 ## Next steps
 
@@ -118,4 +120,4 @@ For most contributors, **Expo Go + `npm start`** is enough. Use a **development 
 | [CONFIGURATION.md](./CONFIGURATION.md) | `app.json`, EAS profiles, storage keys, dev flags |
 | [AGENTS.md](../AGENTS.md) | Implementation conventions for contributors and AI agents |
 
-**Before opening a PR:** run `npm run typecheck`, `npm test`, and `npm run lint` (see `.github/workflows/ci.yml`).
+**Before opening a PR:** run `npm run typecheck`, `npm test`, `npm run test:migration`, and `npm run lint` (see `.github/workflows/ci.yml`).
