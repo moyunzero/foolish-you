@@ -45,8 +45,8 @@
 
 ## 环境要求
 
-- **Node.js** 20 LTS 或更高（推荐 20.x）
-- **npm** 10+（本项目以 `package-lock.json` 为准）
+- **Node.js** 22 LTS（与 CI 一致；仓库根目录 `.nvmrc` 为 `22`）
+- **npm** 11+（与 CI 一致；本项目以 `package-lock.json` 为准，请用 `npm ci` 安装）
 - **iOS**：Xcode + 模拟器（仅 macOS），或 [Expo Go](https://expo.dev/go)
 - **Android**：Android Studio 模拟器，或真机 + Expo Go
 

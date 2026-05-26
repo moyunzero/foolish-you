@@ -136,7 +136,7 @@ Workflow: `.github/workflows/ci.yml` — job **`verify`**
 
 | Trigger | `push` and `pull_request` to `main` or `master` |
 |---------|--------------------------------------------------|
-| Runner | `ubuntu-latest`, Node.js 20 |
+| Runner | `ubuntu-latest`, Node.js 22 (from `.nvmrc`), npm 11+ |
 | Install | `npm ci` |
 
 Steps (in order):

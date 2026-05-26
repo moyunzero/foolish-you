@@ -10,8 +10,8 @@ Install these before cloning:
 
 | Requirement | Version / notes |
 |-------------|-----------------|
-| **Node.js** | 20 LTS or newer (README recommends 20.x) |
-| **npm** | 10+ (lockfile: `package-lock.json`) |
+| **Node.js** | **22 LTS** (matches CI; use `nvm use` with repo `.nvmrc`) |
+| **npm** | **11+** (lockfile: `package-lock.json`; prefer `npm ci`) |
 | **Git** | To clone the repository |
 
 **To run on a device or simulator:**
@@ -108,7 +108,7 @@ For most contributors, **Expo Go + `npm start`** is enough. Use a **development 
 | **Expo Go won’t connect** | Same network as the dev machine; disable VPN; try Expo tunnel; ensure Expo Go version supports SDK 54. |
 | **Simulator not opening** | iOS: Xcode installed, simulator booted; Android: AVD running before pressing `a`. |
 | **`expo run:ios` / `android` fails** | No native folders in git — run prebuild or use EAS; see [CONFIGURATION.md](./CONFIGURATION.md) EAS profiles. |
-| **Wrong Node version** | Use Node 20+ (`node -v`). No `.nvmrc` in repo; align with README. |
+| **Wrong Node version** | Use Node 22 + npm 11 (`node -v`, `npm -v`). Run `nvm use` in repo root (`.nvmrc`). |
 | **Tests fail before UI work** | Run `npm install`, then `npm run typecheck`, `npm test`, `npm run test:migration`, `npm run lint` (same as CI). |
 
 ## Next steps

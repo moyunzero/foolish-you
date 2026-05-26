@@ -10,7 +10,7 @@ How to work on this codebase day to day: local setup, verification commands, cod
 
 ## Local setup
 
-1. **Prerequisites:** Node.js 20 LTS+, npm 10+ (CI uses Node 20). iOS/Android tooling or Expo Go as described in the README.
+1. **Prerequisites:** Node.js 22 LTS + npm 11+ (same as CI; see repo `.nvmrc`). iOS/Android tooling or Expo Go as described in the README.
 2. **Clone and install:**
    ```bash
    git clone https://github.com/moyunzero/foolish-you.git
