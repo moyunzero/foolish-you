@@ -196,7 +196,7 @@ npx eas build --platform android
 | 版本 | 状态 | 范围 | 关键押注（数据锚点） |
 |------|------|------|------------------------|
 | **v1.0** | 已发布 | 每日数独 / 二进制 / 数绘、本地进度、连签、结果动效、计时、规则弹窗 | — |
-| **v1.1** | **当前（`1.1.0`）** | ① 结果页 emoji 战报拷贝（`lib/share/` + `expo-clipboard`）；② 评分引导（通关 + 完成局数等门槛，`expo-store-review`）；③ 结果页三数据小卡（今日用时 / 本周完成 / 历史最长连签，`historicalMax`）；④ 防御：`selectDailyGameSafe`、快照 `recoverSnapshot`、计时校正、迁移 + recovery 单测、Dev 恢复日志 | Wordle 90→300K DAU 来自一键 emoji 分享 |
+| **v1.1** | **当前（`1.1.1`）** | ① 结果页 emoji 战报拷贝（`lib/share/` + `expo-clipboard`）；② 评分引导（通关 + 完成局数等门槛，`expo-store-review`）；③ 结果页三数据小卡（今日用时 / 本周完成 / 历史最长连签，`historicalMax`）；④ 防御：`selectDailyGameSafe`、快照 `recoverSnapshot`、计时校正、迁移 + recovery 单测、Dev 恢复日志 | Wordle 90→300K DAU 来自一键 emoji 分享 |
 | **v2.0** | 规划中 | Streak Freeze（每周 1 张、最多堆 2）；每日提醒；个人统计页；「昨日错过」召回 | Duolingo：streak 寿命 +48%；7 天 streak 用户次日留存 2.4× |
 | **v2.1** | 规划中 | 周节奏难度（仍每天 1 局）；本月日历；月度数绘图鉴长图 | NYT Mini/Midi 节奏 |
 | **v3.0** | 规划中 | iCloud / Google 端到端同步或 QR 导入导出；30 天历史归档 | 避免与「离线优先 / 无社交」冲突 |
