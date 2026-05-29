@@ -1,10 +1,11 @@
-import { render, screen } from '@testing-library/react-native';
+import { screen } from '@testing-library/react-native';
 
 import GameScreenHeader from '../../../components/game/GameScreenHeader';
+import { renderWithI18n } from '../../helpers/renderWithI18n';
 
 describe('GameScreenHeader', () => {
   it('highlights streak line when checked in today', () => {
-    render(
+    renderWithI18n(
       <GameScreenHeader
         dateKey="2026-05-25"
         streakLine="连续 2 天 · 今天没傻过"
@@ -22,7 +23,7 @@ describe('GameScreenHeader', () => {
   });
 
   it('hides rules button when showRules is false', () => {
-    render(
+    renderWithI18n(
       <GameScreenHeader
         dateKey="2026-05-25"
         streakLine="连签战绩 · 完成今日入账"

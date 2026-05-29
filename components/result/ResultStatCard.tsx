@@ -1,6 +1,7 @@
 import { Text, View } from 'react-native';
 
 import { colors } from '../../constants/design';
+import { useI18n } from '../../lib/i18n';
 
 type VictoryStatProps = {
   variant: 'victory';
@@ -16,6 +17,9 @@ type DefeatStatProps = {
 type ResultStatCardProps = VictoryStatProps | DefeatStatProps;
 
 export default function ResultStatCard(props: ResultStatCardProps) {
+  const { strings } = useI18n();
+  const resultUi = strings.ui.result;
+
   if (props.variant === 'victory') {
     return (
       <View
@@ -36,7 +40,7 @@ export default function ResultStatCard(props: ResultStatCardProps) {
             color: colors.ink,
           }}
         >
-          {`用时：${props.elapsed}`}
+          {`${resultUi.elapsedPrefix}${props.elapsed}`}
         </Text>
       </View>
     );
@@ -63,7 +67,7 @@ export default function ResultStatCard(props: ResultStatCardProps) {
           color: colors.ink,
         }}
       >
-        {`傻了指数：${clamped}%`}
+        {`${resultUi.foolIndexPrefix}${clamped}%`}
       </Text>
 
       <View

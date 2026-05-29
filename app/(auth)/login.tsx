@@ -4,9 +4,12 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 
 import OutlinePillButton from '../../components/ui/OutlinePillButton';
 import { AUTH_ROUTES_ENABLED } from '../../constants/features';
+import { useI18n } from '../../lib/i18n';
 
 export default function LoginScreen() {
   const router = useRouter();
+  const { strings } = useI18n();
+  const loginUi = strings.ui.login;
 
   if (!AUTH_ROUTES_ENABLED) {
     return <Redirect href="/" />;
@@ -15,11 +18,11 @@ export default function LoginScreen() {
   return (
     <SafeAreaView className="flex-1 bg-canvas">
       <View className="flex-1 items-center justify-center px-6">
-        <Text className="text-sm text-body">登录以后再说</Text>
-        <Text className="mt-2 text-sm text-muted">账号同步将在后续版本开放</Text>
+        <Text className="text-sm text-body">{loginUi.title}</Text>
+        <Text className="mt-2 text-sm text-muted">{loginUi.subtitle}</Text>
         <View className="mt-10 w-full">
           <OutlinePillButton
-            label="返回今日"
+            label={loginUi.backToToday}
             onPress={() => router.replace('/')}
           />
         </View>

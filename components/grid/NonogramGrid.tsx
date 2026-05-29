@@ -8,6 +8,8 @@ import {
   NONOGRAM_FILL,
   type NonogramCell,
 } from '../../lib/puzzles/nonogram/spec';
+import { useI18n } from '../../lib/i18n';
+import type { Strings } from '../../lib/i18n/types';
 import type { NonogramPlayState } from '../../lib/puzzles/types';
 
 type NonogramGridProps = {
@@ -26,11 +28,16 @@ function maxClueCount(clues: number[][]): number {
   return clues.reduce((max, line) => Math.max(max, line.length), 0);
 }
 
-function cellA11yLabel(row: number, col: number, value: NonogramCell): string {
-  const pos = `第 ${row + 1} 行第 ${col + 1} 列`;
-  if (value === NONOGRAM_EMPTY) return `${pos}，空`;
-  if (value === NONOGRAM_FILL) return `${pos}，已填色`;
-  return `${pos}，已标记`;
+function cellA11yLabel(
+  grid: Strings['ui']['grid'],
+  row: number,
+  col: number,
+  value: NonogramCell,
+): string {
+  const pos = grid.rowCol(row, col);
+  if (value === NONOGRAM_EMPTY) return `${pos}${grid.empty}`;
+  if (value === NONOGRAM_FILL) return `${pos}${grid.filled}`;
+  return `${pos}${grid.marked}`;
 }
 
 function cellBackground(
@@ -82,6 +89,8 @@ export default function NonogramGrid({
   onPressCell,
   onLongPressCell,
 }: NonogramGridProps) {
+  const { strings } = useI18n();
+  const grid = strings.ui.grid;
   const maxRowClues = maxClueCount(rowClues);
   const maxColClues = maxClueCount(colClues);
   const clueBand = Math.max(maxRowClues, maxColClues, 1);
@@ -157,7 +166,7 @@ export default function NonogramGrid({
                 <Pressable
                   key={`${row}-${col}`}
                   accessibilityRole="button"
-                  accessibilityLabel={cellA11yLabel(row, col, value)}
+                  accessibilityLabel={cellA11yLabel(grid, row, col, value)}
                   onPress={() => onPressCell(row, col)}
                   onLongPress={() => onLongPressCell(row, col)}
                   style={{

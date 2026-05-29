@@ -2,7 +2,7 @@
 
 # Configuration
 
-This document describes how **傻了么 (Silaomo)** is configured: Expo app metadata, EAS build profiles, TypeScript constants, local persistence keys, styling toolchain, and optional environment overrides.
+This document describes how **傻了么 (Silly Me)** is configured: Expo app metadata, EAS build profiles, TypeScript constants, local persistence keys, styling toolchain, and optional environment overrides.
 
 ## Environment variables
 
@@ -26,7 +26,7 @@ Primary Expo configuration (static JSON, no `app.config.js`).
 |------|-------|-------|
 | Display name | 傻了么 | User-facing app name |
 | Slug / scheme | `foolish-you` | Deep links and Expo project slug |
-| Version | `1.1.0` | Marketing version (aligned with `package.json`) |
+| Version | `1.2.0` | Marketing version (aligned with `package.json`) |
 | UI style | `dark` | System appearance default |
 | New architecture | `true` | React Native new arch enabled |
 | Entry | `expo-router/entry` | Set in `package.json` `main` |

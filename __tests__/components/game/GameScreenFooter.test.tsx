@@ -1,11 +1,12 @@
-import { fireEvent, render, screen } from '@testing-library/react-native';
+import { fireEvent, screen } from '@testing-library/react-native';
 
 import GameScreenFooter from '../../../components/game/GameScreenFooter';
+import { renderWithI18n } from '../../helpers/renderWithI18n';
 
 describe('GameScreenFooter', () => {
   it('disables complete button when board is not ready', () => {
     const onComplete = jest.fn();
-    render(
+    renderWithI18n(
       <GameScreenFooter
         statusHint="还有冲突"
         canComplete={false}
@@ -21,7 +22,7 @@ describe('GameScreenFooter', () => {
   it('calls handlers when complete is enabled', () => {
     const onComplete = jest.fn();
     const onAbandon = jest.fn();
-    render(
+    renderWithI18n(
       <GameScreenFooter
         statusHint={null}
         canComplete
@@ -34,5 +35,20 @@ describe('GameScreenFooter', () => {
     fireEvent.press(screen.getByText('放弃今日挑战'));
     expect(onComplete).toHaveBeenCalledTimes(1);
     expect(onAbandon).toHaveBeenCalledTimes(1);
+  });
+
+  it('renders English labels when locale is en', () => {
+    renderWithI18n(
+      <GameScreenFooter
+        statusHint={null}
+        canComplete
+        onComplete={jest.fn()}
+        onAbandon={jest.fn()}
+      />,
+      { locale: 'en' },
+    );
+
+    expect(screen.getByText('Complete today')).toBeTruthy();
+    expect(screen.getByText('Give up today')).toBeTruthy();
   });
 });

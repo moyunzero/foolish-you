@@ -2,14 +2,17 @@ import { View } from 'react-native';
 import Svg, { Circle, Path, Rect } from 'react-native-svg';
 
 import { colors } from '../../constants/design';
+import { useI18n } from '../../lib/i18n';
 
 const SIZE = 88;
 
 /** 通关 SVG：墨镜 + 上扬笑弧（聪明、清醒，和认怂傻脸区分） */
 export default function WinFaceBadge() {
+  const { strings } = useI18n();
+
   return (
     <View
-      accessibilityLabel="通关成就图标，聪明脸"
+      accessibilityLabel={strings.ui.badges.winA11y}
       style={{ width: SIZE, height: SIZE, alignItems: 'center', justifyContent: 'center' }}
     >
       <Svg width={SIZE} height={SIZE} viewBox="0 0 80 80">

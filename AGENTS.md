@@ -1,4 +1,4 @@
-# Agent Guidelines — 傻了么 (Silaomo)
+# Agent Guidelines — 傻了么 (Silly Me)
 
 A **shipped, production** daily puzzle app (iOS / Android via Expo SDK 54). Real users run this — changes must preserve offline-first behavior, daily puzzle determinism, and existing storage shape.
 
@@ -24,7 +24,8 @@ A minimal, offline-first daily puzzle app (Expo). One puzzle per local calendar 
 - Timer, conflict highlighting (Sudoku/Binary), complete / surrender flow
 - Humorous result screen with Reanimated animations
 - Rule explanations in-game
-- **v1.1 (current `1.1.0`):** emoji share card (clipboard), result stats cards, in-app review prompt (gated), defensive daily selection + snapshot recovery
+- **v1.1 (`1.1.x`):** emoji share card (clipboard), result stats cards, in-app review prompt (gated), defensive daily selection + snapshot recovery
+- **v1.2 (current `1.2.0`):** system locale zh/en (`expo-localization`), English brand **Silly Me**, `locales/` + `useI18n`, bilingual privacy; no release settings UI (dev placeholder only)
 
 Store builds via EAS (`eas.json`, `app.json`).
 
@@ -70,6 +71,7 @@ foolish-you/
 │   ├── game.tsx              # Main play screen (sudoku | binary | nonogram)
 │   ├── result.tsx            # Win / surrender outcome
 │   ├── privacy.tsx           # Privacy policy screen
+│   ├── settings.tsx          # Settings placeholder (__DEV__ only)
 │   └── (auth)/login.tsx      # Login placeholder (v1 not implemented)
 ├── components/
 │   ├── grid/                 # SudokuGrid, BinaryGrid, NonogramGrid, SudokuNumpad
@@ -94,8 +96,10 @@ foolish-you/
 │   ├── stats/                # Result stats cards
 │   ├── rating/               # App Store review gating
 │   ├── time/                 # Elapsed ms + clock formatting
-│   ├── copy/                 # All user-facing strings
+│   ├── copy/                 # Locale-aware copy helpers (pools in locales/)
+│   ├── i18n/                 # resolveLocale, I18nProvider, format, gameLabels
 │   └── platform/             # Platform helpers (e.g. exitApp)
+├── locales/                  # zh / en strings (ui, copy, privacy, patterns)
 ├── constants/                # config, design tokens, dev flags, legal
 ├── assets/                   # Icons, splash
 └── __tests__/                # Jest unit + rtl
@@ -115,6 +119,15 @@ foolish-you/
 | `constants/` | `config.ts` (storage keys, debounce, versions), `design.ts` (colors), `dev.ts` (dev overrides). |
 
 When unsure whether to extract a component, ask or mirror the nearest existing pattern (`components/game/`, `components/grid/`).
+
+### Internationalization (v1.2)
+
+- **Device locale only in release:** `languageCode` starting with `zh` → `zh`, else `en`; missing → `en` (`lib/i18n/resolveLocale.ts`).
+- **Strings live in `locales/zh/` and `locales/en/`** — UI (`ui.ts`), copy pools (`copy.ts`), privacy (`privacy.ts`), nonogram titles (`patterns.ts`).
+- **UI reads copy via `useI18n()`** — `strings`, `locale`, `appDisplayName`. Do not hardcode user-facing text in components.
+- **`lib/copy/*`** — thin locale-param wrappers over `locales/*/copy` (result, rules, streak, share).
+- **Dev-only locale preview:** `app/settings.tsx` + `setLocaleOverride` in `I18nProvider` — memory only, no AsyncStorage; stripped in release (`Redirect` to `/`).
+- **Tests:** wrap RTL in `renderWithI18n` or `ScreenProviders` with `locale`; add English assertions in `__tests__/lib/i18n/en-smoke.test.ts` when touching copy/share.
 
 ### State management
 
@@ -196,7 +209,7 @@ Run the same checks as CI (`.github/workflows/ci.yml`):
 
 ```bash
 npm run typecheck       # tsc --noEmit
-npm test                # unit + rtl (272 tests)
+npm test                # unit + rtl (~298 tests; includes en-smoke)
 npm run test:migration  # snapshot migration golden fixtures
 npm run lint            # expo lint
 ```
@@ -216,7 +229,7 @@ For UI changes, include manual steps:
 - Kill app mid-game → progress restores
 - Complete and surrender → result copy, stats cards, share button (when `playState` valid), streak line on win, animations
 - Recovery path → `completed` with stripped `playState` shows outcome but no share button
-- Dev panel (`__DEV__`) → force game type / reset today / inject recovery scenario
+- Dev panel (`__DEV__`) → force game type / reset today / inject recovery / **settings placeholder** (locale preview)
 
 EAS builds (`eas.json` preview/production profiles) require device verification before tagging release-ready.
 
@@ -226,7 +239,7 @@ EAS builds (`eas.json` preview/production profiles) require device verification 
 
 - `components/dev/DevToolsPanel.tsx` and `constants/dev.ts` are gated by `__DEV__` and stripped from production.
 - `DEV_FORCE_GAME_TYPE` overrides daily selection in development only.
-- Panel actions: force game type, reset today, inject recovery scenario, clear rating/history, view recovery log.
+- Panel actions: force game type, reset today, inject recovery scenario, clear rating/history, view recovery log, open settings placeholder.
 
 ---
 

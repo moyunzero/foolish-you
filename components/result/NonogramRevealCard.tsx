@@ -2,6 +2,8 @@ import { View } from 'react-native';
 import Animated, { FadeIn } from 'react-native-reanimated';
 
 import { colors } from '../../constants/design';
+import { useI18n } from '../../lib/i18n';
+import { resolvePictureTitle } from '../../lib/i18n/pictureTitle';
 import type { NonogramPuzzle } from '../../lib/puzzles/types';
 
 type NonogramRevealCardProps = {
@@ -14,8 +16,10 @@ export default function NonogramRevealCard({
   puzzle,
   size = 160,
 }: NonogramRevealCardProps) {
+  const { locale, strings } = useI18n();
   const { rows, cols, solution, pictureTitle } = puzzle;
   const cellSize = Math.floor(size / Math.max(rows, cols));
+  const title = resolvePictureTitle(pictureTitle, locale);
 
   return (
     <View className="items-center">
@@ -32,7 +36,9 @@ export default function NonogramRevealCard({
                 return (
                   <Animated.View
                     key={`reveal-${row}-${col}`}
-                    entering={FadeIn.delay((row * cols + col) * 18).duration(220)}
+                    entering={FadeIn.delay((row * cols + col) * 18).duration(
+                      220,
+                    )}
                     style={{
                       width: cellSize,
                       height: cellSize,
@@ -58,7 +64,7 @@ export default function NonogramRevealCard({
           lineHeight: 20,
         }}
       >
-        {`今日画作 · ${pictureTitle}`}
+        {`${strings.ui.nonogramReveal.prefix} ${title}`}
       </Animated.Text>
     </View>
   );

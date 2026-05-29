@@ -3,8 +3,10 @@ import { ActivityIndicator, Text, View } from 'react-native';
 
 import { colors } from '../constants/design';
 import { useDailyGame } from '../contexts/DailyGameContext';
+import { useI18n } from '../lib/i18n';
 
 export default function IndexScreen() {
+  const { strings } = useI18n();
   const { status, refresh } = useDailyGame();
 
   if (status === 'loading') {
@@ -14,20 +16,20 @@ export default function IndexScreen() {
           className="text-[32px] leading-9 text-ink"
           style={{ fontFamily: 'Inter_400Regular', letterSpacing: -0.6 }}
         >
-          傻了么
+          {strings.app.name}
         </Text>
         <Text
           className="mt-3 text-sm uppercase tracking-[1.4px] text-muted"
           style={{ fontFamily: 'SpaceMono_400Regular' }}
         >
-          今日一题
+          {strings.app.tagline}
         </Text>
         <ActivityIndicator
           className="mt-8"
           color={colors.ink}
           size="large"
         />
-        <Text className="mt-4 text-base text-muted">正在翻出今天的傻题…</Text>
+        <Text className="mt-4 text-base text-muted">{strings.ui.index.loadingPuzzle}</Text>
       </View>
     );
   }
@@ -43,14 +45,14 @@ export default function IndexScreen() {
   return (
     <View className="flex-1 items-center justify-center bg-canvas px-6">
       <Text className="text-center text-base text-muted">
-        状态异常，正在重新加载今日题目…
+        {strings.ui.index.errorReloading}
       </Text>
       <ActivityIndicator className="mt-6" color={colors.ink} size="small" />
       <Text
         className="mt-6 text-sm text-accent-sunset"
         onPress={() => void refresh()}
       >
-        点此重试
+        {strings.ui.common.retryTap}
       </Text>
     </View>
   );

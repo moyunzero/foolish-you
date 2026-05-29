@@ -2,6 +2,8 @@ import { useRouter } from 'expo-router';
 import { useCallback } from 'react';
 import { Alert } from 'react-native';
 
+import { useI18n } from '../lib/i18n';
+
 type UseGameScreenActionsParams = {
   canComplete: boolean;
   markCompleted: () => Promise<void>;
@@ -14,6 +16,8 @@ export function useGameScreenActions({
   markAbandoned,
 }: UseGameScreenActionsParams) {
   const router = useRouter();
+  const { strings } = useI18n();
+  const alerts = strings.ui.alerts;
 
   const handleComplete = useCallback(async () => {
     if (!canComplete) return;
@@ -27,19 +31,15 @@ export function useGameScreenActions({
   }, [markAbandoned, router]);
 
   const confirmAbandon = useCallback(() => {
-    Alert.alert(
-      '放弃今日挑战？',
-      '今天的进度会保存为「认怂」，明天再来也行。',
-      [
-        { text: '继续玩', style: 'cancel' },
-        {
-          text: '放弃',
-          style: 'destructive',
-          onPress: () => void handleAbandon(),
-        },
-      ],
-    );
-  }, [handleAbandon]);
+    Alert.alert(alerts.abandonTitle, alerts.abandonMessage, [
+      { text: alerts.continuePlay, style: 'cancel' },
+      {
+        text: alerts.giveUp,
+        style: 'destructive',
+        onPress: () => void handleAbandon(),
+      },
+    ]);
+  }, [handleAbandon, alerts]);
 
   return { handleComplete, confirmAbandon };
 }

@@ -12,6 +12,7 @@ import {
   DailyGameProvider,
   useDailyGame,
 } from '../../contexts/DailyGameContext';
+import { I18nTestProvider } from '../../lib/i18n/I18nContext';
 import { getLocalDateKey } from '../../lib/date/localDay';
 import * as dailyStorage from '../../lib/storage/dailyStorage';
 import * as streakStorage from '../../lib/storage/streakStorage';
@@ -35,7 +36,11 @@ type AppStateHandler = (state: AppStateStatus) => void;
 const appStateHandlers: AppStateHandler[] = [];
 
 function wrapper({ children }: { children: ReactNode }) {
-  return <DailyGameProvider>{children}</DailyGameProvider>;
+  return (
+    <I18nTestProvider locale="zh">
+      <DailyGameProvider>{children}</DailyGameProvider>
+    </I18nTestProvider>
+  );
 }
 
 async function waitForHydrated(

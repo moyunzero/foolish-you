@@ -24,6 +24,7 @@ import { usePlayStatePersistence } from '../lib/daily/playStatePersistence';
 import { DEV_TOOLS_ENABLED } from '../constants/dev';
 import { formatStreakLine } from '../lib/copy/streak';
 import { getLocalDateKey } from '../lib/date/localDay';
+import { useI18n } from '../lib/i18n';
 import { applyCheckIn, getStreakDisplay } from '../lib/streak/streakLogic';
 import {
   needsStreakReconcile,
@@ -78,6 +79,7 @@ export type DailyGameState = {
 const DailyGameContext = createContext<DailyGameState | null>(null);
 
 function useDailyGameProviderValue(): DailyGameState {
+  const { locale } = useI18n();
   const [status, setStatus] = useState<HydrateStatus>('loading');
   const [snapshot, setSnapshot] = useState<DailySnapshot | null>(null);
   const [streak, setStreak] = useState<StreakState | null>(null);
@@ -99,8 +101,8 @@ function useDailyGameProviderValue(): DailyGameState {
     setSaveError(true);
     notifyDailySaveFailed(() => {
       void retrySaveRef.current();
-    });
-  }, []);
+    }, locale);
+  }, [locale]);
 
   const {
     updatePlayState,
@@ -141,9 +143,9 @@ function useDailyGameProviderValue(): DailyGameState {
     setStreakSaveError(true);
     notifyStreakSaveFailed(() => {
       void retryStreakSaveRef.current();
-    });
+    }, locale);
     return false;
-  }, []);
+  }, [locale]);
 
   const retryStreakSave = useCallback(async () => {
     const pending = pendingStreakRef.current;
@@ -332,8 +334,8 @@ function useDailyGameProviderValue(): DailyGameState {
   }, [streak, snapshot?.dateKey]);
 
   const streakLine = useMemo(
-    () => formatStreakLine(streakDisplay),
-    [streakDisplay],
+    () => formatStreakLine(streakDisplay, locale),
+    [streakDisplay, locale],
   );
 
   const streakHighlight = streakDisplay.checkedInToday;

@@ -1,6 +1,6 @@
 <!-- generated-by: gsd-doc-writer -->
 
-# Development — 傻了么 (Silaomo)
+# Development — 傻了么 (Silly Me)
 
 How to work on this codebase day to day: local setup, verification commands, code layout, and development-only tooling. For install and first run, see [README.md](../README.md). For env and build profiles, see [CONFIGURATION.md](./CONFIGURATION.md). For architecture and data flow, see [ARCHITECTURE.md](./ARCHITECTURE.md).
 
@@ -34,7 +34,7 @@ Before opening a PR or calling a change done, run the same checks as [`.github/w
 
 ```bash
 npm run typecheck      # tsc --noEmit (strict)
-npm test               # Jest: unit + rtl projects (~272 tests)
+npm test               # Jest: unit + rtl projects (~298 tests)
 npm run test:migration # snapshot migration golden fixtures only
 npm run lint           # expo lint (ESLint flat config)
 ```

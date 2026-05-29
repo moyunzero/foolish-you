@@ -8,22 +8,28 @@ import OutlinePillButton from '../components/ui/OutlinePillButton';
 import { PRIVACY_POLICY_URL } from '../constants/legal';
 import { colors } from '../constants/design';
 import { useDevBottomInset } from '../contexts/DevToolsUiContext';
+import { useI18n } from '../lib/i18n';
 
 const HORIZONTAL_PADDING = 24;
 
-async function openPublicPolicy() {
-  const canOpen = await Linking.canOpenURL(PRIVACY_POLICY_URL);
-  if (!canOpen) {
-    Alert.alert('无法打开链接', '请稍后重试，或在浏览器中访问公开隐私政策页面。');
-    return;
-  }
-  await Linking.openURL(PRIVACY_POLICY_URL);
-}
-
 export default function PrivacyScreen() {
   const router = useRouter();
+  const { strings } = useI18n();
+  const privacyUi = strings.ui.privacy;
   const insets = useSafeAreaInsets();
   const bottomPadding = useDevBottomInset(insets.bottom + 16);
+
+  async function openPublicPolicy() {
+    const canOpen = await Linking.canOpenURL(PRIVACY_POLICY_URL);
+    if (!canOpen) {
+      Alert.alert(
+        privacyUi.cannotOpenLinkTitle,
+        privacyUi.cannotOpenLinkMessage,
+      );
+      return;
+    }
+    await Linking.openURL(PRIVACY_POLICY_URL);
+  }
 
   return (
     <SafeAreaView className="flex-1 bg-canvas" edges={['top', 'bottom']}>
@@ -40,14 +46,14 @@ export default function PrivacyScreen() {
 
         <View className="mt-8 gap-3">
           <OutlinePillButton
-            label="在浏览器中打开公开版"
+            label={privacyUi.openInBrowser}
             variant="primary"
             onPress={() => void openPublicPolicy()}
           />
           <Pressable
             onPress={() => void openPublicPolicy()}
             accessibilityRole="link"
-            accessibilityLabel="公开隐私政策网址"
+            accessibilityLabel={privacyUi.publicUrlA11y}
             className="min-h-[44px] items-center justify-center"
           >
             <Text
@@ -60,7 +66,10 @@ export default function PrivacyScreen() {
               {PRIVACY_POLICY_URL}
             </Text>
           </Pressable>
-          <OutlinePillButton label="返回" onPress={() => router.back()} />
+          <OutlinePillButton
+            label={strings.ui.common.back}
+            onPress={() => router.back()}
+          />
         </View>
       </ScrollView>
     </SafeAreaView>

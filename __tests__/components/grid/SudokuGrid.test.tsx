@@ -1,6 +1,7 @@
-import { fireEvent, render, screen } from '@testing-library/react-native';
+import { fireEvent, screen } from '@testing-library/react-native';
 
 import SudokuGrid from '../../../components/grid/SudokuGrid';
+import { renderWithI18n } from '../../helpers/renderWithI18n';
 import { generateSudokuPuzzle } from '../../../lib/puzzles/sudoku/generator';
 import { createEmptyGrid } from '../../../lib/puzzles/sudoku/grid';
 
@@ -19,7 +20,7 @@ describe('SudokuGrid', () => {
     const onSelectCell = jest.fn();
     const { row, col } = firstEmptyCoord(puzzle.givens);
 
-    render(
+    renderWithI18n(
       <SudokuGrid
         givens={puzzle.givens}
         playState={createEmptyGrid()}
@@ -50,7 +51,7 @@ describe('SudokuGrid', () => {
       }
     }
 
-    render(
+    renderWithI18n(
       <SudokuGrid
         givens={puzzle.givens}
         playState={createEmptyGrid()}
@@ -74,7 +75,7 @@ describe('SudokuGrid', () => {
     const onLongPressCell = jest.fn();
     const { row, col } = firstEmptyCoord(puzzle.givens);
 
-    render(
+    renderWithI18n(
       <SudokuGrid
         givens={puzzle.givens}
         playState={createEmptyGrid()}

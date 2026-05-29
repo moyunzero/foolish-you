@@ -1,9 +1,13 @@
 import {
-  pickAbandonShareTail,
+  getShareCardCta,
+  pickAbandonShareTailSeeded,
   pickNonogramShareTail,
   pickSuccessShareTail,
-  SHARE_CARD_CTA,
 } from '../copy/shareCaption';
+import { getAppDisplayName } from '../i18n/format';
+import { getGameTypeLabel } from '../i18n/gameLabels';
+import type { Locale } from '../i18n/types';
+import { getStringsForLocale } from '../i18n/strings';
 import type {
   DailyStatus,
   GameType,
@@ -34,12 +38,6 @@ export type ShareCardInput = {
   puzzle: PuzzlePayload;
   seed?: number | null;
   streakDays?: number;
-};
-
-const GAME_TYPE_LABEL: Record<GameType, string> = {
-  sudoku: '数独',
-  binary: '二进制',
-  nonogram: '数绘',
 };
 
 const SLOW_ELAPSED_MS = 8 * 60 * 1000;
@@ -86,28 +84,31 @@ function pickBattleSuffix(
   status: ShareCardInput['status'],
   elapsedMs: number,
   grid: string,
+  locale: Locale,
 ): string {
+  const sc = getStringsForLocale(locale).ui.shareCard;
   if (status === 'abandoned') {
     return '';
   }
   if (gridHasWarnTone(grid)) {
-    return ' · 曾翻车';
+    return sc.suffixHadMistakes;
   }
   if (elapsedMs >= SLOW_ELAPSED_MS) {
-    return ' · 慢热局';
+    return sc.suffixSlow;
   }
   if (elapsedMs <= FAST_ELAPSED_MS) {
-    return ' · 手速局';
+    return sc.suffixFast;
   }
   if (gridIsAllComplete(grid)) {
-    return ' · 干净局';
+    return sc.suffixClean;
   }
   return '';
 }
 
 function pickStreakSuffix(
   status: ShareCardInput['status'],
-  streakDays?: number,
+  streakDays: number | undefined,
+  locale: Locale,
 ): string {
   if (status !== 'completed') {
     return '';
@@ -115,48 +116,57 @@ function pickStreakSuffix(
   if (streakDays == null || streakDays < STREAK_SHARE_MIN_DAYS) {
     return '';
   }
-  return ` · 连签 ${streakDays} 天`;
+  return getStringsForLocale(locale).ui.shareCard.streakDays(streakDays);
 }
 
-function buildBattleLine(input: ShareCardInput, grid: string): string {
+function buildBattleLine(input: ShareCardInput, grid: string, locale: Locale): string {
   const elapsed = formatShareElapsed(input.elapsedMs);
-  const battleSuffix = pickBattleSuffix(input.status, input.elapsedMs, grid);
-  const streakSuffix = pickStreakSuffix(input.status, input.streakDays);
+  const battleSuffix = pickBattleSuffix(input.status, input.elapsedMs, grid, locale);
+  const streakSuffix = pickStreakSuffix(input.status, input.streakDays, locale);
+  const sc = getStringsForLocale(locale).ui.shareCard;
 
   if (input.status === 'abandoned') {
-    return `🏳 认怂 · 用时 ${elapsed}`;
+    return sc.abandoned(elapsed);
   }
-  return `✅ 通关 · 用时 ${elapsed}${battleSuffix}${streakSuffix}`;
+  return sc.completed(elapsed, battleSuffix, streakSuffix);
 }
 
-function buildTailLine(input: ShareCardInput): string | null {
+function buildTailLine(input: ShareCardInput, locale: Locale): string | null {
   if (input.status === 'abandoned') {
-    return pickAbandonShareTail();
+    return pickAbandonShareTailSeeded(
+      input.seed ?? 0,
+      input.dateKey,
+      locale,
+    );
   }
   if (input.gameType === 'nonogram') {
-    return pickNonogramShareTail(input.seed ?? 0, input.dateKey);
+    return pickNonogramShareTail(input.seed ?? 0, input.dateKey, locale);
   }
   if (input.status === 'completed') {
-    return pickSuccessShareTail(input.seed ?? 0, input.dateKey);
+    return pickSuccessShareTail(input.seed ?? 0, input.dateKey, locale);
   }
   return null;
 }
 
-export function buildShareCard(input: ShareCardInput): string {
-  const label = GAME_TYPE_LABEL[input.gameType];
+export function buildShareCard(
+  input: ShareCardInput,
+  locale: Locale = 'zh',
+): string {
+  const label = getGameTypeLabel(input.gameType, locale);
+  const appName = getAppDisplayName(locale);
   const grid = summarizeGrid(input);
 
   const lines = [
-    `傻了么 · ${label} · ${input.dateKey}`,
-    buildBattleLine(input, grid),
+    `${appName} · ${label} · ${input.dateKey}`,
+    buildBattleLine(input, grid, locale),
     grid,
   ];
 
-  const tail = buildTailLine(input);
+  const tail = buildTailLine(input, locale);
   if (tail != null) {
     lines.push(tail);
   }
-  lines.push(SHARE_CARD_CTA);
+  lines.push(getShareCardCta(locale));
 
   return lines.join('\n');
 }

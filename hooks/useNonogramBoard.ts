@@ -3,6 +3,7 @@ import { useCallback, useMemo, useState } from 'react';
 import { cloneGrid, type CellCoord } from '../lib/puzzles/nonogram/grid';
 import { NONOGRAM_EMPTY } from '../lib/puzzles/nonogram/spec';
 import { cycleCellValue, isCompleteAndValid } from '../lib/puzzles/nonogram/validate';
+import { useI18n } from '../lib/i18n';
 import type { NonogramPlayState, NonogramPuzzle } from '../lib/puzzles/types';
 
 type UseNonogramBoardParams = {
@@ -16,6 +17,8 @@ export function useNonogramBoard({
   playState,
   updatePlayState,
 }: UseNonogramBoardParams) {
+  const { strings } = useI18n();
+  const hints = strings.ui.hooks.nonogram;
   const [selected, setSelected] = useState<CellCoord | null>(null);
 
   const canComplete = useMemo(
@@ -24,9 +27,9 @@ export function useNonogramBoard({
   );
 
   const statusHint = useMemo(() => {
-    if (canComplete) return '图案对了，可以收工';
-    return '点格子切换 · 长按清空';
-  }, [canComplete]);
+    if (canComplete) return hints.complete;
+    return hints.tapHint;
+  }, [canComplete, hints]);
 
   const handlePress = useCallback(
     (row: number, col: number) => {

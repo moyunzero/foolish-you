@@ -1,6 +1,7 @@
-import { fireEvent, render, screen } from '@testing-library/react-native';
+import { fireEvent, screen } from '@testing-library/react-native';
 
 import BinaryGrid from '../../../components/grid/BinaryGrid';
+import { renderWithI18n } from '../../helpers/renderWithI18n';
 import { generateBinaryPuzzle } from '../../../lib/puzzles/binary/generator';
 import {
   BINARY_EMPTY,
@@ -22,7 +23,7 @@ describe('BinaryGrid', () => {
     const onPressCell = jest.fn();
     const { row, col } = firstEmptyCoord(puzzle.givens);
 
-    render(
+    renderWithI18n(
       <BinaryGrid
         givens={puzzle.givens}
         playState={createEmptyGrid()}
@@ -44,7 +45,7 @@ describe('BinaryGrid', () => {
     const onLongPressCell = jest.fn();
     const { row, col } = firstEmptyCoord(puzzle.givens);
 
-    render(
+    renderWithI18n(
       <BinaryGrid
         givens={puzzle.givens}
         playState={createEmptyGrid()}

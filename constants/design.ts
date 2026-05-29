@@ -13,6 +13,12 @@ export const colors = {
   sudokuGiven: '#b8bcc4',
   /** 冲突 / 错误数字 */
   sudokuError: '#f87171',
+  /** 数独细格线（格与格之间） */
+  sudokuCellLine: 'rgba(255, 255, 255, 0.09)',
+  /** 数独 3×3 宫格分隔线 */
+  sudokuBoxLine: 'rgba(255, 255, 255, 0.22)',
+  /** 数独外框 */
+  sudokuOuterLine: 'rgba(255, 255, 255, 0.35)',
   primary: '#ffffff',
   onPrimary: '#0a0a0a',
 } as const;

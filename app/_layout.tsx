@@ -21,6 +21,7 @@ import { colors } from '../constants/design';
 import { DEV_TOOLS_ENABLED } from '../constants/dev';
 import { DailyGameProvider } from '../contexts/DailyGameContext';
 import { DevToolsUiProvider } from '../contexts/DevToolsUiContext';
+import { I18nProvider } from '../lib/i18n';
 
 SplashScreen.preventAutoHideAsync();
 
@@ -42,21 +43,23 @@ export default function RootLayout() {
   return (
     <GestureHandlerRootView className="flex-1 bg-canvas">
       <SafeAreaProvider>
-        <DailyGameProvider>
-          <DevToolsUiProvider>
-            <View className="flex-1">
-              <StatusBar style="light" />
-              <Stack
-                screenOptions={{
-                  headerShown: false,
-                  contentStyle: { backgroundColor: colors.canvas },
-                  animation: 'fade',
-                }}
-              />
-              {DEV_TOOLS_ENABLED ? <DevToolsPanel /> : null}
-            </View>
-          </DevToolsUiProvider>
-        </DailyGameProvider>
+        <I18nProvider>
+          <DailyGameProvider>
+            <DevToolsUiProvider>
+              <View className="flex-1">
+                <StatusBar style="light" />
+                <Stack
+                  screenOptions={{
+                    headerShown: false,
+                    contentStyle: { backgroundColor: colors.canvas },
+                    animation: 'fade',
+                  }}
+                />
+                {DEV_TOOLS_ENABLED ? <DevToolsPanel /> : null}
+              </View>
+            </DevToolsUiProvider>
+          </DailyGameProvider>
+        </I18nProvider>
       </SafeAreaProvider>
     </GestureHandlerRootView>
   );

@@ -32,4 +32,25 @@ describe('pickResultCopy', () => {
       expect(a.foolIndexPercent).toBeLessThan(96);
     }
   });
+
+  it('returns English copy without Chinese characters when locale is en', () => {
+    const completed = pickResultCopy('completed', 90_000, dateKey, seed, 'en');
+    const abandoned = pickResultCopy('abandoned', 90_000, dateKey, seed, 'en');
+    const cjk = /[\u4e00-\u9fff]/;
+
+    expect(completed.mode).toBe('completed');
+    expect(abandoned.mode).toBe('abandoned');
+    expect(completed.headline).not.toMatch(cjk);
+    expect(completed.punchline).not.toMatch(cjk);
+    expect(abandoned.headline).not.toMatch(cjk);
+    if (completed.mode === 'completed') {
+      expect(completed.elapsedDisplay).toMatch(/^\d+m \d+s$|^\d+s$/);
+    }
+  });
+
+  it('returns stable English copy for same inputs', () => {
+    const a = pickResultCopy('completed', 125_000, dateKey, seed, 'en');
+    const b = pickResultCopy('completed', 125_000, dateKey, seed, 'en');
+    expect(a).toEqual(b);
+  });
 });

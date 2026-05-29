@@ -9,6 +9,7 @@ import {
 
 import { colors } from '../../constants/design';
 import type { GameRulesContent } from '../../lib/copy/gameRules';
+import { useI18n } from '../../lib/i18n';
 
 type GameRulesModalProps = {
   visible: boolean;
@@ -21,6 +22,9 @@ export default function GameRulesModal({
   content,
   onClose,
 }: GameRulesModalProps) {
+  const { strings } = useI18n();
+  const rulesUi = strings.ui.rules;
+  const common = strings.ui.common;
   const { height: windowHeight } = useWindowDimensions();
   const maxScrollHeight = Math.min(windowHeight * 0.5, 360);
 
@@ -36,7 +40,7 @@ export default function GameRulesModal({
         style={{ backgroundColor: 'rgba(0, 0, 0, 0.72)' }}
         onPress={onClose}
         accessibilityRole="button"
-        accessibilityLabel="关闭规则说明"
+        accessibilityLabel={rulesUi.closeA11y}
       >
         <Pressable
           onPress={(e) => e.stopPropagation()}
@@ -111,7 +115,7 @@ export default function GameRulesModal({
             <Pressable
               onPress={onClose}
               accessibilityRole="button"
-              accessibilityLabel="知道了"
+              accessibilityLabel={common.gotIt}
               className="min-h-[44px] items-center justify-center rounded-full active:opacity-85"
               style={{ backgroundColor: colors.primary }}
             >
@@ -123,7 +127,7 @@ export default function GameRulesModal({
                   fontWeight: '600',
                 }}
               >
-                知道了
+                {common.gotIt}
               </Text>
             </Pressable>
           </View>

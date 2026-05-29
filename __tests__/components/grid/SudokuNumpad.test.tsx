@@ -1,13 +1,14 @@
-import { fireEvent, render, screen } from '@testing-library/react-native';
+import { fireEvent, screen } from '@testing-library/react-native';
 
 import SudokuNumpad from '../../../components/grid/SudokuNumpad';
+import { renderWithI18n } from '../../helpers/renderWithI18n';
 
 describe('SudokuNumpad', () => {
   it('calls onDigit and onClear', () => {
     const onDigit = jest.fn();
     const onClear = jest.fn();
 
-    render(
+    renderWithI18n(
       <SudokuNumpad
         onDigit={onDigit}
         onClear={onClear}
@@ -24,7 +25,7 @@ describe('SudokuNumpad', () => {
 
   it('does not call handlers when disabled', () => {
     const onDigit = jest.fn();
-    render(
+    renderWithI18n(
       <SudokuNumpad
         onDigit={onDigit}
         onClear={jest.fn()}

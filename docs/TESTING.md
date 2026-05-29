@@ -1,6 +1,6 @@
 <!-- generated-by: gsd-doc-writer -->
 
-# Testing — 傻了么 (Silaomo)
+# Testing — 傻了么 (Silly Me)
 
 This document describes how tests are organized, how to run them locally, how CI enforces quality gates, and when to use manual QA on device.
 
@@ -104,7 +104,8 @@ __tests__/
 
 - Place under `__tests__/contexts/`, `__tests__/hooks/`, `__tests__/components/`, or `__tests__/screens/` depending on what you are testing.
 - Use `@testing-library/react-native` (`render`, `screen`, `fireEvent`, `waitFor`, `act`).
-- Wrap screens in `ScreenProviders` from `__tests__/helpers/screenTestUtils.tsx` when `DailyGameContext` or dev UI state is required.
+- Wrap screens in `ScreenProviders` from `__tests__/helpers/screenTestUtils.tsx` when `DailyGameContext` or dev UI state is required (`locale` prop defaults to `zh`).
+- Use `renderWithI18n` from `__tests__/helpers/renderWithI18n.tsx` for components that only need `I18nTestProvider` (pass `{ locale: 'en' }` for English).
 - Use `dailyGameFixtures.ts` for snapshot fixtures and `expoRouterMocks.ts` for navigation assertions.
 
 **What to test where:**
@@ -142,7 +143,7 @@ Workflow: `.github/workflows/ci.yml` — job **`verify`**
 Steps (in order):
 
 1. **Typecheck** — `npm run typecheck`
-2. **Tests** — `npm test` (runs both `unit` and `rtl` projects; currently ~272 tests)
+2. **Tests** — `npm test` (runs both `unit` and `rtl` projects; currently ~298 tests)
 3. **Migration tests** — `npm run test:migration`
 4. **Lint** — `npm run lint`
 
@@ -162,7 +163,8 @@ Automated tests cover logic and component behavior; they do not replace on-devic
 - [ ] **Nonogram complete** — Finish a nonogram day; result screen shows pattern reveal card with correct title.
 - [ ] **Rules modal** — Open in-game rules; content matches current game type.
 - [ ] **Streak (if applicable)** — Win on consecutive days; streak count and copy update; skip a day resets as designed.
-- [ ] **Dev panel (`__DEV__` only)** — Force game type / reset today / inject recovery / clear logs; confirm no dev shortcuts affect release builds.
+- [ ] **Dev panel (`__DEV__` only)** — Force game type / reset today / inject recovery / clear logs; open **设置占位** to preview en/zh (not persisted); confirm no dev shortcuts affect release builds.
+- [ ] **English locale** — Set device language to English (or DevTools settings preview); game/result/privacy strings show **Silly Me** branding; share CTA uses `#SillyMe`.
 
 Start the dev server for manual testing:
 

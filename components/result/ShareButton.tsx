@@ -3,6 +3,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { AccessibilityInfo } from 'react-native';
 
 import { pickShareSuccessToast } from '../../lib/copy/shareToasts';
+import { useI18n } from '../../lib/i18n';
 import OutlinePillButton from '../ui/OutlinePillButton';
 
 type ShareButtonState = 'idle' | 'copying' | 'success' | 'error';
@@ -18,6 +19,8 @@ export default function ShareButton({
   dateKey,
   seed,
 }: ShareButtonProps) {
+  const { locale, strings } = useI18n();
+  const shareUi = strings.ui.share;
   const [state, setState] = useState<ShareButtonState>('idle');
   const resetTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -39,19 +42,19 @@ export default function ShareButton({
 
   const label =
     state === 'copying'
-      ? '拷贝中…'
+      ? shareUi.copying
       : state === 'success'
-        ? '已复制'
+        ? shareUi.copied
         : state === 'error'
-          ? '拷贝失败，再试一次'
-          : '拷贝战报';
+          ? shareUi.copyFailed
+          : shareUi.copyReport;
 
   const accessibilityLabel =
     state === 'success'
-      ? '战报已复制到剪贴板'
+      ? shareUi.copiedA11y
       : state === 'error'
-        ? '战报复制失败'
-        : '拷贝今日战报';
+        ? shareUi.failedA11y
+        : shareUi.copyReportA11y;
 
   const handlePress = useCallback(async () => {
     if (state === 'copying') return;
@@ -60,14 +63,18 @@ export default function ShareButton({
     try {
       await Clipboard.setStringAsync(shareText);
       setState('success');
-      const toast = pickShareSuccessToast(seed, dateKey ?? undefined);
+      const toast = pickShareSuccessToast(
+        seed,
+        dateKey ?? undefined,
+        locale,
+      );
       void AccessibilityInfo.announceForAccessibility(toast);
       scheduleIdle();
     } catch {
       setState('error');
       scheduleIdle();
     }
-  }, [state, shareText, seed, dateKey, scheduleIdle]);
+  }, [state, shareText, seed, dateKey, scheduleIdle, locale]);
 
   return (
     <OutlinePillButton
@@ -78,7 +85,7 @@ export default function ShareButton({
         void handlePress();
       }}
       accessibilityLabel={accessibilityLabel}
-      accessibilityHint="战报不含答案，可粘贴到聊天应用"
+      accessibilityHint={shareUi.hint}
       accessibilityState={{ busy: state === 'copying' }}
       className="w-full"
     />

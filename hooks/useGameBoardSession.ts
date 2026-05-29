@@ -22,12 +22,8 @@ import {
   isSudokuPuzzle,
 } from '../lib/puzzles/types';
 import type { HydrateStatus } from '../contexts/DailyGameContext';
-
-export const GAME_TYPE_LABEL: Record<GameType, string> = {
-  sudoku: '数独',
-  binary: '二进制',
-  nonogram: '数绘',
-};
+import { useI18n } from '../lib/i18n';
+import { getGameTypeLabel } from '../lib/i18n/gameLabels';
 
 const NONOGRAM_HOOK_STUB: NonogramPuzzle = (() => {
   const pattern = NONOGRAM_PATTERNS[0]!;
@@ -40,7 +36,7 @@ const NONOGRAM_HOOK_STUB: NonogramPuzzle = (() => {
     rowClues,
     colClues,
     solution,
-    pictureTitle: pattern.title,
+    pictureTitle: pattern.id,
     puzzleHash: 'stub',
   };
 })();
@@ -60,6 +56,7 @@ export function useGameBoardSession({
   status,
   updatePlayState,
 }: UseGameBoardSessionParams) {
+  const { locale } = useI18n();
   const isSudoku =
     gameType === 'sudoku' && puzzle != null && isSudokuPuzzle(puzzle);
   const isBinary =
@@ -123,7 +120,7 @@ export function useGameBoardSession({
         : null;
 
   const typeLabel =
-    gameType != null ? (GAME_TYPE_LABEL[gameType] ?? gameType) : '…';
+    gameType != null ? getGameTypeLabel(gameType, locale) : '…';
 
   return {
     isSudoku,

@@ -1,12 +1,14 @@
 import { Text, View } from 'react-native';
 
-import { colors } from '../../constants/design';
 import {
-  privacyPolicyMeta,
-  privacyPolicySections,
-} from '../../lib/copy/privacyPolicy';
+  DEVELOPER_ENTITY,
+  PRIVACY_POLICY_LAST_UPDATED,
+} from '../../constants/legal';
+import { colors } from '../../constants/design';
+import { useI18n } from '../../lib/i18n';
 
 export default function PrivacyPolicyBody() {
+  const { strings } = useI18n();
   return (
     <View className="gap-6">
       <View>
@@ -19,23 +21,23 @@ export default function PrivacyPolicyBody() {
             letterSpacing: -0.6,
           }}
         >
-          {privacyPolicyMeta.title}
+          {strings.privacy.title}
         </Text>
         <Text
           className="mt-2 text-sm text-muted"
           style={{ fontFamily: 'Inter_400Regular', lineHeight: 20 }}
         >
-          {`${privacyPolicyMeta.appName} · ${privacyPolicyMeta.developer}`}
+          {`${strings.app.name} · ${DEVELOPER_ENTITY}`}
         </Text>
         <Text
           className="mt-1 text-xs text-muted"
           style={{ fontFamily: 'SpaceMono_400Regular' }}
         >
-          {`最后更新：${privacyPolicyMeta.lastUpdated}`}
+          {strings.ui.legal.lastUpdated(PRIVACY_POLICY_LAST_UPDATED)}
         </Text>
       </View>
 
-      {privacyPolicySections.map((section) => (
+      {strings.privacy.sections.map((section) => (
         <View key={section.title}>
           <Text
             className="text-ink"

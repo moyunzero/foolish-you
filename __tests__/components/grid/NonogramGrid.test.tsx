@@ -1,12 +1,13 @@
-import { render, screen } from '@testing-library/react-native';
+import { screen } from '@testing-library/react-native';
 
 import NonogramGrid from '../../../components/grid/NonogramGrid';
+import { renderWithI18n } from '../../helpers/renderWithI18n';
 import { createEmptyGrid } from '../../../lib/puzzles/nonogram/grid';
 import { NONOGRAM_COLS, NONOGRAM_ROWS } from '../../../lib/puzzles/nonogram/spec';
 
 describe('NonogramGrid', () => {
   it('renders column clues top-to-bottom in clue order (first block at top)', () => {
-    render(
+    renderWithI18n(
       <NonogramGrid
         rows={NONOGRAM_ROWS}
         cols={NONOGRAM_COLS}

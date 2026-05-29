@@ -8,6 +8,7 @@ import {
   getConflictCells,
   isCompleteAndValid,
 } from '../lib/puzzles/sudoku/validate';
+import { useI18n } from '../lib/i18n';
 import type { SudokuGivens, SudokuPlayState } from '../lib/puzzles/types';
 
 function isSudokuEditable(givens: SudokuGivens, row: number, col: number): boolean {
@@ -25,6 +26,8 @@ export function useSudokuBoard({
   playState,
   updatePlayState,
 }: UseSudokuBoardParams) {
+  const { strings } = useI18n();
+  const hints = strings.ui.hooks.sudoku;
   const [selected, setSelected] = useState<CellCoord | null>(null);
 
   const conflicts = useMemo(
@@ -47,11 +50,12 @@ export function useSudokuBoard({
     !isSudokuEditable(givens, selected.row, selected.col);
 
   const statusHint = useMemo(() => {
-    if (canComplete) return '全部填对啦，可以收工';
-    if (conflicts.length > 0) return '有冲突，检查一下标红的格子';
-    if (numpadDisabled) return '先点一个空格，再选数字';
+    if (canComplete) return hints.complete;
+    if (conflicts.length > 0) return hints.conflict;
+    // 未选格：引导点空格；已选格（含题目格同数高亮）：盘面反馈足够，不重复提示
+    if (selected == null) return hints.selectCell;
     return null;
-  }, [canComplete, conflicts.length, numpadDisabled]);
+  }, [canComplete, conflicts.length, selected, hints]);
 
   const handleSelect = useCallback((row: number, col: number) => {
     setSelected({ row, col });

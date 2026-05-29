@@ -10,6 +10,7 @@ import {
   getConflictCells as getBinaryConflictCells,
   isCompleteAndValid as isBinaryComplete,
 } from '../lib/puzzles/binary/validate';
+import { useI18n } from '../lib/i18n';
 import type { BinaryGivens, BinaryPlayState } from '../lib/puzzles/types';
 
 function isBinaryEditable(givens: BinaryGivens, row: number, col: number): boolean {
@@ -43,6 +44,8 @@ export function useBinaryBoard({
   playState,
   updatePlayState,
 }: UseBinaryBoardParams) {
+  const { strings } = useI18n();
+  const hints = strings.ui.hooks.binary;
   const [selected, setSelected] = useState<CellCoord | null>(null);
 
   const conflicts = useMemo(
@@ -56,10 +59,10 @@ export function useBinaryBoard({
   );
 
   const statusHint = useMemo(() => {
-    if (canComplete) return '规则都满足了，可以收工';
-    if (conflicts.length > 0) return '有违规，检查一下标红的格子';
-    return '点格子切换 · 长按清空';
-  }, [canComplete, conflicts.length]);
+    if (canComplete) return hints.complete;
+    if (conflicts.length > 0) return hints.conflict;
+    return hints.tapHint;
+  }, [canComplete, conflicts.length, hints]);
 
   const handlePress = useCallback(
     (row: number, col: number) => {

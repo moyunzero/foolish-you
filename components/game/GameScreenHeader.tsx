@@ -1,5 +1,7 @@
 import { Text, View } from 'react-native';
 
+import { useI18n } from '../../lib/i18n';
+import { formatTodayMeta } from '../../lib/i18n/format';
 import GameRulesButton from './GameRulesButton';
 import type { GameType } from '../../lib/puzzles/types';
 
@@ -29,12 +31,14 @@ export default function GameScreenHeader({
   gameType,
   showRules,
 }: GameScreenHeaderProps) {
+  const { locale, strings } = useI18n();
+
   return (
     <View className="gap-2">
       <View className="flex-row items-start justify-between gap-3">
         <View className="min-w-0 flex-1">
           <Text className="text-muted" style={META_STYLE}>
-            {`今日 · ${dateKey ?? '—'}`}
+            {formatTodayMeta(dateKey, locale)}
           </Text>
           <Text
             className={streakHighlight ? 'text-accent-sunset' : 'text-muted'}
@@ -48,7 +52,7 @@ export default function GameScreenHeader({
           style={{ backgroundColor: 'rgba(255, 255, 255, 0.04)' }}
         >
           <Text className="text-muted" style={META_STYLE}>
-            用时
+            {strings.ui.common.timer}
           </Text>
           <Text
             className="ml-1.5 text-ink"

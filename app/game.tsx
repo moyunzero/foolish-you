@@ -18,14 +18,12 @@ import { useDevBottomInset } from '../contexts/DevToolsUiContext';
 import { useElapsedTimer } from '../hooks/useElapsedTimer';
 import { useGameBoardSession } from '../hooks/useGameBoardSession';
 import { useGameScreenActions } from '../hooks/useGameScreenActions';
-import {
-  SAVE_ERROR_MESSAGE,
-  STREAK_SAVE_ERROR_MESSAGE,
-} from '../lib/daily/saveFailureAlert';
+import { useI18n } from '../lib/i18n';
 
 const HORIZONTAL_PADDING = 24;
 
 export default function GameScreen() {
+  const { strings } = useI18n();
   const router = useRouter();
   const insets = useSafeAreaInsets();
   const { width: screenWidth } = useWindowDimensions();
@@ -90,16 +88,16 @@ export default function GameScreen() {
 
       {saveError ? (
         <GameSaveErrorBanner
-          message={SAVE_ERROR_MESSAGE}
-          retryLabel="重试保存"
+          message={strings.ui.alerts.saveFailedMessage}
+          retryLabel={strings.ui.common.retrySave}
           onRetry={() => void retrySave()}
         />
       ) : null}
 
       {streakSaveError ? (
         <GameSaveErrorBanner
-          message={STREAK_SAVE_ERROR_MESSAGE}
-          retryLabel="重试连签"
+          message={strings.ui.alerts.streakSaveFailedMessage}
+          retryLabel={strings.ui.common.retryStreak}
           onRetry={() => void retryStreakSave()}
         />
       ) : null}
@@ -107,10 +105,10 @@ export default function GameScreen() {
       {session.showReload ? (
         <View className="flex-1 items-center justify-center gap-3 px-8">
           <Text className="text-center text-base text-body">
-            今日题目加载失败，可能是本地数据损坏。
+            {strings.ui.game.loadFailed}
           </Text>
           <OutlinePillButton
-            label="重新加载"
+            label={strings.ui.common.reload}
             variant="primary"
             onPress={() => void refresh()}
           />

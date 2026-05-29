@@ -1,7 +1,8 @@
 import { useState } from 'react';
 import { Pressable, Text } from 'react-native';
 
-import { GAME_RULES } from '../../lib/copy/gameRules';
+import { getGameRules } from '../../lib/copy/gameRules';
+import { useI18n } from '../../lib/i18n';
 import type { GameType } from '../../lib/puzzles/types';
 import GameRulesModal from './GameRulesModal';
 
@@ -10,15 +11,16 @@ type GameRulesButtonProps = {
 };
 
 export default function GameRulesButton({ gameType }: GameRulesButtonProps) {
+  const { locale, strings } = useI18n();
   const [visible, setVisible] = useState(false);
-  const content = GAME_RULES[gameType];
+  const content = getGameRules(locale)[gameType];
 
   return (
     <>
       <Pressable
         onPress={() => setVisible(true)}
         accessibilityRole="button"
-        accessibilityLabel={`查看${content.title}`}
+        accessibilityLabel={strings.ui.rules.viewRulesA11y(content.title)}
         hitSlop={8}
         className="items-center justify-center rounded-full border border-hairline active:opacity-80"
         style={{

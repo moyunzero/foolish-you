@@ -1,6 +1,8 @@
 import { Pressable, Text, View } from 'react-native';
 
 import { colors } from '../../constants/design';
+import { useI18n } from '../../lib/i18n';
+import type { Strings } from '../../lib/i18n/types';
 
 type SudokuNumpadProps = {
   onDigit: (digit: number) => void;
@@ -12,18 +14,33 @@ type SudokuNumpadProps = {
 
 const DIGITS = [1, 2, 3, 4, 5, 6, 7, 8, 9] as const;
 
+function digitA11yLabel(
+  grid: Strings['ui']['grid'],
+  label: string,
+  dimmed: boolean,
+  isClear: boolean,
+): string {
+  if (isClear) return grid.clearCell;
+  if (dimmed) return grid.digitDisabled(Number(label));
+  return grid.fillDigit(Number(label));
+}
+
 function DigitKey({
   label,
   digit,
   onPress,
   padDisabled,
   filled,
+  grid,
+  isClear,
 }: {
   label: string;
   digit?: number;
   onPress: () => void;
   padDisabled: boolean;
   filled?: boolean;
+  grid: Strings['ui']['grid'];
+  isClear: boolean;
 }) {
   const keyDisabled = padDisabled;
   const dimmed = filled === true;
@@ -31,13 +48,7 @@ function DigitKey({
   return (
     <Pressable
       accessibilityRole="button"
-      accessibilityLabel={
-        label === '清除'
-          ? '清除当前格'
-          : dimmed
-            ? `数字 ${label} 在本行、列或宫内已有`
-            : `填入 ${label}`
-      }
+      accessibilityLabel={digitA11yLabel(grid, label, dimmed, isClear)}
       disabled={keyDisabled}
       onPress={onPress}
       style={{
@@ -70,6 +81,8 @@ export default function SudokuNumpad({
   disabled,
   dimmedDigits,
 }: SudokuNumpadProps) {
+  const { strings } = useI18n();
+  const grid = strings.ui.grid;
   const rows = [
     DIGITS.slice(0, 3),
     DIGITS.slice(3, 6),
@@ -87,6 +100,8 @@ export default function SudokuNumpad({
               label={String(digit)}
               padDisabled={disabled}
               filled={dimmedDigits?.has(digit)}
+              grid={grid}
+              isClear={false}
               onPress={() => onDigit(digit)}
             />
           ))}
@@ -94,8 +109,10 @@ export default function SudokuNumpad({
       ))}
       <View className="flex-row">
         <DigitKey
-          label="清除"
+          label={grid.clear}
           padDisabled={disabled}
+          grid={grid}
+          isClear
           onPress={onClear}
         />
       </View>

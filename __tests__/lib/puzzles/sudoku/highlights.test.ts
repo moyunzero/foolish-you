@@ -38,4 +38,13 @@ describe('getCellHighlightKind', () => {
       getCellHighlightKind(1, 1, { row: 0, col: 2 }, givens, play),
     ).toBe('sameDigit');
   });
+
+  it('highlights matching givens when a clue cell is selected', () => {
+    expect(
+      getCellHighlightKind(0, 0, { row: 0, col: 0 }, givens, play),
+    ).toBe('selected');
+    expect(
+      getCellHighlightKind(1, 5, { row: 0, col: 0 }, givens, play),
+    ).toBe('sameDigit');
+  });
 });

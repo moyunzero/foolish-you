@@ -2,14 +2,17 @@ import { View } from 'react-native';
 import Svg, { Circle, Path } from 'react-native-svg';
 
 import { colors } from '../../constants/design';
+import { useI18n } from '../../lib/i18n';
 
 const SIZE = 88;
 
 /** 认怂 SVG：圆眼 + 下撇嘴（和通关墨镜脸区分） */
 export default function FoolFaceBadge() {
+  const { strings } = useI18n();
+
   return (
     <View
-      accessibilityLabel="傻了成就图标"
+      accessibilityLabel={strings.ui.badges.foolA11y}
       style={{ width: SIZE, height: SIZE, alignItems: 'center', justifyContent: 'center' }}
     >
       <Svg width={SIZE} height={SIZE} viewBox="0 0 80 80">

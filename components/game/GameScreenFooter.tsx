@@ -1,5 +1,6 @@
 import { Text, View } from 'react-native';
 
+import { useI18n } from '../../lib/i18n';
 import OutlinePillButton from '../ui/OutlinePillButton';
 
 type GameScreenFooterProps = {
@@ -16,6 +17,9 @@ export default function GameScreenFooter({
   onComplete,
   onAbandon,
 }: GameScreenFooterProps) {
+  const { strings } = useI18n();
+  const ui = strings.ui;
+
   return (
     <View className="gap-3 border-t border-hairline pt-4">
       {statusHint != null ? (
@@ -33,14 +37,14 @@ export default function GameScreenFooter({
       ) : null}
 
       <OutlinePillButton
-        label="完成今日"
+        label={ui.game.completeToday}
         variant={canComplete ? 'primary' : 'outline'}
         disabled={!canComplete}
         onPress={onComplete}
       />
 
       <OutlinePillButton
-        label="放弃今日挑战"
+        label={ui.game.giveUpToday}
         variant="outline"
         onPress={onAbandon}
         className="min-h-[40px] border-transparent py-2 opacity-80"

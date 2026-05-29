@@ -5,6 +5,8 @@ import {
   pickStreakSubline,
   pickWeeklySubline,
 } from '../copy/statsSublines';
+import type { Locale } from '../i18n/types';
+import { getStringsForLocale } from '../i18n/strings';
 import { loadCompletionHistory } from '../storage/completionHistoryStorage';
 import { loadStreakState } from '../storage/streakStorage';
 import { countWeeklyCompletedFromEntries } from './weeklyCompletedCount';
@@ -23,11 +25,15 @@ export type ComputeStatsCardsInput = {
   elapsedMs: number;
   today: string;
   seed?: number | null;
+  locale?: Locale;
 };
 
 export async function computeStatsCards(
   input: ComputeStatsCardsInput,
 ): Promise<StatsCardsData> {
+  const locale = input.locale ?? 'zh';
+  const labels = getStringsForLocale(locale).ui.stats;
+
   const [history, streakState] = await Promise.all([
     loadCompletionHistory(),
     loadStreakState(),
@@ -47,24 +53,28 @@ export async function computeStatsCards(
   return {
     cards: [
       {
-        label: '今日',
+        label: labels.today,
         value: formatStatsClock(input.elapsedMs),
         subline: pickElapsedSubline(
           input.elapsedMs,
           history.entries,
           input.today,
           elapsedRng,
+          locale,
         ),
       },
       {
-        label: '本周',
+        label: labels.thisWeek,
         value: `${weeklyCount} / 7`,
-        subline: pickWeeklySubline(weeklyCount, weeklyRng),
+        subline: pickWeeklySubline(weeklyCount, weeklyRng, locale),
       },
       {
-        label: '最长连签',
-        value: `${historicalMax} 天`,
-        subline: pickStreakSubline(currentStreak, historicalMax, streakRng),
+        label: labels.bestStreak,
+        value:
+          locale === 'zh'
+            ? `${historicalMax} 天`
+            : `${historicalMax} days`,
+        subline: pickStreakSubline(currentStreak, historicalMax, streakRng, locale),
       },
     ],
   };

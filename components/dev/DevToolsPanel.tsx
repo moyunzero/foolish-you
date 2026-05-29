@@ -121,6 +121,12 @@ export default function DevToolsPanel() {
           </Text>
 
           <View className="flex-row flex-wrap gap-2">
+            <DevButton
+              label="设置占位"
+              onPress={() => {
+                router.push('/settings');
+              }}
+            />
             <DevButton label="数独" active={gameType === 'sudoku'} onPress={() => void regenerate('sudoku')} />
             <DevButton label="二进制" active={gameType === 'binary'} onPress={() => void regenerate('binary')} />
             <DevButton label="数绘" active={gameType === 'nonogram'} onPress={() => void regenerate('nonogram')} />

@@ -1,21 +1,30 @@
+import * as enCopy from '../../locales/en/copy';
+import * as zhCopy from '../../locales/zh/copy';
+import type { Locale } from '../i18n/types';
 import type { StreakDisplay } from '../streak/types';
 
-/** 游戏页连签副文案（幽默向，不用「打卡/未打卡」） */
-export function formatStreakLine(display: StreakDisplay): string {
+function streakFor(locale: Locale) {
+  return locale === 'zh' ? zhCopy.streak : enCopy.streak;
+}
+
+export function formatStreakLine(
+  display: StreakDisplay,
+  locale: Locale = 'zh',
+): string {
+  const s = streakFor(locale);
   const { displayStreak, checkedInToday, streakBroken } = display;
 
   if (streakBroken) {
-    return '连签断了 · 通关一次重新开张';
+    return s.broken;
   }
 
   if (displayStreak === 0) {
-    return '连签战绩 · 完成今日入账';
+    return s.zero;
   }
 
-  const prefix = `连续 ${displayStreak} 天`;
   if (checkedInToday) {
-    return `${prefix} · 今天没傻过`;
+    return s.checkedIn(displayStreak);
   }
 
-  return `${prefix} · 今日卷面待交`;
+  return s.pending(displayStreak);
 }

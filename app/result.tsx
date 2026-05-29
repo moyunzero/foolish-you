@@ -21,7 +21,8 @@ import {
   getResultFooterHint,
   pickResultCopy,
 } from '../lib/copy/resultMessages';
-import { STREAK_SAVE_ERROR_MESSAGE } from '../lib/daily/saveFailureAlert';
+import { useI18n } from '../lib/i18n';
+import { formatTodayMeta } from '../lib/i18n/format';
 import { exitApplication } from '../lib/platform/exitApp';
 import { RATING_PROMPT_DELAY_MS } from '../lib/rating/constants';
 import { maybePromptAppReview } from '../lib/rating/maybePromptAppReview';
@@ -30,9 +31,9 @@ import { buildShareCard } from '../lib/share/buildShareCard';
 import { isNonogramPuzzle } from '../lib/puzzles/types';
 
 const HORIZONTAL_PADDING = 24;
-const FOOTER_HINT = getResultFooterHint();
 
 export default function ResultScreen() {
+  const { locale, strings } = useI18n();
   const router = useRouter();
   const insets = useSafeAreaInsets();
   const { status, snapshot, dateKey, seed, streakLine, streakHighlight, streakSaveError, retryStreakSave, gameType, puzzle, playState, displayStreak } =
@@ -51,8 +52,9 @@ export default function ResultScreen() {
       finishedAt - startedAt,
       key,
       seed ?? snapshot?.seed,
+      locale,
     );
-  }, [isSuccess, isFail, snapshot?.startedAt, snapshot?.finishedAt, snapshot?.dateKey, snapshot?.seed, dateKey, seed]);
+  }, [isSuccess, isFail, snapshot?.startedAt, snapshot?.finishedAt, snapshot?.dateKey, snapshot?.seed, dateKey, seed, locale]);
 
   const shareText = useMemo(() => {
     if (copy == null || snapshot == null || puzzle == null || playState == null || gameType == null || dateKey == null) {
@@ -63,17 +65,21 @@ export default function ResultScreen() {
     const outcome = status === 'completed' ? 'completed' : 'abandoned';
     if (outcome !== 'completed' && outcome !== 'abandoned') return null;
 
-    return buildShareCard({
-      gameType,
-      dateKey,
-      elapsedMs: finishedAt - startedAt,
-      status: outcome,
-      playState,
-      puzzle,
-      seed: seed ?? snapshot.seed,
-      streakDays: outcome === 'completed' ? Math.max(1, displayStreak) : undefined,
-    });
-  }, [copy, snapshot, puzzle, playState, gameType, dateKey, seed, status, displayStreak]);
+    return buildShareCard(
+      {
+        gameType,
+        dateKey,
+        elapsedMs: finishedAt - startedAt,
+        status: outcome,
+        playState,
+        puzzle,
+        seed: seed ?? snapshot.seed,
+        streakDays:
+          outcome === 'completed' ? Math.max(1, displayStreak) : undefined,
+      },
+      locale,
+    );
+  }, [copy, snapshot, puzzle, playState, gameType, dateKey, seed, status, displayStreak, locale]);
 
   const bottomPadding = useDevBottomInset(insets.bottom + 16);
   const ratingPromptAttemptedRef = useRef(false);
@@ -93,6 +99,7 @@ export default function ResultScreen() {
       elapsedMs: finishedAt - startedAt,
       today: dateKey,
       seed: seed ?? snapshot.seed,
+      locale,
     }).then((data) => {
       if (!cancelled) setStatsCards(data);
     });
@@ -100,7 +107,7 @@ export default function ResultScreen() {
     return () => {
       cancelled = true;
     };
-  }, [copy, snapshot, dateKey, seed]);
+  }, [copy, snapshot, dateKey, seed, locale]);
 
   useEffect(() => {
     if (!isSuccess || dateKey == null || ratingPromptAttemptedRef.current) {
@@ -130,9 +137,12 @@ export default function ResultScreen() {
     return (
       <SafeAreaView className="flex-1 bg-canvas">
         <View className="flex-1 items-center justify-center px-6">
-          <Text className="text-base text-muted">今日状态加载中…</Text>
+          <Text className="text-base text-muted">{strings.ui.result.loadingStatus}</Text>
           <View className="mt-8 w-full">
-            <OutlinePillButton label="返回" onPress={() => router.replace('/')} />
+            <OutlinePillButton
+              label={strings.ui.common.back}
+              onPress={() => router.replace('/')}
+            />
           </View>
         </View>
       </SafeAreaView>
@@ -155,7 +165,7 @@ export default function ResultScreen() {
           className="text-[11px] text-muted"
           style={{ fontFamily: 'SpaceMono_400Regular' }}
         >
-          {`今日 · ${dateKey ?? '—'}`}
+          {formatTodayMeta(dateKey, locale)}
         </Text>
 
         {isSuccess ? (
@@ -174,8 +184,8 @@ export default function ResultScreen() {
 
         {streakSaveError ? (
           <GameSaveErrorBanner
-            message={STREAK_SAVE_ERROR_MESSAGE}
-            retryLabel="重试连签"
+            message={strings.ui.alerts.streakSaveFailedMessage}
+            retryLabel={strings.ui.common.retryStreak}
             horizontalPadding={0}
             onRetry={() => void retryStreakSave()}
           />
@@ -191,7 +201,7 @@ export default function ResultScreen() {
               ) : null}
               <ResultOutcomeBody
               badge={<WinFaceBadge />}
-              statusLabel="通关"
+              statusLabel={strings.ui.result.statusWin}
               statusTone="victory"
               headline={copy.headline}
               punchline={copy.punchline}
@@ -207,7 +217,7 @@ export default function ResultScreen() {
           ) : (
             <ResultOutcomeBody
               badge={<FoolFaceBadge />}
-              statusLabel="认怂"
+              statusLabel={strings.ui.result.statusSurrender}
               statusTone="defeat"
               headline={copy.headline}
               punchline={copy.punchline}
@@ -246,7 +256,7 @@ export default function ResultScreen() {
             className="mt-4 text-center text-xs text-muted"
             style={{ fontFamily: 'Inter_400Regular', color: colors.muted }}
           >
-            {FOOTER_HINT}
+            {getResultFooterHint(locale)}
           </Text>
           <PrivacyPolicyFooterLink className="mt-1" />
         </Animated.View>

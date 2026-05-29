@@ -4,6 +4,7 @@ import { Pressable, Text } from 'react-native';
 import { DEV_TOOLS_ENABLED } from '../../constants/dev';
 import { colors } from '../../constants/design';
 import { useDevToolsUi } from '../../contexts/DevToolsUiContext';
+import { useI18n } from '../../lib/i18n';
 
 type PrivacyPolicyFooterLinkProps = {
   className?: string;
@@ -15,6 +16,8 @@ export default function PrivacyPolicyFooterLink({
 }: PrivacyPolicyFooterLinkProps) {
   const router = useRouter();
   const { toggleBar } = useDevToolsUi();
+  const { strings } = useI18n();
+  const legal = strings.ui.legal;
 
   return (
     <Pressable
@@ -22,7 +25,7 @@ export default function PrivacyPolicyFooterLink({
       onLongPress={DEV_TOOLS_ENABLED ? toggleBar : undefined}
       delayLongPress={500}
       accessibilityRole="link"
-      accessibilityLabel="查看隐私政策"
+      accessibilityLabel={legal.privacyA11y}
       className={['min-h-[44px] items-center justify-center', className]
         .filter(Boolean)
         .join(' ')}
@@ -35,7 +38,7 @@ export default function PrivacyPolicyFooterLink({
           textDecorationLine: 'underline',
         }}
       >
-        隐私政策
+        {legal.privacyLink}
       </Text>
     </Pressable>
   );

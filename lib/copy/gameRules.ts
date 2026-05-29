@@ -1,42 +1,21 @@
+import * as enCopy from '../../locales/en/copy';
+import * as zhCopy from '../../locales/zh/copy';
+import type { Locale } from '../i18n/types';
 import type { GameType } from '../puzzles/types';
 
 export type GameRulesContent = {
   title: string;
   intro: string;
-  bullets: string[];
+  bullets: readonly string[];
 };
 
-export const GAME_RULES: Record<GameType, GameRulesContent> = {
-  sudoku: {
-    title: '数独规则',
-    intro:
-      '在 9×9 格子中填入 1～9，使每一行、每一列、每一个 3×3 宫格都恰好出现 1～9 各一次。',
-    bullets: [
-      '灰色数字是题目给定的，不能修改',
-      '先点空格，再用下方数字条填入；长按该格或点「清除」可擦掉',
-      '同一行、列或宫格里重复的数字会标红',
-      '全部填对且无冲突后，点「完成今日」',
-    ],
-  },
-  binary: {
-    title: '二进制谜题规则',
-    intro: '在 8×8 格子中填入 0 和 1，满足以下全部条件。',
-    bullets: [
-      '每一行、每一列恰好有 4 个 0 和 4 个 1',
-      '同一行或列不能出现连续三个相同数字（如 000、111）',
-      '任意两行不能完全相同；任意两列也不能完全相同',
-      '灰色数字是题目给定的；点格子在 空 → 0 → 1 之间切换，长按清空',
-      '违反规则时相关格子会标红；全部合法填满后可「完成今日」',
-    ],
-  },
-  nonogram: {
-    title: '数绘规则',
-    intro: '根据每行、每列的数字提示，涂满对应数量的格子，最终拼出一幅画。',
-    bullets: [
-      '数字表示该行/列里连续填色块的长度，顺序与格子顺序一致',
-      '点格子在 空 → 填色 → 标记(×) 之间切换，长按清空',
-      '× 仅作辅助标记，不参与完成判定',
-      '过程中不会提示对错，填对全部该填的格子后可「完成今日」',
-    ],
-  },
-};
+function rulesFor(locale: Locale) {
+  return locale === 'zh' ? zhCopy.gameRules : enCopy.gameRules;
+}
+
+export function getGameRules(locale: Locale): Record<GameType, GameRulesContent> {
+  return rulesFor(locale);
+}
+
+/** @deprecated Use getGameRules(locale) */
+export const GAME_RULES: Record<GameType, GameRulesContent> = zhCopy.gameRules;

@@ -39,7 +39,7 @@ export function generateNonogramPuzzle(seed: number): NonogramPuzzle {
     rowClues,
     colClues,
     solution,
-    pictureTitle: pattern.title,
+    pictureTitle: pattern.id,
     puzzleHash,
   };
 }

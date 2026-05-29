@@ -2,7 +2,9 @@ import { parsePatternRows } from './grid';
 
 export type NonogramPattern = {
   id: string;
+  /** @deprecated Display via resolvePictureTitle(id, locale) */
   title: string;
+  titleKey: string;
   rows: string[];
 };
 
@@ -10,6 +12,7 @@ export type NonogramPattern = {
 export const NONOGRAM_PATTERNS: NonogramPattern[] = [
   {
     id: 'silly-face',
+    titleKey: 'silly-face',
     title: '傻笑脸',
     rows: [
       '01111110',
@@ -24,6 +27,7 @@ export const NONOGRAM_PATTERNS: NonogramPattern[] = [
   },
   {
     id: 'silly-cat',
+    titleKey: 'silly-cat',
     title: '蠢猫头',
     rows: [
       '01100110',
@@ -38,6 +42,7 @@ export const NONOGRAM_PATTERNS: NonogramPattern[] = [
   },
   {
     id: 'ghost',
+    titleKey: 'ghost',
     title: '小傻鬼',
     rows: [
       '01111110',
@@ -52,6 +57,7 @@ export const NONOGRAM_PATTERNS: NonogramPattern[] = [
   },
   {
     id: 'heart',
+    titleKey: 'heart',
     title: '蠢蠢心',
     rows: [
       '01100110',
@@ -66,6 +72,7 @@ export const NONOGRAM_PATTERNS: NonogramPattern[] = [
   },
   {
     id: 'star',
+    titleKey: 'star',
     title: '傻星星',
     rows: [
       '00100000',
@@ -80,6 +87,7 @@ export const NONOGRAM_PATTERNS: NonogramPattern[] = [
   },
   {
     id: 'rocket',
+    titleKey: 'rocket',
     title: '脑残火箭',
     rows: [
       '00100000',
@@ -94,6 +102,7 @@ export const NONOGRAM_PATTERNS: NonogramPattern[] = [
   },
   {
     id: 'mushroom',
+    titleKey: 'mushroom',
     title: '毒蘑菇',
     rows: [
       '00111000',
@@ -108,6 +117,7 @@ export const NONOGRAM_PATTERNS: NonogramPattern[] = [
   },
   {
     id: 'duck',
+    titleKey: 'duck',
     title: '傻黄鸭',
     rows: [
       '01110000',
@@ -122,6 +132,7 @@ export const NONOGRAM_PATTERNS: NonogramPattern[] = [
   },
   {
     id: 'apple',
+    titleKey: 'apple',
     title: '傻苹果',
     rows: [
       '00111100',
@@ -136,6 +147,7 @@ export const NONOGRAM_PATTERNS: NonogramPattern[] = [
   },
   {
     id: 'cherry',
+    titleKey: 'cherry',
     title: '双樱桃',
     rows: [
       '00100100',
@@ -150,6 +162,7 @@ export const NONOGRAM_PATTERNS: NonogramPattern[] = [
   },
   {
     id: 'fish',
+    titleKey: 'fish',
     title: '摸鱼怪',
     rows: [
       '00000000',
@@ -164,6 +177,7 @@ export const NONOGRAM_PATTERNS: NonogramPattern[] = [
   },
   {
     id: 'tree',
+    titleKey: 'tree',
     title: '笨树杈',
     rows: [
       '00011000',
@@ -178,6 +192,7 @@ export const NONOGRAM_PATTERNS: NonogramPattern[] = [
   },
   {
     id: 'house',
+    titleKey: 'house',
     title: '茅草屋',
     rows: [
       '00011000',
@@ -192,6 +207,7 @@ export const NONOGRAM_PATTERNS: NonogramPattern[] = [
   },
   {
     id: 'moon',
+    titleKey: 'moon',
     title: '呆月亮',
     rows: [
       '00011110',
@@ -206,6 +222,7 @@ export const NONOGRAM_PATTERNS: NonogramPattern[] = [
   },
   {
     id: 'sun',
+    titleKey: 'sun',
     title: '傻太阳',
     rows: [
       '00111100',
@@ -220,6 +237,7 @@ export const NONOGRAM_PATTERNS: NonogramPattern[] = [
   },
   {
     id: 'cloud',
+    titleKey: 'cloud',
     title: '笨云朵',
     rows: [
       '00000000',
@@ -234,6 +252,7 @@ export const NONOGRAM_PATTERNS: NonogramPattern[] = [
   },
   {
     id: 'cup',
+    titleKey: 'cup',
     title: '蠢杯子',
     rows: [
       '00000000',
@@ -248,6 +267,7 @@ export const NONOGRAM_PATTERNS: NonogramPattern[] = [
   },
   {
     id: 'bell',
+    titleKey: 'bell',
     title: '小铃铛',
     rows: [
       '00111100',
@@ -262,6 +282,7 @@ export const NONOGRAM_PATTERNS: NonogramPattern[] = [
   },
   {
     id: 'bow',
+    titleKey: 'bow',
     title: '蝴蝶结',
     rows: [
       '01100110',
@@ -276,6 +297,7 @@ export const NONOGRAM_PATTERNS: NonogramPattern[] = [
   },
   {
     id: 'crown',
+    titleKey: 'crown',
     title: '小皇冠',
     rows: [
       '00111100',
@@ -290,6 +312,7 @@ export const NONOGRAM_PATTERNS: NonogramPattern[] = [
   },
   {
     id: 'skull',
+    titleKey: 'skull',
     title: '憨骷髅',
     rows: [
       '01111110',
@@ -304,6 +327,7 @@ export const NONOGRAM_PATTERNS: NonogramPattern[] = [
   },
   {
     id: 'balloon',
+    titleKey: 'balloon',
     title: '大气球',
     rows: [
       '00111100',
@@ -318,6 +342,7 @@ export const NONOGRAM_PATTERNS: NonogramPattern[] = [
   },
   {
     id: 'pizza',
+    titleKey: 'pizza',
     title: '披萨片',
     rows: [
       '00000000',
@@ -332,6 +357,7 @@ export const NONOGRAM_PATTERNS: NonogramPattern[] = [
   },
   {
     id: 'ice-cream',
+    titleKey: 'ice-cream',
     title: '冰激凌',
     rows: [
       '00111100',
@@ -346,6 +372,7 @@ export const NONOGRAM_PATTERNS: NonogramPattern[] = [
   },
   {
     id: 'carrot',
+    titleKey: 'carrot',
     title: '胡萝卜',
     rows: [
       '00001000',
@@ -360,6 +387,7 @@ export const NONOGRAM_PATTERNS: NonogramPattern[] = [
   },
   {
     id: 'paw',
+    titleKey: 'paw',
     title: '猫爪印',
     rows: [
       '00000000',
@@ -374,6 +402,7 @@ export const NONOGRAM_PATTERNS: NonogramPattern[] = [
   },
   {
     id: 'note',
+    titleKey: 'note',
     title: '小音符',
     rows: [
       '00011000',
@@ -388,6 +417,7 @@ export const NONOGRAM_PATTERNS: NonogramPattern[] = [
   },
   {
     id: 'bolt',
+    titleKey: 'bolt',
     title: '傻闪电',
     rows: [
       '00011000',
@@ -402,6 +432,7 @@ export const NONOGRAM_PATTERNS: NonogramPattern[] = [
   },
   {
     id: 'anchor',
+    titleKey: 'anchor',
     title: '小铁锚',
     rows: [
       '00111100',
@@ -416,6 +447,7 @@ export const NONOGRAM_PATTERNS: NonogramPattern[] = [
   },
   {
     id: 'gem',
+    titleKey: 'gem',
     title: '亮晶晶',
     rows: [
       '00011000',

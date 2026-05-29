@@ -4,7 +4,7 @@ import { Alert } from 'react-native';
 
 import PrivacyScreen from '../../app/privacy';
 import { PRIVACY_POLICY_URL } from '../../constants/legal';
-import { privacyPolicyMeta } from '../../lib/copy/privacyPolicy';
+import { getPrivacyPolicyMeta } from '../../lib/copy/privacyPolicy';
 import {
   mockRouterBack,
   resetRouterMocks,
@@ -18,10 +18,11 @@ jest.mock('expo-linking', () => ({
 
 const canOpenURLMock = jest.mocked(Linking.canOpenURL);
 const openURLMock = jest.mocked(Linking.openURL);
+const zhMeta = getPrivacyPolicyMeta('zh');
 
-function renderPrivacy() {
+function renderPrivacy(locale: 'zh' | 'en' = 'zh') {
   return render(
-    <ScreenProviders>
+    <ScreenProviders locale={locale}>
       <PrivacyScreen />
     </ScreenProviders>,
   );
@@ -41,16 +42,25 @@ describe('PrivacyScreen', () => {
     jest.restoreAllMocks();
   });
 
-  it('renders in-app privacy policy content', () => {
-    renderPrivacy();
+  it('renders in-app privacy policy content (zh)', () => {
+    renderPrivacy('zh');
 
-    expect(screen.getByText(privacyPolicyMeta.title)).toBeTruthy();
+    expect(screen.getByText(zhMeta.title)).toBeTruthy();
     expect(screen.getByText(/傻了么 · mo yun/)).toBeTruthy();
     expect(screen.getByText('概述')).toBeTruthy();
   });
 
+  it('renders in-app privacy policy content (en)', () => {
+    renderPrivacy('en');
+
+    expect(screen.getByText('Privacy Policy')).toBeTruthy();
+    expect(screen.getByText(/Silly Me · mo yun/)).toBeTruthy();
+    expect(screen.getByText('Overview')).toBeTruthy();
+    expect(screen.getByText('We do not collect personal data')).toBeTruthy();
+  });
+
   it('shows public policy URL and action buttons', () => {
-    renderPrivacy();
+    renderPrivacy('zh');
 
     expect(screen.getByText(PRIVACY_POLICY_URL)).toBeTruthy();
     expect(screen.getByText('在浏览器中打开公开版')).toBeTruthy();
@@ -58,14 +68,14 @@ describe('PrivacyScreen', () => {
   });
 
   it('calls router.back when 返回 is pressed', () => {
-    renderPrivacy();
+    renderPrivacy('zh');
 
     fireEvent.press(screen.getByText('返回'));
     expect(mockRouterBack).toHaveBeenCalledTimes(1);
   });
 
   it('opens public policy URL from primary button', async () => {
-    renderPrivacy();
+    renderPrivacy('zh');
 
     fireEvent.press(screen.getByText('在浏览器中打开公开版'));
 
@@ -76,7 +86,7 @@ describe('PrivacyScreen', () => {
   });
 
   it('opens public policy URL when URL link is pressed', async () => {
-    renderPrivacy();
+    renderPrivacy('zh');
 
     fireEvent.press(screen.getByLabelText('公开隐私政策网址'));
 
@@ -89,7 +99,7 @@ describe('PrivacyScreen', () => {
     const alertSpy = jest.spyOn(Alert, 'alert');
     canOpenURLMock.mockResolvedValue(false);
 
-    renderPrivacy();
+    renderPrivacy('zh');
     fireEvent.press(screen.getByText('在浏览器中打开公开版'));
 
     await waitFor(() => {

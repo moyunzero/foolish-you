@@ -9,6 +9,8 @@ import {
 } from '../../lib/puzzles/binary/grid';
 import { BINARY_SIZE } from '../../lib/puzzles/binary/spec';
 import { mergePlayAndGivens } from '../../lib/puzzles/binary/grid';
+import { useI18n } from '../../lib/i18n';
+import type { Strings } from '../../lib/i18n/types';
 import type { BinaryGivens, BinaryPlayState } from '../../lib/puzzles/types';
 
 type BinaryGridProps = {
@@ -34,6 +36,7 @@ function isGiven(givens: BinaryGivens, row: number, col: number): boolean {
 
 function highlightBackground(
   selected: CellCoord | null,
+  merged: number[][],
   row: number,
   col: number,
   conflict: boolean,
@@ -42,24 +45,32 @@ function highlightBackground(
   if (selected?.row === row && selected?.col === col) {
     return 'rgba(255, 255, 255, 0.14)';
   }
-  if (selected != null && (selected.row === row || selected.col === col)) {
-    return 'rgba(255, 255, 255, 0.06)';
+  if (selected != null) {
+    const selectedValue = merged[selected.row]![selected.col]!;
+    const cellValue = merged[row]![col]!;
+    if (selectedValue !== BINARY_EMPTY && cellValue === selectedValue) {
+      return 'rgba(255, 122, 23, 0.2)';
+    }
+    if (selected.row === row || selected.col === col) {
+      return 'rgba(255, 255, 255, 0.06)';
+    }
   }
   return undefined;
 }
 
 function cellA11yLabel(
+  grid: Strings['ui']['grid'],
   row: number,
   col: number,
   value: number,
   given: boolean,
   conflict: boolean,
 ): string {
-  const pos = `第 ${row + 1} 行第 ${col + 1} 列`;
-  if (value === BINARY_EMPTY) return `${pos}，空`;
+  const pos = grid.rowCol(row, col);
+  if (value === BINARY_EMPTY) return `${pos}${grid.empty}`;
   const label = value === BINARY_ZERO ? '0' : '1';
-  const prefix = given ? '已知' : '已填';
-  const hint = conflict ? '，违反规则' : '';
+  const prefix = given ? grid.given : grid.filledCell;
+  const hint = conflict ? grid.conflictBinary : '';
   return `${pos}，${prefix} ${label}${hint}`;
 }
 
@@ -71,6 +82,8 @@ export default function BinaryGrid({
   onPressCell,
   onLongPressCell,
 }: BinaryGridProps) {
+  const { strings } = useI18n();
+  const grid = strings.ui.grid;
   const merged = mergePlayAndGivens(givens, playState);
 
   return (
@@ -84,13 +97,28 @@ export default function BinaryGrid({
             const given = isGiven(givens, row, col);
             const value = merged[row][col];
             const conflict = isConflict(conflictCells, row, col);
-            const bg = highlightBackground(selected, row, col, conflict);
+            const isSelectedCell =
+              selected?.row === row && selected?.col === col;
+            const bg = highlightBackground(
+              selected,
+              merged,
+              row,
+              col,
+              conflict,
+            );
 
             return (
               <Pressable
                 key={`cell-${row}-${col}`}
                 accessibilityRole="button"
-                accessibilityLabel={cellA11yLabel(row, col, value, given, conflict)}
+                accessibilityLabel={cellA11yLabel(
+                  grid,
+                  row,
+                  col,
+                  value,
+                  given,
+                  conflict,
+                )}
                 onPress={() => onPressCell(row, col)}
                 onLongPress={() => onLongPressCell(row, col)}
                 delayLongPress={400}
@@ -102,6 +130,13 @@ export default function BinaryGrid({
                   borderLeftWidth: 1,
                   borderRightWidth: col === BINARY_SIZE - 1 ? 1.5 : 1,
                   borderBottomWidth: row === BINARY_SIZE - 1 ? 1.5 : 1,
+                  ...(isSelectedCell
+                    ? {
+                        borderWidth: 2,
+                        borderColor: given ? colors.sudokuGiven : colors.ink,
+                        zIndex: 2,
+                      }
+                    : null),
                 }}
               >
                 <Text

@@ -7,6 +7,7 @@ import Animated, {
 } from 'react-native-reanimated';
 
 import { colors } from '../../constants/design';
+import { useI18n } from '../../lib/i18n';
 
 const HEADLINE_STYLE = {
   fontFamily: 'Inter_400Regular' as const,
@@ -46,6 +47,7 @@ export default function ResultOutcomeBody({
   statCard,
   extraStats,
 }: ResultOutcomeBodyProps) {
+  const { strings } = useI18n();
   const statusColor =
     statusTone === 'victory' ? colors.accentSunset : colors.sudokuError;
 
@@ -63,7 +65,7 @@ export default function ResultOutcomeBody({
             color: statusColor,
           }}
         >
-          {`今日战绩 · ${statusLabel}`}
+          {`${strings.ui.result.recordPrefix} ${statusLabel}`}
         </Text>
       </Animated.View>
 
