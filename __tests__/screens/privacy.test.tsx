@@ -54,7 +54,7 @@ describe('PrivacyScreen', () => {
     renderPrivacy('en');
 
     expect(screen.getByText('Privacy Policy')).toBeTruthy();
-    expect(screen.getByText(/Silly Me · mo yun/)).toBeTruthy();
+    expect(screen.getByText(/Brainfool · mo yun/)).toBeTruthy();
     expect(screen.getByText('Overview')).toBeTruthy();
     expect(screen.getByText('We do not collect personal data')).toBeTruthy();
   });

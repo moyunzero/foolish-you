@@ -1,7 +1,7 @@
 import type { AppDisplayName, Locale } from './types';
 
 export function getAppDisplayName(locale: Locale): AppDisplayName {
-  return locale === 'zh' ? '傻了么' : 'Silly Me';
+  return locale === 'zh' ? '傻了么' : 'Brainfool';
 }
 
 export function formatElapsedDuration(ms: number, locale: Locale): string {

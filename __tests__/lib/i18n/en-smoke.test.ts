@@ -45,7 +45,7 @@ describe('English locale smoke', () => {
     expect(copy.cta).not.toMatch(cjk);
   });
 
-  it('buildShareCard includes Silly Me branding', () => {
+  it('buildShareCard includes Brainfool branding', () => {
     const puzzle = generateSudokuPuzzle(SEED);
     const card = buildShareCard(
       {
@@ -61,7 +61,7 @@ describe('English locale smoke', () => {
       'en',
     );
 
-    expect(card).toContain('Silly Me');
+    expect(card).toContain('Brainfool');
     expect(card).not.toContain('傻了么');
   });
 });

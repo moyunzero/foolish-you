@@ -1,6 +1,6 @@
 <!-- generated-by: gsd-doc-writer -->
 
-# Testing — 傻了么 (Silly Me)
+# Testing — 傻了么 (Brainfool)
 
 This document describes how tests are organized, how to run them locally, how CI enforces quality gates, and when to use manual QA on device.
 
@@ -164,7 +164,7 @@ Automated tests cover logic and component behavior; they do not replace on-devic
 - [ ] **Rules modal** — Open in-game rules; content matches current game type.
 - [ ] **Streak (if applicable)** — Win on consecutive days; streak count and copy update; skip a day resets as designed.
 - [ ] **Dev panel (`__DEV__` only)** — Force game type / reset today / inject recovery / clear logs; open **设置占位** to preview en/zh (not persisted); confirm no dev shortcuts affect release builds.
-- [ ] **English locale** — Set device language to English (or DevTools settings preview); game/result/privacy strings show **Silly Me** branding; share CTA uses `#SillyMe`.
+- [ ] **English locale** — Set device language to English (or DevTools settings preview); game/result/privacy strings show **Brainfool** branding; share CTA uses `#SillyMe`.
 
 Start the dev server for manual testing:
 

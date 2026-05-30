@@ -6,7 +6,7 @@ import { ui } from './ui';
 /** English UI strings. */
 export const strings = {
   app: {
-    name: 'Silly Me',
+    name: 'Brainfool',
     tagline: 'One puzzle a day',
   },
   meta: {

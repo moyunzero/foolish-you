@@ -9,8 +9,8 @@ describe('getAppDisplayName', () => {
     expect(getAppDisplayName('zh')).toBe('傻了么');
   });
 
-  it('returns Silly Me for en', () => {
-    expect(getAppDisplayName('en')).toBe('Silly Me');
+  it('returns Brainfool for en', () => {
+    expect(getAppDisplayName('en')).toBe('Brainfool');
   });
 });
 

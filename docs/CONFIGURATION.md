@@ -2,7 +2,7 @@
 
 # Configuration
 
-This document describes how **傻了么 (Silly Me)** is configured: Expo app metadata, EAS build profiles, TypeScript constants, local persistence keys, styling toolchain, and optional environment overrides.
+This document describes how **傻了么 (Brainfool)** is configured: Expo app metadata, EAS build profiles, TypeScript constants, local persistence keys, styling toolchain, and optional environment overrides.
 
 ## Environment variables
 

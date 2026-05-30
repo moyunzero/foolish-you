@@ -22,7 +22,7 @@ describe('I18nTestProvider via renderWithI18n', () => {
 
   it('provides en strings when locale is en', () => {
     const screen = renderWithI18n(<Probe />, { locale: 'en' });
-    expect(screen.getByTestId('app-name').props.children).toBe('Silly Me');
-    expect(screen.getByTestId('display-name').props.children).toBe('Silly Me');
+    expect(screen.getByTestId('app-name').props.children).toBe('Brainfool');
+    expect(screen.getByTestId('display-name').props.children).toBe('Brainfool');
   });
 });

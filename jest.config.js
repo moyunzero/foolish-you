@@ -17,6 +17,8 @@ module.exports = {
       setupFilesAfterEnv: ['<rootDir>/jest.setup.rtl.js'],
       modulePathIgnorePatterns: ['<rootDir>/node_modules/'],
       maxWorkers: 1,
+      // Integration tests use waitFor(..., { timeout: 15_000 }); default 5s fails on CI.
+      testTimeout: 20_000,
     },
   ],
 };

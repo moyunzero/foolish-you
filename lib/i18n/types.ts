@@ -4,7 +4,7 @@ import type { strings as zhStrings } from '../../locales/zh';
 export type Locale = 'zh' | 'en';
 
 /** Store-facing app name per locale. */
-export type AppDisplayName = '傻了么' | 'Silly Me';
+export type AppDisplayName = '傻了么' | 'Brainfool';
 
 type DeepString<T> = T extends (...args: infer A) => infer R
   ? (...args: A) => DeepString<R>

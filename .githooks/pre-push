@@ -1,0 +1,14 @@
+#!/usr/bin/env bash
+# Pre-push: automated frontend checks + CR reminder (see AGENTS.md).
+set -euo pipefail
+
+ROOT="$(git rev-parse --show-toplevel)"
+REMOTE="${1:-origin}"
+BRANCH="${2:-main}"
+REF="origin/${BRANCH}"
+
+if [[ -x "$ROOT/scripts/frontend-review-gate.sh" ]]; then
+  "$ROOT/scripts/frontend-review-gate.sh" pre-push "$REF" || exit 1
+fi
+
+exit 0

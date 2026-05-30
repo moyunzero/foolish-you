@@ -185,7 +185,7 @@ describe('buildShareCard', () => {
       'en',
     );
 
-    expect(card).toContain('Silly Me · Sudoku · 2026-05-25');
+    expect(card).toContain('Brainfool · Sudoku · 2026-05-25');
     expect(card).toContain('✅ Cleared');
     expect(card).not.toContain('傻了么');
   });

@@ -1,4 +1,4 @@
-# Agent Guidelines — 傻了么 (Silly Me)
+# Agent Guidelines — 傻了么 (Brainfool)
 
 A **shipped, production** daily puzzle app (iOS / Android via Expo SDK 54). Real users run this — changes must preserve offline-first behavior, daily puzzle determinism, and existing storage shape.
 
@@ -9,6 +9,7 @@ A **shipped, production** daily puzzle app (iOS / Android via Expo SDK 54). Real
 | **`AGENTS.md`** (this file) | How to write code: architecture, UI, testing, production constraints |
 | **`CLAUDE.md`** | Project summary + GSD workflow entry points |
 | **`README.md`** | Human onboarding: install, commands, structure |
+| **`.cursor/skills/frontend-code-review/`** | Mandatory frontend CR skill (extends global checklist + project rules) |
 
 Before changing code: follow `CLAUDE.md` GSD workflow (`/gsd-quick`, `/gsd-debug`, `/gsd-execute-phase`) unless the user explicitly bypasses it. Before implementing a feature: read this file and match patterns in the touched directories.
 
@@ -25,7 +26,7 @@ A minimal, offline-first daily puzzle app (Expo). One puzzle per local calendar 
 - Humorous result screen with Reanimated animations
 - Rule explanations in-game
 - **v1.1 (`1.1.x`):** emoji share card (clipboard), result stats cards, in-app review prompt (gated), defensive daily selection + snapshot recovery
-- **v1.2 (current `1.2.0`):** system locale zh/en (`expo-localization`), English brand **Silly Me**, `locales/` + `useI18n`, bilingual privacy; no release settings UI (dev placeholder only)
+- **v1.2 (current `1.2.0`):** system locale zh/en (`expo-localization`), English brand **Brainfool**, `locales/` + `useI18n`, bilingual privacy; no release settings UI (dev placeholder only)
 
 Store builds via EAS (`eas.json`, `app.json`).
 
@@ -186,7 +187,53 @@ Known tech-debt (optional read): `.planning/codebase/CONCERNS.md`.
 4. Wire end-to-end: route → context → UI → persistence.
 5. Add/update tests: `__tests__/lib/` for puzzle/storage; `__tests__/contexts/` or `__tests__/screens/` for context/UI flows.
 6. Verify before claiming done (see *Verification*).
-7. Explain changes concisely + manual test steps for UI.
+7. **Frontend code review** when UI paths changed (see below).
+8. Explain changes concisely + manual test steps for UI.
+
+---
+
+## Frontend code review
+
+Mandatory for changes under `app/`, `components/`, `hooks/`, `contexts/`, `locales/`, `global.css`, or `tailwind.config.js`.
+
+### Skill
+
+| Layer | Path |
+|-------|------|
+| **Project** | `.cursor/skills/frontend-code-review/SKILL.md` |
+| **Project rules** | `.cursor/skills/frontend-code-review/references/project.md` |
+| **Global checklist** | `~/.cursor/skills/frontend-code-review/` (security, a11y, performance, …) |
+
+Invoke explicitly: *「用 frontend-code-review 审查这些文件」* or let Cursor hooks prompt after GSD work / before `git push`.
+
+### When to run
+
+| Trigger | Who | Action |
+|---------|-----|--------|
+| **Plan / phase execution complete** | Agent | Pending-change review on all touched frontend files; fix **urgent** findings before marking done |
+| **Before `git push` / PR** | Human or agent | Same review + pass `npm run typecheck`, `npm test`, `npm run lint` |
+| **Cursor `stop` hook** | Agent | Follow-up nudge when working tree still has frontend diffs |
+| **Cursor `git push` hook** | Human | Confirms CR done or sets `FRONTEND_CR_DONE=1` after review |
+
+### Output format
+
+Use Template A / B from the skill. Urgent issues block merge; suggestions are optional unless the user asks to fix them.
+
+### Git hook (local)
+
+One-time setup (per clone):
+
+```bash
+npm run hooks:install
+```
+
+`.githooks/pre-push` runs `scripts/frontend-review-gate.sh`: lists frontend files, runs typecheck + lint. Optional strict gate:
+
+```bash
+FRONTEND_CR_STRICT=1 FRONTEND_CR_DONE=1 git push
+```
+
+See [docs/DEVELOPMENT.md](./docs/DEVELOPMENT.md#frontend-code-review).
 
 ### Storage version bumps
 

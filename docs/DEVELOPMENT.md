@@ -1,6 +1,6 @@
 <!-- generated-by: gsd-doc-writer -->
 
-# Development — 傻了么 (Silly Me)
+# Development — 傻了么 (Brainfool)
 
 How to work on this codebase day to day: local setup, verification commands, code layout, and development-only tooling. For install and first run, see [README.md](../README.md). For env and build profiles, see [CONFIGURATION.md](./CONFIGURATION.md). For architecture and data flow, see [ARCHITECTURE.md](./ARCHITECTURE.md).
 
@@ -60,6 +60,60 @@ npm run lint           # expo lint (ESLint flat config)
 **When to split tests:** Use `test:unit` for puzzle/storage/date logic; use `test:rtl` for screens and `DailyGameContext` when iterating on UI. RTL runs with `maxWorkers: 1` in [`jest.config.js`](../jest.config.js).
 
 **CI order:** typecheck → `npm test` → `test:migration` → lint (on push/PR to `main` / `master`).
+
+---
+
+## Frontend code review
+
+Follows the [frontend-pull-request-checklist](https://github.com/sapegin/frontend-pull-request-checklist) pattern: **automated checks + structured human/agent review** before merge.
+
+### Skill locations
+
+| Layer | Path |
+|-------|------|
+| Project skill | `.cursor/skills/frontend-code-review/SKILL.md` |
+| Project rules | `.cursor/skills/frontend-code-review/references/project.md` |
+| Global checklist | `~/.cursor/skills/frontend-code-review/` |
+
+Full policy: [AGENTS.md § Frontend code review](../AGENTS.md#frontend-code-review).
+
+### When to run
+
+1. **After GSD plan / phase execution** — agent reviews all touched frontend files (Template A/B in skill).
+2. **Before `git push` or opening a PR** — same review; urgent issues must be fixed first.
+
+Frontend paths: `app/`, `components/`, `hooks/`, `contexts/`, `locales/`, `global.css`, `tailwind.config.js`.
+
+### Local git hook
+
+One-time per clone:
+
+```bash
+npm run hooks:install   # git config core.hooksPath .githooks
+```
+
+`pre-push` runs `scripts/frontend-review-gate.sh`: prints changed frontend files, runs `typecheck` + `lint`.
+
+Optional strict mode (block push until you confirm CR):
+
+```bash
+FRONTEND_CR_STRICT=1 FRONTEND_CR_DONE=1 git push
+```
+
+Preview gate without pushing:
+
+```bash
+npm run frontend:review-gate
+```
+
+### Cursor hooks (IDE)
+
+[`.cursor/hooks.json`](../.cursor/hooks.json):
+
+- **`stop`** — nudges agent to run frontend-code-review when UI files remain in the working tree after a turn.
+- **`beforeShellExecution`** (`git push`) — asks to confirm review unless `FRONTEND_CR_DONE=1`.
+
+Reload Cursor or save `hooks.json` after pull if hooks do not fire.
 
 ---
 
@@ -187,6 +241,7 @@ Rendered from [`app/_layout.tsx`](../app/_layout.tsx) only when `DEV_TOOLS_ENABL
 - **Branch naming:** No documented convention in the repo; use clear prefixes (e.g. `feat/`, `fix/`) if your team agrees.
 - **Pull requests:** No `CONTRIBUTING.md` or PR template in `.github/` yet. For each PR:
   - Run `typecheck`, `npm test`, `test:migration`, and `lint`
+  - Run **frontend-code-review** on UI-touched files (see above)
   - Describe impact on **existing users** (storage, daily seed, routes) when relevant
   - Note manual device QA for UI-only changes
   - Avoid changing daily puzzle determinism for a given `dateKey` without explicit product approval

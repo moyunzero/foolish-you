@@ -6,7 +6,7 @@ export const privacy = {
     {
       title: 'Overview',
       paragraphs: [
-        'Silly Me (“the App”) is provided by mo yun (individual developer). We respect your privacy. This policy explains what the App does — and does not do — with your information.',
+        'Brainfool (“the App”) is provided by mo yun (individual developer). We respect your privacy. This policy explains what the App does — and does not do — with your information.',
         'The App is an offline-first daily puzzle game: puzzles are generated on your device. No account is required.',
       ],
     },
