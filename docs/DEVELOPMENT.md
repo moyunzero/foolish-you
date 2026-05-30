@@ -26,6 +26,15 @@ How to work on this codebase day to day: local setup, verification commands, cod
 
 Use `npm install` (not `npm ci`) for day-to-day work unless you are reproducing CI exactly.
 
+**Dependency / lockfile changes:** EAS Build installs with **npm 10**; local Node 22 often ships **npm 11**. After adding or upgrading packages, regenerate the lockfile with npm 10 so EAS `npm ci` stays in sync:
+
+```bash
+npm run lockfile:sync    # npx npm@10.9.2 install
+npm run lockfile:verify-eas
+```
+
+Commit the updated `package-lock.json` with your dependency change. CI runs `lockfile:verify-eas` on every push.
+
 ---
 
 ## Verification workflow

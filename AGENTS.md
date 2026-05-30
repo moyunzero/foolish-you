@@ -212,6 +212,7 @@ npm run typecheck       # tsc --noEmit
 npm test                # unit + rtl (~298 tests; includes en-smoke)
 npm run test:migration  # snapshot migration golden fixtures
 npm run lint            # expo lint
+npm run lockfile:verify-eas  # npm 10 ci — must pass before EAS build
 ```
 
 Optional splits:

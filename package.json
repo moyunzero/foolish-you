@@ -12,6 +12,8 @@
     "test:unit": "jest --selectProjects unit",
     "test:migration": "jest --selectProjects unit --testPathPattern=__tests__/lib/storage/migration",
     "lint": "expo lint",
+    "lockfile:sync": "npx npm@10.9.2 install",
+    "lockfile:verify-eas": "npx npm@10.9.2 ci",
     "typecheck": "tsc --noEmit",
     "build:preview:android": "eas build --platform android --profile preview",
     "build:preview:ios": "eas build --platform ios --profile preview",
