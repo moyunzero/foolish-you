@@ -3,7 +3,7 @@
     "name": "傻了么",
     "slug": "foolish-you",
     "scheme": "foolish-you",
-    "version": "1.2.0",
+    "version": "2.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "dark",

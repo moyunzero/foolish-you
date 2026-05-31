@@ -26,8 +26,10 @@
 | **v1.1** 评分引导 | 通关后按门槛延迟唤起系统应用商店评分（`expo-store-review`，可关闭、不阻塞流程） |
 | **v1.1** 防御性保障 | 每日选题可解性校验 + 内置 fallback；快照损坏修复；`completed` 与残缺棋盘矛盾时剥离 `playState` |
 | **v1.2** 系统语言 | 跟随设备 `zh` / `en`（英文品牌 **Brainfool**）；双语隐私政策；**无**正式版应用内语言设置 |
+| **v2.0** 连签护盾 | 每周自动发放 1 张护盾（最多堆叠 2）；漏玩 1 天时打开 App 自动消耗护盾续连签 |
+| **v2.0** 昨日错过召回 | 漏玩且未触发护盾时，游戏页标题下显示召回副文案（与护盾生效文案互斥） |
 
-**仍不包含：** 登录账号、推送提醒、填格提示、社交/排行榜/好友（见 [路线图](#版本与规划)）。
+**仍不包含：** 登录账号、**每日推送提醒**（v2.0 余量）、个人统计页（v2.0 余量）、填格提示、社交/排行榜/好友（见 [路线图](#版本与规划)）。
 
 ---
 
@@ -202,8 +204,8 @@ npx eas build --platform android
 |------|------|------|------------------------|
 | **v1.0** | 已发布 | 每日数独 / 二进制 / 数绘、本地进度、连签、结果动效、计时、规则弹窗 | — |
 | **v1.1** | 已发布（`1.1.x`） | ① 结果页 emoji 战报拷贝（`lib/share/` + `expo-clipboard`）；② 评分引导（通关 + 完成局数等门槛，`expo-store-review`）；③ 结果页三数据小卡（今日用时 / 本周完成 / 历史最长连签，`historicalMax`）；④ 防御：`selectDailyGameSafe`、快照 `recoverSnapshot`、计时校正、迁移 + recovery 单测、Dev 恢复日志 | Wordle 90→300K DAU 来自一键 emoji 分享 |
-| **v1.2** | **当前（`1.2.0`）** | 系统语言 zh/en（`expo-localization`）；英文品牌 **Brainfool**；`locales/` + `useI18n`；双语隐私；DevTools **设置占位**（不写存储，Release 无入口） | 海外可读性 + 商店合规 |
-| **v2.0** | 规划中 | Streak Freeze（每周 1 张、最多堆 2）；每日提醒；个人统计页；「昨日错过」召回 | Duolingo：streak 寿命 +48%；7 天 streak 用户次日留存 2.4× |
+| **v1.2** | 已发布（`1.2.0`） | 系统语言 zh/en（`expo-localization`）；英文品牌 **Brainfool**；`locales/` + `useI18n`；双语隐私；DevTools **设置占位**（不写存储，Release 无入口） | 海外可读性 + 商店合规 |
+| **v2.0** | **当前（`2.0.0`，部分交付）** | ✅ Streak Freeze（每周 1 张、最多堆 2、漏 1 天自动消耗）；✅「昨日错过」召回副文案；⏳ 每日提醒；⏳ 个人统计页 | Duolingo：streak 寿命 +48%；7 天 streak 用户次日留存 2.4× |
 | **v2.1** | 规划中 | 周节奏难度（仍每天 1 局）；本月日历；月度数绘图鉴长图 | NYT Mini/Midi 节奏 |
 | **v3.0** | 规划中 | iCloud / Google 端到端同步或 QR 导入导出；30 天历史归档 | 避免与「离线优先 / 无社交」冲突 |
 | **v4.0** | 规划中 | 匿名挑战码；Year in 傻了么 年终长图 | 朋友间话题，无好友列表 |
@@ -230,23 +232,25 @@ npx eas build --platform android
 
 ## 徽章
 
-![version](https://img.shields.io/badge/version-1.2.0-blue)
+![version](https://img.shields.io/badge/version-2.0.0-blue)
 
 ## 使用示例
 
 ### 玩家：完成今日一局
 
 1. 启动 App → `app/index.tsx` 根据今日档案跳转到 `app/game.tsx`。
-2. 游戏页顶栏 `GameScreenHeader` 显示日期、本局用时、题型标题，以及连签副文案（来自 `DailyGameContext` 的 `streakLine`）。
+2. 游戏页顶栏 `GameScreenHeader` 显示日期、本局用时、题型标题、连签副文案（`streakLine`），以及可选的护盾/召回副行（`GameStreakSubline`，护盾生效与昨日错过互斥）。
 3. 填完盘面后点底栏 **完成今日**（`GameScreenFooter`）→ 校验通过则进入结果页；**认怂**不计入连签。
 4. 结果页可点 **拷贝战报**（需保留有效 `playState`；恢复后若棋盘已剥离则仅展示文案与统计）。
 5. 次日本地 `dateKey` 变更后自动换新题。
 
-### 连签（通关入账）
+### 连签与护盾（通关入账）
 
 - **仅通关计入连签**，认怂不调用 `applyCheckIn`（见 `contexts/DailyGameContext.tsx`）。
-- 逻辑：`lib/streak/streakLogic.ts`（连续自然日 +1，断档归零）；持久化：`lib/storage/streakStorage.ts`（键 `@foolish-you/streak-v1`，含 `historicalMax` 历史最长连签）。
-- 文案：`lib/copy/streak.ts` 的 `formatStreakLine()`；今日已入账时顶栏连签高亮（`streakHighlight`）。
+- 逻辑：`lib/streak/streakLogic.ts`（连续自然日 +1，断档归零）；持久化：`lib/storage/streakStorage.ts`（键 `@foolish-you/streak-v1`，schema v3，含 `historicalMax`、`freezeCount` 等）。
+- **护盾（Streak Freeze）**：`lib/streak/freezeLogic.ts` — 每周 ISO 周首次打开发放 1 张（上限 2）；若距上次入账恰好漏 1 天且无真实完成记录，hydrate 时自动消耗 1 张续连签。
+- **昨日错过召回**：`lib/streak/missedYesterdayBanner.ts` — 漏玩且未消耗护盾时，游戏页标题下显示召回文案（与护盾生效行互斥）。
+- 文案：顶栏连签 `lib/copy/streak.ts`；护盾/召回 `lib/copy/freeze.ts`、`lib/copy/missedYesterday.ts`；结果统计卡护盾后缀见 `locales/*/copy.ts`。
 
 ### 开发者：提交前本地检查（与 CI 一致）
 

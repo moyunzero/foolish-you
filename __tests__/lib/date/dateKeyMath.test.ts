@@ -4,6 +4,7 @@ describe('dateKeyMath', () => {
   it('addDaysToDateKey crosses month boundary', () => {
     expect(addDaysToDateKey('2026-05-01', -1)).toBe('2026-04-30');
     expect(addDaysToDateKey('2026-04-30', 1)).toBe('2026-05-01');
+    expect(addDaysToDateKey('2026-05-19', -1)).toBe('2026-05-18');
   });
 
   it('getRollingDateKeysEnding returns 7 ascending keys including today', () => {

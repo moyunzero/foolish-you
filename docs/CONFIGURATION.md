@@ -26,7 +26,7 @@ Primary Expo configuration (static JSON, no `app.config.js`).
 |------|-------|-------|
 | Display name | 傻了么 | User-facing app name |
 | Slug / scheme | `foolish-you` | Deep links and Expo project slug |
-| Version | `1.2.0` | Marketing version (aligned with `package.json`) |
+| Version | `2.0.0` | Marketing version (aligned with `package.json`) |
 | UI style | `dark` | System appearance default |
 | New architecture | `true` | React Native new arch enabled |
 | Entry | `expo-router/entry` | Set in `package.json` `main` |
@@ -66,7 +66,7 @@ Central runtime constants for puzzles, persistence, and debouncing.
 | `APP_SALT` | `foolish-you-v1` | Date-seed salt (client-visible, not a secret). Same calendar day + device → same daily puzzle. |
 | `STORAGE_KEY` | `@foolish-you/daily-v1` | AsyncStorage key for daily game snapshot |
 | `STREAK_STORAGE_KEY` | `@foolish-you/streak-v1` | AsyncStorage key for streak state |
-| `STREAK_STORAGE_VERSION` | `2` | Streak schema (adds `historicalMax`) |
+| `STREAK_STORAGE_VERSION` | `3` | Streak schema (adds `freezeCount`, `lastFreezeGrantWeekKey`, `freezeConsumedSessionKey`) |
 | `COMPLETION_HISTORY_STORAGE_KEY` | `@foolish-you/completion-history-v1` | Rolling completion records for stats |
 | `COMPLETION_HISTORY_STORAGE_VERSION` | `1` | Completion history schema |
 | `COMPLETION_HISTORY_MAX_ENTRIES` | `90` | Cap on stored completion rows |
@@ -125,7 +125,7 @@ See `DESIGN.md` for product-level design rules.
 | Key | Defined in | Payload | Access |
 |-----|------------|---------|--------|
 | `@foolish-you/daily-v1` | `constants/config.ts` → `STORAGE_KEY` | `DailySnapshot` JSON (versioned, migrated on load) | `lib/storage/dailyStorage.ts` |
-| `@foolish-you/streak-v1` | `constants/config.ts` → `STREAK_STORAGE_KEY` | `StreakState`: `{ currentStreak, lastCheckInDateKey, historicalMax }` (schema v2) | `lib/storage/streakStorage.ts` |
+| `@foolish-you/streak-v1` | `constants/config.ts` → `STREAK_STORAGE_KEY` | `StreakState`: `{ currentStreak, lastCheckInDateKey, historicalMax, freezeCount, lastFreezeGrantWeekKey, freezeConsumedSessionKey? }` (schema v3) | `lib/storage/streakStorage.ts` |
 | `@foolish-you/completion-history-v1` | `COMPLETION_HISTORY_STORAGE_KEY` | Completion records for weekly stats / backfill | `lib/storage/completionHistoryStorage.ts` |
 | `@foolish-you/rating-v1` | `RATING_STORAGE_KEY` | Rating prompt state | `lib/storage/ratingStorage.ts` |
 | `@foolish-you/snapshot-recovery-log-v1` | `RECOVERY_LOG_STORAGE_KEY` | Recovery event log (dev-visible) | `lib/storage/recoveryLog.ts` |

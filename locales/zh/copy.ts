@@ -108,6 +108,28 @@ export const streak = {
   pending: (displayStreak: number) => `连续 ${displayStreak} 天 · 今日卷面待交`,
 } as const;
 
+export const freeze = {
+  consumedLines: [
+    '护盾生效：昨天缺席，连签还在，别得瑟。',
+    '冻住一天，数字还在——明天别又鸽。',
+    '系统替你圆场了，今天务必交卷。',
+  ] as const,
+  shieldSuffix: (count: number) => ` · 护盾×${count}`,
+} as const;
+
+export const missedYesterday = {
+  softPool: [
+    '昨天没交卷，今天把场子找回来。',
+    '护盾已垫场，今天这局别划水。',
+    '数字还在，面子得自己挣回来。',
+  ] as const,
+  recallPool: [
+    '昨天鸽了，连签在倒计时看你。',
+    '缺席一天，今天不来就真断了。',
+    '断签边缘徘徊，现在打开还来得及。',
+  ] as const,
+} as const;
+
 export const statsPools = {
   elapsedFast: [
     '飞快，键盘要冒烟了',

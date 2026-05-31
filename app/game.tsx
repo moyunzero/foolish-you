@@ -38,6 +38,9 @@ export default function GameScreen() {
     streakSaveError,
     streakLine,
     streakHighlight,
+    freezeConsumedToday,
+    freezeConsumedLine,
+    missedYesterdayLine,
     updatePlayState,
     markCompleted,
     markAbandoned,
@@ -71,6 +74,12 @@ export default function GameScreen() {
   }, [status, router]);
 
   const showPlayChrome = session.showBoardChrome;
+  const streakSubline =
+    showPlayChrome && freezeConsumedToday
+      ? freezeConsumedLine
+      : showPlayChrome && missedYesterdayLine != null
+        ? missedYesterdayLine
+        : null;
 
   return (
     <SafeAreaView className="flex-1 bg-canvas" edges={['top']}>
@@ -83,6 +92,7 @@ export default function GameScreen() {
           typeLabel={session.typeLabel}
           gameType={gameType}
           showRules={showPlayChrome}
+          streakSubline={streakSubline}
         />
       </View>
 

@@ -10,9 +10,16 @@ import type { GameType } from '../../lib/puzzles/types';
 import { isSudokuPuzzle } from '../../lib/puzzles/types';
 import { requestAppStoreReview } from '../../lib/rating/requestReview';
 import { devInjectCompletedEmptyPlayState } from '../../lib/dev/snapshotDevInject';
+import {
+  formatStreakDevSummary,
+  STREAK_DEV_SCENARIOS,
+  STREAK_GAME_BANNER_SCENARIOS,
+  type StreakDevScenarioId,
+} from '../../lib/dev/streakDevScenarios';
 import { clearCompletionHistory } from '../../lib/storage/completionHistoryStorage';
 import { clearRatingState } from '../../lib/storage/ratingStorage';
 import { clearRecoveryLog, loadRecoveryLog, type RecoveryLogEntry } from '../../lib/storage/recoveryLog';
+import { loadStreakState } from '../../lib/storage/streakStorage';
 
 function DevButton({
   label,
@@ -43,12 +50,14 @@ export default function DevToolsPanel() {
   const insets = useSafeAreaInsets();
   const [expanded, setExpanded] = useState(false);
   const [recoveryLog, setRecoveryLog] = useState<RecoveryLogEntry[]>([]);
+  const [streakSummary, setStreakSummary] = useState('streak: —');
   const {
     status,
     dateKey,
     gameType,
     snapshot,
     devRegenerateToday,
+    devApplyStreakScenario,
     refresh,
   } = useDailyGame();
   const { barVisible, hideBar } = useDevToolsUi();
@@ -56,6 +65,22 @@ export default function DevToolsPanel() {
   const refreshRecoveryLog = useCallback(async () => {
     setRecoveryLog(await loadRecoveryLog());
   }, []);
+
+  const refreshStreakSummary = useCallback(async () => {
+    setStreakSummary(formatStreakDevSummary(await loadStreakState()));
+  }, []);
+
+  const applyStreakScenario = async (scenario: StreakDevScenarioId) => {
+    if (
+      STREAK_GAME_BANNER_SCENARIOS.has(scenario) &&
+      (status === 'completed' || status === 'abandoned')
+    ) {
+      await devRegenerateToday();
+    }
+    await devApplyStreakScenario(scenario);
+    await refreshStreakSummary();
+    router.replace('/game');
+  };
 
   if (!DEV_TOOLS_ENABLED || !barVisible) return null;
 
@@ -75,6 +100,7 @@ export default function DevToolsPanel() {
       const next = !v;
       if (next) {
         void refreshRecoveryLog();
+        void refreshStreakSummary();
       }
       return next;
     });
@@ -120,6 +146,10 @@ export default function DevToolsPanel() {
             {`hash ${puzzleHash}${sudokuHash != null ? ` · sudo ${sudokuHash}` : ''}`}
           </Text>
 
+          <Text className="text-xs text-muted" style={{ fontFamily: 'SpaceMono_400Regular' }}>
+            {streakSummary}
+          </Text>
+
           <View className="flex-row flex-wrap gap-2">
             <DevButton
               label="设置占位"
@@ -163,6 +193,24 @@ export default function DevToolsPanel() {
               }}
             />
           </View>
+
+          <Text className="text-[10px] text-accent-sunset" style={{ fontFamily: 'SpaceMono_400Regular' }}>
+            连签 / 护盾 QA（注入后自动 hydrate → 跳转 game）
+          </Text>
+          <View className="flex-row flex-wrap gap-2">
+            {STREAK_DEV_SCENARIOS.map((scenario) => (
+              <DevButton
+                key={scenario.id}
+                label={scenario.label}
+                onPress={() => {
+                  void applyStreakScenario(scenario.id);
+                }}
+              />
+            ))}
+          </View>
+          <Text className="text-[10px] leading-4 text-muted">
+            {STREAK_DEV_SCENARIOS.map((s) => `${s.label}：${s.hint}`).join(' · ')}
+          </Text>
 
           {recoveryLog.length > 0 ? (
             <View className="gap-1">

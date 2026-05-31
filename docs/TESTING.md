@@ -143,7 +143,7 @@ Workflow: `.github/workflows/ci.yml` — job **`verify`**
 Steps (in order):
 
 1. **Typecheck** — `npm run typecheck`
-2. **Tests** — `npm test` (runs both `unit` and `rtl` projects; currently ~298 tests)
+2. **Tests** — `npm test` (runs both `unit` and `rtl` projects; currently ~342 tests)
 3. **Migration tests** — `npm run test:migration`
 4. **Lint** — `npm run lint`
 
@@ -162,8 +162,9 @@ Automated tests cover logic and component behavior; they do not replace on-devic
 - [ ] **Conflict feedback** — Enter invalid Sudoku/Binary values; conflict highlighting appears as expected. (Nonogram has no mid-game conflict UI; complete validates against the hidden solution.)
 - [ ] **Nonogram complete** — Finish a nonogram day; result screen shows pattern reveal card with correct title.
 - [ ] **Rules modal** — Open in-game rules; content matches current game type.
-- [ ] **Streak (if applicable)** — Win on consecutive days; streak count and copy update; skip a day resets as designed.
-- [ ] **Dev panel (`__DEV__` only)** — Force game type / reset today / inject recovery / clear logs; open **设置占位** to preview en/zh (not persisted); confirm no dev shortcuts affect release builds.
+- [ ] **Streak** — Win on consecutive days; streak count and copy update; skip exactly one day with shield → streak preserved on reopen; skip without shield → recall subline or reset per rules.
+- [ ] **Streak freeze UI** — After shield auto-consume on open, game header shows freeze line (not missed-yesterday recall); result stats may show shield inventory suffix.
+- [ ] **Dev panel (`__DEV__` only)** — Force game type / reset today / inject recovery / **连签 QA 场景** / clear logs; open **设置占位** to preview en/zh (not persisted); confirm no dev shortcuts affect release builds.
 - [ ] **English locale** — Set device language to English (or DevTools settings preview); game/result/privacy strings show **Brainfool** branding; share CTA uses `#SillyMe`.
 
 Start the dev server for manual testing:

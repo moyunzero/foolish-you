@@ -6,7 +6,7 @@
 
 傻了么 is an offline-first Expo (React Native) daily puzzle app. Each local calendar day, the app assigns exactly one puzzle—**9×9 Sudoku**, **8×8 Binary (Takuzu/Binairo)**, or **8×8 Nonogram (Picross)**—derived deterministically from that day’s `dateKey` and a client-side seed salt. Users play in-app, progress is saved locally, and completion or surrender routes to a result screen with humorous copy (Nonogram wins also show a pattern reveal card). There is no network dependency for puzzle generation, validation, or persistence. v1.1 adds clipboard copy and optional system in-app review prompts only (no backend). **v1.2** adds system locale **zh/en** (`expo-localization`, English brand **Brainfool**), bilingual privacy, and dev-only settings placeholder for locale preview.
 
-The architecture is layered: **expo-router screens** compose UI; **`DailyGameContext`** is the single source of truth for today’s game; **`lib/daily/`** orchestrates hydrate/build flows without React; **`lib/puzzles/`** holds pure TypeScript puzzle engines; **`lib/storage/`** reads/writes AsyncStorage with validation and migration; **`lib/streak/`** tracks consecutive-day check-ins on win. Styling uses NativeWind; animations use Reanimated on the result flow.
+The architecture is layered: **expo-router screens** compose UI; **`DailyGameContext`** is the single source of truth for today’s game; **`lib/daily/`** orchestrates hydrate/build flows without React; **`lib/puzzles/`** holds pure TypeScript puzzle engines; **`lib/storage/`** reads/writes AsyncStorage with validation and migration; **`lib/streak/`** tracks consecutive-day check-ins, weekly freeze shields, and missed-day recall copy on win/hydrate. Styling uses NativeWind; animations use Reanimated on the result flow.
 
 ## Component diagram
 
@@ -66,6 +66,8 @@ graph TD
 
   subgraph streak["lib/streak/"]
     Logic[streakLogic]
+    Freeze[freezeLogic]
+    Missed[missedYesterdayBanner]
   end
 
   AS[(AsyncStorage)]
@@ -126,9 +128,11 @@ graph TD
 
 1. **`markCompleted`** / **`markAbandoned`** merge pending play state, set `status` and `finishedAt`, **`persistSnapshot`** to AsyncStorage.
 2. On **`completed`**, **`applyCheckIn()`** updates streak and **`saveStreakState()`** to `@foolish-you/streak-v1`.
-3. On **`completed`**, append **`recordCompletion()`** to completion history (for weekly stats / backfill).
-4. Router sends user to **`app/result.tsx`** (via index redirect or game navigation).
-5. Result screen builds optional **share text** from `playState` + puzzle; shows **stats cards** from streak + history; may **`maybePromptAppReview()`** after gated delay.
+3. On app open, **`reconcileStreakOnOpen()`** in context: repair completion history → **`grantWeeklyFreeze()`** → **`consumeFreezeForMissedDay()`** when last check-in was two days ago and yesterday has no real completion → persist streak if changed.
+4. Game screen may show **`GameStreakSubline`**: freeze-consumed line **or** missed-yesterday recall (mutually exclusive; freeze takes priority).
+5. On **`completed`**, append **`recordCompletion()`** to completion history (for weekly stats / backfill).
+6. Router sends user to **`app/result.tsx`** (via index redirect or game navigation).
+7. Result screen builds optional **share text** from `playState` + puzzle; shows **stats cards** from streak + history (including shield suffix when `freezeCount > 0`); may **`maybePromptAppReview()`** after gated delay.
 
 ### Daily determinism
 
@@ -163,7 +167,9 @@ Same `dateKey` + app version → same `seed`, same game type (unless dev overrid
 | `usePlayStatePersistence` | `lib/daily/playStatePersistence.ts` | Debounced play-state writes and flush on lifecycle |
 | `DailyGameContext` / `useDailyGame` | `contexts/DailyGameContext.tsx`, `hooks/useDailyGame.ts` | App-wide daily state, streak UI fields, complete/abandon |
 | `migrateSnapshot` / `sanitizeSnapshotForSave` | `lib/storage/snapshotMigration.ts`, `snapshotValidate.ts` | Safe upgrades (v1→v2) and save-time consistency |
-| `StreakState` / `applyCheckIn` | `lib/streak/types.ts`, `streakLogic.ts` | Consecutive local-day wins + `historicalMax` |
+| `StreakState` / `applyCheckIn` | `lib/streak/types.ts`, `streakLogic.ts` | Consecutive local-day wins + `historicalMax` + freeze fields |
+| `grantWeeklyFreeze` / `consumeFreezeForMissedDay` | `lib/streak/freezeLogic.ts` | Weekly shield grant (max 2) and 1-day-gap auto-consume |
+| `shouldShowMissedYesterdayBanner` | `lib/streak/missedYesterdayBanner.ts` | Recall subline when user skipped yesterday without shield |
 | `useSudokuBoard` / `useBinaryBoard` / `useNonogramBoard` | `hooks/useSudokuBoard.ts`, `useBinaryBoard.ts`, `useNonogramBoard.ts` | Ephemeral board logic wired to context updates |
 | `getLocalDateKey` | `lib/date/localDay.ts` | Single definition of “today” for product rules |
 
@@ -185,7 +191,8 @@ Same `dateKey` + app version → same `seed`, same game type (unless dev overrid
 | **`lib/puzzles/nonogram/`** | 8×8 pattern library, clue derivation, mirror transforms, completion validator. |
 | **`lib/daily/`** | Hydrate/build snapshot, debounced persistence hook, save-failure alert copy. |
 | **`lib/storage/`** | AsyncStorage I/O, snapshot migration/prep/legacy, streak storage. |
-| **`lib/streak/`** | Streak types and calendar-day check-in logic (separate key from daily snapshot). |
+| **`lib/streak/`** | Streak types, check-in logic, freeze shields, missed-yesterday banner (separate key from daily snapshot). |
+| **`lib/completion/`** | Completion-history queries used by freeze consume and backfill. |
 | **`lib/date/`** | Local calendar `dateKey` helper. |
 | **`lib/copy/`** | User-facing strings (results, rules, streak line, privacy). |
 | **`lib/platform/`** | Small RN helpers (`runAfterInteractions`, `exitApp`). |
@@ -199,7 +206,7 @@ Two AsyncStorage keys (see `constants/config.ts`):
 | Key | Content |
 |-----|---------|
 | `@foolish-you/daily-v1` | One `DailySnapshot` for the current or last played day; replaced when `dateKey` changes |
-| `@foolish-you/streak-v1` | `StreakState`: `currentStreak`, `lastCheckInDateKey`, `historicalMax` (schema v2) |
+| `@foolish-you/streak-v1` | `StreakState`: `currentStreak`, `lastCheckInDateKey`, `historicalMax`, `freezeCount`, `lastFreezeGrantWeekKey`, optional `freezeConsumedSessionKey` (schema v3) |
 | `@foolish-you/completion-history-v1` | Rolling completion records for stats / backfill |
 | `@foolish-you/rating-v1` | Rating prompt counters / last prompt date |
 | `@foolish-you/snapshot-recovery-log-v1` | Ring buffer of recovery events (dev-visible) |

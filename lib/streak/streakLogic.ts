@@ -33,9 +33,9 @@ export function applyCheckIn(
   }
 
   return bumpHistoricalMax({
+    ...base,
     currentStreak: nextStreak,
     lastCheckInDateKey: todayKey,
-    historicalMax: base.historicalMax,
   });
 }
 

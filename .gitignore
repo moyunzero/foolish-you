@@ -79,3 +79,7 @@ yarn.lock
 .planning/
 DESIGN.md
 CLAUDE.md
+
+.understand-anything
+
+.codegraph

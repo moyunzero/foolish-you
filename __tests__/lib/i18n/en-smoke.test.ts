@@ -4,6 +4,8 @@ jest.mock('react-native', () => ({
 
 import { pickResultCopy } from '../../../lib/copy/resultMessages';
 import { formatStreakLine } from '../../../lib/copy/streak';
+import { formatFreezeShieldSuffix, pickFreezeConsumedLine } from '../../../lib/copy/freeze';
+import { pickMissedYesterdayLine } from '../../../lib/copy/missedYesterday';
 import { generateSudokuPuzzle } from '../../../lib/puzzles/sudoku/generator';
 import { createEmptyGrid as createEmptySudokuGrid } from '../../../lib/puzzles/sudoku/grid';
 import { buildShareCard } from '../../../lib/share/buildShareCard';
@@ -63,5 +65,17 @@ describe('English locale smoke', () => {
 
     expect(card).toContain('Brainfool');
     expect(card).not.toContain('傻了么');
+  });
+
+  it('freeze copy is English without CJK', () => {
+    const cjk = /[\u4e00-\u9fff]/;
+    expect(pickFreezeConsumedLine(DATE_KEY, SEED, 'en')).not.toMatch(cjk);
+    expect(formatFreezeShieldSuffix(2, 'en')).toContain('Shield');
+    expect(pickMissedYesterdayLine({
+      todayKey: DATE_KEY,
+      seed: SEED,
+      locale: 'en',
+      freezeConsumedToday: false,
+    })).not.toMatch(cjk);
   });
 });

@@ -6,7 +6,7 @@ export const APP_SALT = 'foolish-you-v1';
 export const STORAGE_KEY = '@foolish-you/daily-v1';
 export const STREAK_STORAGE_KEY = '@foolish-you/streak-v1';
 /** Bump when persisted streak JSON shape changes (see AGENTS.md storage checklist). */
-export const STREAK_STORAGE_VERSION = 2;
+export const STREAK_STORAGE_VERSION = 3;
 export const COMPLETION_HISTORY_STORAGE_KEY = '@foolish-you/completion-history-v1';
 export const COMPLETION_HISTORY_STORAGE_VERSION = 1;
 export const COMPLETION_HISTORY_MAX_ENTRIES = 90;

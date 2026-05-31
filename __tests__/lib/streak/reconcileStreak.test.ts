@@ -2,6 +2,7 @@ import {
   needsStreakReconcile,
   reconcileStreakForCompletedDay,
 } from '../../../lib/streak/reconcileStreak';
+import { EMPTY_STREAK_STATE } from '../../../lib/streak/types';
 import { makeBinaryPlayingSnapshot } from '../../helpers/dailyGameFixtures';
 
 describe('reconcileStreak', () => {
@@ -14,6 +15,7 @@ describe('reconcileStreak', () => {
     expect(needsStreakReconcile(snapshot, null)).toBe(true);
     expect(
       needsStreakReconcile(snapshot, {
+        ...EMPTY_STREAK_STATE,
         currentStreak: 1,
         lastCheckInDateKey: snapshot.dateKey,
         historicalMax: 1,
@@ -28,6 +30,7 @@ describe('reconcileStreak', () => {
     });
 
     expect(reconcileStreakForCompletedDay(snapshot, null)).toEqual({
+      ...EMPTY_STREAK_STATE,
       currentStreak: 1,
       lastCheckInDateKey: snapshot.dateKey,
       historicalMax: 1,

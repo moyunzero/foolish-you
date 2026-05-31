@@ -21,6 +21,9 @@ describe('streakStorage', () => {
       currentStreak: 3,
       lastCheckInDateKey: '2026-05-24',
       historicalMax: 5,
+      freezeCount: 1,
+      lastFreezeGrantWeekKey: '2026-W21',
+      freezeConsumedSessionKey: null,
     };
     await expect(saveStreakState(state)).resolves.toBe(true);
     await expect(loadStreakState()).resolves.toEqual(state);
@@ -41,6 +44,9 @@ describe('streakStorage', () => {
       currentStreak: 2,
       lastCheckInDateKey: '2026-05-20',
       historicalMax: 2,
+      freezeCount: 0,
+      lastFreezeGrantWeekKey: null,
+      freezeConsumedSessionKey: null,
     });
   });
 
@@ -57,6 +63,9 @@ describe('streakStorage', () => {
       currentStreak: 4,
       lastCheckInDateKey: '2026-05-18',
       historicalMax: 4,
+      freezeCount: 0,
+      lastFreezeGrantWeekKey: null,
+      freezeConsumedSessionKey: null,
     });
   });
 
@@ -74,7 +83,44 @@ describe('streakStorage', () => {
       currentStreak: 3,
       lastCheckInDateKey: '2026-05-19',
       historicalMax: 12,
+      freezeCount: 0,
+      lastFreezeGrantWeekKey: null,
+      freezeConsumedSessionKey: null,
     });
+  });
+
+  it('migrates v2 payload with default freeze fields', async () => {
+    await AsyncStorage.setItem(
+      STREAK_STORAGE_KEY,
+      JSON.stringify({
+        version: 2,
+        currentStreak: 6,
+        lastCheckInDateKey: '2026-05-18',
+        historicalMax: 9,
+      }),
+    );
+    await expect(loadStreakState()).resolves.toEqual({
+      currentStreak: 6,
+      lastCheckInDateKey: '2026-05-18',
+      historicalMax: 9,
+      freezeCount: 0,
+      lastFreezeGrantWeekKey: null,
+      freezeConsumedSessionKey: null,
+    });
+  });
+
+  it('rejects freezeCount greater than 2', async () => {
+    await AsyncStorage.setItem(
+      STREAK_STORAGE_KEY,
+      JSON.stringify({
+        version: 3,
+        currentStreak: 1,
+        lastCheckInDateKey: '2026-05-20',
+        historicalMax: 1,
+        freezeCount: 3,
+      }),
+    );
+    await expect(loadStreakState()).resolves.toBeNull();
   });
 
   it('rejects streak payload newer than app version', async () => {

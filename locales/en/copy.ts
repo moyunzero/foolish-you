@@ -130,6 +130,28 @@ export const streak = {
     `${displayStreak} days in a row · Today still open`,
 } as const;
 
+export const freeze = {
+  consumedLines: [
+    'Shield used: yesterday skipped, streak still alive — don’t gloat.',
+    'One day frozen; the number holds — don’t ghost again.',
+    'System covered for you. Submit today’s run.',
+  ] as const,
+  shieldSuffix: (count: number) => ` · Shield×${count}`,
+} as const;
+
+export const missedYesterday = {
+  softPool: [
+    'Missed yesterday — win today back.',
+    'Shield bought time; don’t waste today.',
+    'Streak’s still there — earn the pride.',
+  ] as const,
+  recallPool: [
+    'You skipped yesterday — streak’s watching.',
+    'One day off; skip today and it’s gone.',
+    'Edge of a break — still time to play.',
+  ] as const,
+} as const;
+
 export const statsPools = {
   elapsedFast: [
     'Speed run. Keyboard smoking.',

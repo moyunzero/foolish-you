@@ -11,6 +11,7 @@ import ResultScreen from '../../app/result';
 import { saveDailySnapshot } from '../../lib/storage/dailyStorage';
 import { saveRatingState } from '../../lib/storage/ratingStorage';
 import { saveStreakState } from '../../lib/storage/streakStorage';
+import { EMPTY_STREAK_STATE } from '../../lib/streak/types';
 import { DEFAULT_RATING_STATE } from '../../lib/rating/types';
 import {
   mockRouterReplace,
@@ -143,6 +144,7 @@ describe('ResultScreen', () => {
       }),
     );
     await saveStreakState({
+      ...EMPTY_STREAK_STATE,
       currentStreak: 2,
       lastCheckInDateKey: FIXTURE_TODAY,
       historicalMax: 5,
@@ -162,6 +164,7 @@ describe('ResultScreen', () => {
     jest.useFakeTimers();
     await saveRatingState({ ...DEFAULT_RATING_STATE, completedCount: 3 });
     await saveStreakState({
+      ...EMPTY_STREAK_STATE,
       currentStreak: 2,
       lastCheckInDateKey: FIXTURE_TODAY,
       historicalMax: 2,

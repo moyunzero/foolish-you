@@ -26,7 +26,8 @@ A minimal, offline-first daily puzzle app (Expo). One puzzle per local calendar 
 - Humorous result screen with Reanimated animations
 - Rule explanations in-game
 - **v1.1 (`1.1.x`):** emoji share card (clipboard), result stats cards, in-app review prompt (gated), defensive daily selection + snapshot recovery
-- **v1.2 (current `1.2.0`):** system locale zh/en (`expo-localization`), English brand **Brainfool**, `locales/` + `useI18n`, bilingual privacy; no release settings UI (dev placeholder only)
+- **v1.2 (`1.2.0`):** system locale zh/en (`expo-localization`), English brand **Brainfool**, `locales/` + `useI18n`, bilingual privacy; no release settings UI (dev placeholder only)
+- **v2.0 (`2.0.0`, partial):** streak freeze shields (weekly grant, max 2, auto-consume on 1-day gap), missed-yesterday recall subline on game screen; completion-history repair on hydrate; streak storage schema v3. **Not yet:** daily notifications, personal stats page
 
 Store builds via EAS (`eas.json`, `app.json`).
 
@@ -256,7 +257,7 @@ Run the same checks as CI (`.github/workflows/ci.yml`):
 
 ```bash
 npm run typecheck       # tsc --noEmit
-npm test                # unit + rtl (~298 tests; includes en-smoke)
+npm test                # unit + rtl (~342 tests; includes en-smoke)
 npm run test:migration  # snapshot migration golden fixtures
 npm run lint            # expo lint
 npm run lockfile:verify-eas  # npm 10 ci — must pass before EAS build
@@ -275,9 +276,11 @@ For UI changes, include manual steps:
 
 - Fresh install / clear storage → today's puzzle loads
 - Kill app mid-game → progress restores
-- Complete and surrender → result copy, stats cards, share button (when `playState` valid), streak line on win, animations
+- Complete and surrender → result copy, stats cards, share button (when `playState` valid), streak line on win, freeze shield suffix on stats when applicable, animations
 - Recovery path → `completed` with stripped `playState` shows outcome but no share button
-- Dev panel (`__DEV__`) → force game type / reset today / inject recovery / **settings placeholder** (locale preview)
+- Streak freeze → skip exactly one calendar day without completing; reopen → shield consumed, streak preserved; game header shows freeze line (not missed-yesterday recall)
+- Missed yesterday → gap ≥ 2 days without shield → game header shows recall subline until today is completed
+- Dev panel (`__DEV__`) → force game type / reset today / inject recovery / **streak QA scenarios** / settings placeholder (locale preview)
 
 EAS builds (`eas.json` preview/production profiles) require device verification before tagging release-ready.
 
@@ -287,7 +290,7 @@ EAS builds (`eas.json` preview/production profiles) require device verification 
 
 - `components/dev/DevToolsPanel.tsx` and `constants/dev.ts` are gated by `__DEV__` and stripped from production.
 - `DEV_FORCE_GAME_TYPE` overrides daily selection in development only.
-- Panel actions: force game type, reset today, inject recovery scenario, clear rating/history, view recovery log, open settings placeholder.
+- Panel actions: force game type, reset today, inject recovery scenario, **apply streak QA scenarios** (`lib/dev/streakDevScenarios.ts`), clear rating/history, view recovery log, open settings placeholder.
 
 ---
 

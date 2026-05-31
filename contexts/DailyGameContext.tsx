@@ -22,9 +22,20 @@ import {
 import { usePlayStatePersistence } from '../lib/daily/playStatePersistence';
 
 import { DEV_TOOLS_ENABLED } from '../constants/dev';
+import {
+  applyStreakDevScenario,
+  type StreakDevScenarioId,
+} from '../lib/dev/streakDevScenarios';
 import { formatStreakLine } from '../lib/copy/streak';
+import { pickFreezeConsumedLine } from '../lib/copy/freeze';
+import { pickMissedYesterdayLine } from '../lib/copy/missedYesterday';
 import { getLocalDateKey } from '../lib/date/localDay';
 import { useI18n } from '../lib/i18n';
+import {
+  reconcileStreakOnOpen,
+  repairStreakFromYesterdayCompletion,
+} from '../lib/streak/freezeLogic';
+import { shouldShowMissedYesterdayBanner } from '../lib/streak/missedYesterdayBanner';
 import { applyCheckIn, getStreakDisplay } from '../lib/streak/streakLogic';
 import {
   needsStreakReconcile,
@@ -42,7 +53,8 @@ import type {
   PuzzlePayload,
 } from '../lib/puzzles/types';
 import { isBinaryPuzzle, isNonogramPuzzle, isSudokuPuzzle } from '../lib/puzzles/types';
-import { recordCompletion } from '../lib/storage/completionHistoryStorage';
+import { recordCompletion, loadCompletionHistory } from '../lib/storage/completionHistoryStorage';
+import type { CompletionEntry } from '../lib/storage/completionHistoryStorage';
 import { incrementRatingCompletedCount } from '../lib/storage/ratingStorage';
 import { clearDailySnapshot } from '../lib/storage/dailyStorage';
 import { loadStreakState, saveStreakState } from '../lib/storage/streakStorage';
@@ -66,6 +78,12 @@ export type DailyGameState = {
   streakHighlight: boolean;
   /** 连签展示天数（结果页战报等） */
   displayStreak: number;
+  /** 今日打开 App 时消耗了 streak freeze */
+  freezeConsumedToday: boolean;
+  /** 消耗 freeze 当日游戏页一行 copy */
+  freezeConsumedLine: string;
+  /** playing 态昨日错过召回 copy；不显示时为 null */
+  missedYesterdayLine: string | null;
   updatePlayState: (next: PlayState) => void;
   markCompleted: () => Promise<void>;
   markAbandoned: () => Promise<void>;
@@ -74,15 +92,43 @@ export type DailyGameState = {
   retryStreakSave: () => Promise<void>;
   /** 仅 __DEV__：清除并重新生成今日题目 */
   devRegenerateToday: (forceGameType?: GameType | null) => Promise<void>;
+  /** 仅 __DEV__：注入连签/护盾 QA 场景并重新 hydrate */
+  devApplyStreakScenario: (scenario: StreakDevScenarioId) => Promise<void>;
 };
 
 const DailyGameContext = createContext<DailyGameState | null>(null);
+
+function streakStatesEqual(
+  a: StreakState | null,
+  b: StreakState | null,
+): boolean {
+  return JSON.stringify(a) === JSON.stringify(b);
+}
+
+/** Avoid persisting first-open anchor-only rows before any check-in. */
+function shouldPersistStreakOnHydrate(
+  loaded: StreakState | null,
+  next: StreakState,
+): boolean {
+  if (streakStatesEqual(loaded, next)) {
+    return false;
+  }
+  if (
+    loaded == null &&
+    next.lastCheckInDateKey == null &&
+    next.freezeCount === 0
+  ) {
+    return false;
+  }
+  return true;
+}
 
 function useDailyGameProviderValue(): DailyGameState {
   const { locale } = useI18n();
   const [status, setStatus] = useState<HydrateStatus>('loading');
   const [snapshot, setSnapshot] = useState<DailySnapshot | null>(null);
   const [streak, setStreak] = useState<StreakState | null>(null);
+  const [historyEntries, setHistoryEntries] = useState<CompletionEntry[]>([]);
   const [saveError, setSaveError] = useState(false);
   const [streakSaveError, setStreakSaveError] = useState(false);
   const hydratingRef = useRef(false);
@@ -167,12 +213,29 @@ function useDailyGameProviderValue(): DailyGameState {
     let streakState = loadedStreak;
 
     if (needsStreakReconcile(next, loadedStreak)) {
-      const reconciled = reconcileStreakForCompletedDay(next, loadedStreak);
-      const saved = await saveStreakState(reconciled);
-      if (saved) {
-        streakState = reconciled;
-      } else {
-        pendingStreakRef.current = reconciled;
+      streakState = reconcileStreakForCompletedDay(next, loadedStreak);
+    }
+
+    const history = await loadCompletionHistory();
+    const entries = history.entries;
+
+    const repaired = repairStreakFromYesterdayCompletion(
+      streakState,
+      next.dateKey,
+      entries,
+    );
+    if (repaired != null) {
+      streakState = repaired;
+    }
+
+    streakState = reconcileStreakOnOpen(streakState, next.dateKey, {
+      historyEntries: entries,
+    });
+
+    if (shouldPersistStreakOnHydrate(loadedStreak, streakState)) {
+      const saved = await saveStreakState(streakState);
+      if (!saved) {
+        pendingStreakRef.current = streakState;
         setStreakSaveError(true);
       }
     }
@@ -186,6 +249,7 @@ function useDailyGameProviderValue(): DailyGameState {
     setSnapshot(next);
     setStatus(next.status);
     setStreak(streakState);
+    setHistoryEntries(entries);
   }, [handleSaveFailed]);
 
   const loadHydratedStateRef = useRef(loadHydratedState);
@@ -231,6 +295,18 @@ function useDailyGameProviderValue(): DailyGameState {
       });
     },
     [resetPending, handleSaveFailed],
+  );
+
+  const devApplyStreakScenario = useCallback(
+    async (scenario: StreakDevScenarioId) => {
+      if (!DEV_TOOLS_ENABLED) return;
+
+      await coordinatorRef.current.enqueue(async () => {
+        await applyStreakDevScenario(scenario);
+        await loadHydratedStateRef.current();
+      });
+    },
+    [],
   );
 
   useEffect(() => {
@@ -341,6 +417,47 @@ function useDailyGameProviderValue(): DailyGameState {
   const streakHighlight = streakDisplay.checkedInToday;
   const displayStreak = streakDisplay.displayStreak;
 
+  const todayKey = snapshot?.dateKey ?? getLocalDateKey();
+  const freezeConsumedToday =
+    streak?.freezeConsumedSessionKey === todayKey;
+
+  const freezeConsumedLine = useMemo(() => {
+    if (!freezeConsumedToday || snapshot?.dateKey == null) {
+      return '';
+    }
+    return pickFreezeConsumedLine(snapshot.dateKey, snapshot.seed, locale);
+  }, [freezeConsumedToday, snapshot?.dateKey, snapshot?.seed, locale]);
+
+  const missedYesterdayLine = useMemo(() => {
+    if (snapshot?.dateKey == null || status !== 'playing') {
+      return null;
+    }
+    if (
+      !shouldShowMissedYesterdayBanner({
+        todayKey: snapshot.dateKey,
+        status,
+        lastCheckInDateKey: streak?.lastCheckInDateKey ?? null,
+        historyEntries,
+      })
+    ) {
+      return null;
+    }
+    return pickMissedYesterdayLine({
+      todayKey: snapshot.dateKey,
+      seed: snapshot.seed,
+      locale,
+      freezeConsumedToday,
+    });
+  }, [
+    snapshot?.dateKey,
+    snapshot?.seed,
+    status,
+    streak?.lastCheckInDateKey,
+    historyEntries,
+    locale,
+    freezeConsumedToday,
+  ]);
+
   return useMemo(
     () => ({
       status,
@@ -355,6 +472,9 @@ function useDailyGameProviderValue(): DailyGameState {
       streakLine,
       streakHighlight,
       displayStreak,
+      freezeConsumedToday,
+      freezeConsumedLine,
+      missedYesterdayLine,
       updatePlayState,
       markCompleted,
       markAbandoned,
@@ -362,6 +482,7 @@ function useDailyGameProviderValue(): DailyGameState {
       retrySave,
       retryStreakSave,
       devRegenerateToday,
+      devApplyStreakScenario,
     }),
     [
       status,
@@ -373,6 +494,9 @@ function useDailyGameProviderValue(): DailyGameState {
       streakLine,
       streakHighlight,
       displayStreak,
+      freezeConsumedToday,
+      freezeConsumedLine,
+      missedYesterdayLine,
       updatePlayState,
       markCompleted,
       markAbandoned,
@@ -380,6 +504,7 @@ function useDailyGameProviderValue(): DailyGameState {
       retrySave,
       retryStreakSave,
       devRegenerateToday,
+      devApplyStreakScenario,
     ],
   );
 }

@@ -37,4 +37,21 @@ describe('GameScreenHeader', () => {
 
     expect(screen.queryByLabelText('查看二进制谜题规则')).toBeNull();
   });
+
+  it('renders streak subline below title with meta typography', () => {
+    renderWithI18n(
+      <GameScreenHeader
+        dateKey="2026-05-25"
+        streakLine="连续 4 天 · 今日卷面待交"
+        streakHighlight={false}
+        elapsed="01:23"
+        typeLabel="数绘"
+        gameType="nonogram"
+        showRules
+        streakSubline="护盾生效：昨天缺席，连签还在，别得瑟。"
+      />,
+    );
+
+    expect(screen.getByText('护盾生效：昨天缺席，连签还在，别得瑟。')).toBeTruthy();
+  });
 });

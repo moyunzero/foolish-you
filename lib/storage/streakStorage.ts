@@ -30,6 +30,56 @@ export function bumpHistoricalMax(state: StreakState): StreakState {
   };
 }
 
+function isOptionalIsoWeekKey(value: unknown): value is string | null {
+  return (
+    value === null ||
+    (typeof value === 'string' && /^\d{4}-W\d{2}$/.test(value))
+  );
+}
+
+function normalizeFreezeFields(row: Record<string, unknown>): {
+  freezeCount: number;
+  lastFreezeGrantWeekKey: string | null;
+  freezeConsumedSessionKey: string | null;
+} | null {
+  const rawFreezeCount = row.freezeCount;
+  let freezeCount = 0;
+  if (rawFreezeCount !== undefined) {
+    if (
+      typeof rawFreezeCount !== 'number' ||
+      !Number.isFinite(rawFreezeCount) ||
+      rawFreezeCount < 0 ||
+      rawFreezeCount > 2
+    ) {
+      return null;
+    }
+    freezeCount = Math.floor(rawFreezeCount);
+  }
+
+  const rawGrantWeek = row.lastFreezeGrantWeekKey;
+  if (rawGrantWeek !== undefined && !isOptionalIsoWeekKey(rawGrantWeek)) {
+    return null;
+  }
+
+  const rawConsumedKey = row.freezeConsumedSessionKey;
+  if (
+    rawConsumedKey !== undefined &&
+    rawConsumedKey !== null &&
+    (typeof rawConsumedKey !== 'string' ||
+      !/^\d{4}-\d{2}-\d{2}$/.test(rawConsumedKey))
+  ) {
+    return null;
+  }
+
+  return {
+    freezeCount,
+    lastFreezeGrantWeekKey:
+      rawGrantWeek === undefined ? null : (rawGrantWeek as string | null),
+    freezeConsumedSessionKey:
+      rawConsumedKey === undefined ? null : (rawConsumedKey as string | null),
+  };
+}
+
 function normalizePersistedStreak(raw: unknown): StreakState | null {
   if (raw == null || typeof raw !== 'object') return null;
   const row = raw as Record<string, unknown>;
@@ -62,10 +112,16 @@ function normalizePersistedStreak(raw: unknown): StreakState | null {
     historicalMax = currentStreak;
   }
 
+  const freezeFields = normalizeFreezeFields(row);
+  if (freezeFields == null) {
+    return null;
+  }
+
   return bumpHistoricalMax({
     currentStreak,
     lastCheckInDateKey,
     historicalMax: Math.max(historicalMax, currentStreak),
+    ...freezeFields,
   });
 }
 

@@ -95,6 +95,21 @@ export function pickStreakSubline(
   return pools.streakChase[Math.min(index, pools.streakChase.length - 1)]!(gap);
 }
 
+export function appendFreezeShieldSubline(
+  subline: string,
+  freezeCount: number,
+  locale: Locale = 'zh',
+): string {
+  if (freezeCount <= 0) {
+    return subline;
+  }
+  const suffix =
+    locale === 'zh'
+      ? zhCopy.freeze.shieldSuffix(freezeCount)
+      : enCopy.freeze.shieldSuffix(freezeCount);
+  return `${subline}${suffix}`;
+}
+
 export function createStatsSublineRng(
   dateKey: string,
   seed: number | null | undefined,

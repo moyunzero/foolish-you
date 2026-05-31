@@ -7,6 +7,7 @@ import {
   loadCompletionHistory,
   recordCompletion,
 } from '../../../lib/storage/completionHistoryStorage';
+import { EMPTY_STREAK_STATE } from '../../../lib/streak/types';
 import { clearStreakState, saveStreakState } from '../../../lib/storage/streakStorage';
 import { countWeeklyCompleted } from '../../../lib/stats/weeklyCompletedCount';
 
@@ -14,6 +15,7 @@ describe('getActiveStreakDateKeys', () => {
   it('returns empty when streak is zero', () => {
     expect(
       getActiveStreakDateKeys({
+        ...EMPTY_STREAK_STATE,
         currentStreak: 0,
         lastCheckInDateKey: '2026-05-26',
         historicalMax: 5,
@@ -24,6 +26,7 @@ describe('getActiveStreakDateKeys', () => {
   it('returns consecutive days ending at lastCheckIn', () => {
     expect(
       getActiveStreakDateKeys({
+        ...EMPTY_STREAK_STATE,
         currentStreak: 2,
         lastCheckInDateKey: '2026-05-26',
         historicalMax: 17,
@@ -37,6 +40,7 @@ describe('mergeBackfillFromStreak', () => {
     const { state, added } = mergeBackfillFromStreak(
       { entries: [] },
       {
+        ...EMPTY_STREAK_STATE,
         currentStreak: 2,
         lastCheckInDateKey: '2026-05-26',
         historicalMax: 17,
@@ -51,6 +55,7 @@ describe('mergeBackfillFromStreak', () => {
     const { state, added } = mergeBackfillFromStreak(
       { entries: [{ dateKey: '2026-05-26', elapsedMs: 120_000 }] },
       {
+        ...EMPTY_STREAK_STATE,
         currentStreak: 2,
         lastCheckInDateKey: '2026-05-26',
         historicalMax: 2,
@@ -72,6 +77,7 @@ describe('loadCompletionHistory backfill', () => {
 
   it('aligns weekly count with active streak after upgrade', async () => {
     await saveStreakState({
+      ...EMPTY_STREAK_STATE,
       currentStreak: 2,
       lastCheckInDateKey: '2026-05-26',
       historicalMax: 2,
@@ -84,6 +90,7 @@ describe('loadCompletionHistory backfill', () => {
 
   it('re-backfills after dev clears completion history only', async () => {
     await saveStreakState({
+      ...EMPTY_STREAK_STATE,
       currentStreak: 2,
       lastCheckInDateKey: '2026-05-26',
       historicalMax: 2,
@@ -97,6 +104,7 @@ describe('loadCompletionHistory backfill', () => {
 
   it('recordCompletion replaces inferred row with real elapsed', async () => {
     await saveStreakState({
+      ...EMPTY_STREAK_STATE,
       currentStreak: 2,
       lastCheckInDateKey: '2026-05-26',
       historicalMax: 2,

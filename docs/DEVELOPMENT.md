@@ -43,7 +43,7 @@ Before opening a PR or calling a change done, run the same checks as [`.github/w
 
 ```bash
 npm run typecheck      # tsc --noEmit (strict)
-npm test               # Jest: unit + rtl projects (~298 tests)
+npm test               # Jest: unit + rtl projects (~342 tests)
 npm run test:migration # snapshot migration golden fixtures only
 npm run lint           # expo lint (ESLint flat config)
 ```
@@ -160,7 +160,9 @@ foolish-you/
 │   ├── stats/                # Result stats cards
 │   ├── rating/               # App Store review gating
 │   ├── time/                 # Elapsed ms + clock formatting
-│   ├── streak/               # Consecutive-day streak logic + storage
+│   ├── streak/               # Check-in, freeze shields, missed-yesterday banner
+│   ├── completion/           # Completion-history queries (freeze / backfill)
+│   ├── dev/                  # Dev-only streak QA scenario presets
 │   ├── copy/                 # User-facing strings
 │   └── platform/             # e.g. exitApp
 ├── constants/                # config, design tokens, dev flags, legal
@@ -221,6 +223,7 @@ Rendered from [`app/_layout.tsx`](../app/_layout.tsx) only when `DEV_TOOLS_ENABL
 - **重置通关记录** / **重置评分** — clear completion history or rating prompt state
 - **注入坏盘面** — write `completed` + empty `playState` to exercise `recoverSnapshot` on next load
 - **清恢复日志** — clear `@foolish-you/snapshot-recovery-log-v1`; recent entries shown when expanded
+- **连签 QA 场景** — inject streak/freeze/missed-yesterday states via `devApplyStreakScenario` (`lib/dev/streakDevScenarios.ts`); banner scenarios auto-regenerate today when status is `completed` / `abandoned` so `/game` is reachable
 - **隐藏** — hide the bottom bar for screenshots (preference persisted in AsyncStorage)
 
 **Bar visibility:** [`contexts/DevToolsUiContext.tsx`](../contexts/DevToolsUiContext.tsx) stores `@foolish-you/dev-tools-bar-visible`. Long-press the footer **隐私政策** link ([`PrivacyPolicyFooterLink`](../components/legal/PrivacyPolicyFooterLink.tsx)) to toggle the bar back. Game/result/privacy screens use `useDevBottomInset()` so content clears the bar when visible.
@@ -229,8 +232,9 @@ Rendered from [`app/_layout.tsx`](../app/_layout.tsx) only when `DEV_TOOLS_ENABL
 
 - Fresh install or cleared storage → today’s puzzle loads
 - Kill app mid-game → progress restores
-- Complete and surrender → result copy, stats cards, share button (when `playState` present), animations
+- Complete and surrender → result copy, stats cards, share button (when `playState` present), streak + shield suffix on stats, animations
 - Recovery path: inject bad snapshot → restart → result without share button but outcome preserved
+- Streak freeze / missed-yesterday: use dev **连签 QA 场景** or unit tests under `__tests__/lib/streak/`
 - Dev panel: force game type / reset today / rating & history resets — confirm no effect on release builds
 
 ---

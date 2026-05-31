@@ -1,4 +1,5 @@
 import {
+  appendFreezeShieldSubline,
   createStatsSublineRng,
   formatStatsClock,
   pickElapsedSubline,
@@ -45,6 +46,7 @@ export async function computeStatsCards(
 
   const currentStreak = streakState?.currentStreak ?? 0;
   const historicalMax = streakState?.historicalMax ?? currentStreak;
+  const freezeCount = streakState?.freezeCount ?? 0;
 
   const elapsedRng = createStatsSublineRng(input.today, input.seed, 0);
   const weeklyRng = createStatsSublineRng(input.today, input.seed, 1);
@@ -74,7 +76,11 @@ export async function computeStatsCards(
           locale === 'zh'
             ? `${historicalMax} 天`
             : `${historicalMax} days`,
-        subline: pickStreakSubline(currentStreak, historicalMax, streakRng, locale),
+        subline: appendFreezeShieldSubline(
+          pickStreakSubline(currentStreak, historicalMax, streakRng, locale),
+          freezeCount,
+          locale,
+        ),
       },
     ],
   };

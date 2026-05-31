@@ -1,3 +1,4 @@
+import { EMPTY_STREAK_STATE } from '../../../lib/streak/types';
 import { clearCompletionHistory, recordCompletion } from '../../../lib/storage/completionHistoryStorage';
 import { clearStreakState, saveStreakState } from '../../../lib/storage/streakStorage';
 import { computeStatsCards } from '../../../lib/stats/computeStatsCards';
@@ -10,6 +11,7 @@ describe('computeStatsCards', () => {
 
   it('first-time user sees 1/7 and streak max 1', async () => {
     await saveStreakState({
+      ...EMPTY_STREAK_STATE,
       currentStreak: 1,
       lastCheckInDateKey: '2026-05-19',
       historicalMax: 1,
@@ -30,6 +32,7 @@ describe('computeStatsCards', () => {
 
   it('long-term user keeps historical max above current', async () => {
     await saveStreakState({
+      ...EMPTY_STREAK_STATE,
       currentStreak: 7,
       lastCheckInDateKey: '2026-05-19',
       historicalMax: 17,
@@ -44,5 +47,26 @@ describe('computeStatsCards', () => {
 
     expect(data.cards[2].value).toBe('17 天');
     expect(data.cards[2].subline).toContain('10');
+  });
+
+  it('appends shield suffix when freezeCount is positive', async () => {
+    await saveStreakState({
+      ...EMPTY_STREAK_STATE,
+      currentStreak: 3,
+      lastCheckInDateKey: '2026-05-19',
+      historicalMax: 10,
+      freezeCount: 2,
+      lastFreezeGrantWeekKey: '2026-W21',
+      freezeConsumedSessionKey: null,
+    });
+    await recordCompletion('2026-05-19', 150_000);
+
+    const data = await computeStatsCards({
+      elapsedMs: 150_000,
+      today: '2026-05-19',
+      seed: 99,
+    });
+
+    expect(data.cards[2].subline).toContain('护盾×2');
   });
 });

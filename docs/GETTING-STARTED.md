@@ -92,13 +92,13 @@ For most contributors, **Expo Go + `npm start`** is enough. Use a **development 
    - **`completed`** or **`abandoned`** → redirect to **`/result`** (outcome copy and animations).
    - **Error** → retry UI on the index screen (`refresh()`).
 
-4. **Play** — On the game screen, fill the grid, use the rules (`?`) if needed, then **complete** or **surrender** via the footer. Progress is saved locally (debounced). The header shows elapsed time (`MM:SS`).
+4. **Play** — On the game screen, fill the grid, use the rules (`?`) if needed, then **complete** or **surrender** via the footer. Progress is saved locally (debounced). The header shows elapsed time (`MM:SS`), streak line, and optionally a freeze or missed-yesterday subline (v2.0).
 
-5. **Result (v1.1)** — On **complete**, you see outcome copy, three stats cards (today’s time, weekly completions, historical max streak), and optionally **拷贝战报** (emoji grid to clipboard). A system rating prompt may appear after gated delays. **Surrender** skips streak check-in.
+5. **Result (v1.1+)** — On **complete**, you see outcome copy, three stats cards (today’s time, weekly completions, historical max streak; shield suffix when applicable), and optionally **拷贝战报** (emoji grid to clipboard). A system rating prompt may appear after gated delays. **Surrender** skips streak check-in.
 
 6. **Next day** — When the local calendar `dateKey` changes, a new daily puzzle is selected deterministically via `selectDailyGameSafe` (same day = same puzzle on the same device).
 
-**Development-only:** In `__DEV__`, a dev tools panel can force game type or reset today (`constants/dev.ts`). It is not included in release builds.
+**Development-only:** In `__DEV__`, a dev tools panel can force game type, reset today, or apply **连签 QA 场景** for freeze/recall testing (`constants/dev.ts`, `lib/dev/streakDevScenarios.ts`). It is not included in release builds.
 
 ## Common setup issues
 

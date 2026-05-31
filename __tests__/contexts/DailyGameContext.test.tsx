@@ -20,7 +20,11 @@ import {
   clearDailySnapshot,
   saveDailySnapshot,
 } from '../../lib/storage/dailyStorage';
-import { loadStreakState } from '../../lib/storage/streakStorage';
+import {
+  loadStreakState,
+  saveStreakState,
+} from '../../lib/storage/streakStorage';
+import { recordCompletion } from '../../lib/storage/completionHistoryStorage';
 import {
   FIXTURE_TODAY,
   FIXTURE_TOMORROW,
@@ -211,6 +215,9 @@ describe('DailyGameContext', () => {
       currentStreak: 1,
       lastCheckInDateKey: FIXTURE_TODAY,
       historicalMax: 1,
+      freezeCount: 0,
+      lastFreezeGrantWeekKey: '2026-W21',
+      freezeConsumedSessionKey: null,
     });
 
     jest.useRealTimers();
@@ -245,6 +252,9 @@ describe('DailyGameContext', () => {
       currentStreak: 1,
       lastCheckInDateKey: FIXTURE_TODAY,
       historicalMax: 1,
+      freezeCount: 0,
+      lastFreezeGrantWeekKey: '2026-W21',
+      freezeConsumedSessionKey: null,
     });
   });
 
@@ -464,5 +474,55 @@ describe('DailyGameContext', () => {
 
     expect(result.current.status).toBe('playing');
     expect(result.current.seed).toBe(7777);
+  });
+
+  it('consumes freeze on hydrate when user missed exactly one day', async () => {
+    await saveStreakState({
+      currentStreak: 5,
+      lastCheckInDateKey: '2026-05-17',
+      historicalMax: 8,
+      freezeCount: 1,
+      lastFreezeGrantWeekKey: '2026-W21',
+      freezeConsumedSessionKey: null,
+    });
+    await saveDailySnapshot(makeBinaryPlayingSnapshot());
+
+    const { result } = await renderAndHydrate();
+
+    expect(result.current.displayStreak).toBe(5);
+    expect(result.current.freezeConsumedToday).toBe(true);
+    await expect(loadStreakState()).resolves.toEqual({
+      currentStreak: 5,
+      lastCheckInDateKey: '2026-05-18',
+      historicalMax: 8,
+      freezeCount: 0,
+      lastFreezeGrantWeekKey: '2026-W21',
+      freezeConsumedSessionKey: FIXTURE_TODAY,
+    });
+  });
+
+  it('backfills yesterday check-in instead of consuming freeze when real completion exists', async () => {
+    await saveStreakState({
+      currentStreak: 5,
+      lastCheckInDateKey: '2026-05-17',
+      historicalMax: 8,
+      freezeCount: 1,
+      lastFreezeGrantWeekKey: '2026-W21',
+      freezeConsumedSessionKey: null,
+    });
+    await recordCompletion('2026-05-18', 120_000);
+    await saveDailySnapshot(makeBinaryPlayingSnapshot());
+
+    const { result } = await renderAndHydrate();
+
+    expect(result.current.freezeConsumedToday).toBe(false);
+    await expect(loadStreakState()).resolves.toEqual({
+      currentStreak: 6,
+      lastCheckInDateKey: '2026-05-18',
+      historicalMax: 8,
+      freezeCount: 1,
+      lastFreezeGrantWeekKey: '2026-W21',
+      freezeConsumedSessionKey: null,
+    });
   });
 });
