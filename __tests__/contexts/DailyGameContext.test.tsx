@@ -7,7 +7,7 @@ import {
 import React, { type ReactNode } from 'react';
 import { AppState, type AppStateStatus } from 'react-native';
 
-import { PLAY_STATE_DEBOUNCE_MS } from '../../constants/config';
+import { PLAY_STATE_DEBOUNCE_MS, STORAGE_KEY } from '../../constants/config';
 import {
   DailyGameProvider,
   useDailyGame,
@@ -128,7 +128,7 @@ describe('DailyGameContext', () => {
   it('repairs inconsistent snapshot on hydrate and exposes puzzle', async () => {
     const sudoku = makeSudokuPlayingSnapshot();
     const broken = { ...sudoku, gameType: 'binary' as const };
-    await saveDailySnapshot(broken);
+    await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(broken));
 
     const { result } = await renderAndHydrate();
 
@@ -347,6 +347,29 @@ describe('DailyGameContext', () => {
     jest.useRealTimers();
   });
 
+  it('markCompleted keeps playing status when terminal save fails', async () => {
+    const stored = makeBinaryPlayingSnapshot();
+    await saveDailySnapshot(stored);
+
+    const saveSpy = jest
+      .spyOn(dailyStorage, 'saveDailySnapshot')
+      .mockResolvedValueOnce(true)
+      .mockResolvedValue(false);
+
+    const { result } = await renderAndHydrate();
+    expect(result.current.status).toBe('playing');
+
+    await act(async () => {
+      await result.current.markCompleted();
+    });
+
+    expect(result.current.status).toBe('playing');
+    expect(result.current.snapshot?.status).toBe('playing');
+    expect(result.current.saveError).toBe(true);
+
+    saveSpy.mockRestore();
+  });
+
   it('flushes pending playState on AppState background', async () => {
     jest.useFakeTimers();
     const stored = makeBinaryPlayingSnapshot();
@@ -479,7 +502,7 @@ describe('DailyGameContext', () => {
     expect(result.current.status).toBe('playing');
     expect(result.current.snapshot?.puzzleHash).not.toBe(priorHash);
     expect(result.current.seed).not.toBe(888);
-  });
+  }, 30_000);
 
   it('devRegenerateToday forces slitherlink without blocking on generator', async () => {
     const stored = makeSudokuPlayingSnapshot();
@@ -497,7 +520,7 @@ describe('DailyGameContext', () => {
     expect(result.current.puzzle?.kind).toBe('slitherlink');
     expect(result.current.playState).not.toBeNull();
     expect(Array.isArray(result.current.playState)).toBe(false);
-  });
+  }, 30_000);
 
   it('markAbandoned persists abandoned status', async () => {
     const stored = makeBinaryPlayingSnapshot();

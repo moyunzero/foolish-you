@@ -110,4 +110,19 @@ describe('PrivacyScreen', () => {
     });
     expect(openURLMock).not.toHaveBeenCalled();
   });
+
+  it('alerts when openURL rejects', async () => {
+    const alertSpy = jest.spyOn(Alert, 'alert');
+    openURLMock.mockRejectedValueOnce(new Error('simulator'));
+
+    renderPrivacy('zh');
+    fireEvent.press(screen.getByText('在浏览器中打开公开版'));
+
+    await waitFor(() => {
+      expect(alertSpy).toHaveBeenCalledWith(
+        '无法打开链接',
+        '请稍后重试，或在浏览器中访问公开隐私政策页面。',
+      );
+    });
+  });
 });

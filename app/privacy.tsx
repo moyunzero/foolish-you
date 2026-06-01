@@ -20,15 +20,22 @@ export default function PrivacyScreen() {
   const bottomPadding = useDevBottomInset(insets.bottom + 16);
 
   async function openPublicPolicy() {
-    const canOpen = await Linking.canOpenURL(PRIVACY_POLICY_URL);
-    if (!canOpen) {
+    try {
+      const canOpen = await Linking.canOpenURL(PRIVACY_POLICY_URL);
+      if (!canOpen) {
+        Alert.alert(
+          privacyUi.cannotOpenLinkTitle,
+          privacyUi.cannotOpenLinkMessage,
+        );
+        return;
+      }
+      await Linking.openURL(PRIVACY_POLICY_URL);
+    } catch {
       Alert.alert(
         privacyUi.cannotOpenLinkTitle,
         privacyUi.cannotOpenLinkMessage,
       );
-      return;
     }
-    await Linking.openURL(PRIVACY_POLICY_URL);
   }
 
   return (
@@ -57,6 +64,7 @@ export default function PrivacyScreen() {
             className="min-h-[44px] items-center justify-center"
           >
             <Text
+              accessible={false}
               className="text-center text-xs text-muted"
               style={{
                 fontFamily: 'SpaceMono_400Regular',

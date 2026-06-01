@@ -68,7 +68,7 @@ describe('useSlitherlinkBoard', () => {
       { wrapper: i18nWrapper },
     );
 
-    expect(result.current.statusHint).toMatch(/连线 → × → 无/);
+    expect(result.current.statusHint).toMatch(/未标 → 连线 → ×/);
     expect(result.current.canComplete).toBe(false);
   });
 });

@@ -32,7 +32,7 @@ export const resultPools = {
     'One more win tomorrow',
     'Back tomorrow',
     'Tomorrow’s puzzle can wait',
-  ],
+  ] as const,
 
   failHeadlines: [
     'Achievement unlocked: Silly today',
@@ -70,7 +70,7 @@ export const resultPools = {
 
   failCtas: [
     'Revenge tomorrow',
-    'I’m passing tomorrow',
+    'I’ll beat it tomorrow',
     'Back tomorrow — no quit',
     'Tomorrow. I win.',
     'Rematch at midnight',
@@ -94,7 +94,7 @@ export const gameRules = {
       'Gray digits are givens — you can’t change them',
       'Tap a cell, then use the number pad; long-press or Clear to erase',
       'Duplicates in a row, column, or box are highlighted in red',
-      'When the grid is complete and valid, tap Complete today',
+      'When the grid is complete and valid, tap Finish today’s puzzle',
     ],
   },
   binary: {
@@ -102,33 +102,34 @@ export const gameRules = {
     intro: 'Fill the 8×8 grid with 0s and 1s. All of the following must hold.',
     bullets: [
       'Each row and column has exactly four 0s and four 1s',
-      'No three identical digits in a row (no 000 or 111)',
+      'No three identical digits in a row or column (no 000 or 111)',
       'No two rows may be identical; no two columns may be identical',
       'Gray digits are givens; tap cycles empty → 0 → 1; long-press clears',
-      'Rule breaks highlight in red; when valid and full, tap Complete today',
+      'Rule violations highlight in red; when valid and full, tap Finish today’s puzzle',
     ],
   },
   nonogram: {
     title: 'Nonogram rules',
     intro:
-      'Use the clues on each row and column to fill cells and reveal the picture.',
+      'On an 8×8 grid, use the row and column clues to fill cells and reveal the picture.',
     bullets: [
-      'Numbers are runs of filled cells in order along that line',
+      'Each number is a run of consecutive filled cells in that line, in clue order',
+      'Several numbers in one line mean separate blocks, with at least one empty cell between blocks',
       'Tap cycles empty → fill → mark (×); long-press clears',
       '× marks are notes only — they don’t count toward completion',
-      'No live error check; finish all required fills, then Complete today',
+      'No live error check; when all required cells are filled, tap Finish today’s puzzle',
     ],
   },
   slitherlink: {
     title: 'Slitherlink rules',
     intro:
-      'Draw lines along dot edges to form exactly one closed loop. Numbered cells show how many of their four sides are part of the loop.',
+      'On a 7×7 grid, draw lines along dot edges to form exactly one closed loop. A numbered cell shows how many of its four sides are on the loop; cells without a clue have no restriction.',
     bullets: [
-      'Tap an edge: line → × → undecided, cycling in that order',
-      'Long-press an edge: clear to blank (undecided, no mark)',
+      'Tap an edge: undecided → line → × (not on loop), cycling in that order',
+      'Long-press an edge: clear back to undecided (no line, no ×)',
       'Clues are 0–3: how many of that cell’s four sides are on the loop',
-      'One closed loop only — no crossings; each dot has at most two lines',
-      'When all clues match, tap Complete today',
+      'One closed loop only — no crossings or branches; each dot has 0 or 2 lines when done',
+      'When every clue matches the loop, tap Finish today’s puzzle',
     ],
   },
 } as const;
@@ -137,9 +138,9 @@ export const streak = {
   broken: 'Streak broken · Clear today to restart',
   zero: 'Streak board · Finish today to start',
   checkedIn: (displayStreak: number) =>
-    `${displayStreak} days in a row · Cleared today`,
+    `${displayStreak} days in a row · No silly business today`,
   pending: (displayStreak: number) =>
-    `${displayStreak} days in a row · Today still open`,
+    `${displayStreak} days in a row · Today’s puzzle still open`,
 } as const;
 
 export const freeze = {
@@ -208,7 +209,10 @@ export const statsPools = {
     'High chill index this week.',
   ] as const,
 
-  weeklyRemaining: (remaining: number) => `${remaining} more day(s) this week`,
+  weeklyRemaining: (remaining: number) =>
+    remaining === 1
+      ? '1 day left this week'
+      : `${remaining} days left this week`,
 
   streakNoRecord: 'Streak record starts at zero',
 
@@ -252,7 +256,7 @@ export const share = {
     'Paste in chat — beat my time if you can.',
   ] as const,
 
-  cardCta: '#SillyMe · daily puzzle',
+  cardCta: '#Brainfool · daily silly puzzle',
 
   successToasts: [
     'Report copied — go flex in chat',

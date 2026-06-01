@@ -12,7 +12,7 @@ export const ui = {
   },
   index: {
     loadingPuzzle: '正在翻出今天的傻题…',
-    errorReloading: '状态异常，正在重新加载今日题目…',
+    errorReloading: '出了点问题，点击下方重试。',
   },
   game: {
     completeToday: '完成今日',
@@ -110,7 +110,7 @@ export const ui = {
     slitherlink: {
       complete: '单环闭合，可以收工',
       conflict: '环或数字不对，再想想',
-      tapHint: '点边：连线 → × → 无 · 长按：空',
+      tapHint: '点边：未标 → 连线 → × · 长按：清除',
     },
   },
   alerts: {

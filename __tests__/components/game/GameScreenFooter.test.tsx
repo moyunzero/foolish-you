@@ -48,7 +48,7 @@ describe('GameScreenFooter', () => {
       { locale: 'en' },
     );
 
-    expect(screen.getByText('Complete today')).toBeTruthy();
-    expect(screen.getByText('Give up today')).toBeTruthy();
+    expect(screen.getByText('Finish today’s puzzle')).toBeTruthy();
+    expect(screen.getByText('Give up on today’s puzzle')).toBeTruthy();
   });
 });

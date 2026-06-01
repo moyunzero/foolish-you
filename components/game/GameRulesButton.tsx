@@ -22,14 +22,13 @@ export default function GameRulesButton({ gameType }: GameRulesButtonProps) {
         accessibilityRole="button"
         accessibilityLabel={strings.ui.rules.viewRulesA11y(content.title)}
         hitSlop={8}
-        className="items-center justify-center rounded-full border border-hairline active:opacity-80"
+        className="min-h-[44px] min-w-[44px] items-center justify-center rounded-full border border-hairline active:opacity-80"
         style={{
-          width: 28,
-          height: 28,
           backgroundColor: 'rgba(255, 255, 255, 0.06)',
         }}
       >
         <Text
+          accessible={false}
           className="text-muted"
           style={{
             fontFamily: 'SpaceMono_400Regular',

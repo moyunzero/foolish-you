@@ -36,6 +36,26 @@ describe('English locale smoke', () => {
         },
         'en',
       ),
+    ).toContain('No silly business today');
+    expect(
+      formatStreakLine(
+        {
+          displayStreak: 3,
+          checkedInToday: false,
+          streakBroken: false,
+        },
+        'en',
+      ),
+    ).toContain('Today’s puzzle still open');
+    expect(
+      formatStreakLine(
+        {
+          displayStreak: 3,
+          checkedInToday: true,
+          streakBroken: false,
+        },
+        'en',
+      ),
     ).not.toMatch(/[\u4e00-\u9fff]/);
   });
 
@@ -47,6 +67,21 @@ describe('English locale smoke', () => {
     expect(copy.headline).not.toMatch(cjk);
     expect(copy.punchline).not.toMatch(cjk);
     expect(copy.cta).not.toMatch(cjk);
+  });
+
+  it('binary rules mention row and column triple ban', () => {
+    const bullet = getGameRules('en').binary.bullets[1];
+    expect(bullet).toMatch(/row or column/i);
+  });
+
+  it('nonogram rules mention gaps between clue blocks', () => {
+    const bullet = getGameRules('en').nonogram.bullets[1];
+    expect(bullet).toMatch(/at least one empty cell/i);
+  });
+
+  it('slitherlink rules describe tap cycle from undecided', () => {
+    const bullet = getGameRules('en').slitherlink.bullets[0];
+    expect(bullet).toMatch(/undecided → line → ×/i);
   });
 
   it('slitherlink label and rules title are English without CJK', () => {
@@ -73,6 +108,7 @@ describe('English locale smoke', () => {
     );
 
     expect(card).toContain('Brainfool');
+    expect(card).toContain('#Brainfool');
     expect(card).not.toContain('傻了么');
   });
 

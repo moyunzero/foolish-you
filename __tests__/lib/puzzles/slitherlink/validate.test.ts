@@ -114,6 +114,30 @@ describe('slitherlink validate', () => {
     expect(removedLine).toBe(true);
     expect(isCompleteAndValid(play, puzzle)).toBe(false);
   });
+
+  it('rejects two disjoint closed loops with all-null clues', () => {
+    const play = createBlankSolution();
+
+    const stampSquareLoop = (row: number, col: number) => {
+      play.h[row][col] = EDGE_LINE;
+      play.h[row][col + 1] = EDGE_LINE;
+      play.h[row + 2][col] = EDGE_LINE;
+      play.h[row + 2][col + 1] = EDGE_LINE;
+      play.v[row][col] = EDGE_LINE;
+      play.v[row + 1][col] = EDGE_LINE;
+      play.v[row][col + 2] = EDGE_LINE;
+      play.v[row + 1][col + 2] = EDGE_LINE;
+    };
+
+    stampSquareLoop(1, 1);
+    stampSquareLoop(4, 4);
+
+    const clues = Array.from({ length: SLITHERLINK_SIZE }, () =>
+      Array<number | null>(SLITHERLINK_SIZE).fill(null),
+    );
+
+    expect(isCompleteAndValid(play, { clues })).toBe(false);
+  });
 });
 
 describe('slitherlink generator', () => {

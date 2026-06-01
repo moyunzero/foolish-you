@@ -165,7 +165,7 @@ Automated tests cover logic and component behavior; they do not replace on-devic
 - [ ] **Streak** — Win on consecutive days; streak count and copy update; skip exactly one day with shield → streak preserved on reopen; skip without shield → recall subline or reset per rules.
 - [ ] **Streak freeze UI** — After shield auto-consume on open, game header shows freeze line (not missed-yesterday recall); result stats may show shield inventory suffix.
 - [ ] **Dev panel (`__DEV__` only)** — Force game type / reset today / inject recovery / **连签 QA 场景** / clear logs; open **设置占位** to preview en/zh (not persisted); confirm no dev shortcuts affect release builds.
-- [ ] **English locale** — Set device language to English (or DevTools settings preview); game/result/privacy strings show **Brainfool** branding; share CTA uses `#SillyMe`.
+- [ ] **English locale** — Set device language to English (or DevTools settings preview); game/result/privacy strings show **Brainfool** branding; share CTA uses `#Brainfool`.
 
 Start the dev server for manual testing:
 

@@ -7,29 +7,29 @@ export const ui = {
     retryTap: 'Tap to retry',
     reload: 'Reload',
     retrySave: 'Retry save',
-    retryStreak: 'Retry streak',
+    retryStreak: 'Retry streak save',
     timer: 'Time',
   },
   index: {
-    loadingPuzzle: 'Loading today’s puzzle…',
-    errorReloading: 'Something went wrong. Reloading today’s puzzle…',
+    loadingPuzzle: 'Digging up today’s silly puzzle…',
+    errorReloading: 'Something went wrong. Tap below to try again.',
   },
   game: {
-    completeToday: 'Complete today',
-    giveUpToday: 'Give up today',
+    completeToday: 'Finish today’s puzzle',
+    giveUpToday: 'Give up on today’s puzzle',
     loadFailed: 'Couldn’t load today’s puzzle. Local data may be corrupted.',
   },
   result: {
     loadingStatus: 'Loading today’s result…',
     statusWin: 'Cleared',
-    statusSurrender: 'Gave up',
+    statusSurrender: 'Bailed out',
     recordPrefix: 'Today ·',
     elapsedPrefix: 'Time: ',
     foolIndexPrefix: 'Silly index: ',
     daysSuffix: ' days',
   },
   privacy: {
-    openInBrowser: 'Open public version in browser',
+    openInBrowser: 'Open the public version in a browser',
     publicUrlA11y: 'Public privacy policy URL',
     cannotOpenLinkTitle: 'Can’t open link',
     cannotOpenLinkMessage:
@@ -68,7 +68,7 @@ export const ui = {
   },
   badges: {
     foolA11y: 'Silly achievement icon',
-    winA11y: 'Clear achievement icon',
+    winA11y: 'Win badge icon',
   },
   legal: {
     privacyLink: 'Privacy policy',
@@ -101,7 +101,7 @@ export const ui = {
     },
     binary: {
       complete: 'All rules satisfied — you can finish',
-      conflict: 'Rule break — check highlighted cells',
+      conflict: 'Rule violation — check highlighted cells',
       tapHint: 'Tap to cycle · long-press to clear',
     },
     nonogram: {
@@ -111,13 +111,13 @@ export const ui = {
     slitherlink: {
       complete: 'One loop closed — you can finish',
       conflict: 'Loop or clue mismatch',
-      tapHint: 'Edge: line → × → undecided · long-press: clear',
+      tapHint: 'Edge: undecided → line → × · long-press: clear',
     },
   },
   alerts: {
     abandonTitle: 'Give up today’s puzzle?',
     abandonMessage:
-      'Progress will be saved as “gave up”. You can try again tomorrow.',
+      'Progress will be saved as “Bailed out”. You can try again tomorrow.',
     continuePlay: 'Keep playing',
     giveUp: 'Give up',
     saveFailedTitle: 'Save failed',
@@ -125,12 +125,12 @@ export const ui = {
       'Couldn’t save progress locally. Try again or tap Retry save.',
     streakSaveFailedTitle: 'Streak save failed',
     streakSaveFailedMessage:
-      'Couldn’t save streak locally. Try again or tap Retry streak.',
+      'Couldn’t save streak locally. Try again or tap Retry streak save.',
   },
   shareCard: {
     completed: (elapsed: string, suffix: string, streak: string) =>
       `✅ Cleared · ${elapsed}${suffix}${streak}`,
-    abandoned: (elapsed: string) => `🏳 Gave up · ${elapsed}`,
+    abandoned: (elapsed: string) => `🏳 Bailed out · ${elapsed}`,
     suffixHadMistakes: ' · rough edges',
     suffixSlow: ' · slow burn',
     suffixFast: ' · speed run',

@@ -1,20 +1,10 @@
 import { STORAGE_VERSION } from '../../constants/config';
-import { generateBinaryPuzzle } from '../puzzles/binary/generator';
+import { selectDailyGame } from '../puzzles/dailySelector';
 import { createEmptyGrid as createEmptyBinaryGrid } from '../puzzles/binary/grid';
-import { generateNonogramPuzzle } from '../puzzles/nonogram/generator';
 import { createEmptyGrid as createEmptyNonogramGrid } from '../puzzles/nonogram/grid';
-import { deriveSubSeed } from '../puzzles/rng';
-import { generateSlitherlinkPuzzle } from '../puzzles/slitherlink/generator';
 import { createEmptyPlayState as createEmptySlitherlinkPlayState } from '../puzzles/slitherlink/edges';
-import { generateSudokuPuzzle } from '../puzzles/sudoku/generator';
 import { createEmptyGrid as createEmptySudokuGrid } from '../puzzles/sudoku/grid';
-import type {
-  BinaryPuzzle,
-  DailySnapshot,
-  NonogramPuzzle,
-  SlitherlinkPuzzle,
-  SudokuPuzzle,
-} from '../puzzles/types';
+import type { DailySnapshot, GameType } from '../puzzles/types';
 import {
   isPersistedPuzzlePlaceholder,
   type PersistedSnapshot,
@@ -25,20 +15,31 @@ import {
   isSnapshotPuzzleConsistent,
 } from './snapshotValidate';
 
-function sudokuPuzzleFromSeed(seed: number): SudokuPuzzle {
-  return generateSudokuPuzzle(deriveSubSeed(seed, 'migrate'));
+function emptyPlayStateForGameType(gameType: GameType) {
+  switch (gameType) {
+    case 'sudoku':
+      return createEmptySudokuGrid();
+    case 'binary':
+      return createEmptyBinaryGrid();
+    case 'nonogram':
+      return createEmptyNonogramGrid();
+    default:
+      return createEmptySlitherlinkPlayState();
+  }
 }
 
-function binaryPuzzleFromSeed(seed: number): BinaryPuzzle {
-  return generateBinaryPuzzle(deriveSubSeed(seed, 'binary-migrate'));
-}
-
-function nonogramPuzzleFromSeed(seed: number): NonogramPuzzle {
-  return generateNonogramPuzzle(deriveSubSeed(seed, 'nonogram-migrate'));
-}
-
-function slitherlinkPuzzleFromSeed(seed: number): SlitherlinkPuzzle {
-  return generateSlitherlinkPuzzle(deriveSubSeed(seed, 'slitherlink-migrate'));
+/** Same puzzle path as fresh daily selection for dateKey + seed + gameType. */
+function canonicalDailyPuzzle(
+  dateKey: string,
+  seed: number,
+  gameType: GameType,
+): Pick<DailySnapshot, 'puzzle' | 'puzzleHash'> {
+  const selected = selectDailyGame({
+    dateKey,
+    seed,
+    forceGameType: gameType,
+  });
+  return { puzzle: selected.puzzle, puzzleHash: selected.puzzleHash };
 }
 
 function persistedToDailyBase(persisted: PersistedSnapshot): DailySnapshot {
@@ -61,42 +62,17 @@ function persistedToDailyBase(persisted: PersistedSnapshot): DailySnapshot {
 function upgradePlaceholderFields(
   persisted: PersistedSnapshot,
 ): DailySnapshot {
-  if (persisted.gameType === 'sudoku') {
-    const puzzle = sudokuPuzzleFromSeed(persisted.seed);
-    return {
-      ...persistedToDailyBase(persisted),
-      puzzle,
-      puzzleHash: puzzle.puzzleHash,
-      playState: persisted.playState ?? createEmptySudokuGrid(),
-    };
-  }
-
-  if (persisted.gameType === 'binary') {
-    const puzzle = binaryPuzzleFromSeed(persisted.seed);
-    return {
-      ...persistedToDailyBase(persisted),
-      puzzle,
-      puzzleHash: puzzle.puzzleHash,
-      playState: persisted.playState ?? createEmptyBinaryGrid(),
-    };
-  }
-
-  if (persisted.gameType === 'nonogram') {
-    const puzzle = nonogramPuzzleFromSeed(persisted.seed);
-    return {
-      ...persistedToDailyBase(persisted),
-      puzzle,
-      puzzleHash: puzzle.puzzleHash,
-      playState: persisted.playState ?? createEmptyNonogramGrid(),
-    };
-  }
-
-  const puzzle = slitherlinkPuzzleFromSeed(persisted.seed);
+  const { puzzle, puzzleHash } = canonicalDailyPuzzle(
+    persisted.dateKey,
+    persisted.seed,
+    persisted.gameType,
+  );
   return {
     ...persistedToDailyBase(persisted),
     puzzle,
-    puzzleHash: puzzle.puzzleHash,
-    playState: persisted.playState ?? createEmptySlitherlinkPlayState(),
+    puzzleHash,
+    playState:
+      persisted.playState ?? emptyPlayStateForGameType(persisted.gameType),
   };
 }
 
@@ -122,54 +98,20 @@ export function repairSnapshotPuzzle(record: DailySnapshot): DailySnapshot {
     return record;
   }
 
-  if (record.gameType === 'sudoku') {
-    const puzzle = sudokuPuzzleFromSeed(record.seed);
-    return {
-      ...record,
-      version: STORAGE_VERSION,
-      puzzle,
-      puzzleHash: puzzle.puzzleHash,
-      playState: isPlayStateConsistent(record)
-        ? record.playState
-        : createEmptySudokuGrid(),
-    };
-  }
+  const { puzzle, puzzleHash } = canonicalDailyPuzzle(
+    record.dateKey,
+    record.seed,
+    record.gameType,
+  );
 
-  if (record.gameType === 'binary') {
-    const puzzle = binaryPuzzleFromSeed(record.seed);
-    return {
-      ...record,
-      version: STORAGE_VERSION,
-      puzzle,
-      puzzleHash: puzzle.puzzleHash,
-      playState: isPlayStateConsistent(record)
-        ? record.playState
-        : createEmptyBinaryGrid(),
-    };
-  }
-
-  if (record.gameType === 'nonogram') {
-    const puzzle = nonogramPuzzleFromSeed(record.seed);
-    return {
-      ...record,
-      version: STORAGE_VERSION,
-      puzzle,
-      puzzleHash: puzzle.puzzleHash,
-      playState: isPlayStateConsistent(record)
-        ? record.playState
-        : createEmptyNonogramGrid(),
-    };
-  }
-
-  const puzzle = slitherlinkPuzzleFromSeed(record.seed);
   return {
     ...record,
     version: STORAGE_VERSION,
     puzzle,
-    puzzleHash: puzzle.puzzleHash,
+    puzzleHash,
     playState: isPlayStateConsistent(record)
       ? record.playState
-      : createEmptySlitherlinkPlayState(),
+      : emptyPlayStateForGameType(record.gameType),
   };
 }
 

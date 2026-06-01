@@ -1,6 +1,8 @@
+import type { ReactNode } from 'react';
 import { Text, View } from 'react-native';
 
 import { colors } from '../../constants/design';
+import { formatDefeatHintCaption } from '../../lib/i18n/format';
 import { useI18n } from '../../lib/i18n';
 
 type VictoryStatProps = {
@@ -16,23 +18,27 @@ type DefeatStatProps = {
 
 type ResultStatCardProps = VictoryStatProps | DefeatStatProps;
 
+const statCardShellStyle = {
+  marginTop: 40,
+  paddingVertical: 16,
+  paddingHorizontal: 18,
+  borderRadius: 12,
+  borderWidth: 1,
+  borderColor: colors.hairline,
+  backgroundColor: colors.canvasCard,
+} as const;
+
+function StatCardShell({ children }: { children: ReactNode }) {
+  return <View style={statCardShellStyle}>{children}</View>;
+}
+
 export default function ResultStatCard(props: ResultStatCardProps) {
-  const { strings } = useI18n();
+  const { strings, locale } = useI18n();
   const resultUi = strings.ui.result;
 
   if (props.variant === 'victory') {
     return (
-      <View
-        style={{
-          marginTop: 40,
-          paddingVertical: 16,
-          paddingHorizontal: 18,
-          borderRadius: 12,
-          borderWidth: 1,
-          borderColor: colors.hairline,
-          backgroundColor: colors.canvasCard,
-        }}
-      >
+      <StatCardShell>
         <Text
           style={{
             fontFamily: 'SpaceMono_400Regular',
@@ -42,25 +48,16 @@ export default function ResultStatCard(props: ResultStatCardProps) {
         >
           {`${resultUi.elapsedPrefix}${props.elapsed}`}
         </Text>
-      </View>
+      </StatCardShell>
     );
   }
 
   const clamped = Math.min(100, Math.max(0, props.percent));
 
   return (
-    <View
-      style={{
-        marginTop: 40,
-        paddingVertical: 16,
-        paddingHorizontal: 18,
-        borderRadius: 12,
-        borderWidth: 1,
-        borderColor: colors.hairline,
-        backgroundColor: colors.canvasCard,
-      }}
-    >
+    <StatCardShell>
       <Text
+        accessible={false}
         style={{
           fontFamily: 'SpaceMono_400Regular',
           fontSize: 15,
@@ -71,6 +68,9 @@ export default function ResultStatCard(props: ResultStatCardProps) {
       </Text>
 
       <View
+        accessibilityRole="progressbar"
+        accessibilityLabel={`${resultUi.foolIndexPrefix}${clamped}%`}
+        accessibilityValue={{ min: 0, max: 100, now: clamped }}
         style={{
           marginTop: 12,
           height: 8,
@@ -97,8 +97,8 @@ export default function ResultStatCard(props: ResultStatCardProps) {
           color: colors.muted,
         }}
       >
-        {`（${props.hint}）`}
+        {formatDefeatHintCaption(props.hint, locale)}
       </Text>
-    </View>
+    </StatCardShell>
   );
 }

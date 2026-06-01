@@ -1,4 +1,5 @@
 import {
+  formatDefeatHintCaption,
   formatElapsedDuration,
   formatTodayMeta,
   getAppDisplayName,
@@ -37,5 +38,15 @@ describe('formatTodayMeta', () => {
 
   it('uses em dash placeholder when dateKey missing', () => {
     expect(formatTodayMeta(null, 'en')).toBe('Today · —');
+  });
+});
+
+describe('formatDefeatHintCaption', () => {
+  it('wraps hint in full-width parens for zh', () => {
+    expect(formatDefeatHintCaption('还差一口气', 'zh')).toBe('（还差一口气）');
+  });
+
+  it('wraps hint in ASCII parens for en', () => {
+    expect(formatDefeatHintCaption('Almost there', 'en')).toBe('(Almost there)');
   });
 });

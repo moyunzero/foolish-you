@@ -1,4 +1,3 @@
-import { useRouter } from 'expo-router';
 import { useCallback } from 'react';
 import { Alert } from 'react-native';
 
@@ -15,20 +14,17 @@ export function useGameScreenActions({
   markCompleted,
   markAbandoned,
 }: UseGameScreenActionsParams) {
-  const router = useRouter();
   const { strings } = useI18n();
   const alerts = strings.ui.alerts;
 
   const handleComplete = useCallback(async () => {
     if (!canComplete) return;
     await markCompleted();
-    router.replace('/result');
-  }, [canComplete, markCompleted, router]);
+  }, [canComplete, markCompleted]);
 
   const handleAbandon = useCallback(async () => {
     await markAbandoned();
-    router.replace('/result');
-  }, [markAbandoned, router]);
+  }, [markAbandoned]);
 
   const confirmAbandon = useCallback(() => {
     Alert.alert(alerts.abandonTitle, alerts.abandonMessage, [

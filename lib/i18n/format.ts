@@ -22,3 +22,7 @@ export function formatTodayMeta(dateKey: string | null, locale: Locale): string 
   const key = dateKey ?? '—';
   return locale === 'zh' ? `今日 · ${key}` : `Today · ${key}`;
 }
+
+export function formatDefeatHintCaption(hint: string, locale: Locale): string {
+  return locale === 'zh' ? `（${hint}）` : `(${hint})`;
+}

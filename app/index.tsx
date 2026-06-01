@@ -1,5 +1,5 @@
 import { Redirect } from 'expo-router';
-import { ActivityIndicator, Text, View } from 'react-native';
+import { ActivityIndicator, Pressable, Text, View } from 'react-native';
 
 import { colors } from '../constants/design';
 import { useDailyGame } from '../contexts/DailyGameContext';
@@ -48,12 +48,16 @@ export default function IndexScreen() {
         {strings.ui.index.errorReloading}
       </Text>
       <ActivityIndicator className="mt-6" color={colors.ink} size="small" />
-      <Text
-        className="mt-6 text-sm text-accent-sunset"
+      <Pressable
+        accessibilityRole="button"
+        accessibilityLabel={strings.ui.common.retryTap}
+        className="mt-6 min-h-[44px] items-center justify-center px-4"
         onPress={() => void refresh()}
       >
-        {strings.ui.common.retryTap}
-      </Text>
+        <Text className="text-sm text-accent-sunset" accessible={false}>
+          {strings.ui.common.retryTap}
+        </Text>
+      </Pressable>
     </View>
   );
 }

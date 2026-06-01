@@ -1,14 +1,16 @@
 import { createEmptyGrid as createEmptyBinaryGrid } from '../../../lib/puzzles/binary/grid';
-import { generateBinaryPuzzle } from '../../../lib/puzzles/binary/generator';
-import { deriveSubSeed } from '../../../lib/puzzles/rng';
+import { selectDailyGame } from '../../../lib/puzzles/dailySelector';
 import { createEmptyGrid as createEmptySudokuGrid } from '../../../lib/puzzles/sudoku/grid';
-import { generateSudokuPuzzle } from '../../../lib/puzzles/sudoku/generator';
 import type { DailySnapshot } from '../../../lib/puzzles/types';
 import { recoverSnapshot } from '../../../lib/storage/snapshotRecover';
 
 describe('recoverSnapshot', () => {
   it('resets playState when completed but board is empty', () => {
-    const puzzle = generateSudokuPuzzle(42);
+    const { puzzle } = selectDailyGame({
+      dateKey: '2026-05-20',
+      seed: 42,
+      forceGameType: 'sudoku',
+    });
     const snapshot: DailySnapshot = {
       version: 2,
       dateKey: '2026-05-20',
@@ -29,7 +31,11 @@ describe('recoverSnapshot', () => {
   });
 
   it('repairs inconsistent puzzle from seed', () => {
-    const puzzle = generateBinaryPuzzle(deriveSubSeed(7, 'binary-migrate'));
+    const canonical = selectDailyGame({
+      dateKey: '2026-05-20',
+      seed: 7,
+      forceGameType: 'binary',
+    });
     const broken: DailySnapshot = {
       version: 2,
       dateKey: '2026-05-20',
@@ -48,6 +54,6 @@ describe('recoverSnapshot', () => {
     const result = recoverSnapshot(broken);
     expect(result.damage).toBe('puzzle_inconsistent');
     expect(result.snapshot.gameType).toBe('binary');
-    expect(result.snapshot.puzzleHash).toBe(puzzle.puzzleHash);
+    expect(result.snapshot.puzzleHash).toBe(canonical.puzzleHash);
   });
 });

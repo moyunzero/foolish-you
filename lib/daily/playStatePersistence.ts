@@ -81,13 +81,14 @@ export function usePlayStatePersistence({
     async (next: DailySnapshot): Promise<SaveSnapshotResult> => {
       clearDebounce();
       const saved = await saveDailySnapshot(next);
-      setSnapshot(next);
-      if (!saved) {
+      if (saved) {
+        setSnapshot(next);
+      } else {
         onSaveFailed?.();
       }
-      return { saved, snapshot: next };
+      return { saved, snapshot: saved ? next : snapshot! };
     },
-    [setSnapshot, clearDebounce, onSaveFailed],
+    [snapshot, setSnapshot, clearDebounce, onSaveFailed],
   );
 
   const resetPending = useCallback(() => {

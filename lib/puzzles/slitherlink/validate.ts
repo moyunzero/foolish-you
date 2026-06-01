@@ -104,6 +104,68 @@ function countOpenPathEndpoints(play: SlitherlinkPlayState): number {
   return endpoints;
 }
 
+type LineEdgeRef = { kind: 'h' | 'v'; row: number; col: number };
+
+function collectLineEdges(play: SlitherlinkPlayState): LineEdgeRef[] {
+  const edges: LineEdgeRef[] = [];
+  for (let row = 0; row <= SLITHERLINK_SIZE; row += 1) {
+    for (let col = 0; col < SLITHERLINK_SIZE; col += 1) {
+      if (play.h[row][col] === EDGE_LINE) edges.push({ kind: 'h', row, col });
+    }
+  }
+  for (let row = 0; row < SLITHERLINK_SIZE; row += 1) {
+    for (let col = 0; col <= SLITHERLINK_SIZE; col += 1) {
+      if (play.v[row][col] === EDGE_LINE) edges.push({ kind: 'v', row, col });
+    }
+  }
+  return edges;
+}
+
+function lineEdgeKey(edge: LineEdgeRef): string {
+  return `${edge.kind}:${edge.row},${edge.col}`;
+}
+
+function pointsForLineEdge(edge: LineEdgeRef): [string, string] {
+  if (edge.kind === 'h') {
+    return [`${edge.row},${edge.col}`, `${edge.row},${edge.col + 1}`];
+  }
+  return [`${edge.row},${edge.col}`, `${edge.row + 1},${edge.col}`];
+}
+
+/** True when all LINE edges belong to one connected line graph (single loop). */
+function isLineGraphOneComponent(play: SlitherlinkPlayState): boolean {
+  const edges = collectLineEdges(play);
+  if (edges.length === 0) return false;
+
+  const edgesByPoint = new Map<string, LineEdgeRef[]>();
+  for (const edge of edges) {
+    for (const point of pointsForLineEdge(edge)) {
+      const list = edgesByPoint.get(point) ?? [];
+      list.push(edge);
+      edgesByPoint.set(point, list);
+    }
+  }
+
+  const visited = new Set<string>();
+  const queue: LineEdgeRef[] = [edges[0]];
+  visited.add(lineEdgeKey(edges[0]));
+
+  while (queue.length > 0) {
+    const current = queue.shift()!;
+    for (const point of pointsForLineEdge(current)) {
+      const neighbors = edgesByPoint.get(point) ?? [];
+      for (const next of neighbors) {
+        const key = lineEdgeKey(next);
+        if (visited.has(key)) continue;
+        visited.add(key);
+        queue.push(next);
+      }
+    }
+  }
+
+  return visited.size === edges.length;
+}
+
 function isSingleLoopComplete(play: SlitherlinkPlayState): boolean {
   if (hasUnknownEdge(play)) return false;
   if (hasPointDegreeViolation(play)) return false;
@@ -120,6 +182,8 @@ function isSingleLoopComplete(play: SlitherlinkPlayState): boolean {
       if (degree !== 0 && degree !== 2) return false;
     }
   }
+
+  if (!isLineGraphOneComponent(play)) return false;
 
   return true;
 }

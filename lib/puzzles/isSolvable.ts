@@ -1,4 +1,4 @@
-import { solve as solveBinary } from './binary/solver';
+import { countSolutionsUpTo as countBinarySolutions } from './binary/solver';
 import { createEmptyPlayState } from './slitherlink/edges';
 import { countSolutionsUpTo as countSlitherlinkSolutions } from './slitherlink/solver';
 import { countSolutionsUpTo as countSudokuSolutions } from './sudoku/solver';
@@ -23,11 +23,11 @@ function cloneSudokuGivens(givens: number[][]): number[][] {
 
 export function isSudokuPuzzleSolvable(puzzle: SudokuPuzzle): boolean {
   const grid = cloneSudokuGivens(puzzle.givens);
-  return countSudokuSolutions(grid, 1) >= 1;
+  return countSudokuSolutions(grid, 2) === 1;
 }
 
 export function isBinaryPuzzleSolvable(puzzle: BinaryPuzzle): boolean {
-  return solveBinary(puzzle.givens);
+  return countBinarySolutions(puzzle.givens, 2) === 1;
 }
 
 /** Validates embedded solution grid shape (not a full solver check). */

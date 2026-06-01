@@ -5,7 +5,12 @@ import type { DailySnapshot } from '../puzzles/types';
 import { appendRecoveryLog } from './recoveryLog';
 import { recoverSnapshot } from './snapshotRecover';
 import { migrateSnapshot } from './snapshotMigration';
-import { isPersistedSnapshotShape, sanitizeSnapshotForSave } from './snapshotValidate';
+import {
+  isPersistedSnapshotShape,
+  isPlayStateConsistent,
+  isSnapshotPuzzleConsistent,
+  sanitizeSnapshotForSave,
+} from './snapshotValidate';
 
 export async function loadDailySnapshot(): Promise<DailySnapshot | null> {
   try {
@@ -74,6 +79,15 @@ export async function loadDailySnapshot(): Promise<DailySnapshot | null> {
 export async function saveDailySnapshot(
   snapshot: DailySnapshot,
 ): Promise<boolean> {
+  if (!isSnapshotPuzzleConsistent(snapshot)) {
+    console.warn('[dailyStorage] refusing to save inconsistent puzzle');
+    return false;
+  }
+  if (snapshot.playState != null && !isPlayStateConsistent(snapshot)) {
+    console.warn('[dailyStorage] refusing to save inconsistent playState');
+    return false;
+  }
+
   try {
     const payload = sanitizeSnapshotForSave(snapshot);
     await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(payload));

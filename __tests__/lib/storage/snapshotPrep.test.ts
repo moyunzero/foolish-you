@@ -1,4 +1,5 @@
 import { STORAGE_VERSION } from '../../../constants/config';
+import { selectDailyGame } from '../../../lib/puzzles/dailySelector';
 import { createEmptyGrid as createEmptySudokuGrid } from '../../../lib/puzzles/sudoku/grid';
 import type { DailySnapshot } from '../../../lib/puzzles/types';
 import type { PersistedSnapshot } from '../../../lib/storage/snapshotLegacy';
@@ -43,6 +44,30 @@ describe('snapshotPrep', () => {
     const next = normalizeSnapshotToV2(legacy);
     expect(next.version).toBe(2);
     expect(isSnapshotPuzzleConsistent(next)).toBe(true);
+  });
+
+  it('repairSnapshotPuzzle matches selectDailyGame for seed and gameType', () => {
+    const canonical = selectDailyGame({
+      dateKey: '2026-06-01',
+      seed: 12345,
+      forceGameType: 'binary',
+    });
+    const broken = {
+      version: STORAGE_VERSION,
+      dateKey: '2026-06-01',
+      gameType: 'binary' as const,
+      seed: 12345,
+      status: 'playing' as const,
+      puzzle: {
+        kind: 'sudoku' as const,
+        givens: createEmptySudokuGrid(),
+        puzzleHash: 'wrong',
+      },
+      puzzleHash: 'wrong',
+    };
+
+    const next = repairSnapshotPuzzle(broken);
+    expect(next.puzzleHash).toBe(canonical.puzzleHash);
   });
 
   it('repairs inconsistent puzzle via prepareTodaySnapshot', () => {

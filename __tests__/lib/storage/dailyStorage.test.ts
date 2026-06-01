@@ -1,30 +1,22 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 import { STORAGE_KEY, STORAGE_VERSION } from '../../../constants/config';
+import { generateBinaryPuzzle } from '../../../lib/puzzles/binary/generator';
+import { createEmptyGrid as createEmptyBinaryGrid } from '../../../lib/puzzles/binary/grid';
+import { createEmptyGrid as createEmptySudokuGrid } from '../../../lib/puzzles/sudoku/grid';
 import { clearDailySnapshot, loadDailySnapshot, saveDailySnapshot } from '../../../lib/storage/dailyStorage';
 import type { DailySnapshot } from '../../../lib/puzzles/types';
 
+const binaryPuzzle = generateBinaryPuzzle(12345);
 const sample: DailySnapshot = {
   version: STORAGE_VERSION,
   dateKey: '2026-05-16',
   gameType: 'binary',
   seed: 12345,
   status: 'playing',
-  puzzle: {
-    kind: 'binary',
-    givens: [
-      [0, 0, 0, 0, 0, 0, 0, 0],
-      [0, 0, 0, 0, 0, 0, 0, 0],
-      [0, 0, 0, 0, 0, 0, 0, 0],
-      [0, 0, 0, 0, 0, 0, 0, 0],
-      [0, 0, 0, 0, 0, 0, 0, 0],
-      [0, 0, 0, 0, 0, 0, 0, 0],
-      [0, 0, 0, 0, 0, 0, 0, 0],
-      [0, 0, 0, 0, 0, 0, 0, 0],
-    ],
-    puzzleHash: 'binary-stub-v1',
-  },
-  puzzleHash: 'binary-stub-v1',
+  puzzle: binaryPuzzle,
+  puzzleHash: binaryPuzzle.puzzleHash,
+  playState: createEmptyBinaryGrid(),
 };
 
 describe('dailyStorage', () => {
@@ -78,5 +70,21 @@ describe('dailyStorage', () => {
     expect(ok).toBe(false);
 
     setItem.mockRestore();
+  });
+
+  it('returns false when puzzle shape is inconsistent', async () => {
+    const broken = {
+      ...sample,
+      puzzle: {
+        kind: 'sudoku',
+        givens: createEmptySudokuGrid(),
+        puzzleHash: 'wrong',
+      },
+      puzzleHash: 'wrong',
+    } as DailySnapshot;
+
+    const ok = await saveDailySnapshot(broken);
+    expect(ok).toBe(false);
+    await expect(AsyncStorage.getItem(STORAGE_KEY)).resolves.toBeNull();
   });
 });
