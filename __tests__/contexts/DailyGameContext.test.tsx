@@ -446,6 +446,41 @@ describe('DailyGameContext', () => {
     expect(onDisk).not.toBeNull();
   });
 
+  it('devRegenerateToday() with no arg keeps gameType but changes puzzle', async () => {
+    const stored = makeBinaryPlayingSnapshot({ seed: 777 });
+    await saveDailySnapshot(stored);
+
+    const { result } = await renderAndHydrate();
+    expect(result.current.gameType).toBe('binary');
+    const priorHash = result.current.snapshot?.puzzleHash;
+
+    await act(async () => {
+      await result.current.devRegenerateToday();
+    });
+
+    expect(result.current.status).toBe('playing');
+    expect(result.current.gameType).toBe('binary');
+    expect(result.current.snapshot?.puzzleHash).not.toBe(priorHash);
+    expect(result.current.seed).not.toBe(777);
+  });
+
+  it('devRegenerateToday(null) full re-roll may change gameType', async () => {
+    const stored = makeBinaryPlayingSnapshot({ seed: 888 });
+    await saveDailySnapshot(stored);
+
+    const { result } = await renderAndHydrate();
+    expect(result.current.gameType).toBe('binary');
+    const priorHash = result.current.snapshot?.puzzleHash;
+
+    await act(async () => {
+      await result.current.devRegenerateToday(null);
+    });
+
+    expect(result.current.status).toBe('playing');
+    expect(result.current.snapshot?.puzzleHash).not.toBe(priorHash);
+    expect(result.current.seed).not.toBe(888);
+  });
+
   it('devRegenerateToday forces slitherlink without blocking on generator', async () => {
     const stored = makeSudokuPlayingSnapshot();
     await saveDailySnapshot(stored);

@@ -2,41 +2,42 @@ import type { SlitherlinkPuzzle } from './spec';
 import { cloneSolutionEdges } from './edges';
 
 /**
- * Pre-verified 7×7 slitherlink (perimeter loop, unique solution, 18 clues).
- * Used for offline fallback and hook stubs so we never block the UI on carve/solver.
+ * Pre-verified 7×7 slitherlink (polyomino-style interior loop, unique solution).
+ * Used for offline fallback and hook stubs when generation exhausts attempts —
+ * not the normal deriveSeed(dateKey) daily path.
  */
 const SLITHERLINK_BUILTIN_PUZZLE: SlitherlinkPuzzle = {
   kind: 'slitherlink',
   size: 7,
   clues: [
-    [2, 1, 1, 1, null, 1, null],
-    [null, null, null, null, null, 0, 1],
-    [1, 0, null, 0, null, null, null],
-    [null, null, null, null, null, 0, 1],
-    [1, null, null, null, null, null, 1],
-    [1, null, null, null, null, null, 1],
-    [null, null, null, null, 1, null, 2],
+    [null, 0, null, null, null, null, null],
+    [null, null, null, 1, 1, 2, 1],
+    [1, 2, 0, 0, null, null, null],
+    [1, null, null, null, 0, 1, null],
+    [1, null, null, null, 0, 1, 1],
+    [null, 2, null, null, 1, 2, null],
+    [null, 1, 1, null, null, null, null],
   ],
-  puzzleHash: 'sl-172b96f3',
+  puzzleHash: 'sl-f43e34c7',
   solution: {
     h: [
-      [1, 1, 1, 1, 1, 1, 1],
+      [2, 2, 2, 2, 2, 2, 2],
+      [2, 2, 1, 1, 1, 1, 2],
+      [2, 1, 2, 2, 2, 2, 2],
       [2, 2, 2, 2, 2, 2, 2],
       [2, 2, 2, 2, 2, 2, 2],
       [2, 2, 2, 2, 2, 2, 2],
+      [2, 1, 1, 1, 1, 1, 2],
       [2, 2, 2, 2, 2, 2, 2],
-      [2, 2, 2, 2, 2, 2, 2],
-      [2, 2, 2, 2, 2, 2, 2],
-      [1, 1, 1, 1, 1, 1, 1],
     ],
     v: [
-      [1, 2, 2, 2, 2, 2, 2, 1],
-      [1, 2, 2, 2, 2, 2, 2, 1],
-      [1, 2, 2, 2, 2, 2, 2, 1],
-      [1, 2, 2, 2, 2, 2, 2, 1],
-      [1, 2, 2, 2, 2, 2, 2, 1],
-      [1, 2, 2, 2, 2, 2, 2, 1],
-      [1, 2, 2, 2, 2, 2, 2, 1],
+      [2, 2, 2, 2, 2, 2, 2, 2],
+      [2, 2, 1, 2, 2, 2, 1, 2],
+      [2, 1, 2, 2, 2, 2, 1, 2],
+      [2, 1, 2, 2, 2, 2, 1, 2],
+      [2, 1, 2, 2, 2, 2, 1, 2],
+      [2, 1, 2, 2, 2, 2, 1, 2],
+      [2, 2, 2, 2, 2, 2, 2, 2],
     ],
   },
 };

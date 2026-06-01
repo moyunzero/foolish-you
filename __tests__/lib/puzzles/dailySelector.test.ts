@@ -84,7 +84,7 @@ describe('selectDailyGame', () => {
     expect(first.gameType).toBe('slitherlink');
     expect(isSlitherlinkPuzzle(first.puzzle)).toBe(true);
     expect(first.puzzleHash).toMatch(/^sl-/);
-    expect(first.puzzleHash).not.toBe('sl-172b96f3');
+    expect(first.puzzleHash).not.toBe('sl-f43e34c7');
     expect(second.puzzleHash).toBe(first.puzzleHash);
   });
 
