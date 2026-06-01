@@ -43,7 +43,7 @@ Before opening a PR or calling a change done, run the same checks as [`.github/w
 
 ```bash
 npm run typecheck      # tsc --noEmit (strict)
-npm test               # Jest: unit + rtl projects (~342 tests)
+npm test               # Jest: unit + rtl projects (~386 tests)
 npm run test:migration # snapshot migration golden fixtures only
 npm run lint           # expo lint (ESLint flat config)
 ```

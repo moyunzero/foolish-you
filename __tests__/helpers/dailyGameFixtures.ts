@@ -1,14 +1,22 @@
 import { STORAGE_VERSION } from '../../constants/config';
 import { generateBinaryPuzzle } from '../../lib/puzzles/binary/generator';
 import { createEmptyGrid as createEmptyBinaryGrid } from '../../lib/puzzles/binary/grid';
+import { getSlitherlinkBuiltinPuzzle } from '../../lib/puzzles/slitherlink/builtinPuzzle';
+import { clonePlayState, createEmptyPlayState } from '../../lib/puzzles/slitherlink/edges';
+import { EDGE_LINE } from '../../lib/puzzles/slitherlink/spec';
 import { generateSudokuPuzzle } from '../../lib/puzzles/sudoku/generator';
 import {
   createEmptyGrid as createEmptySudokuGrid,
   mergePlayAndGivens,
 } from '../../lib/puzzles/sudoku/grid';
 import { solveInPlace as solveSudokuInPlace } from '../../lib/puzzles/sudoku/solver';
-import type { DailySnapshot, PlayState, SudokuPuzzle } from '../../lib/puzzles/types';
-import { isSudokuPuzzle } from '../../lib/puzzles/types';
+import type {
+  DailySnapshot,
+  PlayState,
+  SlitherlinkPlayState,
+  SudokuPuzzle,
+} from '../../lib/puzzles/types';
+import { isSlitherlinkPuzzle, isSudokuPuzzle } from '../../lib/puzzles/types';
 
 export const FIXTURE_TODAY = '2026-05-19';
 export const FIXTURE_YESTERDAY = '2026-05-18';
@@ -28,6 +36,50 @@ export function makeBinaryPlayingSnapshot(
     puzzleHash: puzzle.puzzleHash,
     playState: createEmptyBinaryGrid(),
     startedAt: 1_700_000_000_000,
+    ...overrides,
+  };
+}
+
+export function makeSlitherlinkPlayingSnapshot(
+  overrides: Partial<DailySnapshot> = {},
+): DailySnapshot {
+  const puzzle = getSlitherlinkBuiltinPuzzle();
+  return {
+    version: STORAGE_VERSION,
+    dateKey: FIXTURE_TODAY,
+    gameType: 'slitherlink',
+    seed: 5252,
+    status: 'playing',
+    puzzle,
+    puzzleHash: puzzle.puzzleHash,
+    playState: createEmptyPlayState(),
+    startedAt: 1_700_000_000_000,
+    ...overrides,
+  };
+}
+
+export function makeSlitherlinkCompletedSnapshot(
+  overrides: Partial<DailySnapshot> = {},
+): DailySnapshot {
+  const base = makeSlitherlinkPlayingSnapshot();
+  const puzzle =
+    overrides.puzzle != null && isSlitherlinkPuzzle(overrides.puzzle)
+      ? overrides.puzzle
+      : isSlitherlinkPuzzle(base.puzzle)
+        ? base.puzzle
+        : getSlitherlinkBuiltinPuzzle();
+  const playState =
+    'playState' in overrides
+      ? overrides.playState
+      : clonePlayState(puzzle.solution);
+
+  return {
+    ...base,
+    puzzle,
+    puzzleHash: puzzle.puzzleHash,
+    status: 'completed',
+    playState,
+    finishedAt: 1_700_000_900_000,
     ...overrides,
   };
 }
@@ -88,8 +140,9 @@ export function makeSudokuPlayingSnapshot(
   };
 }
 
-/** Toggle first empty cell in play state (binary: 0→1, sudoku: 0→1). */
+/** Toggle first empty cell in play state (binary/sudoku grids only). */
 export function withOneFilledCell(playState: PlayState): PlayState {
+  if (!Array.isArray(playState)) return playState;
   const next = playState.map((row) => [...row]);
   for (let r = 0; r < next.length; r += 1) {
     for (let c = 0; c < next[r].length; c += 1) {
@@ -99,5 +152,14 @@ export function withOneFilledCell(playState: PlayState): PlayState {
       }
     }
   }
+  return next;
+}
+
+/** Mark one horizontal edge as loop segment for slitherlink play tests. */
+export function withOneSlitherlinkEdge(
+  playState: SlitherlinkPlayState,
+): SlitherlinkPlayState {
+  const next = clonePlayState(playState);
+  next.h[0]![0] = EDGE_LINE;
   return next;
 }

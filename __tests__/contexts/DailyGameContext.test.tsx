@@ -30,9 +30,13 @@ import {
   FIXTURE_TOMORROW,
   FIXTURE_YESTERDAY,
   makeBinaryPlayingSnapshot,
+  makeSlitherlinkCompletedSnapshot,
+  makeSlitherlinkPlayingSnapshot,
   makeSudokuPlayingSnapshot,
   withOneFilledCell,
+  withOneSlitherlinkEdge,
 } from '../helpers/dailyGameFixtures';
+import type { SlitherlinkPlayState } from '../../lib/puzzles/types';
 
 const getLocalDateKeyMock = jest.mocked(getLocalDateKey);
 
@@ -442,6 +446,24 @@ describe('DailyGameContext', () => {
     expect(onDisk).not.toBeNull();
   });
 
+  it('devRegenerateToday forces slitherlink without blocking on generator', async () => {
+    const stored = makeSudokuPlayingSnapshot();
+    await saveDailySnapshot(stored);
+
+    const { result } = await renderAndHydrate();
+    expect(result.current.gameType).toBe('sudoku');
+
+    await act(async () => {
+      await result.current.devRegenerateToday('slitherlink');
+    });
+
+    expect(result.current.status).toBe('playing');
+    expect(result.current.gameType).toBe('slitherlink');
+    expect(result.current.puzzle?.kind).toBe('slitherlink');
+    expect(result.current.playState).not.toBeNull();
+    expect(Array.isArray(result.current.playState)).toBe(false);
+  });
+
   it('markAbandoned persists abandoned status', async () => {
     const stored = makeBinaryPlayingSnapshot();
     await saveDailySnapshot(stored);
@@ -523,6 +545,52 @@ describe('DailyGameContext', () => {
       freezeCount: 1,
       lastFreezeGrantWeekKey: '2026-W21',
       freezeConsumedSessionKey: null,
+    });
+  });
+
+  describe('slitherlink', () => {
+    it('hydrates slitherlink snapshot from storage', async () => {
+      await saveDailySnapshot(makeSlitherlinkPlayingSnapshot());
+
+      const { result } = await renderAndHydrate();
+
+      expect(result.current.status).toBe('playing');
+      expect(result.current.gameType).toBe('slitherlink');
+      expect(result.current.puzzle?.kind).toBe('slitherlink');
+      expect(result.current.playState).not.toBeNull();
+    });
+
+    it('updatePlayState and markCompleted persist slitherlink edges', async () => {
+      await saveDailySnapshot(makeSlitherlinkPlayingSnapshot());
+
+      const { result } = await renderAndHydrate();
+
+      const edited = withOneSlitherlinkEdge(
+        result.current.playState as SlitherlinkPlayState,
+      );
+
+      act(() => {
+        result.current.updatePlayState(edited);
+      });
+
+      expect(result.current.playState).toEqual(edited);
+
+      await act(async () => {
+        await result.current.markCompleted();
+      });
+
+      expect(result.current.status).toBe('completed');
+      expect(result.current.snapshot?.playState).toEqual(edited);
+    });
+
+    it('completed snapshot with solution playState hydrates for result', async () => {
+      await saveDailySnapshot(makeSlitherlinkCompletedSnapshot());
+
+      const { result } = await renderAndHydrate();
+
+      expect(result.current.status).toBe('completed');
+      expect(result.current.gameType).toBe('slitherlink');
+      expect(result.current.playState).not.toBeNull();
     });
   });
 });

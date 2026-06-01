@@ -17,7 +17,7 @@ Before changing code: follow `CLAUDE.md` GSD workflow (`/gsd-quick`, `/gsd-debug
 
 ## Project Overview
 
-A minimal, offline-first daily puzzle app (Expo). One puzzle per local calendar day — randomly **Sudoku 9×9**, **Binary/Takuzu 8×8**, or **Nonogram/Picross 8×8**.
+A minimal, offline-first daily puzzle app (Expo). One puzzle per local calendar day — randomly **Sudoku 9×9**, **Binary/Takuzu 8×8**, **Nonogram/Picross 8×8**, or **Slitherlink 7×7**.
 
 - Deterministic daily generation from date seed
 - Local generation, validation, solving in `lib/puzzles/`
@@ -27,7 +27,7 @@ A minimal, offline-first daily puzzle app (Expo). One puzzle per local calendar 
 - Rule explanations in-game
 - **v1.1 (`1.1.x`):** emoji share card (clipboard), result stats cards, in-app review prompt (gated), defensive daily selection + snapshot recovery
 - **v1.2 (`1.2.0`):** system locale zh/en (`expo-localization`), English brand **Brainfool**, `locales/` + `useI18n`, bilingual privacy; no release settings UI (dev placeholder only)
-- **v2.0 (`2.0.0`, partial):** streak freeze shields (weekly grant, max 2, auto-consume on 1-day gap), missed-yesterday recall subline on game screen; completion-history repair on hydrate; streak storage schema v3. **Not yet:** daily notifications, personal stats page
+- **v2.0 (`2.0.0`, partial):** streak freeze shields (weekly grant, max 2, auto-consume on 1-day gap), missed-yesterday recall subline on game screen; completion-history repair on hydrate; streak storage schema v3; **Slitherlink 7×7** (polyomino loop generator, edge UI, reveal/share). **Not yet:** daily notifications, personal stats page
 
 Store builds via EAS (`eas.json`, `app.json`).
 
@@ -70,15 +70,16 @@ Production invariants. Break one, you break existing users.
 foolish-you/
 ├── app/                      # expo-router screens only
 │   ├── index.tsx             # Entry: hydrate → game / result
-│   ├── game.tsx              # Main play screen (sudoku | binary | nonogram)
+│   ├── game.tsx              # Main play screen (sudoku | binary | nonogram | slitherlink)
 │   ├── result.tsx            # Win / surrender outcome
 │   ├── privacy.tsx           # Privacy policy screen
 │   ├── settings.tsx          # Settings placeholder (__DEV__ only)
 │   └── (auth)/login.tsx      # Login placeholder (v1 not implemented)
 ├── components/
 │   ├── grid/                 # SudokuGrid, BinaryGrid, NonogramGrid, SudokuNumpad
+│   ├── slitherlink/          # SlitherlinkBoard (edge UI; not under grid/)
 │   ├── game/                 # GameScreenHeader, GameScreenFooter, rules modal/button, *GameSection
-│   ├── result/               # Result badges, stats, ShareButton, NonogramRevealCard, animated body
+│   ├── result/               # Result badges, stats, ShareButton, NonogramRevealCard, SlitherlinkRevealCard, animated body
 │   ├── ui/                   # Shared UI (e.g. OutlinePillButton, HairlineCard)
 │   ├── legal/                # Privacy policy blocks
 │   └── dev/                  # DevToolsPanel (__DEV__ only)
@@ -87,8 +88,8 @@ foolish-you/
 │   └── DevToolsUiContext.tsx # Dev panel UI state
 ├── hooks/
 │   ├── useDailyGame.ts       # Re-export of DailyGameContext API
-│   ├── useGameBoardSession.ts # Routes to sudoku / binary / nonogram board hooks
-│   ├── useSudokuBoard.ts / useBinaryBoard.ts / useNonogramBoard.ts
+│   ├── useGameBoardSession.ts # Routes to sudoku / binary / nonogram / slitherlink board hooks
+│   ├── useSudokuBoard.ts / useBinaryBoard.ts / useNonogramBoard.ts / useSlitherlinkBoard.ts
 │   └── useElapsedTimer.ts    # In-game elapsed timer
 ├── lib/
 │   ├── date/                 # Local calendar day (dateKey)
@@ -257,7 +258,7 @@ Run the same checks as CI (`.github/workflows/ci.yml`):
 
 ```bash
 npm run typecheck       # tsc --noEmit
-npm test                # unit + rtl (~342 tests; includes en-smoke)
+npm test                # unit + rtl (~386 tests; includes en-smoke)
 npm run test:migration  # snapshot migration golden fixtures
 npm run lint            # expo lint
 npm run lockfile:verify-eas  # npm 10 ci — must pass before EAS build
@@ -280,7 +281,8 @@ For UI changes, include manual steps:
 - Recovery path → `completed` with stripped `playState` shows outcome but no share button
 - Streak freeze → skip exactly one calendar day without completing; reopen → shield consumed, streak preserved; game header shows freeze line (not missed-yesterday recall)
 - Missed yesterday → gap ≥ 2 days without shield → game header shows recall subline until today is completed
-- Dev panel (`__DEV__`) → force game type / reset today / inject recovery / **streak QA scenarios** / settings placeholder (locale preview)
+- Dev panel (`__DEV__`) → force game type / **regenerate today** (keep type vs random) / inject recovery / **streak QA scenarios** / settings placeholder (locale preview)
+- Slitherlink → edge cycle + long-press clear; unknown edges allowed at complete gate; result Reveal + share without solution leak
 
 EAS builds (`eas.json` preview/production profiles) require device verification before tagging release-ready.
 
@@ -290,7 +292,7 @@ EAS builds (`eas.json` preview/production profiles) require device verification 
 
 - `components/dev/DevToolsPanel.tsx` and `constants/dev.ts` are gated by `__DEV__` and stripped from production.
 - `DEV_FORCE_GAME_TYPE` overrides daily selection in development only.
-- Panel actions: force game type, reset today, inject recovery scenario, **apply streak QA scenarios** (`lib/dev/streakDevScenarios.ts`), clear rating/history, view recovery log, open settings placeholder.
+- Panel actions: force game type, regenerate today (`devRegenerateToday`: keep game type or full re-roll), inject recovery scenario, **apply streak QA scenarios** (`lib/dev/streakDevScenarios.ts`), clear rating/history, view recovery log, open settings placeholder.
 
 ---
 

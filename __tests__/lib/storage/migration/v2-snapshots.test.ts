@@ -3,6 +3,8 @@ import { generateBinaryPuzzle } from '../../../../lib/puzzles/binary/generator';
 import { createEmptyGrid as createEmptyBinaryGrid } from '../../../../lib/puzzles/binary/grid';
 import { generateNonogramPuzzle } from '../../../../lib/puzzles/nonogram/generator';
 import { createEmptyGrid as createEmptyNonogramGrid } from '../../../../lib/puzzles/nonogram/grid';
+import { generateSlitherlinkPuzzle } from '../../../../lib/puzzles/slitherlink/generator';
+import { createEmptyPlayState as createEmptySlitherlinkPlayState } from '../../../../lib/puzzles/slitherlink/edges';
 import { generateSudokuPuzzle } from '../../../../lib/puzzles/sudoku/generator';
 import { createEmptyGrid as createEmptySudokuGrid } from '../../../../lib/puzzles/sudoku/grid';
 import type { DailySnapshot } from '../../../../lib/puzzles/types';
@@ -64,6 +66,21 @@ describe('migration v2 snapshots', () => {
       playState: createEmptyNonogramGrid(),
       startedAt: Date.now() - 90_000,
       finishedAt: Date.now(),
+    });
+  });
+
+  it('slitherlink mid-game survives migrate + recover', () => {
+    const puzzle = generateSlitherlinkPuzzle(4004);
+    roundTrip({
+      version: STORAGE_VERSION,
+      dateKey: '2026-05-19',
+      gameType: 'slitherlink',
+      seed: 4004,
+      status: 'playing',
+      puzzle,
+      puzzleHash: puzzle.puzzleHash,
+      playState: createEmptySlitherlinkPlayState(),
+      startedAt: Date.now() - 45_000,
     });
   });
 });
