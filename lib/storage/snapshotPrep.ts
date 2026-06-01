@@ -4,12 +4,15 @@ import { createEmptyGrid as createEmptyBinaryGrid } from '../puzzles/binary/grid
 import { generateNonogramPuzzle } from '../puzzles/nonogram/generator';
 import { createEmptyGrid as createEmptyNonogramGrid } from '../puzzles/nonogram/grid';
 import { deriveSubSeed } from '../puzzles/rng';
+import { generateSlitherlinkPuzzle } from '../puzzles/slitherlink/generator';
+import { createEmptyPlayState as createEmptySlitherlinkPlayState } from '../puzzles/slitherlink/edges';
 import { generateSudokuPuzzle } from '../puzzles/sudoku/generator';
 import { createEmptyGrid as createEmptySudokuGrid } from '../puzzles/sudoku/grid';
 import type {
   BinaryPuzzle,
   DailySnapshot,
   NonogramPuzzle,
+  SlitherlinkPuzzle,
   SudokuPuzzle,
 } from '../puzzles/types';
 import {
@@ -32,6 +35,10 @@ function binaryPuzzleFromSeed(seed: number): BinaryPuzzle {
 
 function nonogramPuzzleFromSeed(seed: number): NonogramPuzzle {
   return generateNonogramPuzzle(deriveSubSeed(seed, 'nonogram-migrate'));
+}
+
+function slitherlinkPuzzleFromSeed(seed: number): SlitherlinkPuzzle {
+  return generateSlitherlinkPuzzle(deriveSubSeed(seed, 'slitherlink-migrate'));
 }
 
 function persistedToDailyBase(persisted: PersistedSnapshot): DailySnapshot {
@@ -74,12 +81,22 @@ function upgradePlaceholderFields(
     };
   }
 
-  const puzzle = nonogramPuzzleFromSeed(persisted.seed);
+  if (persisted.gameType === 'nonogram') {
+    const puzzle = nonogramPuzzleFromSeed(persisted.seed);
+    return {
+      ...persistedToDailyBase(persisted),
+      puzzle,
+      puzzleHash: puzzle.puzzleHash,
+      playState: persisted.playState ?? createEmptyNonogramGrid(),
+    };
+  }
+
+  const puzzle = slitherlinkPuzzleFromSeed(persisted.seed);
   return {
     ...persistedToDailyBase(persisted),
     puzzle,
     puzzleHash: puzzle.puzzleHash,
-    playState: persisted.playState ?? createEmptyNonogramGrid(),
+    playState: persisted.playState ?? createEmptySlitherlinkPlayState(),
   };
 }
 
@@ -131,7 +148,20 @@ export function repairSnapshotPuzzle(record: DailySnapshot): DailySnapshot {
     };
   }
 
-  const puzzle = nonogramPuzzleFromSeed(record.seed);
+  if (record.gameType === 'nonogram') {
+    const puzzle = nonogramPuzzleFromSeed(record.seed);
+    return {
+      ...record,
+      version: STORAGE_VERSION,
+      puzzle,
+      puzzleHash: puzzle.puzzleHash,
+      playState: isPlayStateConsistent(record)
+        ? record.playState
+        : createEmptyNonogramGrid(),
+    };
+  }
+
+  const puzzle = slitherlinkPuzzleFromSeed(record.seed);
   return {
     ...record,
     version: STORAGE_VERSION,
@@ -139,7 +169,7 @@ export function repairSnapshotPuzzle(record: DailySnapshot): DailySnapshot {
     puzzleHash: puzzle.puzzleHash,
     playState: isPlayStateConsistent(record)
       ? record.playState
-      : createEmptyNonogramGrid(),
+      : createEmptySlitherlinkPlayState(),
   };
 }
 

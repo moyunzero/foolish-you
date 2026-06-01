@@ -1,6 +1,11 @@
 import { selectDailyGame } from '../../../lib/puzzles/dailySelector';
 import { deriveSeed } from '../../../lib/puzzles/rng';
-import { isBinaryPuzzle, isNonogramPuzzle, isSudokuPuzzle } from '../../../lib/puzzles/types';
+import {
+  isBinaryPuzzle,
+  isNonogramPuzzle,
+  isSlitherlinkPuzzle,
+  isSudokuPuzzle,
+} from '../../../lib/puzzles/types';
 
 describe('selectDailyGame', () => {
   it('returns stable gameType for the same dateKey', () => {
@@ -65,5 +70,50 @@ describe('selectDailyGame', () => {
     expect(result.gameType).toBe('nonogram');
     expect(isNonogramPuzzle(result.puzzle)).toBe(true);
     expect(result.puzzleHash).toMatch(/^nono-/);
+  });
+
+  it('returns real slitherlink puzzle when forceGameType is slitherlink', () => {
+    const first = selectDailyGame({
+      dateKey: '2026-05-20',
+      forceGameType: 'slitherlink',
+    });
+    const second = selectDailyGame({
+      dateKey: '2026-05-20',
+      forceGameType: 'slitherlink',
+    });
+    expect(first.gameType).toBe('slitherlink');
+    expect(isSlitherlinkPuzzle(first.puzzle)).toBe(true);
+    expect(first.puzzleHash).toMatch(/^sl-/);
+    expect(first.puzzleHash).not.toBe('sl-172b96f3');
+    expect(second.puzzleHash).toBe(first.puzzleHash);
+  });
+
+  it('picks a different slitherlink hash when previous hash is passed without gameType', () => {
+    const first = selectDailyGame({
+      dateKey: '2026-05-20',
+      forceGameType: 'slitherlink',
+    });
+    const second = selectDailyGame({
+      dateKey: '2026-05-20',
+      forceGameType: 'slitherlink',
+      previous: { puzzleHash: first.puzzleHash },
+    });
+    expect(second.gameType).toBe('slitherlink');
+    expect(second.puzzleHash).not.toBe(first.puzzleHash);
+  });
+
+  it('can pick slitherlink from the four-type pool', () => {
+    let found = false;
+    for (let day = 1; day <= 60; day += 1) {
+      const result = selectDailyGame({
+        dateKey: `2026-07-${String(day).padStart(2, '0')}`,
+      });
+      if (result.gameType === 'slitherlink') {
+        found = true;
+        expect(isSlitherlinkPuzzle(result.puzzle)).toBe(true);
+        break;
+      }
+    }
+    expect(found).toBe(true);
   });
 });

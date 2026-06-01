@@ -2,11 +2,18 @@ import { STORAGE_VERSION } from '../../constants/config';
 import { getDevForceGameType } from '../../constants/dev';
 import { getLocalDateKey } from '../date/localDay';
 import { createEmptyGrid as createEmptyBinaryGrid } from '../puzzles/binary/grid';
+import { selectDailyGame, type SelectDailyGameParams } from '../puzzles/dailySelector';
 import { selectDailyGameSafe } from '../puzzles/dailySelectorSafe';
 import { createEmptyGrid as createEmptyNonogramGrid } from '../puzzles/nonogram/grid';
+import { createEmptyPlayState as createEmptySlitherlinkPlayState } from '../puzzles/slitherlink/edges';
 import { createEmptyGrid as createEmptySudokuGrid } from '../puzzles/sudoku/grid';
 import type { DailySnapshot, GameType } from '../puzzles/types';
-import { isBinaryPuzzle, isNonogramPuzzle, isSudokuPuzzle } from '../puzzles/types';
+import {
+  isBinaryPuzzle,
+  isNonogramPuzzle,
+  isSlitherlinkPuzzle,
+  isSudokuPuzzle,
+} from '../puzzles/types';
 import { runAfterInteractions } from '../platform/runAfterInteractions';
 import {
   loadDailySnapshot,
@@ -18,6 +25,8 @@ export type BuildNewDailyParams = {
   today: string;
   previous: DailySnapshot | null;
   forceGameType?: GameType | null;
+  /** Dev「重开今日」：保持当前题型，仅换题（仍避开上一道 puzzleHash） */
+  devKeepGameType?: boolean;
   onSaveFailed?: () => void;
 };
 
@@ -60,28 +69,51 @@ function ensurePlayStateForSnapshot(snapshot: DailySnapshot): DailySnapshot {
   ) {
     return { ...snapshot, playState: createEmptyNonogramGrid() };
   }
+  if (
+    snapshot.gameType === 'slitherlink' &&
+    isSlitherlinkPuzzle(snapshot.puzzle) &&
+    snapshot.playState == null
+  ) {
+    return { ...snapshot, playState: createEmptySlitherlinkPlayState() };
+  }
   return snapshot;
 }
 
 function emptyPlayStateForGameType(gameType: GameType) {
   if (gameType === 'sudoku') return createEmptySudokuGrid();
   if (gameType === 'binary') return createEmptyBinaryGrid();
-  return createEmptyNonogramGrid();
+  if (gameType === 'nonogram') return createEmptyNonogramGrid();
+  return createEmptySlitherlinkPlayState();
+}
+
+function buildSelectPrevious(
+  params: BuildNewDailyParams,
+  forced: GameType | undefined,
+): SelectDailyGameParams['previous'] {
+  if (params.previous == null) return undefined;
+
+  if (params.devKeepGameType || forced != null) {
+    return params.previous.puzzleHash
+      ? { puzzleHash: params.previous.puzzleHash }
+      : undefined;
+  }
+
+  return {
+    gameType: params.previous.gameType,
+    puzzleHash: params.previous.puzzleHash,
+  };
 }
 
 export async function buildNewDailySnapshot(
   params: BuildNewDailyParams,
 ): Promise<DailySnapshot> {
-  const forced = resolveForceGameType(params.forceGameType);
+  const forced =
+    params.devKeepGameType && params.previous
+      ? params.previous.gameType
+      : resolveForceGameType(params.forceGameType);
   const selected = selectDailyGameSafe({
     dateKey: params.today,
-    previous:
-      forced == null && params.previous
-        ? {
-            gameType: params.previous.gameType,
-            puzzleHash: params.previous.puzzleHash,
-          }
-        : undefined,
+    previous: buildSelectPrevious(params, forced),
     forceGameType: forced,
   });
 

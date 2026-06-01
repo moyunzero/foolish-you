@@ -44,6 +44,7 @@ import {
 import type { StreakState } from '../lib/streak/types';
 import { createEmptyGrid as createEmptyBinaryGrid } from '../lib/puzzles/binary/grid';
 import { createEmptyGrid as createEmptyNonogramGrid } from '../lib/puzzles/nonogram/grid';
+import { createEmptyPlayState as createEmptySlitherlinkPlayState } from '../lib/puzzles/slitherlink/edges';
 import { createEmptyGrid as createEmptySudokuGrid } from '../lib/puzzles/sudoku/grid';
 import type {
   DailySnapshot,
@@ -52,7 +53,12 @@ import type {
   PlayState,
   PuzzlePayload,
 } from '../lib/puzzles/types';
-import { isBinaryPuzzle, isNonogramPuzzle, isSudokuPuzzle } from '../lib/puzzles/types';
+import {
+  isBinaryPuzzle,
+  isNonogramPuzzle,
+  isSlitherlinkPuzzle,
+  isSudokuPuzzle,
+} from '../lib/puzzles/types';
 import { recordCompletion, loadCompletionHistory } from '../lib/storage/completionHistoryStorage';
 import type { CompletionEntry } from '../lib/storage/completionHistoryStorage';
 import { incrementRatingCompletedCount } from '../lib/storage/ratingStorage';
@@ -288,6 +294,7 @@ function useDailyGameProviderValue(): DailyGameState {
           today,
           previous,
           forceGameType,
+          devKeepGameType: forceGameType === undefined,
           onSaveFailed: handleSaveFailed,
         });
         setSnapshot(next);
@@ -400,6 +407,9 @@ function useDailyGameProviderValue(): DailyGameState {
     }
     if (snapshot.gameType === 'nonogram' && isNonogramPuzzle(snapshot.puzzle)) {
       return snapshot.playState ?? createEmptyNonogramGrid();
+    }
+    if (snapshot.gameType === 'slitherlink' && isSlitherlinkPuzzle(snapshot.puzzle)) {
+      return snapshot.playState ?? createEmptySlitherlinkPlayState();
     }
     return null;
   }, [snapshot]);

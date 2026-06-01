@@ -4,8 +4,10 @@ import {
   isBinaryPuzzleSolvable,
   isNonogramPuzzleStructurallyValid,
   isPuzzleSolvable,
+  isSlitherlinkPuzzleSolvable,
   isSudokuPuzzleSolvable,
 } from '../../../lib/puzzles/isSolvable';
+import { generateSlitherlinkPuzzle } from '../../../lib/puzzles/slitherlink/generator';
 import { generateSudokuPuzzle } from '../../../lib/puzzles/sudoku/generator';
 
 describe('isSolvable', () => {
@@ -25,6 +27,12 @@ describe('isSolvable', () => {
     const puzzle = generateNonogramPuzzle(303);
     expect(isNonogramPuzzleStructurallyValid(puzzle)).toBe(true);
     expect(isPuzzleSolvable('nonogram', puzzle)).toBe(true);
+  });
+
+  it('accepts generated slitherlink with unique solution', () => {
+    const puzzle = generateSlitherlinkPuzzle(606);
+    expect(isSlitherlinkPuzzleSolvable(puzzle)).toBe(true);
+    expect(isPuzzleSolvable('slitherlink', puzzle)).toBe(true);
   });
 
   it('rejects nonogram with mismatched solution dimensions', () => {

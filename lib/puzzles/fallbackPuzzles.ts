@@ -2,6 +2,7 @@ import { generateBinaryPuzzle } from './binary/generator';
 import { generateNonogramPuzzle } from './nonogram/generator';
 import { isPuzzleSolvable } from './isSolvable';
 import { deriveSeed } from './rng';
+import { getSlitherlinkBuiltinPuzzle } from './slitherlink/builtinPuzzle';
 import { generateSudokuPuzzle } from './sudoku/generator';
 import type { GameType, PuzzlePayload } from './types';
 
@@ -14,6 +15,7 @@ export const FALLBACK_DATE_KEYS: Record<GameType, string> = {
   sudoku: '1970-01-01',
   binary: '1970-01-02',
   nonogram: '1970-01-03',
+  slitherlink: '1970-01-04',
 };
 
 export function buildFallbackPuzzle(gameType: GameType): PuzzlePayload {
@@ -24,7 +26,10 @@ export function buildFallbackPuzzle(gameType: GameType): PuzzlePayload {
   if (gameType === 'binary') {
     return generateBinaryPuzzle(seed);
   }
-  return generateNonogramPuzzle(seed);
+  if (gameType === 'nonogram') {
+    return generateNonogramPuzzle(seed);
+  }
+  return getSlitherlinkBuiltinPuzzle();
 }
 
 export function getFallbackDailySelection(gameType: GameType): {

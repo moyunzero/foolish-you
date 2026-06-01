@@ -1,10 +1,15 @@
 import {
   isDailySnapshotShape,
+  isCompletedPlayStateSatisfied,
+  isPlayStateConsistent,
   isSnapshotPuzzleConsistent,
   isValidBinaryGivens,
+  isValidSlitherlinkPlayState,
   isValidSudokuGivens,
 } from '../../../lib/storage/snapshotValidate';
 import { createEmptyGrid as createEmptyBinaryGrid } from '../../../lib/puzzles/binary/grid';
+import { generateSlitherlinkPuzzle } from '../../../lib/puzzles/slitherlink/generator';
+import { createEmptyPlayState } from '../../../lib/puzzles/slitherlink/edges';
 import { createEmptyGrid as createEmptySudokuGrid } from '../../../lib/puzzles/sudoku/grid';
 import type { DailySnapshot } from '../../../lib/puzzles/types';
 import type { PersistedSnapshot } from '../../../lib/storage/snapshotLegacy';
@@ -54,5 +59,44 @@ describe('snapshotValidate', () => {
       puzzleHash: 'bin',
     };
     expect(isSnapshotPuzzleConsistent(snapshot)).toBe(false);
+  });
+
+  it('accepts slitherlink playing snapshot with empty edge playState', () => {
+    const puzzle = generateSlitherlinkPuzzle(909);
+    const playState = createEmptyPlayState();
+    const snapshot: DailySnapshot = {
+      version: 2,
+      dateKey: '2026-05-18',
+      gameType: 'slitherlink',
+      seed: 909,
+      status: 'playing',
+      puzzle,
+      puzzleHash: puzzle.puzzleHash,
+      playState,
+    };
+    expect(isDailySnapshotShape(snapshot as unknown as PersistedSnapshot)).toBe(
+      true,
+    );
+    expect(isSnapshotPuzzleConsistent(snapshot)).toBe(true);
+    expect(isPlayStateConsistent(snapshot)).toBe(true);
+    expect(isValidSlitherlinkPlayState(playState)).toBe(true);
+  });
+
+  it('accepts slitherlink completed snapshot when play matches solution', () => {
+    const puzzle = generateSlitherlinkPuzzle(910);
+    const snapshot: DailySnapshot = {
+      version: 2,
+      dateKey: '2026-05-18',
+      gameType: 'slitherlink',
+      seed: 910,
+      status: 'completed',
+      puzzle,
+      puzzleHash: puzzle.puzzleHash,
+      playState: puzzle.solution,
+      finishedAt: Date.now(),
+    };
+    expect(isSnapshotPuzzleConsistent(snapshot)).toBe(true);
+    expect(isPlayStateConsistent(snapshot)).toBe(true);
+    expect(isCompletedPlayStateSatisfied(snapshot)).toBe(true);
   });
 });

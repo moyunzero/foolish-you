@@ -1,4 +1,4 @@
-export type GameType = 'sudoku' | 'binary' | 'nonogram';
+export type GameType = 'sudoku' | 'binary' | 'nonogram' | 'slitherlink';
 
 export type DailyStatus = 'playing' | 'completed' | 'abandoned';
 
@@ -35,9 +35,28 @@ export type NonogramPuzzle = {
   puzzleHash: string;
 };
 
-export type PuzzlePayload = SudokuPuzzle | BinaryPuzzle | NonogramPuzzle;
+export type {
+  SlitherlinkPlayState,
+  SlitherlinkPuzzle,
+  SlitherlinkSolutionEdges,
+} from './slitherlink/spec';
 
-export type PlayState = SudokuPlayState | BinaryPlayState | NonogramPlayState;
+import type {
+  SlitherlinkPlayState,
+  SlitherlinkPuzzle,
+} from './slitherlink/spec';
+
+export type PuzzlePayload =
+  | SudokuPuzzle
+  | BinaryPuzzle
+  | NonogramPuzzle
+  | SlitherlinkPuzzle;
+
+export type PlayState =
+  | SudokuPlayState
+  | BinaryPlayState
+  | NonogramPlayState
+  | SlitherlinkPlayState;
 
 export function isSudokuPuzzle(
   puzzle: PuzzlePayload,
@@ -55,6 +74,12 @@ export function isNonogramPuzzle(
   puzzle: PuzzlePayload,
 ): puzzle is NonogramPuzzle {
   return puzzle.kind === 'nonogram';
+}
+
+export function isSlitherlinkPuzzle(
+  puzzle: PuzzlePayload,
+): puzzle is SlitherlinkPuzzle {
+  return puzzle.kind === 'slitherlink';
 }
 
 export type DailySnapshot = {

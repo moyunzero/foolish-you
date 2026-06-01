@@ -8,11 +8,24 @@ import {
   NONOGRAM_FILL,
   NONOGRAM_ROWS,
 } from '../puzzles/nonogram/spec';
+import {
+  EDGE_BLANK,
+  EDGE_LINE,
+  EDGE_UNKNOWN,
+  SLITHERLINK_SIZE,
+  type SlitherlinkPlayState,
+} from '../puzzles/slitherlink/spec';
+import { isCompleteAndValid as isSlitherlinkComplete } from '../puzzles/slitherlink/validate';
 import { SUDOKU_SIZE } from '../puzzles/sudoku/grid';
 import { isCompleteAndValid as isSudokuComplete } from '../puzzles/sudoku/validate';
 import { STORAGE_VERSION } from '../../constants/config';
 import type { DailySnapshot, GameType, NonogramPlayState } from '../puzzles/types';
-import { isBinaryPuzzle, isNonogramPuzzle, isSudokuPuzzle } from '../puzzles/types';
+import {
+  isBinaryPuzzle,
+  isNonogramPuzzle,
+  isSlitherlinkPuzzle,
+  isSudokuPuzzle,
+} from '../puzzles/types';
 import type { PersistedSnapshot } from './snapshotLegacy';
 
 function isSizedGrid(
@@ -77,6 +90,75 @@ export function isValidBinaryGivens(givens: unknown): givens is number[][] {
   );
 }
 
+function isValidEdgeState(value: unknown): value is 0 | 1 | 2 {
+  return value === EDGE_UNKNOWN || value === EDGE_LINE || value === EDGE_BLANK;
+}
+
+function isValidSlitherlinkEdgeGrid(
+  grid: unknown,
+  rows: number,
+  cols: number,
+): grid is number[][] {
+  if (!Array.isArray(grid) || grid.length !== rows) return false;
+  return grid.every(
+    (row) =>
+      Array.isArray(row) &&
+      row.length === cols &&
+      row.every((cell) => isValidEdgeState(cell)),
+  );
+}
+
+function isValidSlitherlinkClues(clues: unknown): clues is (number | null)[][] {
+  if (!Array.isArray(clues) || clues.length !== SLITHERLINK_SIZE) return false;
+  return clues.every(
+    (row) =>
+      Array.isArray(row) &&
+      row.length === SLITHERLINK_SIZE &&
+      row.every(
+        (cell) =>
+          cell == null ||
+          (typeof cell === 'number' &&
+            Number.isInteger(cell) &&
+            cell >= 0 &&
+            cell <= 3),
+      ),
+  );
+}
+
+export function isValidSlitherlinkPlayState(
+  play: unknown,
+): play is SlitherlinkPlayState {
+  if (play == null || typeof play !== 'object') return false;
+  const p = play as Record<string, unknown>;
+  return (
+    isValidSlitherlinkEdgeGrid(p.h, SLITHERLINK_SIZE + 1, SLITHERLINK_SIZE) &&
+    isValidSlitherlinkEdgeGrid(p.v, SLITHERLINK_SIZE, SLITHERLINK_SIZE + 1)
+  );
+}
+
+export function isValidSlitherlinkPuzzle(puzzle: unknown): boolean {
+  if (puzzle == null || typeof puzzle !== 'object') return false;
+  const p = puzzle as Record<string, unknown>;
+  if (p.kind !== 'slitherlink') return false;
+  if (p.size !== SLITHERLINK_SIZE) return false;
+  if (typeof p.puzzleHash !== 'string') return false;
+  if (!isValidSlitherlinkClues(p.clues)) return false;
+  if (p.solution == null || typeof p.solution !== 'object') return false;
+  const solution = p.solution as Record<string, unknown>;
+  return (
+    isValidSlitherlinkEdgeGrid(
+      solution.h,
+      SLITHERLINK_SIZE + 1,
+      SLITHERLINK_SIZE,
+    ) &&
+    isValidSlitherlinkEdgeGrid(
+      solution.v,
+      SLITHERLINK_SIZE,
+      SLITHERLINK_SIZE + 1,
+    )
+  );
+}
+
 /** Accepts v1 JSON (puzzleStub / placeholder puzzle) and v2 snapshots on load. */
 export function isPersistedSnapshotShape(
   value: unknown,
@@ -87,7 +169,10 @@ export function isPersistedSnapshotShape(
   const hasLegacyStub = v.puzzleStub != null && typeof v.puzzleStub === 'object';
   return (
     typeof v.dateKey === 'string' &&
-    (v.gameType === 'sudoku' || v.gameType === 'binary' || v.gameType === 'nonogram') &&
+    (v.gameType === 'sudoku' ||
+      v.gameType === 'binary' ||
+      v.gameType === 'nonogram' ||
+      v.gameType === 'slitherlink') &&
     typeof v.seed === 'number' &&
     (v.status === 'playing' ||
       v.status === 'completed' ||
@@ -123,6 +208,13 @@ export function isSnapshotPuzzleConsistent(snapshot: DailySnapshot): boolean {
     );
   }
 
+  if (snapshot.gameType === 'slitherlink') {
+    return (
+      isSlitherlinkPuzzle(snapshot.puzzle) &&
+      isValidSlitherlinkPuzzle(snapshot.puzzle)
+    );
+  }
+
   return false;
 }
 
@@ -135,6 +227,9 @@ export function isPlayStateConsistent(
   }
   if (snapshot.gameType === 'binary') {
     return isSizedGrid(snapshot.playState, BINARY_SIZE);
+  }
+  if (snapshot.gameType === 'slitherlink') {
+    return isValidSlitherlinkPlayState(snapshot.playState);
   }
   return isNonogramGrid(snapshot.playState);
 }
@@ -151,29 +246,42 @@ export function isCompletedPlayStateSatisfied(
   }
 
   switch (snapshot.gameType) {
-    case 'sudoku':
-      return (
-        isSudokuPuzzle(snapshot.puzzle) &&
-        isSudokuComplete(snapshot.playState, snapshot.puzzle.givens)
-      );
-    case 'binary':
-      return (
-        isBinaryPuzzle(snapshot.puzzle) &&
-        isBinaryComplete(snapshot.playState, snapshot.puzzle.givens)
-      );
+    case 'sudoku': {
+      if (!isSudokuPuzzle(snapshot.puzzle)) return false;
+      const play = snapshot.playState;
+      if (!isSizedGrid(play, SUDOKU_SIZE)) return false;
+      return isSudokuComplete(play, snapshot.puzzle.givens);
+    }
+    case 'binary': {
+      if (!isBinaryPuzzle(snapshot.puzzle)) return false;
+      const play = snapshot.playState;
+      if (!isSizedGrid(play, BINARY_SIZE)) return false;
+      return isBinaryComplete(play, snapshot.puzzle.givens);
+    }
     case 'nonogram': {
       if (!isNonogramPuzzle(snapshot.puzzle)) return false;
       const play = snapshot.playState;
       if (!isNonogramGrid(play)) return false;
       return isNonogramComplete(play, snapshot.puzzle.solution);
     }
+    case 'slitherlink':
+      return (
+        isSlitherlinkPuzzle(snapshot.puzzle) &&
+        isValidSlitherlinkPlayState(snapshot.playState) &&
+        isSlitherlinkComplete(snapshot.playState, snapshot.puzzle)
+      );
     default:
       return false;
   }
 }
 
 export function isGameType(value: unknown): value is GameType {
-  return value === 'sudoku' || value === 'binary' || value === 'nonogram';
+  return (
+    value === 'sudoku' ||
+    value === 'binary' ||
+    value === 'nonogram' ||
+    value === 'slitherlink'
+  );
 }
 
 /** Strip legacy keys and stamp version before writing AsyncStorage. */

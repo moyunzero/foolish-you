@@ -32,6 +32,15 @@ describe('selectDailyGameSafe', () => {
     expect(isPuzzleSolvable('binary', result.puzzle)).toBe(true);
   });
 
+  it('returns solvable slitherlink when forced', () => {
+    const result = selectDailyGameSafe({
+      dateKey: '2026-05-19',
+      forceGameType: 'slitherlink',
+    });
+    expect(result.gameType).toBe('slitherlink');
+    expect(isPuzzleSolvable('slitherlink', result.puzzle)).toBe(true);
+  });
+
   it('uses static fallback when both attempts are unsolvable', () => {
     const expected = getFallbackDailySelection('sudoku');
     mockIsPuzzleSolvable.mockImplementation((gameType, puzzle) => {

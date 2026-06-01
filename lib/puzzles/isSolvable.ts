@@ -1,7 +1,21 @@
 import { solve as solveBinary } from './binary/solver';
+import { createEmptyPlayState } from './slitherlink/edges';
+import { countSolutionsUpTo as countSlitherlinkSolutions } from './slitherlink/solver';
 import { countSolutionsUpTo as countSudokuSolutions } from './sudoku/solver';
-import type { BinaryPuzzle, GameType, NonogramPuzzle, PuzzlePayload, SudokuPuzzle } from './types';
-import { isBinaryPuzzle, isNonogramPuzzle, isSudokuPuzzle } from './types';
+import type {
+  BinaryPuzzle,
+  GameType,
+  NonogramPuzzle,
+  PuzzlePayload,
+  SlitherlinkPuzzle,
+  SudokuPuzzle,
+} from './types';
+import {
+  isBinaryPuzzle,
+  isNonogramPuzzle,
+  isSlitherlinkPuzzle,
+  isSudokuPuzzle,
+} from './types';
 
 function cloneSudokuGivens(givens: number[][]): number[][] {
   return givens.map((row) => [...row]);
@@ -24,6 +38,10 @@ export function isNonogramPuzzleStructurallyValid(puzzle: NonogramPuzzle): boole
   );
 }
 
+export function isSlitherlinkPuzzleSolvable(puzzle: SlitherlinkPuzzle): boolean {
+  return countSlitherlinkSolutions(puzzle.clues, createEmptyPlayState(), 2) === 1;
+}
+
 export function isPuzzleSolvable(
   gameType: GameType,
   puzzle: PuzzlePayload,
@@ -36,6 +54,9 @@ export function isPuzzleSolvable(
   }
   if (gameType === 'nonogram' && isNonogramPuzzle(puzzle)) {
     return isNonogramPuzzleStructurallyValid(puzzle);
+  }
+  if (gameType === 'slitherlink' && isSlitherlinkPuzzle(puzzle)) {
+    return isSlitherlinkPuzzleSolvable(puzzle);
   }
   return false;
 }

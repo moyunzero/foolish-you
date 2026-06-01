@@ -1,15 +1,23 @@
 import { generateBinaryPuzzle } from './binary/generator';
 import { generateNonogramPuzzle } from './nonogram/generator';
+import { getSlitherlinkBuiltinPuzzle } from './slitherlink/builtinPuzzle';
+import { generateSlitherlinkPuzzle } from './slitherlink/generator';
 import { generateSudokuPuzzle } from './sudoku/generator';
-import type { BinaryPuzzle, DailySnapshot, GameType, PuzzlePayload } from './types';
+import type {
+  BinaryPuzzle,
+  GameType,
+  PuzzlePayload,
+  SlitherlinkPuzzle,
+} from './types';
 import { deriveSeed, deriveSubSeed, mulberry32 } from './rng';
 
-const GAME_TYPES: GameType[] = ['sudoku', 'binary', 'nonogram'];
+const GAME_TYPES: GameType[] = ['sudoku', 'binary', 'nonogram', 'slitherlink'];
 
 export type SelectDailyGameParams = {
   dateKey: string;
   seed?: number;
-  previous?: Pick<DailySnapshot, 'gameType' | 'puzzleHash'>;
+  /** gameType omitted → do not avoid repeating that type (dev refresh same type) */
+  previous?: { gameType?: GameType; puzzleHash?: string };
   /** 开发/调试：跳过日期随机，强制题型 */
   forceGameType?: GameType;
 };
@@ -71,7 +79,12 @@ export function selectDailyGame(
     return { gameType, seed, puzzle, puzzleHash: puzzle.puzzleHash };
   }
 
-  const puzzle = buildNonogramPuzzle(seed, params.previous?.puzzleHash);
+  if (gameType === 'nonogram') {
+    const puzzle = buildNonogramPuzzle(seed, params.previous?.puzzleHash);
+    return { gameType, seed, puzzle, puzzleHash: puzzle.puzzleHash };
+  }
+
+  const puzzle = buildSlitherlinkPuzzle(seed, params.previous?.puzzleHash);
   return { gameType, seed, puzzle, puzzleHash: puzzle.puzzleHash };
 }
 
@@ -98,4 +111,19 @@ function buildBinaryPuzzle(seed: number, avoidHash?: string): BinaryPuzzle {
   }
   const puzzle = generateBinaryPuzzle(deriveSubSeed(seed, 'daily-bin-fallback'));
   return puzzle;
+}
+
+function buildSlitherlinkPuzzle(
+  seed: number,
+  avoidHash?: string,
+): SlitherlinkPuzzle {
+  for (let attempt = 0; attempt < 50; attempt += 1) {
+    const puzzle = generateSlitherlinkPuzzle(
+      deriveSubSeed(seed, `daily-sl-${attempt}`),
+    );
+    if (avoidHash == null || puzzle.puzzleHash !== avoidHash) {
+      return puzzle;
+    }
+  }
+  return getSlitherlinkBuiltinPuzzle();
 }
