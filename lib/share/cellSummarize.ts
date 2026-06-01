@@ -5,10 +5,14 @@ import { NONOGRAM_EMPTY } from '../puzzles/nonogram/spec';
 import { getConflictCells as getSudokuConflictCells } from '../puzzles/sudoku/validate';
 import { mergePlayAndGivens as mergeSudokuPlay } from '../puzzles/sudoku/grid';
 import { SUDOKU_BOX } from '../puzzles/sudoku/grid';
+import { getConflictEdges } from '../puzzles/slitherlink/validate';
+import { EDGE_LINE, EDGE_UNKNOWN, SLITHERLINK_SIZE } from '../puzzles/slitherlink/spec';
 import type {
   BinaryGivens,
   BinaryPlayState,
   NonogramPlayState,
+  SlitherlinkPlayState,
+  SlitherlinkPuzzle,
   SudokuGivens,
   SudokuPlayState,
 } from '../puzzles/types';
@@ -177,6 +181,94 @@ export function summarizeNonogramGrid(play: NonogramPlayState): string {
           br * blockSize + blockSize,
           bc * blockSize,
           bc * blockSize + blockSize,
+        ),
+      );
+    }
+    rows.push(row);
+  }
+
+  return renderEmojiGrid(rows);
+}
+
+function blockHasConflict(
+  conflicts: { h: boolean[][]; v: boolean[][] },
+  rowStart: number,
+  rowEnd: number,
+  colStart: number,
+  colEnd: number,
+): boolean {
+  for (let row = rowStart; row <= rowEnd; row += 1) {
+    for (let col = colStart; col < colEnd; col += 1) {
+      if (conflicts.h[row]?.[col]) return true;
+    }
+  }
+  for (let row = rowStart; row < rowEnd; row += 1) {
+    for (let col = colStart; col <= colEnd; col += 1) {
+      if (conflicts.v[row]?.[col]) return true;
+    }
+  }
+  return false;
+}
+
+function summarizeSlitherlinkBlock(
+  play: SlitherlinkPlayState,
+  conflicts: { h: boolean[][]; v: boolean[][] },
+  rowStart: number,
+  rowEnd: number,
+  colStart: number,
+  colEnd: number,
+): ShareCellTone {
+  if (blockHasConflict(conflicts, rowStart, rowEnd, colStart, colEnd)) {
+    return 'warn';
+  }
+
+  let unknown = 0;
+  let line = 0;
+
+  for (let row = rowStart; row <= rowEnd; row += 1) {
+    for (let col = colStart; col < colEnd; col += 1) {
+      const state = play.h[row]?.[col];
+      if (state === EDGE_UNKNOWN) unknown += 1;
+      if (state === EDGE_LINE) line += 1;
+    }
+  }
+  for (let row = rowStart; row < rowEnd; row += 1) {
+    for (let col = colStart; col <= colEnd; col += 1) {
+      const state = play.v[row]?.[col];
+      if (state === EDGE_UNKNOWN) unknown += 1;
+      if (state === EDGE_LINE) line += 1;
+    }
+  }
+
+  if (unknown > 0 && line === 0) return 'empty';
+  if (unknown > 0) return 'warn';
+  return 'complete';
+}
+
+/** 数回 N×N → 4×4 块摘要（边与格分区；仅 playState + clues，不读 solution） */
+export function summarizeSlitherlinkGrid(
+  play: SlitherlinkPlayState,
+  puzzle: Pick<SlitherlinkPuzzle, 'clues'>,
+): string {
+  const conflicts = getConflictEdges(play, puzzle);
+  const blocksPerSide = 4;
+
+  const rows: ShareCellTone[][] = [];
+  for (let br = 0; br < blocksPerSide; br += 1) {
+    const row: ShareCellTone[] = [];
+    const rowStart = Math.floor((br * SLITHERLINK_SIZE) / blocksPerSide);
+    const rowEndEx = Math.floor(((br + 1) * SLITHERLINK_SIZE) / blocksPerSide);
+    for (let bc = 0; bc < blocksPerSide; bc += 1) {
+      const colStart = Math.floor((bc * SLITHERLINK_SIZE) / blocksPerSide);
+      const colEndEx = Math.floor(((bc + 1) * SLITHERLINK_SIZE) / blocksPerSide);
+      row.push(
+        summarizeSlitherlinkBlock(
+          play,
+          conflicts,
+          rowStart,
+          rowEndEx - 1,
+          colStart,
+          colEndEx,
         ),
       );
     }

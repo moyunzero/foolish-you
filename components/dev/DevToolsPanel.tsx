@@ -1,9 +1,10 @@
 import { useRouter } from 'expo-router';
 import { useCallback, useState } from 'react';
-import { Pressable, Text, View } from 'react-native';
+import { ActivityIndicator, Pressable, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { DEV_TOOLS_ENABLED } from '../../constants/dev';
+import { colors } from '../../constants/design';
 import { useDailyGame } from '../../contexts/DailyGameContext';
 import { useDevToolsUi } from '../../contexts/DevToolsUiContext';
 import type { GameType } from '../../lib/puzzles/types';
@@ -25,14 +26,19 @@ function DevButton({
   label,
   onPress,
   active,
+  disabled,
 }: {
   label: string;
   onPress: () => void;
   active?: boolean;
+  disabled?: boolean;
 }) {
   return (
     <Pressable
       onPress={onPress}
+      disabled={disabled}
+      accessibilityRole="button"
+      accessibilityLabel={label}
       className={[
         'rounded-full border px-3 py-2',
         active ? 'border-accent-sunset bg-accent-sunset/20' : 'border-hairline',
@@ -49,6 +55,7 @@ export default function DevToolsPanel() {
   const router = useRouter();
   const insets = useSafeAreaInsets();
   const [expanded, setExpanded] = useState(false);
+  const [regenerating, setRegenerating] = useState(false);
   const [recoveryLog, setRecoveryLog] = useState<RecoveryLogEntry[]>([]);
   const [streakSummary, setStreakSummary] = useState('streak: —');
   const {
@@ -91,8 +98,18 @@ export default function DevToolsPanel() {
       : null;
 
   const regenerate = async (force?: GameType | null) => {
-    await devRegenerateToday(force);
-    router.replace('/game');
+    if (regenerating) return;
+    setRegenerating(true);
+    try {
+      await devRegenerateToday(force);
+      router.replace('/game');
+    } catch (error) {
+      if (__DEV__) {
+        console.error('[DevTools] devRegenerateToday failed', error);
+      }
+    } finally {
+      setRegenerating(false);
+    }
   };
 
   const onToggleExpanded = () => {
@@ -150,6 +167,15 @@ export default function DevToolsPanel() {
             {streakSummary}
           </Text>
 
+          {regenerating ? (
+            <View className="flex-row items-center gap-2 py-1">
+              <ActivityIndicator size="small" color={colors.accentSunset} />
+              <Text className="text-xs text-muted" style={{ fontFamily: 'SpaceMono_400Regular' }}>
+                正在生成今日题目…
+              </Text>
+            </View>
+          ) : null}
+
           <View className="flex-row flex-wrap gap-2">
             <DevButton
               label="设置占位"
@@ -157,11 +183,36 @@ export default function DevToolsPanel() {
                 router.push('/settings');
               }}
             />
-            <DevButton label="数独" active={gameType === 'sudoku'} onPress={() => void regenerate('sudoku')} />
-            <DevButton label="二进制" active={gameType === 'binary'} onPress={() => void regenerate('binary')} />
-            <DevButton label="数绘" active={gameType === 'nonogram'} onPress={() => void regenerate('nonogram')} />
-            <DevButton label="自然随机" onPress={() => void regenerate(null)} />
-            <DevButton label="重开今日" onPress={() => void regenerate()} />
+            <DevButton
+              label="数独"
+              active={gameType === 'sudoku'}
+              disabled={regenerating}
+              onPress={() => void regenerate('sudoku')}
+            />
+            <DevButton
+              label="二进制"
+              active={gameType === 'binary'}
+              disabled={regenerating}
+              onPress={() => void regenerate('binary')}
+            />
+            <DevButton
+              label="数绘"
+              active={gameType === 'nonogram'}
+              disabled={regenerating}
+              onPress={() => void regenerate('nonogram')}
+            />
+            <DevButton
+              label="数回"
+              active={gameType === 'slitherlink'}
+              disabled={regenerating}
+              onPress={() => void regenerate('slitherlink')}
+            />
+            <DevButton
+              label="自然随机"
+              disabled={regenerating}
+              onPress={() => void regenerate(null)}
+            />
+            <DevButton label="重开今日" disabled={regenerating} onPress={() => void regenerate()} />
             <DevButton
               label="弹出评分"
               onPress={() => {
@@ -230,7 +281,7 @@ export default function DevToolsPanel() {
           ) : null}
 
           <Text className="text-[10px] leading-4 text-muted">
-            点「数独/二进制/数绘」会清今日存档并按选定题型重建；「自然随机」走日期算法。也可改 constants/dev.ts 里 DEV_FORCE_GAME_TYPE。「弹出评分」直接调系统对话框；「重置通关记录」清本周统计；「重置评分」清评分门控。「注入坏盘面」写入 completed+空盘，重启后走恢复逻辑；展开时显示恢复日志。截图时点「隐藏」；长按页脚「隐私政策」可再唤出。
+            点「数独/二进制/数绘/数回」会清今日存档并按选定题型重建；「自然随机」走日期算法并尽量换题型。「重开今日」保持当前题型、换一道新题（清空进度）。也可改 constants/dev.ts 里 DEV_FORCE_GAME_TYPE。「弹出评分」直接调系统对话框；「重置通关记录」清本周统计；「重置评分」清评分门控。「注入坏盘面」写入 completed+空盘，重启后走恢复逻辑；展开时显示恢复日志。截图时点「隐藏」；长按页脚「隐私政策」可再唤出。
           </Text>
         </View>
       ) : null}

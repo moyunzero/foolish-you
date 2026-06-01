@@ -8,6 +8,7 @@ import ShareButton from '../components/result/ShareButton';
 import StatsCards from '../components/result/StatsCards';
 import FoolFaceBadge from '../components/result/FoolFaceBadge';
 import NonogramRevealCard from '../components/result/NonogramRevealCard';
+import SlitherlinkRevealCard from '../components/result/SlitherlinkRevealCard';
 import ResultOutcomeBody from '../components/result/ResultOutcomeBody';
 import ResultStatCard from '../components/result/ResultStatCard';
 import WinFaceBadge from '../components/result/WinFaceBadge';
@@ -28,7 +29,7 @@ import { RATING_PROMPT_DELAY_MS } from '../lib/rating/constants';
 import { maybePromptAppReview } from '../lib/rating/maybePromptAppReview';
 import { computeStatsCards, type StatsCardsData } from '../lib/stats/computeStatsCards';
 import { buildShareCard } from '../lib/share/buildShareCard';
-import { isNonogramPuzzle } from '../lib/puzzles/types';
+import { isNonogramPuzzle, isSlitherlinkPuzzle } from '../lib/puzzles/types';
 
 const HORIZONTAL_PADDING = 24;
 
@@ -133,6 +134,13 @@ export default function ResultScreen() {
       ? snapshot.puzzle
       : null;
 
+  const slitherlinkPuzzle =
+    isSuccess &&
+    snapshot?.puzzle != null &&
+    isSlitherlinkPuzzle(snapshot.puzzle)
+      ? snapshot.puzzle
+      : null;
+
   if (copy == null) {
     return (
       <SafeAreaView className="flex-1 bg-canvas">
@@ -199,19 +207,24 @@ export default function ResultScreen() {
                   <NonogramRevealCard puzzle={nonogramPuzzle} />
                 </View>
               ) : null}
+              {slitherlinkPuzzle != null ? (
+                <View className="mb-8">
+                  <SlitherlinkRevealCard puzzle={slitherlinkPuzzle} />
+                </View>
+              ) : null}
               <ResultOutcomeBody
-              badge={<WinFaceBadge />}
-              statusLabel={strings.ui.result.statusWin}
-              statusTone="victory"
-              headline={copy.headline}
-              punchline={copy.punchline}
-              sublines={copy.sublines}
-              statCard={
-                <ResultStatCard
-                  variant="victory"
-                  elapsed={copy.elapsedDisplay}
-                />
-              }
+                badge={<WinFaceBadge />}
+                statusLabel={strings.ui.result.statusWin}
+                statusTone="victory"
+                headline={copy.headline}
+                punchline={copy.punchline}
+                sublines={copy.sublines}
+                statCard={
+                  <ResultStatCard
+                    variant="victory"
+                    elapsed={copy.elapsedDisplay}
+                  />
+                }
               />
             </>
           ) : (

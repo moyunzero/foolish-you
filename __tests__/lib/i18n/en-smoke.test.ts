@@ -3,9 +3,11 @@ jest.mock('react-native', () => ({
 }));
 
 import { pickResultCopy } from '../../../lib/copy/resultMessages';
+import { getGameRules } from '../../../lib/copy/gameRules';
 import { formatStreakLine } from '../../../lib/copy/streak';
 import { formatFreezeShieldSuffix, pickFreezeConsumedLine } from '../../../lib/copy/freeze';
 import { pickMissedYesterdayLine } from '../../../lib/copy/missedYesterday';
+import { getGameTypeLabel } from '../../../lib/i18n/gameLabels';
 import { generateSudokuPuzzle } from '../../../lib/puzzles/sudoku/generator';
 import { createEmptyGrid as createEmptySudokuGrid } from '../../../lib/puzzles/sudoku/grid';
 import { buildShareCard } from '../../../lib/share/buildShareCard';
@@ -45,6 +47,13 @@ describe('English locale smoke', () => {
     expect(copy.headline).not.toMatch(cjk);
     expect(copy.punchline).not.toMatch(cjk);
     expect(copy.cta).not.toMatch(cjk);
+  });
+
+  it('slitherlink label and rules title are English without CJK', () => {
+    const cjk = /[\u4e00-\u9fff]/;
+    expect(getGameTypeLabel('slitherlink', 'en')).toBe('Slitherlink');
+    expect(getGameRules('en').slitherlink.title).not.toMatch(cjk);
+    expect(getGameRules('en').slitherlink.title.length).toBeGreaterThan(0);
   });
 
   it('buildShareCard includes Brainfool branding', () => {

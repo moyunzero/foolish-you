@@ -54,9 +54,13 @@ export const ui = {
     sudoku: 'Sudoku',
     binary: 'Binary',
     nonogram: 'Nonogram',
+    slitherlink: 'Slitherlink',
   },
   nonogramReveal: {
     prefix: 'Today’s picture ·',
+  },
+  slitherlinkReveal: {
+    prefix: 'Today’s loop ·',
   },
   rules: {
     closeA11y: 'Close rules',
@@ -104,6 +108,11 @@ export const ui = {
       complete: 'Picture matches — you can finish',
       tapHint: 'Tap to cycle · long-press to clear',
     },
+    slitherlink: {
+      complete: 'One loop closed — you can finish',
+      conflict: 'Loop or clue mismatch',
+      tapHint: 'Edge: line → × → undecided · long-press: clear',
+    },
   },
   alerts: {
     abandonTitle: 'Give up today’s puzzle?',
@@ -145,5 +154,25 @@ export const ui = {
     clear: 'Clear',
     digitDisabled: (n: number) => `Digit ${n} already used in row, column, or box`,
     fillDigit: (n: number) => `Enter ${n}`,
+    slitherlinkClueA11y: (row: number, col: number, clue: number) =>
+      `Row ${row + 1}, column ${col + 1}, clue ${clue}`,
+    slitherlinkEdgeA11y: (
+      row: number,
+      col: number,
+      orientation: 'h' | 'v',
+      state: 'line' | 'blank' | 'unknown',
+      conflict: boolean,
+    ) => {
+      const pos = `Row ${row + 1}, column ${col + 1}`;
+      const kind = orientation === 'h' ? ', horizontal edge' : ', vertical edge';
+      const stateText =
+        state === 'line'
+          ? 'line'
+          : state === 'blank'
+            ? '× mark'
+            : 'undecided';
+      const conflictText = conflict ? ', conflict' : '';
+      return `${pos}${kind}, ${stateText}${conflictText}`;
+    },
   },
 } as const;

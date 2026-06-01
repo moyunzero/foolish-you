@@ -14,10 +14,12 @@ import type {
   NonogramPlayState,
   PlayState,
   PuzzlePayload,
+  SlitherlinkPlayState,
 } from '../puzzles/types';
 import {
   isBinaryPuzzle,
   isNonogramPuzzle,
+  isSlitherlinkPuzzle,
   isSudokuPuzzle,
 } from '../puzzles/types';
 import { SHARE_EMOJI_COMPLETE, SHARE_EMOJI_WARN } from './emojiGrid';
@@ -26,6 +28,7 @@ import {
   softenGridForAbandon,
   summarizeBinaryGrid,
   summarizeNonogramGrid,
+  summarizeSlitherlinkGrid,
   summarizeSudokuGrid,
 } from './cellSummarize';
 
@@ -58,6 +61,11 @@ function summarizeGrid(input: ShareCardInput): string {
     grid = summarizeBinaryGrid(playState as number[][], puzzle.givens);
   } else if (gameType === 'nonogram' && isNonogramPuzzle(puzzle)) {
     grid = summarizeNonogramGrid(playState as NonogramPlayState);
+  } else if (gameType === 'slitherlink' && isSlitherlinkPuzzle(puzzle)) {
+    grid = summarizeSlitherlinkGrid(
+      playState as SlitherlinkPlayState,
+      puzzle,
+    );
   } else {
     grid = '⬛⬛⬛⬛\n⬛⬛⬛⬛\n⬛⬛⬛⬛\n⬛⬛⬛⬛';
   }

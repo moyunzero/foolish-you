@@ -5,6 +5,11 @@ import { createEmptyGrid as createEmptyNonogramGrid } from '../../../lib/puzzles
 import { NONOGRAM_FILL } from '../../../lib/puzzles/nonogram/spec';
 import { generateSudokuPuzzle } from '../../../lib/puzzles/sudoku/generator';
 import { createEmptyGrid as createEmptySudokuGrid } from '../../../lib/puzzles/sudoku/grid';
+import { generateSlitherlinkPuzzle } from '../../../lib/puzzles/slitherlink/generator';
+import {
+  clonePlayState,
+  createEmptyPlayState as createEmptySlitherlinkPlayState,
+} from '../../../lib/puzzles/slitherlink/edges';
 import { SHARE_CARD_CTA } from '../../../lib/copy/shareCaption';
 import {
   buildShareCard,
@@ -165,6 +170,52 @@ describe('buildShareCard', () => {
     }, 'zh');
 
     expect(card).not.toContain(SECRET_TITLE);
+    expect(card).toContain('🏳 认怂');
+    expect(card.length).toBeLessThanOrEqual(280);
+  });
+
+  it('builds slitherlink completed card from playState only', () => {
+    const puzzle = generateSlitherlinkPuzzle(3333);
+    const playState = clonePlayState(puzzle.solution);
+
+    const card = buildShareCard(
+      {
+        gameType: 'slitherlink',
+        dateKey: DATE_KEY,
+        elapsedMs: 180_000,
+        status: 'completed',
+        playState,
+        puzzle,
+        seed: 3333,
+        streakDays: 2,
+      },
+      'zh',
+    );
+
+    expect(card).toContain('傻了么 · 数回 · 2026-05-25');
+    expect(card).toContain('✅ 通关');
+    expect(card).not.toContain('sl-');
+    expect(shareGridLines(card)).toHaveLength(4);
+    expect(card.length).toBeLessThanOrEqual(280);
+    expect(shareGridHasNoDigits(card)).toBe(true);
+  });
+
+  it('builds slitherlink abandoned card with softened grid', () => {
+    const puzzle = generateSlitherlinkPuzzle(4444);
+    const card = buildShareCard(
+      {
+        gameType: 'slitherlink',
+        dateKey: DATE_KEY,
+        elapsedMs: 95_000,
+        status: 'abandoned',
+        playState: createEmptySlitherlinkPlayState(),
+        puzzle,
+        seed: 4444,
+      },
+      'zh',
+    );
+
+    expect(card).toContain('傻了么 · 数回');
     expect(card).toContain('🏳 认怂');
     expect(card.length).toBeLessThanOrEqual(280);
   });

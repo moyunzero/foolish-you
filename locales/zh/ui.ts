@@ -54,9 +54,13 @@ export const ui = {
     sudoku: '数独',
     binary: '二进制',
     nonogram: '数绘',
+    slitherlink: '数回',
   },
   nonogramReveal: {
     prefix: '今日画作 ·',
+  },
+  slitherlinkReveal: {
+    prefix: '今日数回 ·',
   },
   rules: {
     closeA11y: '关闭规则说明',
@@ -103,6 +107,11 @@ export const ui = {
       complete: '图案对了，可以收工',
       tapHint: '点格子切换 · 长按清空',
     },
+    slitherlink: {
+      complete: '单环闭合，可以收工',
+      conflict: '环或数字不对，再想想',
+      tapHint: '点边：连线 → × → 无 · 长按：空',
+    },
   },
   alerts: {
     abandonTitle: '放弃今日挑战？',
@@ -142,5 +151,21 @@ export const ui = {
     clear: '清除',
     digitDisabled: (n: number) => `数字 ${n} 在本行、列或宫内已有`,
     fillDigit: (n: number) => `填入 ${n}`,
+    slitherlinkClueA11y: (row: number, col: number, clue: number) =>
+      `第 ${row + 1} 行第 ${col + 1} 列，提示数字 ${clue}`,
+    slitherlinkEdgeA11y: (
+      row: number,
+      col: number,
+      orientation: 'h' | 'v',
+      state: 'line' | 'blank' | 'unknown',
+      conflict: boolean,
+    ) => {
+      const pos = `第 ${row + 1} 行第 ${col + 1} 列`;
+      const kind = orientation === 'h' ? '横边' : '竖边';
+      const stateText =
+        state === 'line' ? '连线' : state === 'blank' ? '×' : '空';
+      const conflictText = conflict ? '，冲突' : '';
+      return `${pos}${kind}，${stateText}${conflictText}`;
+    },
   },
 } as const;

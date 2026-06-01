@@ -20,6 +20,7 @@ import {
 import {
   FIXTURE_TODAY,
   makeBinaryPlayingSnapshot,
+  makeSlitherlinkCompletedSnapshot,
   makeSudokuCompletedSnapshot,
   makeSudokuPlayingSnapshot,
 } from '../helpers/dailyGameFixtures';
@@ -157,6 +158,16 @@ describe('ResultScreen', () => {
       expect(screen.getByText('06:40')).toBeTruthy();
       expect(screen.getByText('本周')).toBeTruthy();
       expect(screen.getByText('最长连签')).toBeTruthy();
+    });
+  });
+
+  it('shows slitherlink reveal on completed slitherlink result', async () => {
+    await saveDailySnapshot(makeSlitherlinkCompletedSnapshot());
+    renderResult();
+
+    await waitFor(() => {
+      expect(screen.getByText(/今日战绩 · 通关/)).toBeTruthy();
+      expect(screen.getByText('今日数回 ·')).toBeTruthy();
     });
   });
 

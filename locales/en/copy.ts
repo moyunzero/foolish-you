@@ -119,6 +119,18 @@ export const gameRules = {
       'No live error check; finish all required fills, then Complete today',
     ],
   },
+  slitherlink: {
+    title: 'Slitherlink rules',
+    intro:
+      'Draw lines along dot edges to form exactly one closed loop. Numbered cells show how many of their four sides are part of the loop.',
+    bullets: [
+      'Tap an edge: line → × → undecided, cycling in that order',
+      'Long-press an edge: clear to blank (undecided, no mark)',
+      'Clues are 0–3: how many of that cell’s four sides are on the loop',
+      'One closed loop only — no crossings; each dot has at most two lines',
+      'When all clues match, tap Complete today',
+    ],
+  },
 } as const;
 
 export const streak = {

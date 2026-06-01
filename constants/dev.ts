@@ -11,7 +11,7 @@ export const DEV_TOOLS_BAR_HIDDEN_DEFAULT = false;
 
 /**
  * 新建「今日档案」时强制题型（需配合「重开今日」或删 App 后生效）。
- * - `'sudoku'` | `'binary'` | `'nonogram'`：固定题型
+ * - `'sudoku'` | `'binary'` | `'nonogram'` | `'slitherlink'`：固定题型
  * - `null`：按日期种子随机（与线上一致）
  */
 /** 开发时强制题型；正式包由 __DEV__ 屏蔽，此处仅影响本地调试 */
