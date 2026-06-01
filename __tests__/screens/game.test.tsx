@@ -19,6 +19,7 @@ import {
 } from '../helpers/expoRouterMocks';
 import {
   makeBinaryPlayingSnapshot,
+  makeSlitherlinkPlayingSnapshot,
   makeSudokuPlayingSnapshot,
 } from '../helpers/dailyGameFixtures';
 import { ScreenProviders } from '../helpers/screenTestUtils';
@@ -66,6 +67,17 @@ describe('GameScreen', () => {
       expect(screen.getByText('二进制')).toBeTruthy();
     });
     expect(screen.getByText('完成今日')).toBeTruthy();
+  });
+
+  it('renders slitherlink chrome when today is slitherlink', async () => {
+    await saveDailySnapshot(makeSlitherlinkPlayingSnapshot());
+    renderGame();
+
+    await waitFor(() => {
+      expect(screen.getByText('数回')).toBeTruthy();
+    });
+    expect(screen.getByText('完成今日')).toBeTruthy();
+    expect(screen.getByText(/点边/)).toBeTruthy();
   });
 
   it('navigates to result when stored status is already completed', async () => {

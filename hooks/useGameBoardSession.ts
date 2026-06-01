@@ -2,12 +2,15 @@ import { useMemo } from 'react';
 
 import { useBinaryBoard } from './useBinaryBoard';
 import { useNonogramBoard } from './useNonogramBoard';
+import { useSlitherlinkBoard } from './useSlitherlinkBoard';
 import { useSudokuBoard } from './useSudokuBoard';
 import { createEmptyGrid as createEmptyBinaryGrid } from '../lib/puzzles/binary/grid';
 import { createEmptyGrid as createEmptyNonogramGrid } from '../lib/puzzles/nonogram/grid';
 import { computeClues } from '../lib/puzzles/nonogram/clues';
 import { patternSolution, NONOGRAM_PATTERNS } from '../lib/puzzles/nonogram/patterns';
 import { NONOGRAM_COLS, NONOGRAM_ROWS } from '../lib/puzzles/nonogram/spec';
+import { getSlitherlinkBuiltinPuzzle } from '../lib/puzzles/slitherlink/builtinPuzzle';
+import { createEmptyPlayState as createEmptySlitherlinkPlayState } from '../lib/puzzles/slitherlink/edges';
 import { createEmptyGrid as createEmptySudokuGrid } from '../lib/puzzles/sudoku/grid';
 import type {
   GameType,
@@ -15,10 +18,13 @@ import type {
   NonogramPlayState,
   PlayState,
   PuzzlePayload,
+  SlitherlinkPlayState,
+  SlitherlinkPuzzle,
 } from '../lib/puzzles/types';
 import {
   isBinaryPuzzle,
   isNonogramPuzzle,
+  isSlitherlinkPuzzle,
   isSudokuPuzzle,
 } from '../lib/puzzles/types';
 import type { HydrateStatus } from '../contexts/DailyGameContext';
@@ -40,6 +46,8 @@ const NONOGRAM_HOOK_STUB: NonogramPuzzle = (() => {
     puzzleHash: 'stub',
   };
 })();
+
+const SLITHERLINK_HOOK_STUB: SlitherlinkPuzzle = getSlitherlinkBuiltinPuzzle();
 
 type UseGameBoardSessionParams = {
   gameType: GameType | null;
@@ -63,19 +71,30 @@ export function useGameBoardSession({
     gameType === 'binary' && puzzle != null && isBinaryPuzzle(puzzle);
   const isNonogram =
     gameType === 'nonogram' && puzzle != null && isNonogramPuzzle(puzzle);
+  const isSlitherlink =
+    gameType === 'slitherlink' && puzzle != null && isSlitherlinkPuzzle(puzzle);
 
   const sudokuGivens = isSudoku ? puzzle.givens : null;
   const binaryGivens = isBinary ? puzzle.givens : null;
   const nonogramPuzzle = isNonogram ? puzzle : NONOGRAM_HOOK_STUB;
+  const slitherlinkPuzzle = isSlitherlink ? puzzle : SLITHERLINK_HOOK_STUB;
 
   const sudokuPlay =
-    isSudoku && playState != null ? playState : createEmptySudokuGrid();
+    isSudoku && playState != null && Array.isArray(playState)
+      ? playState
+      : createEmptySudokuGrid();
   const binaryPlay =
-    isBinary && playState != null ? playState : createEmptyBinaryGrid();
+    isBinary && playState != null && Array.isArray(playState)
+      ? playState
+      : createEmptyBinaryGrid();
   const nonogramPlay: NonogramPlayState =
-    isNonogram && playState != null
+    isNonogram && playState != null && Array.isArray(playState)
       ? (playState as NonogramPlayState)
       : createEmptyNonogramGrid();
+  const slitherlinkPlay: SlitherlinkPlayState =
+    isSlitherlink && playState != null && !Array.isArray(playState)
+      ? playState
+      : createEmptySlitherlinkPlayState();
 
   const sudokuBoard = useSudokuBoard({
     givens: sudokuGivens ?? createEmptySudokuGrid(),
@@ -95,13 +114,25 @@ export function useGameBoardSession({
     updatePlayState: (next) => updatePlayState(next),
   });
 
+  const slitherlinkBoard = useSlitherlinkBoard({
+    puzzle: slitherlinkPuzzle,
+    playState: slitherlinkPlay,
+    updatePlayState: (next) => updatePlayState(next),
+  });
+
   const showBoardChrome = useMemo(
-    () => (isSudoku || isBinary || isNonogram) && status === 'playing',
-    [isSudoku, isBinary, isNonogram, status],
+    () =>
+      (isSudoku || isBinary || isNonogram || isSlitherlink) &&
+      status === 'playing',
+    [isSudoku, isBinary, isNonogram, isSlitherlink, status],
   );
 
   const showReload =
-    status === 'playing' && !isSudoku && !isBinary && !isNonogram;
+    status === 'playing' &&
+    !isSudoku &&
+    !isBinary &&
+    !isNonogram &&
+    !isSlitherlink;
 
   const canComplete = isSudoku
     ? sudokuBoard.canComplete
@@ -109,7 +140,9 @@ export function useGameBoardSession({
       ? binaryBoard.canComplete
       : isNonogram
         ? nonogramBoard.canComplete
-        : false;
+        : isSlitherlink
+          ? slitherlinkBoard.canComplete
+          : false;
 
   const statusHint = isSudoku
     ? sudokuBoard.statusHint
@@ -117,7 +150,9 @@ export function useGameBoardSession({
       ? binaryBoard.statusHint
       : isNonogram
         ? nonogramBoard.statusHint
-        : null;
+        : isSlitherlink
+          ? slitherlinkBoard.statusHint
+          : null;
 
   const typeLabel =
     gameType != null ? getGameTypeLabel(gameType, locale) : '…';
@@ -126,15 +161,19 @@ export function useGameBoardSession({
     isSudoku,
     isBinary,
     isNonogram,
+    isSlitherlink,
     sudokuGivens,
     binaryGivens,
     nonogramPuzzle: isNonogram ? puzzle : null,
+    slitherlinkPuzzle: isSlitherlink ? puzzle : null,
     sudokuPlay,
     binaryPlay,
     nonogramPlay,
+    slitherlinkPlay,
     sudokuBoard,
     binaryBoard,
     nonogramBoard,
+    slitherlinkBoard,
     showBoardChrome,
     showReload,
     canComplete,

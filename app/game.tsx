@@ -11,6 +11,7 @@ import GameSaveErrorBanner from '../components/game/GameSaveErrorBanner';
 import GameScreenFooter from '../components/game/GameScreenFooter';
 import GameScreenHeader from '../components/game/GameScreenHeader';
 import NonogramGameSection from '../components/game/NonogramGameSection';
+import SlitherlinkGameSection from '../components/game/SlitherlinkGameSection';
 import SudokuGameSection from '../components/game/SudokuGameSection';
 import OutlinePillButton from '../components/ui/OutlinePillButton';
 import { useDailyGame } from '../contexts/DailyGameContext';
@@ -162,6 +163,15 @@ export default function GameScreen() {
                 playState={session.nonogramPlay}
                 maxWidth={gridMaxWidth}
                 board={session.nonogramBoard}
+              />
+            ) : null}
+
+            {session.isSlitherlink && session.slitherlinkPuzzle != null ? (
+              <SlitherlinkGameSection
+                puzzle={session.slitherlinkPuzzle}
+                playState={session.slitherlinkPlay}
+                maxWidth={gridMaxWidth}
+                board={session.slitherlinkBoard}
               />
             ) : null}
           </ScrollView>
