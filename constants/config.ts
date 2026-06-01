@@ -25,4 +25,7 @@ export const SUDOKU_MAX_GEN_ATTEMPTS = 50;
 export const BINARY_GIVEN_COUNT = 24;
 export const BINARY_MAX_GEN_ATTEMPTS = 40;
 
+export const SLITHERLINK_MIN_CLUES = 18;
+export const SLITHERLINK_MAX_GEN_ATTEMPTS = 50;
+
 export const PLAY_STATE_DEBOUNCE_MS = 300;
