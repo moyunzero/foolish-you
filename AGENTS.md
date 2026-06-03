@@ -1,307 +1,88 @@
 # Agent Guidelines — 傻了么 (Brainfool)
 
-A **shipped, production** daily puzzle app (iOS / Android via Expo SDK 54). Real users run this — changes must preserve offline-first behavior, daily puzzle determinism, and existing storage shape.
+**Production** offline-first daily puzzle app (Expo SDK 54, iOS/Android). Real users — preserve determinism, offline core, and storage shape.
 
-## Workflow (read first)
-
-| Document | Purpose |
-|----------|---------|
-| **`AGENTS.md`** (this file) | How to write code: architecture, UI, testing, production constraints |
-| **`CLAUDE.md`** | Project summary + GSD workflow entry points |
-| **`README.md`** | Human onboarding: install, commands, structure |
-| **`.cursor/skills/frontend-code-review/`** | Mandatory frontend CR skill (extends global checklist + project rules) |
-
-Before changing code: follow `CLAUDE.md` GSD workflow (`/gsd-quick`, `/gsd-debug`, `/gsd-execute-phase`) unless the user explicitly bypasses it. Before implementing a feature: read this file and match patterns in the touched directories.
-
----
-
-## Project Overview
-
-A minimal, offline-first daily puzzle app (Expo). One puzzle per local calendar day — randomly **Sudoku 9×9**, **Binary/Takuzu 8×8**, **Nonogram/Picross 8×8**, or **Slitherlink 7×7**.
-
-- Deterministic daily generation from date seed
-- Local generation, validation, solving in `lib/puzzles/`
-- Progress persistence via AsyncStorage
-- Timer, conflict highlighting (Sudoku/Binary), complete / surrender flow
-- Humorous result screen with Reanimated animations
-- Rule explanations in-game
-- **v1.1 (`1.1.x`):** emoji share card (clipboard), result stats cards, in-app review prompt (gated), defensive daily selection + snapshot recovery
-- **v1.2 (`1.2.0`):** system locale zh/en (`expo-localization`), English brand **Brainfool**, `locales/` + `useI18n`, bilingual privacy; no release settings UI (dev placeholder only)
-- **v2.0 (`2.0.0`, partial):** streak freeze shields (weekly grant, max 2, auto-consume on 1-day gap), missed-yesterday recall subline on game screen; completion-history repair on hydrate; streak storage schema v3; **Slitherlink 7×7** (polyomino loop generator, edge UI, reveal/share). **Not yet:** daily notifications, personal stats page
-
-Store builds via EAS (`eas.json`, `app.json`).
-
----
-
-## Tech Stack (match `package.json`)
-
-| Layer | Choice |
-|-------|--------|
-| Runtime | **Expo SDK 54** |
-| Routing | **expo-router** v6 (file-based) |
-| UI | **React Native** 0.81+ · **React 19** · **TypeScript** (strict) |
-| Styling | **NativeWind v4** + Tailwind CSS 3.4 (`global.css`, `tailwind.config.js`) |
-| Animation | **react-native-reanimated** (result screen) |
-| Gestures | **react-native-gesture-handler** (installed; use when needed) |
-| Storage | **@react-native-async-storage/async-storage** |
-| Puzzle engine | Pure TypeScript in `lib/puzzles/` |
-| Tests | **Jest** (dual project: `unit` + `rtl`) · **jest-expo** · **@testing-library/react-native** |
-| Lint | **eslint.config.js** · `npm run lint` (`expo lint`) — enforced in CI |
-
-**Do not add new major libraries** without strong justification and explicit user approval. Example: `react-native-gesture-handler` is already in the project — for a tap interaction, `Pressable` is enough unless you actually need drag.
+GSD workflow + project summary → **`CLAUDE.md`**. Human onboarding → **`README.md`**.
 
 ---
 
 ## Non-negotiables
 
-Production invariants. Break one, you break existing users.
+Break one, you break existing users.
 
-- **Daily determinism.** Same `dateKey` + app version on the same device → same `seed`, game type, and puzzle payload. Do not change `APP_SALT`, `deriveSeed`, or selection logic without product approval.
-- **Offline-first core.** No network for puzzle generation, validation, or persistence. v1.1 only adds local clipboard / system review prompt (still no backend).
-- **Storage safety.** Always go through `lib/storage/` migration + validation paths. Never silently drop user progress. Bump version constants only with a tested read/migration path for each legacy shape (see *Storage version bumps*).
-- **TypeScript strict.** Explicit types for boards, snapshots, game status. No `any` unless unavoidable — document why.
-- **Dev-only stays dev-only.** `__DEV__` shortcuts must not affect release builds.
-
----
-
-## Architecture
-
-```
-foolish-you/
-├── app/                      # expo-router screens only
-│   ├── index.tsx             # Entry: hydrate → game / result
-│   ├── game.tsx              # Main play screen (sudoku | binary | nonogram | slitherlink)
-│   ├── result.tsx            # Win / surrender outcome
-│   ├── privacy.tsx           # Privacy policy screen
-│   ├── settings.tsx          # Settings placeholder (__DEV__ only)
-│   └── (auth)/login.tsx      # Login placeholder (v1 not implemented)
-├── components/
-│   ├── grid/                 # SudokuGrid, BinaryGrid, NonogramGrid, SudokuNumpad
-│   ├── slitherlink/          # SlitherlinkBoard (edge UI; not under grid/)
-│   ├── game/                 # GameScreenHeader, GameScreenFooter, rules modal/button, *GameSection
-│   ├── result/               # Result badges, stats, ShareButton, NonogramRevealCard, SlitherlinkRevealCard, animated body
-│   ├── ui/                   # Shared UI (e.g. OutlinePillButton, HairlineCard)
-│   ├── legal/                # Privacy policy blocks
-│   └── dev/                  # DevToolsPanel (__DEV__ only)
-├── contexts/
-│   ├── DailyGameContext.tsx  # Canonical daily state + persistence
-│   └── DevToolsUiContext.tsx # Dev panel UI state
-├── hooks/
-│   ├── useDailyGame.ts       # Re-export of DailyGameContext API
-│   ├── useGameBoardSession.ts # Routes to sudoku / binary / nonogram / slitherlink board hooks
-│   ├── useSudokuBoard.ts / useBinaryBoard.ts / useNonogramBoard.ts / useSlitherlinkBoard.ts
-│   └── useElapsedTimer.ts    # In-game elapsed timer
-├── lib/
-│   ├── date/                 # Local calendar day (dateKey)
-│   ├── puzzles/              # Generation, validation, solvers, dailySelectorSafe
-│   ├── storage/              # AsyncStorage, snapshot validate/migrate/recover, history, rating
-│   ├── share/                # Share card builder (emoji grid)
-│   ├── stats/                # Result stats cards
-│   ├── rating/               # App Store review gating
-│   ├── time/                 # Elapsed ms + clock formatting
-│   ├── copy/                 # Locale-aware copy helpers (pools in locales/)
-│   ├── i18n/                 # resolveLocale, I18nProvider, format, gameLabels
-│   └── platform/             # Platform helpers (e.g. exitApp)
-├── locales/                  # zh / en strings (ui, copy, privacy, patterns)
-├── constants/                # config, design tokens, dev flags, legal
-├── assets/                   # Icons, splash
-└── __tests__/                # Jest unit + rtl
-```
-
-### Layer rules
-
-| Layer | Responsibility |
-|-------|----------------|
-| `app/` | Routes and screen composition only. Use context/hooks; no puzzle algorithms. |
-| `components/` | Reusable UI. Extract when reused **or** when a screen becomes hard to read. |
-| `contexts/DailyGameContext.tsx` | **Source of truth** for today's game: hydrate, play state, persist, complete/abandon. |
-| `hooks/useDailyGame.ts` | Thin re-export — do **not** duplicate orchestration here. |
-| `lib/puzzles/` | All generation, validation, solving; deterministic and unit-tested. Hydrate uses `selectDailyGameSafe` for solvability + fallback. |
-| `lib/storage/` | Snapshot read/write, validation, migration, recovery. Plus completion history, rating, recovery log. |
-| `lib/copy/` | Centralize copy; tone playful/sarcastic for results. |
-| `constants/` | `config.ts` (storage keys, debounce, versions), `design.ts` (colors), `dev.ts` (dev overrides). |
-
-When unsure whether to extract a component, ask or mirror the nearest existing pattern (`components/game/`, `components/grid/`).
-
-### Internationalization (v1.2)
-
-- **Device locale only in release:** `languageCode` starting with `zh` → `zh`, else `en`; missing → `en` (`lib/i18n/resolveLocale.ts`).
-- **Strings live in `locales/zh/` and `locales/en/`** — UI (`ui.ts`), copy pools (`copy.ts`), privacy (`privacy.ts`), nonogram titles (`patterns.ts`).
-- **UI reads copy via `useI18n()`** — `strings`, `locale`, `appDisplayName`. Do not hardcode user-facing text in components.
-- **`lib/copy/*`** — thin locale-param wrappers over `locales/*/copy` (result, rules, streak, share).
-- **Dev-only locale preview:** `app/settings.tsx` + `setLocaleOverride` in `I18nProvider` — memory only, no AsyncStorage; stripped in release (`Redirect` to `/`).
-- **Tests:** wrap RTL in `renderWithI18n` or `ScreenProviders` with `locale`; add English assertions in `__tests__/lib/i18n/en-smoke.test.ts` when touching copy/share.
-
-### State management
-
-- **Daily game:** `DailyGameContext` + `useDailyGame()`.
-- **Ephemeral UI:** local `useState` in screens/components.
-- **Persist:** `lib/storage/dailyStorage.ts` with debounce (`PLAY_STATE_DEBOUNCE_MS` in `constants/config.ts`).
-- Do not introduce Redux/Zustand without explicit request.
+- **Daily determinism.** Same `dateKey` + app version → same `seed`, game type, puzzle. No `APP_SALT`, `deriveSeed`, or selection changes without product approval.
+- **Offline-first.** No network for puzzle generation, validation, or persistence (clipboard + system review prompt only).
+- **Storage safety.** Always `lib/storage/` migration + validation; never silently drop progress. Bump version constants only with tested read/migration paths — see [docs/CONFIGURATION.md § Storage version bumps](./docs/CONFIGURATION.md#storage-version-bumps).
+- **TypeScript strict.** Explicit board/snapshot/status types; no `any` unless documented.
+- **Dev-only stays dev-only.** `__DEV__` / `constants/dev.ts` / `app/settings.tsx` must not affect release builds.
 
 ---
 
-## UI & Styling
+## Layer rules
 
-- Default to **NativeWind v4** `className`.
-- Design tokens: `constants/design.ts`, CSS variables in `global.css`, `tailwind.config.js`.
-- Match existing tone: minimal, dark-friendly, generous touch targets, soft shadows, clear conflict feedback on Sudoku/Binary (Nonogram validates on complete only).
-
-### When inline `style={{ }}` is OK
-
-This project does **not** use `StyleSheet.create`. Inline styles only in these cases:
-
-| Case | Example in repo |
-|------|------------------|
-| **Custom fonts** | `fontFamily: 'SpaceMono_400Regular'`, `Inter_400Regular` |
-| **Reanimated** | `Animated.View` / `Animated.Text` with `entering` props |
-| **Dynamic layout** | `maxWidth`, `alignSelf`, `paddingBottom` from `useSafeAreaInsets()` |
-| **Token not in Tailwind** | `backgroundColor: colors.accentSunset`, `borderColor: colors.hairline` |
-| **One-off rgba** | abandon banner `rgba(255, 122, 23, 0.12)` in `app/game.tsx` |
-| **ActivityIndicator / platform** | Colors from `constants/design.ts` |
-
-Prefer adding a **repeated** pattern to `global.css` (BEM-style utilities) or `tailwind.config.js` over copying inline styles.
-
-### Images & assets
-
-- Centralize image requires in `constants/images.ts` (create when introducing new bundled assets).
-- Keep naming consistent under `assets/`. App icons / store assets live under `assets/AppAssets_*`.
-
----
-
-## Working Principles
-
-- Ship the **smallest change** that meets the requirement; touch only what you must.
-- Prefer **duplication over premature abstraction**. Refactor when the same pattern appears 3+ times or a file blocks maintenance.
-- Be **concise** in PR descriptions and chat. Explain **what** changed and **why**, with manual test steps for UI work.
-- **Ask** before adding dependencies, changing daily determinism, or large refactors.
-- Prefer **tests** for puzzle/storage logic; manual QA for UI animations and layout.
-
-Known tech-debt (optional read): `.planning/codebase/CONCERNS.md`.
-
----
-
-## Feature Implementation Checklist
-
-1. Read this file + skim files you will touch.
-2. Identify minimal file set; avoid drive-by refactors.
-3. Follow existing patterns (context, storage, grid components).
-4. Wire end-to-end: route → context → UI → persistence.
-5. Add/update tests: `__tests__/lib/` for puzzle/storage; `__tests__/contexts/` or `__tests__/screens/` for context/UI flows.
-6. Verify before claiming done (see *Verification*).
-7. **Frontend code review** when UI paths changed (see below).
-8. Explain changes concisely + manual test steps for UI.
-
----
-
-## Frontend code review
-
-Mandatory for changes under `app/`, `components/`, `hooks/`, `contexts/`, `locales/`, `global.css`, or `tailwind.config.js`.
-
-### Skill
-
-| Layer | Path |
+| Layer | Rule |
 |-------|------|
-| **Project** | `.cursor/skills/frontend-code-review/SKILL.md` |
-| **Project rules** | `.cursor/skills/frontend-code-review/references/project.md` |
-| **Global checklist** | `~/.cursor/skills/frontend-code-review/` (security, a11y, performance, …) |
+| `app/` | Routes and screen composition only — no puzzle algorithms |
+| `components/` | Reusable UI; extract when reused or screen is unreadable |
+| `contexts/DailyGameContext.tsx` | **Source of truth** for today's game (hydrate, play, persist, complete/abandon) |
+| `hooks/useDailyGame.ts` | Thin re-export — do **not** duplicate orchestration |
+| `lib/puzzles/` | Generation, validation, solving; hydrate uses `selectDailyGameSafe` |
+| `lib/storage/` | Snapshot read/write, validate, migrate, recover; history, rating, recovery log |
+| `lib/copy/` + `locales/` | All user-facing strings via `useI18n()` — no hardcoded zh/en in UI |
+| `constants/` | `config.ts`, `design.ts`, `dev.ts` |
 
-Invoke explicitly: *「用 frontend-code-review 审查这些文件」* or let Cursor hooks prompt after GSD work / before `git push`.
-
-### When to run
-
-| Trigger | Who | Action |
-|---------|-----|--------|
-| **Plan / phase execution complete** | Agent | Pending-change review on all touched frontend files; fix **urgent** findings before marking done |
-| **Before `git push` / PR** | Human or agent | Same review + pass `npm run typecheck`, `npm test`, `npm run lint` |
-| **Cursor `stop` hook** | Agent | Follow-up nudge when working tree still has frontend diffs |
-| **Cursor `git push` hook** | Human | Confirms CR done or sets `FRONTEND_CR_DONE=1` after review |
-
-### Output format
-
-Use Template A / B from the skill. Urgent issues block merge; suggestions are optional unless the user asks to fix them.
-
-### Git hook (local)
-
-One-time setup (per clone):
-
-```bash
-npm run hooks:install
-```
-
-`.githooks/pre-push` runs `scripts/frontend-review-gate.sh`: lists frontend files, runs typecheck + lint. Optional strict gate:
-
-```bash
-FRONTEND_CR_STRICT=1 FRONTEND_CR_DONE=1 git push
-```
-
-See [docs/DEVELOPMENT.md](./docs/DEVELOPMENT.md#frontend-code-review).
-
-### Storage version bumps
-
-When changing persisted JSON shape:
-
-| Store | Constant | Touch |
-|-------|----------|--------|
-| Daily snapshot | `STORAGE_VERSION` in `constants/config.ts` | `snapshotValidate.ts`, `snapshotPrep.ts`, `snapshotMigration.ts`, `snapshotLegacy.ts`, golden fixtures in `__tests__/lib/storage/migration/` |
-| Streak | `STREAK_STORAGE_VERSION` | `lib/storage/streakStorage.ts`, `__tests__/lib/storage/streakStorage.test.ts` |
-| Completion history | `COMPLETION_HISTORY_STORAGE_VERSION` | `lib/storage/completionHistoryStorage.ts`, `backfillCompletionHistory.ts` |
-| Rating prompt state | `RATING_STORAGE_VERSION` | `lib/storage/ratingStorage.ts` |
-
-Never bump without migration/read path for existing installs and unit tests for each supported legacy version.
+Full directory tree, mermaid flows → [docs/ARCHITECTURE.md](./docs/ARCHITECTURE.md).
 
 ---
 
-## Verification
+## i18n (v1.2+)
 
-Run the same checks as CI (`.github/workflows/ci.yml`):
-
-```bash
-npm run typecheck       # tsc --noEmit
-npm test                # unit + rtl (~386 tests; includes en-smoke)
-npm run test:migration  # snapshot migration golden fixtures
-npm run lint            # expo lint
-npm run lockfile:verify-eas  # npm 10 ci — must pass before EAS build
-```
-
-Optional splits:
-
-```bash
-npm run test:unit
-npm run test:rtl
-```
-
-Do not claim verification passed unless **all four** succeed.
-
-For UI changes, include manual steps:
-
-- Fresh install / clear storage → today's puzzle loads
-- Kill app mid-game → progress restores
-- Complete and surrender → result copy, stats cards, share button (when `playState` valid), streak line on win, freeze shield suffix on stats when applicable, animations
-- Recovery path → `completed` with stripped `playState` shows outcome but no share button
-- Streak freeze → skip exactly one calendar day without completing; reopen → shield consumed, streak preserved; game header shows freeze line (not missed-yesterday recall)
-- Missed yesterday → gap ≥ 2 days without shield → game header shows recall subline until today is completed
-- Dev panel (`__DEV__`) → force game type / **regenerate today** (keep type vs random) / inject recovery / **streak QA scenarios** / settings placeholder (locale preview)
-- Slitherlink → edge cycle + long-press clear; unknown edges allowed at complete gate; result Reveal + share without solution leak
-
-EAS builds (`eas.json` preview/production profiles) require device verification before tagging release-ready.
+- Release: device locale → `zh` or `en` (`lib/i18n/resolveLocale.ts`); strings in `locales/zh/`, `locales/en/`.
+- UI: `useI18n()` → `strings`, `locale`, `appDisplayName`.
+- Tests: `renderWithI18n` / `ScreenProviders`; English smoke in `__tests__/lib/i18n/en-smoke.test.ts` when touching copy/share.
 
 ---
 
-## Dev Tools (`__DEV__` only)
+## UI
 
-- `components/dev/DevToolsPanel.tsx` and `constants/dev.ts` are gated by `__DEV__` and stripped from production.
-- `DEV_FORCE_GAME_TYPE` overrides daily selection in development only.
-- Panel actions: force game type, regenerate today (`devRegenerateToday`: keep game type or full re-roll), inject recovery scenario, **apply streak QA scenarios** (`lib/dev/streakDevScenarios.ts`), clear rating/history, view recovery log, open settings placeholder.
+- Default **NativeWind v4** `className`; tokens in `constants/design.ts`, `global.css`, `tailwind.config.js`.
+- Inline `style={{ }}` only for cases in [docs/DEVELOPMENT.md § Code style](./docs/DEVELOPMENT.md#code-style). No `StyleSheet.create`.
+- Match existing patterns in `components/game/`, `components/grid/`, `components/slitherlink/`.
 
 ---
 
-## v1 Out of scope (do not expand without approval)
+## State
 
-| Out of scope | Notes |
-|--------------|--------|
-| Auth / backend | `(auth)/login.tsx` is placeholder only |
-| Notifications | Defer |
-| Hints, full history UI, social, leaderboards | Defer |
+- Daily game: `DailyGameContext` + `useDailyGame()`.
+- Ephemeral UI: local `useState` in screens/components.
+- Persist: `lib/storage/dailyStorage.ts` debounced (`PLAY_STATE_DEBOUNCE_MS`).
+- No Redux/Zustand without explicit request.
+
+---
+
+## Verify before done
+
+All four must pass (same as CI):
+
+```bash
+npm run typecheck && npm test && npm run test:migration && npm run lint
+```
+
+Details, splits, EAS lockfile → [docs/DEVELOPMENT.md § Verification](./docs/DEVELOPMENT.md#verification-workflow).  
+Manual QA → [docs/TESTING.md § Manual QA checklist](./docs/TESTING.md#manual-qa-checklist).
+
+**Frontend paths changed** (`app/`, `components/`, `hooks/`, `contexts/`, `locales/`, `global.css`, `tailwind.config.js`): run [frontend-code-review](./docs/DEVELOPMENT.md#frontend-code-review) before push.
+
+---
+
+## Out of scope (no expansion without approval)
+
+| Area | Notes |
+|------|--------|
+| Auth / backend | `(auth)/login.tsx` placeholder only |
+| Notifications | Defer (v2.1+) |
+| Hints, history UI, social, leaderboards | Defer |
 | Remote puzzle config | Violates offline-first |
 | Heavy date libraries | Use `lib/date/localDay.ts` |
+
+Optional tech-debt read: `.planning/codebase/CONCERNS.md`.

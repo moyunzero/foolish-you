@@ -79,6 +79,8 @@ Central runtime constants for puzzles, persistence, and debouncing.
 | `SUDOKU_MAX_GEN_ATTEMPTS` | `50` | Generator retry cap |
 | `BINARY_GIVEN_COUNT` | `24` | Given cells for 8×8 Takuzu (~38%) |
 | `BINARY_MAX_GEN_ATTEMPTS` | `40` | Generator retry cap |
+| `SLITHERLINK_MIN_CLUES` | `18` | Minimum clue cells for 7×7 Slitherlink dailies |
+| `SLITHERLINK_MAX_GEN_ATTEMPTS` | `50` | Slitherlink generator retry cap |
 | `PLAY_STATE_DEBOUNCE_MS` | `300` | Debounce before writing play state to disk |
 
 Changing `APP_SALT` or daily selection logic without product approval breaks **daily determinism** for existing users.
@@ -91,7 +93,7 @@ All dev-only behavior is gated by `__DEV__` (stripped from production builds).
 |--------|---------|----------|
 | `DEV_TOOLS_ENABLED` | `__DEV__` | Enables dev tools panel |
 | `DEV_TOOLS_BAR_HIDDEN_DEFAULT` | `false` | Dev bar visible on launch in dev builds |
-| `DEV_FORCE_GAME_TYPE` | `null` | Force `sudoku` or `binary` when set; `null` = date-seed random (production behavior) |
+| `DEV_FORCE_GAME_TYPE` | `null` | Force `sudoku` \| `binary` \| `nonogram` \| `slitherlink` when set; `null` = date-seed random (production behavior) |
 | `getDevForceGameType()` | — | Returns `null` outside `__DEV__` regardless of constant |
 
 `DEV_FORCE_GAME_TYPE` applies when creating a **new** today snapshot (e.g. after dev “reset today” or clearing storage). It does not affect release builds.
@@ -136,6 +138,19 @@ See `DESIGN.md` for product-level design rules.
 **Native modules (v1.1):** `expo-clipboard` (share card), `expo-store-review` (rating prompt) — bundled with Expo SDK 54; no extra env config.
 
 **Required for gameplay:** None of these keys are pre-seeded; missing keys mean a fresh install flow.
+
+## Storage version bumps
+
+When changing persisted JSON shape, bump the version constant in `constants/config.ts` and add a read/migration path plus tests. Never ship a bump without both.
+
+| Store | Constant | Touch on bump |
+|-------|----------|---------------|
+| Daily snapshot | `STORAGE_VERSION` | `lib/storage/snapshotValidate.ts`, `snapshotPrep.ts`, `snapshotMigration.ts`, `snapshotLegacy.ts`, golden fixtures in `__tests__/lib/storage/migration/` |
+| Streak | `STREAK_STORAGE_VERSION` | `lib/storage/streakStorage.ts`, `__tests__/lib/storage/streakStorage.test.ts` |
+| Completion history | `COMPLETION_HISTORY_STORAGE_VERSION` | `lib/storage/completionHistoryStorage.ts`, `lib/storage/backfillCompletionHistory.ts`, related tests |
+| Rating prompt state | `RATING_STORAGE_VERSION` | `lib/storage/ratingStorage.ts`, related tests |
+
+Recovery log (`RECOVERY_LOG_*`) and dev-only keys do not use schema version constants — append-only / dev scope only.
 
 ## Bundler and styling toolchain
 
@@ -185,6 +200,11 @@ TypeScript: `tsconfig.json` extends `expo/tsconfig.base` with `"strict": true`.
 
 ## Related docs
 
-- **Architecture & storage flow:** see project `AGENTS.md` and `lib/storage/`
-- **Human onboarding:** `README.md`
-- **Design contract:** `DESIGN.md`
+| Doc | Purpose |
+|-----|---------|
+| [ARCHITECTURE.md](./ARCHITECTURE.md) | Layers, data flow, storage orchestration |
+| [DEVELOPMENT.md](./DEVELOPMENT.md) | Verification, frontend CR, DevTools |
+| [TESTING.md](./TESTING.md) | Jest layout, CI gates, manual QA |
+| [AGENTS.md](../AGENTS.md) | Production invariants, layer rules |
+| [README.md](../README.md) | Human onboarding |
+| `DESIGN.md` | Visual contract (local, gitignored) |

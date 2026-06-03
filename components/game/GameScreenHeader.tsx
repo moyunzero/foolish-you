@@ -19,7 +19,7 @@ type GameScreenHeaderProps = {
   streakSubline?: string | null;
 };
 
-/** 游戏页顶栏：日期、连签、用时、题型标题（数独/二进制共用） */
+/** 游戏页顶栏：日期、连签、用时、题型标题（四种每日题型共用） */
 export default function GameScreenHeader({
   dateKey,
   streakLine,

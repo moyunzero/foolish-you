@@ -10,7 +10,7 @@ type GameScreenFooterProps = {
   onAbandon: () => void;
 };
 
-/** 游戏页底栏：状态提示 + 完成/放弃（数独 / 二进制 / 数绘共用） */
+/** 游戏页底栏：状态提示 + 完成/放弃（数独 / 二进制 / 数绘 / 数回共用） */
 export default function GameScreenFooter({
   statusHint,
   canComplete,

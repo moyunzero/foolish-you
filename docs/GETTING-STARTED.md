@@ -88,13 +88,13 @@ For most contributors, **Expo Go + `npm start`** is enough. Use a **development 
 2. **Hydrate** — `DailyGameContext` loads or creates today’s snapshot from AsyncStorage (`@foolish-you/daily-v1`). While loading, the index screen shows **「傻了么」** and **「正在翻出今天的傻题…」**.
 
 3. **Route by status**
-   - **`playing`** → redirect to **`/game`** (Sudoku, Binary, or Nonogram grid for today).
+   - **`playing`** → redirect to **`/game`** (Sudoku, Binary, Nonogram, or Slitherlink grid for today).
    - **`completed`** or **`abandoned`** → redirect to **`/result`** (outcome copy and animations).
    - **Error** → retry UI on the index screen (`refresh()`).
 
-4. **Play** — On the game screen, fill the grid, use the rules (`?`) if needed, then **complete** or **surrender** via the footer. Progress is saved locally (debounced). The header shows elapsed time (`MM:SS`), streak line, and optionally a freeze or missed-yesterday subline (v2.0).
+4. **Play** — On the game screen, fill the grid or Slitherlink edges, use the rules (`?`) if needed, then **complete** or **surrender** via the footer. Progress is saved locally (debounced). The header shows elapsed time (`MM:SS`), streak line, and optionally a freeze or missed-yesterday subline (v2.0).
 
-5. **Result (v1.1+)** — On **complete**, you see outcome copy, three stats cards (today’s time, weekly completions, historical max streak; shield suffix when applicable), and optionally **拷贝战报** (emoji grid to clipboard). A system rating prompt may appear after gated delays. **Surrender** skips streak check-in.
+5. **Result (v1.1+)** — On **complete**, you see outcome copy, three stats cards (today's time, weekly completions, historical max streak; shield suffix when applicable), and optionally **拷贝战报** / share (emoji grid to clipboard). Nonogram and Slitherlink wins may show reveal cards. A system rating prompt may appear after gated delays. **Surrender** skips streak check-in.
 
 6. **Next day** — When the local calendar `dateKey` changes, a new daily puzzle is selected deterministically via `selectDailyGameSafe` (same day = same puzzle on the same device).
 
@@ -117,7 +117,9 @@ For most contributors, **Expo Go + `npm start`** is enough. Use a **development 
 |-----|---------|
 | [README.md](../README.md) | Product overview, commands table, project structure |
 | [ARCHITECTURE.md](./ARCHITECTURE.md) | Layers, data flow, and module boundaries |
+| [DEVELOPMENT.md](./DEVELOPMENT.md) | Daily dev workflow, verification, frontend CR, DevTools |
 | [CONFIGURATION.md](./CONFIGURATION.md) | `app.json`, EAS profiles, storage keys, dev flags |
-| [AGENTS.md](../AGENTS.md) | Implementation conventions for contributors and AI agents |
+| [TESTING.md](./TESTING.md) | Jest commands and manual QA checklist |
+| [AGENTS.md](../AGENTS.md) | Production invariants and layer rules for contributors and AI agents |
 
 **Before opening a PR:** run `npm run typecheck`, `npm test`, `npm run test:migration`, and `npm run lint` (see `.github/workflows/ci.yml`).

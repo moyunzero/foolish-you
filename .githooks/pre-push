@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Pre-push: automated frontend checks + CR reminder (see AGENTS.md).
+# Pre-push: automated frontend checks + CR reminder (see docs/DEVELOPMENT.md#frontend-code-review).
 set -euo pipefail
 
 ROOT="$(git rev-parse --show-toplevel)"

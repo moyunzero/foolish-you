@@ -70,7 +70,7 @@ npm run lint           # expo lint
 ```
 __tests__/
 ├── lib/                    # Unit tests (*.test.ts)
-│   ├── puzzles/            # Generators, validators, solvers, dailySelector, dailySelectorSafe, isSolvable
+│   ├── puzzles/            # Generators, validators, solvers, dailySelectorSafe (incl. slitherlink)
 │   ├── storage/            # Snapshot read/write, validation, migration, recover, recoveryLog
 │   │   └── migration/      # Golden fixtures (v1→current, v2 snapshots); run via test:migration
 │   ├── share/              # buildShareCard
@@ -79,16 +79,19 @@ __tests__/
 │   ├── time/               # formatElapsedClock, computeElapsedMs
 │   ├── date/               # Local calendar day helpers
 │   ├── daily/              # Hydrate/build orchestration
-│   ├── streak/             # Streak logic
+│   ├── streak/             # Streak, freeze, missed-yesterday logic
+│   ├── i18n/               # en-smoke, locale helpers
 │   └── copy/               # User-facing string helpers
 ├── contexts/               # DailyGameContext RTL
-├── hooks/                  # useSudokuBoard, useBinaryBoard, useNonogramBoard
-├── components/grid/        # SudokuGrid, BinaryGrid, NonogramGrid
+├── hooks/                  # useSudokuBoard, useBinaryBoard, useSlitherlinkBoard (Nonogram via grid RTL)
+├── components/grid/        # SudokuGrid, BinaryGrid, NonogramGrid, SudokuNumpad
+├── components/slitherlink/ # SlitherlinkBoard
 ├── components/game/        # GameScreenHeader, GameScreenFooter
 ├── screens/                # index, game, result, privacy
 └── helpers/                # Shared fixtures and mocks
     ├── dailyGameFixtures.ts
     ├── expoRouterMocks.ts
+    ├── renderWithI18n.tsx
     └── screenTestUtils.tsx
 ```
 
@@ -143,7 +146,7 @@ Workflow: `.github/workflows/ci.yml` — job **`verify`**
 Steps (in order):
 
 1. **Typecheck** — `npm run typecheck`
-2. **Tests** — `npm test` (runs both `unit` and `rtl` projects; currently ~386 tests)
+2. **Tests** — `npm test` (runs both `unit` and `rtl` projects; currently 402 tests)
 3. **Migration tests** — `npm run test:migration`
 4. **Lint** — `npm run lint`
 
@@ -153,19 +156,23 @@ All four must pass before merging. Locally, run the same commands before claimin
 
 Automated tests cover logic and component behavior; they do not replace on-device checks for layout, animations, and persistence across app restarts. Use this checklist after UI or storage changes:
 
-- [ ] **Fresh install / clear storage** — Open app; today’s puzzle loads with correct type (Sudoku, Binary, or Nonogram) for the local day.
-- [ ] **Mid-game persistence** — Fill some cells, kill the app, reopen; progress and timer restore.
-- [ ] **Complete flow** — Finish today’s puzzle; result screen shows copy, three stats cards, share button (if `playState` valid), and animations.
-- [ ] **Share card** — Tap「拷贝战报」; clipboard contains emoji grid + timing/streak line.
+- [ ] **Fresh install / clear storage** — Open app; today's puzzle loads with correct type (**Sudoku**, **Binary**, **Nonogram**, or **Slitherlink 7×7**) for the local day.
+- [ ] **Mid-game persistence** — Fill some cells or edges, kill the app, reopen; progress and timer restore.
+- [ ] **Complete flow** — Finish today's puzzle; result screen shows copy, three stats cards, share button (if `playState` valid), streak line on win, freeze shield suffix on stats when applicable, and animations.
+- [ ] **Share card** — Tap copy/share CTA; clipboard contains emoji grid + timing/streak line (no solution leak for Nonogram/Slitherlink).
 - [ ] **Surrender flow** — Abandon from game screen; result screen reflects surrender state (no streak check-in).
-- [ ] **Recovery** — Dev「注入坏盘面」→ kill app → reopen; outcome preserved, share hidden if board stripped.
-- [ ] **Conflict feedback** — Enter invalid Sudoku/Binary values; conflict highlighting appears as expected. (Nonogram has no mid-game conflict UI; complete validates against the hidden solution.)
-- [ ] **Nonogram complete** — Finish a nonogram day; result screen shows pattern reveal card with correct title.
+- [ ] **Recovery** — Dev「注入坏盘面」→ kill app → reopen; outcome preserved, share hidden if `playState` stripped.
+- [ ] **Conflict feedback** — Enter invalid Sudoku/Binary values; conflict highlighting appears. (Nonogram validates on complete only; Slitherlink has no mid-game conflict UI.)
+- [ ] **Nonogram complete** — Finish a nonogram day; result shows pattern reveal card with correct title.
+- [ ] **Slitherlink complete** — Edge tap cycle (line → × → blank); long-press clears edge; unknown edges allowed at complete gate; result reveal + share without solution leak.
 - [ ] **Rules modal** — Open in-game rules; content matches current game type.
-- [ ] **Streak** — Win on consecutive days; streak count and copy update; skip exactly one day with shield → streak preserved on reopen; skip without shield → recall subline or reset per rules.
-- [ ] **Streak freeze UI** — After shield auto-consume on open, game header shows freeze line (not missed-yesterday recall); result stats may show shield inventory suffix.
-- [ ] **Dev panel (`__DEV__` only)** — Force game type / reset today / inject recovery / **连签 QA 场景** / clear logs; open **设置占位** to preview en/zh (not persisted); confirm no dev shortcuts affect release builds.
-- [ ] **English locale** — Set device language to English (or DevTools settings preview); game/result/privacy strings show **Brainfool** branding; share CTA uses `#Brainfool`.
+- [ ] **Streak** — Win on consecutive days; streak count updates; skip exactly one calendar day with shield → shield consumed, streak preserved on reopen.
+- [ ] **Streak freeze UI** — After shield auto-consume on open, game header shows freeze line (**not** missed-yesterday recall).
+- [ ] **Missed yesterday** — Gap ≥ 2 days without shield → game header shows recall subline until today is completed.
+- [ ] **Dev panel (`__DEV__` only)** — Force game type / **regenerate today** (keep type vs random) / inject recovery / **连签 QA 场景** / clear rating & history / settings locale preview; confirm no dev shortcuts in release builds.
+- [ ] **English locale** — Device English or DevTools settings preview; game/result/privacy show **Brainfool** branding; share CTA uses `#Brainfool`.
+
+EAS preview/production builds (`eas.json`) require device verification before tagging release-ready.
 
 Start the dev server for manual testing:
 
@@ -175,3 +182,12 @@ npm start
 ```
 
 For release confidence, also verify on at least one iOS and one Android device or simulator before shipping store builds (see `eas.json` profiles).
+
+## Related docs
+
+| Doc | Purpose |
+|-----|---------|
+| [AGENTS.md](../AGENTS.md) | Production invariants, layer rules, verify entry points |
+| [DEVELOPMENT.md](./DEVELOPMENT.md) | CI commands, frontend CR, DevTools |
+| [ARCHITECTURE.md](./ARCHITECTURE.md) | Layers and data flow |
+| [CONFIGURATION.md](./CONFIGURATION.md) | Storage keys and version bump checklist |

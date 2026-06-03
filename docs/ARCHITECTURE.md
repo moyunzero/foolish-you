@@ -4,7 +4,7 @@
 
 ## System overview
 
-傻了么 is an offline-first Expo (React Native) daily puzzle app. Each local calendar day, the app assigns exactly one puzzle—**9×9 Sudoku**, **8×8 Binary (Takuzu/Binairo)**, **8×8 Nonogram (Picross)**, or **7×7 Slitherlink**—derived deterministically from that day’s `dateKey` and a client-side seed salt. Users play in-app, progress is saved locally, and completion or surrender routes to a result screen with humorous copy (Nonogram wins show a pattern reveal card; Slitherlink wins show a loop reveal card). There is no network dependency for puzzle generation, validation, or persistence. v1.1 adds clipboard copy and optional system in-app review prompts only (no backend). **v1.2** adds system locale **zh/en** (`expo-localization`, English brand **Brainfool**), bilingual privacy, and dev-only settings placeholder for locale preview. **v2.0-slitherlink** adds edge-based Slitherlink with polyomino loop generation (no pure-perimeter daily puzzles).
+傻了么 is an offline-first Expo (React Native) daily puzzle app. Each local calendar day, the app assigns exactly one puzzle—**9×9 Sudoku**, **8×8 Binary (Takuzu/Binairo)**, **8×8 Nonogram (Picross)**, or **7×7 Slitherlink**—derived deterministically from that day’s `dateKey` and a client-side seed salt. Users play in-app, progress is saved locally, and completion or surrender routes to a result screen with humorous copy (Nonogram wins show a pattern reveal card; Slitherlink wins show a loop reveal card). There is no network dependency for puzzle generation, validation, or persistence. v1.1 adds clipboard copy and optional system in-app review prompts only (no backend). **v1.2** adds system locale **zh/en** (`expo-localization`, English brand **Brainfool**), bilingual privacy, and dev-only settings placeholder for locale preview. **v2.0 (`2.0.0`, partial):** Slitherlink 7×7 (polyomino loop generator, edge UI, reveal/share); streak freeze shields (weekly grant, max 2, auto-consume on 1-day gap); missed-yesterday recall subline. **Not yet:** daily notifications, personal stats page.
 
 The architecture is layered: **expo-router screens** compose UI; **`DailyGameContext`** is the single source of truth for today’s game; **`lib/daily/`** orchestrates hydrate/build flows without React; **`lib/puzzles/`** holds pure TypeScript puzzle engines; **`lib/storage/`** reads/writes AsyncStorage with validation and migration; **`lib/streak/`** tracks consecutive-day check-ins, weekly freeze shields, and missed-day recall copy on win/hydrate. Styling uses NativeWind; animations use Reanimated on the result flow.
 
@@ -200,7 +200,9 @@ Same `dateKey` + app version → same `seed`, same game type (unless dev overrid
 | **`lib/streak/`** | Streak types, check-in logic, freeze shields, missed-yesterday banner (separate key from daily snapshot). |
 | **`lib/completion/`** | Completion-history queries used by freeze consume and backfill. |
 | **`lib/date/`** | Local calendar `dateKey` helper. |
-| **`lib/copy/`** | User-facing strings (results, rules, streak line, privacy). |
+| **`lib/copy/`** | Locale-param wrappers over `locales/*/copy` (results, rules, streak, share). |
+| **`locales/`** | zh/en UI, copy pools, privacy, nonogram pattern titles. |
+| **`lib/i18n/`** | `resolveLocale`, `I18nProvider`, formatting helpers. |
 | **`lib/platform/`** | Small RN helpers (`runAfterInteractions`, `exitApp`). |
 | **`constants/`** | Storage keys, version, debounce, design tokens, dev flags. |
 | **`__tests__/`** | Jest: `lib/` unit tests, `contexts/` and `screens/` RTL. |
@@ -219,8 +221,19 @@ Two AsyncStorage keys (see `constants/config.ts`):
 
 Save path: in-memory snapshot → **`sanitizeSnapshotForSave`** → JSON → AsyncStorage. Failed saves surface `saveError` and retry via **`retrySave`** / save-failure alert (`lib/daily/saveFailureAlert.ts`). **`STORAGE_VERSION`** (currently `2`) bumps when persisted shape changes; older installs migrate on read, not by wiping user progress silently.
 
-## Extension points (v1 scope)
+## Extension points
 
-- **New game type**: extend `GameType`, add generator under `lib/puzzles/`, branch in `dailySelector` / `isSolvable` and grid components; keep determinism via `deriveSubSeed`.
+- **New game type**: extend `GameType`, add generator under `lib/puzzles/`, register in `dailySelector` / `dailySelectorSafe` / `isSolvable`, add grid or board UI; keep determinism via `deriveSubSeed`.
 - **New screens**: add route under `app/`, consume `useDailyGame()`; do not fork daily orchestration into hooks.
 - **Backend / auth**: reserved; must not break offline daily loop or deterministic seeds without explicit product approval.
+
+Storage version bump checklist → [CONFIGURATION.md § Storage version bumps](./CONFIGURATION.md#storage-version-bumps).
+
+## Related docs
+
+| Doc | Purpose |
+|-----|---------|
+| [AGENTS.md](../AGENTS.md) | Production invariants and layer rules |
+| [DEVELOPMENT.md](./DEVELOPMENT.md) | Verification workflow and DevTools |
+| [TESTING.md](./TESTING.md) | Jest layout and manual QA checklist |
+| [CONFIGURATION.md](./CONFIGURATION.md) | Constants, storage keys, EAS profiles |

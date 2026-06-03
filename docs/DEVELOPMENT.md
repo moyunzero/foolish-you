@@ -4,7 +4,7 @@
 
 How to work on this codebase day to day: local setup, verification commands, code layout, and development-only tooling. For install and first run, see [README.md](../README.md). For env and build profiles, see [CONFIGURATION.md](./CONFIGURATION.md). For architecture and data flow, see [ARCHITECTURE.md](./ARCHITECTURE.md).
 
-**Implementation conventions (required reading for contributors and agents):** [AGENTS.md](../AGENTS.md) — architecture layers, UI rules, testing expectations, production constraints (offline-first, daily determinism, storage migration).
+**Implementation conventions (required reading for contributors and agents):** [AGENTS.md](../AGENTS.md) — production invariants, layer rules, i18n, verification pointers.
 
 ---
 
@@ -43,9 +43,10 @@ Before opening a PR or calling a change done, run the same checks as [`.github/w
 
 ```bash
 npm run typecheck      # tsc --noEmit (strict)
-npm test               # Jest: unit + rtl projects (~386 tests)
+npm test               # Jest: unit + rtl projects (402 tests)
 npm run test:migration # snapshot migration golden fixtures only
 npm run lint           # expo lint (ESLint flat config)
+npm run lockfile:verify-eas  # npm 10 ci — run before EAS build when lockfile changed
 ```
 
 | Command | What it runs |
@@ -75,7 +76,7 @@ Follows the [frontend-pull-request-checklist](https://github.com/sapegin/fronten
 | Project rules | `.cursor/skills/frontend-code-review/references/project.md` |
 | Global checklist | `~/.cursor/skills/frontend-code-review/` |
 
-Full policy: [AGENTS.md § Frontend code review](../AGENTS.md#frontend-code-review).
+Full policy: this section. Skill paths and git hooks below; storage bump checklist → [CONFIGURATION.md § Storage version bumps](./CONFIGURATION.md#storage-version-bumps).
 
 ### When to run
 
@@ -135,22 +136,23 @@ EAS profiles and signing are documented in CONFIGURATION.md and `eas.json`.
 
 ## Code layout
 
-High-level map (detail and layer rules in AGENTS.md):
+High-level map (diagrams and data flow → [ARCHITECTURE.md](./ARCHITECTURE.md); layer rules → [AGENTS.md](../AGENTS.md)):
 
 ```
 foolish-you/
 ├── app/                      # expo-router screens only (no puzzle algorithms)
 ├── components/
 │   ├── grid/                 # SudokuGrid, BinaryGrid, NonogramGrid, numpad
+│   ├── slitherlink/          # SlitherlinkBoard (edge UI)
 │   ├── game/                 # Game sections, header/footer, rules UI
-│   ├── result/               # Result badges, stats, NonogramRevealCard, animations
+│   ├── result/               # Badges, stats, reveal cards, share, animations
 │   ├── ui/                   # Shared primitives
 │   ├── legal/                # Privacy blocks
 │   └── dev/                  # DevToolsPanel (__DEV__ only)
 ├── contexts/
 │   ├── DailyGameContext.tsx  # Today's game: hydrate, play, persist, complete/abandon
 │   └── DevToolsUiContext.tsx # Dev bar visibility + bottom inset
-├── hooks/                    # useDailyGame (re-export), useElapsedTimer
+├── hooks/                    # useDailyGame (re-export), board hooks, useElapsedTimer
 ├── lib/
 │   ├── date/                 # Local calendar day (dateKey)
 │   ├── daily/                # Hydrate/build orchestration (non-React)
@@ -163,14 +165,18 @@ foolish-you/
 │   ├── streak/               # Check-in, freeze shields, missed-yesterday banner
 │   ├── completion/           # Completion-history queries (freeze / backfill)
 │   ├── dev/                  # Dev-only streak QA scenario presets
-│   ├── copy/                 # User-facing strings
+│   ├── copy/                 # Locale-aware copy wrappers
+│   ├── i18n/                 # resolveLocale, I18nProvider, format
 │   └── platform/             # e.g. exitApp
+├── locales/                  # zh / en strings (ui, copy, privacy, patterns)
 ├── constants/                # config, design tokens, dev flags, legal
 ├── __tests__/
 │   ├── lib/                  # Unit tests (*.test.ts)
 │   ├── contexts/             # Context RTL
+│   ├── hooks/                # Board hook RTL
+│   ├── components/           # Grid / game component RTL
 │   ├── screens/              # Screen RTL
-│   └── helpers/              # Fixtures, router mocks
+│   └── helpers/              # Fixtures, router mocks, renderWithI18n
 ├── global.css                # NativeWind / CSS variables
 └── tailwind.config.js
 ```
@@ -183,7 +189,7 @@ foolish-you/
 | Reusable UI | `components/` (match `grid/`, `game/`, etc.) |
 | Daily state or persistence API | `contexts/DailyGameContext.tsx` + `lib/storage/` |
 | Puzzle or daily selection logic | `lib/puzzles/`, `lib/daily/` (unit-test heavily) |
-| Copy / tone | `lib/copy/` |
+| Copy / tone | `locales/*` + `lib/copy/*` via `useI18n()` |
 | Storage keys, debounce, feature flags | `constants/config.ts`, `constants/dev.ts` |
 
 ---
@@ -191,14 +197,29 @@ foolish-you/
 ## Code style
 
 - **Lint:** ESLint 9 flat config in `eslint.config.js` with `eslint-config-expo`. Run `npm run lint` before pushing; CI fails on lint errors.
-- **Format:** No dedicated Prettier script in `package.json`; match existing file style (NativeWind `className`, inline `style` only where AGENTS.md allows).
+- **Format:** No dedicated Prettier script in `package.json`; match existing file style (NativeWind `className`).
 - **TypeScript:** Strict mode; explicit types for boards, snapshots, game status; avoid `any`.
+
+### Inline `style={{ }}` (allowed cases)
+
+This project does **not** use `StyleSheet.create`. Inline styles only when:
+
+| Case | Example in repo |
+|------|------------------|
+| Custom fonts | `fontFamily: 'SpaceMono_400Regular'`, `Inter_400Regular` |
+| Reanimated | `Animated.View` / `Animated.Text` with `entering` props |
+| Dynamic layout | `maxWidth`, `alignSelf`, `paddingBottom` from `useSafeAreaInsets()` |
+| Token not in Tailwind | `backgroundColor: colors.accentSunset`, `borderColor: colors.hairline` |
+| One-off rgba | abandon banner `rgba(255, 122, 23, 0.12)` in `app/game.tsx` |
+| ActivityIndicator / platform | Colors from `constants/design.ts` |
+
+Prefer repeated patterns in `global.css` or `tailwind.config.js` over copying inline styles.
 
 ---
 
 ## Development-only tooling (`__DEV__`)
 
-Dev features are gated by React Native’s `__DEV__` and [`constants/dev.ts`](../constants/dev.ts). **Release builds must not rely on or ship dev shortcuts** (see AGENTS.md).
+Dev features are gated by React Native’s `__DEV__` and [`constants/dev.ts`](../constants/dev.ts). **Release builds must not rely on or ship dev shortcuts** (see [AGENTS.md § Non-negotiables](../AGENTS.md#non-negotiables)).
 
 ### `constants/dev.ts`
 
@@ -206,7 +227,7 @@ Dev features are gated by React Native’s `__DEV__` and [`constants/dev.ts`](..
 |--------|------|
 | `DEV_TOOLS_ENABLED` | `__DEV__` — enables dev UI |
 | `DEV_TOOLS_BAR_HIDDEN_DEFAULT` | Initial visibility of bottom dev bar (`false` = visible on launch) |
-| `DEV_FORCE_GAME_TYPE` | `'sudoku'` \| `'binary'` \| `'nonogram'` \| `null` — force type when creating a **new** today snapshot; `null` = date-seed random (production behavior) |
+| `DEV_FORCE_GAME_TYPE` | `'sudoku'` \| `'binary'` \| `'nonogram'` \| `'slitherlink'` \| `null` — force type when creating a **new** today snapshot; `null` = date-seed random (production behavior) |
 | `getDevForceGameType()` | Returns `null` outside `__DEV__` even if the constant is set |
 
 Used by [`lib/daily/dailyHydrate.ts`](../lib/daily/dailyHydrate.ts) when hydrating or regenerating today’s game. Changing `DEV_FORCE_GAME_TYPE` alone does not rewrite an existing saved snapshot until you reset today (dev panel or clear storage).
@@ -218,7 +239,7 @@ Rendered from [`app/_layout.tsx`](../app/_layout.tsx) only when `DEV_TOOLS_ENABL
 **Capabilities (expanded panel):**
 
 - Show `dateKey`, `gameType`, status, puzzle hash (and Sudoku hash when applicable)
-- **数独 / 二进制 / 数绘 / 自然随机 / 重开今日** — regenerate today via `devRegenerateToday` and navigate to `/game`
+- **数独 / 二进制 / 数绘 / 数回 / 自然随机 / 重开今日** — regenerate today via `devRegenerateToday` and navigate to `/game`
 - **弹出评分** — call `requestAppStoreReview()` directly (bypasses gates)
 - **重置通关记录** / **重置评分** — clear completion history or rating prompt state
 - **注入坏盘面** — write `completed` + empty `playState` to exercise `recoverSnapshot` on next load
@@ -228,14 +249,9 @@ Rendered from [`app/_layout.tsx`](../app/_layout.tsx) only when `DEV_TOOLS_ENABL
 
 **Bar visibility:** [`contexts/DevToolsUiContext.tsx`](../contexts/DevToolsUiContext.tsx) stores `@foolish-you/dev-tools-bar-visible`. Long-press the footer **隐私政策** link ([`PrivacyPolicyFooterLink`](../components/legal/PrivacyPolicyFooterLink.tsx)) to toggle the bar back. Game/result/privacy screens use `useDevBottomInset()` so content clears the bar when visible.
 
-### Manual QA checklist (UI changes)
+### Manual QA
 
-- Fresh install or cleared storage → today’s puzzle loads
-- Kill app mid-game → progress restores
-- Complete and surrender → result copy, stats cards, share button (when `playState` present), streak + shield suffix on stats, animations
-- Recovery path: inject bad snapshot → restart → result without share button but outcome preserved
-- Streak freeze / missed-yesterday: use dev **连签 QA 场景** or unit tests under `__tests__/lib/streak/`
-- Dev panel: force game type / reset today / rating & history resets — confirm no effect on release builds
+Device/simulator checklist for UI and storage changes → [TESTING.md § Manual QA checklist](./TESTING.md#manual-qa-checklist).
 
 ---
 
@@ -256,8 +272,9 @@ Rendered from [`app/_layout.tsx`](../app/_layout.tsx) only when `DEV_TOOLS_ENABL
 
 | Doc | Purpose |
 |-----|---------|
-| [AGENTS.md](../AGENTS.md) | How to implement: layers, UI, tests, production rules |
+| [AGENTS.md](../AGENTS.md) | Production invariants, layer rules, verify pointers |
 | [README.md](../README.md) | Onboarding, features, quick start |
 | [ARCHITECTURE.md](./ARCHITECTURE.md) | Components, data flow, diagrams |
+| [TESTING.md](./TESTING.md) | Jest layout, CI gates, manual QA checklist |
 | [CONFIGURATION.md](./CONFIGURATION.md) | App config, EAS, dev constants reference |
 | [CLAUDE.md](../CLAUDE.md) | GSD workflow entry points (planning agents) |

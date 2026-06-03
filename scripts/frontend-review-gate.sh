@@ -74,7 +74,7 @@ echo ""
 echo "Required before push / PR:"
 echo "  1. npm run typecheck && npm run lint && npm test"
 echo "  2. Agent/human frontend-code-review on the files above"
-echo "     Skill: .cursor/skills/frontend-code-review (see AGENTS.md)"
+echo "     Skill: .cursor/skills/frontend-code-review (see docs/DEVELOPMENT.md#frontend-code-review)"
 echo ""
 
 if [[ "${FRONTEND_CR_SKIP_CHECKS:-}" != "1" ]]; then
