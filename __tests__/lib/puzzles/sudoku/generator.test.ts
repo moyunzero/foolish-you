@@ -11,9 +11,17 @@ describe('generateSudokuPuzzle', () => {
     expect(second.puzzleHash).toBe(first.puzzleHash);
   });
 
-  it('produces exactly SUDOKU_GIVEN_COUNT givens', () => {
+  it('produces exactly SUDOKU_GIVEN_COUNT givens without dateKey', () => {
     const puzzle = generateSudokuPuzzle(99_002);
     expect(countGivens(puzzle.givens)).toBe(SUDOKU_GIVEN_COUNT);
+  });
+
+  it('uses weekday band givens when dateKey is provided', () => {
+    const mon = generateSudokuPuzzle(99_010, '2026-06-01');
+    const sun = generateSudokuPuzzle(99_010, '2026-06-07');
+    expect(countGivens(mon.givens)).toBe(33);
+    expect(countGivens(sun.givens)).toBe(27);
+    expect(countGivens(mon.givens)).toBeGreaterThan(countGivens(sun.givens));
   });
 
   it('has a unique solution', () => {

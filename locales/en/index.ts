@@ -1,4 +1,5 @@
 import * as copy from './copy';
+import { notifications } from './notifications';
 import { patterns } from './patterns';
 import { privacy } from './privacy';
 import { ui } from './ui';
@@ -16,4 +17,5 @@ export const strings = {
   patterns,
   copy,
   privacy,
+  notifications,
 } as const;

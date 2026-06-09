@@ -23,6 +23,7 @@ describe('applyCheckIn', () => {
       freezeCount: 0,
       lastFreezeGrantWeekKey: null,
       freezeConsumedSessionKey: null,
+      freezeConsumedDateKeys: [],
     });
   });
 
@@ -34,6 +35,7 @@ describe('applyCheckIn', () => {
       freezeCount: 2,
       lastFreezeGrantWeekKey: '2026-W21',
       freezeConsumedSessionKey: '2026-05-24',
+      freezeConsumedDateKeys: ['2026-05-23'],
     };
     expect(applyCheckIn(prev, '2026-05-25')).toEqual({
       currentStreak: 4,
@@ -42,6 +44,7 @@ describe('applyCheckIn', () => {
       freezeCount: 2,
       lastFreezeGrantWeekKey: '2026-W21',
       freezeConsumedSessionKey: '2026-05-24',
+      freezeConsumedDateKeys: ['2026-05-23'],
     });
   });
 
@@ -53,6 +56,7 @@ describe('applyCheckIn', () => {
       freezeCount: 1,
       lastFreezeGrantWeekKey: '2026-W21',
       freezeConsumedSessionKey: null,
+      freezeConsumedDateKeys: [],
     };
     expect(applyCheckIn(prev, '2026-05-25')).toEqual({
       currentStreak: 1,
@@ -61,6 +65,7 @@ describe('applyCheckIn', () => {
       freezeCount: 1,
       lastFreezeGrantWeekKey: '2026-W21',
       freezeConsumedSessionKey: null,
+      freezeConsumedDateKeys: [],
     });
   });
 
@@ -72,6 +77,7 @@ describe('applyCheckIn', () => {
       freezeCount: 0,
       lastFreezeGrantWeekKey: null,
       freezeConsumedSessionKey: null,
+      freezeConsumedDateKeys: [],
     };
     expect(applyCheckIn(prev, '2026-05-25')).toBe(prev);
   });
@@ -94,6 +100,7 @@ describe('getStreakDisplay', () => {
       freezeCount: 0,
       lastFreezeGrantWeekKey: null,
       freezeConsumedSessionKey: null,
+      freezeConsumedDateKeys: [],
     };
     expect(getStreakDisplay(state, '2026-05-25')).toEqual({
       displayStreak: 4,
@@ -110,6 +117,7 @@ describe('getStreakDisplay', () => {
       freezeCount: 1,
       lastFreezeGrantWeekKey: '2026-W21',
       freezeConsumedSessionKey: null,
+      freezeConsumedDateKeys: [],
     };
     expect(getStreakDisplay(state, '2026-05-25')).toEqual({
       displayStreak: 4,
@@ -126,6 +134,7 @@ describe('getStreakDisplay', () => {
       freezeCount: 0,
       lastFreezeGrantWeekKey: null,
       freezeConsumedSessionKey: null,
+      freezeConsumedDateKeys: [],
     };
     expect(getStreakDisplay(state, '2026-05-25')).toEqual({
       displayStreak: 0,

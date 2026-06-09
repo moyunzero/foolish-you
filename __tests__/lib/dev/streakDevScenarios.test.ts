@@ -39,6 +39,7 @@ describe('streakDevScenarios', () => {
         freezeCount: 1,
         lastFreezeGrantWeekKey: '2026-W21',
         freezeConsumedSessionKey: null,
+        freezeConsumedDateKeys: [],
       }),
     ).toContain('shield 1');
   });

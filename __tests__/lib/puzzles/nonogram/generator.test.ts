@@ -10,6 +10,12 @@ describe('generateNonogramPuzzle', () => {
     expect(b.rowClues).toEqual(a.rowClues);
   });
 
+  it('picks tier bucket from dateKey (Mon easier pattern than Sun)', () => {
+    const mon = generateNonogramPuzzle(4242, '2026-06-01');
+    const sun = generateNonogramPuzzle(4242, '2026-06-07');
+    expect(mon.puzzleHash).not.toBe(sun.puzzleHash);
+  });
+
   it('returns valid nonogram payload', () => {
     const puzzle = generateNonogramPuzzle(99);
     expect(isNonogramPuzzle(puzzle)).toBe(true);

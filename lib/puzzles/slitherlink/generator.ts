@@ -2,6 +2,7 @@ import {
   SLITHERLINK_MAX_GEN_ATTEMPTS,
   SLITHERLINK_MIN_CLUES,
 } from '../../../constants/config';
+import { weekdayBand } from '../difficulty/weekdayBand';
 import { deriveSubSeed, mulberry32 } from '../rng';
 import type { SlitherlinkPuzzle, SlitherlinkSolutionEdges } from './spec';
 import { EDGE_BLANK, EDGE_LINE, SLITHERLINK_SIZE } from './spec';
@@ -286,6 +287,14 @@ export function pickSlitherlinkDifficulty(rng: () => number): SlitherlinkDifficu
   return 'hard';
 }
 
+/** Mon band 0-1 → easy; mid-week → medium; Sun band 5-6 → hard. */
+export function bandToDifficulty(band: number): SlitherlinkDifficulty {
+  const clamped = Math.max(0, Math.min(6, band));
+  if (clamped <= 1) return 'easy';
+  if (clamped <= 4) return 'medium';
+  return 'hard';
+}
+
 /**
  * 从随机 polyomino（有机 / 虫形 / 双种子）生成回路，接近商业 Slitherlink 的不规则形状。
  */
@@ -347,9 +356,12 @@ export function carveClues(
   return clues;
 }
 
-function generateOnce(seed: number): SlitherlinkPuzzle | null {
+function generateOnce(seed: number, dateKey?: string): SlitherlinkPuzzle | null {
   const rng = mulberry32(seed);
-  const difficulty = pickSlitherlinkDifficulty(rng);
+  const difficulty =
+    dateKey != null
+      ? bandToDifficulty(weekdayBand(dateKey))
+      : pickSlitherlinkDifficulty(rng);
   const solution = generateLoop(seed, difficulty);
   if (solution == null) return null;
   const clues = carveClues(
@@ -368,10 +380,13 @@ function generateOnce(seed: number): SlitherlinkPuzzle | null {
   };
 }
 
-export function generateSlitherlinkPuzzle(seed: number): SlitherlinkPuzzle {
+export function generateSlitherlinkPuzzle(
+  seed: number,
+  dateKey?: string,
+): SlitherlinkPuzzle {
   for (let attempt = 0; attempt < SLITHERLINK_MAX_GEN_ATTEMPTS; attempt += 1) {
     const attemptSeed = deriveSubSeed(seed, `sl-gen-${attempt}`);
-    const puzzle = generateOnce(attemptSeed);
+    const puzzle = generateOnce(attemptSeed, dateKey);
     if (puzzle != null) return puzzle;
   }
 

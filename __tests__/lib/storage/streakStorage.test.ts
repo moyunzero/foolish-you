@@ -24,6 +24,7 @@ describe('streakStorage', () => {
       freezeCount: 1,
       lastFreezeGrantWeekKey: '2026-W21',
       freezeConsumedSessionKey: null,
+      freezeConsumedDateKeys: [],
     };
     await expect(saveStreakState(state)).resolves.toBe(true);
     await expect(loadStreakState()).resolves.toEqual(state);
@@ -47,6 +48,7 @@ describe('streakStorage', () => {
       freezeCount: 0,
       lastFreezeGrantWeekKey: null,
       freezeConsumedSessionKey: null,
+      freezeConsumedDateKeys: [],
     });
   });
 
@@ -66,6 +68,7 @@ describe('streakStorage', () => {
       freezeCount: 0,
       lastFreezeGrantWeekKey: null,
       freezeConsumedSessionKey: null,
+      freezeConsumedDateKeys: [],
     });
   });
 
@@ -86,6 +89,7 @@ describe('streakStorage', () => {
       freezeCount: 0,
       lastFreezeGrantWeekKey: null,
       freezeConsumedSessionKey: null,
+      freezeConsumedDateKeys: [],
     });
   });
 
@@ -106,6 +110,7 @@ describe('streakStorage', () => {
       freezeCount: 0,
       lastFreezeGrantWeekKey: null,
       freezeConsumedSessionKey: null,
+      freezeConsumedDateKeys: [],
     });
   });
 

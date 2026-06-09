@@ -63,6 +63,17 @@ describe('selectDailyGameSafe', () => {
     expect(mockIsPuzzleSolvable).toHaveBeenCalled();
   });
 
+  it('returns solvable sudoku across Mon and Sun weekday bands', () => {
+    for (const dateKey of ['2026-06-01', '2026-06-07']) {
+      const result = selectDailyGameSafe({
+        dateKey,
+        forceGameType: 'sudoku',
+      });
+      expect(result.gameType).toBe('sudoku');
+      expect(isPuzzleSolvable('sudoku', result.puzzle)).toBe(true);
+    }
+  });
+
   it('never returns fallback puzzleHash on canonical date corpus', () => {
     const byType: Record<GameType, string[]> = {
       sudoku: [],

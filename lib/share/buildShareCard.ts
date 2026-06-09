@@ -51,6 +51,11 @@ export function formatShareElapsed(ms: number): string {
   return formatElapsedClock(ms);
 }
 
+/** Emoji grid lines only — used by monthly gallery (D-31). */
+export function buildShareEmojiGrid(input: ShareCardInput): string {
+  return summarizeGrid(input);
+}
+
 function summarizeGrid(input: ShareCardInput): string {
   const { gameType, playState, puzzle, status } = input;
 

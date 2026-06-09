@@ -50,6 +50,68 @@ export const ui = {
     thisWeek: '本周',
     bestStreak: '最长连签',
   },
+  sheet: {
+    dismissA11y: '关闭月历',
+    dismissReminderA11y: '关闭提醒设置',
+  },
+  reminder: {
+    softAsk: {
+      bodies: [
+        '明天同一时刻，别又装没看见。',
+        '通关了还飘？明天到点我会戳你一下。',
+      ] as const,
+      cta: '明天叫我',
+      ctaA11y: '打开提醒设置，明天到点通知你',
+    },
+    sheet: {
+      title: '每日提醒',
+      toggleLabel: '开启提醒',
+      timeLabel: '提醒时间',
+      privacyHint: '本地调度，不上传；随时可在此关闭。',
+      toggleA11y: '开启或关闭每日提醒',
+      timeA11y: (hour: number, minute: number) =>
+        `提醒时间 ${String(hour).padStart(2, '0')}:${String(minute).padStart(2, '0')}`,
+    },
+    banner: {
+      bodyNoPush: '快八点了，今日还没完 — 要明天准时喊你吗？',
+      bodyHasPush: '快八点了，今日还没完 — 记得收工。',
+      ctaEnable: '开启提醒',
+      ctaEdit: '改提醒',
+    },
+    errorPermissionDenied: '系统不让喊你了 — 只能 App 里见',
+  },
+  calendar: {
+    viewMonthLink: '查看本月',
+    viewMonthA11y: '查看本月日历',
+    prevMonthA11y: '上一个月',
+    nextMonthA11y: '下一个月',
+    streakLine: (days: number) => `连签 ${days} 天`,
+    completedLine: (count: number) => `本月通关 ${count} 天`,
+    weekdays: ['日', '一', '二', '三', '四', '五', '六'] as const,
+    cellA11y: (
+      day: number,
+      state: 'completed' | 'abandoned' | 'missed' | 'shield',
+    ) => {
+      const labels = {
+        completed: '通关',
+        abandoned: '认怂',
+        missed: '漏玩',
+        shield: '护盾',
+      } as const;
+      return `${day} 日 · ${labels[state]}`;
+    },
+    cellEmptyA11y: (day: number) => `${day} 日 · 未到`,
+    emptyHeading: '这个月还没留下痕迹',
+    emptyBody: '通关一天，格子上才会亮。',
+  },
+  gallery: {
+    generateCta: '生成本月图鉴',
+    generating: '生成中…',
+    errorExport: '图鉴拼失败了，再试一次',
+    retry: '再试一次',
+    generateA11y: '生成本月图鉴长图并分享',
+    shareDialogTitle: '分享本月图鉴',
+  },
   gameTypes: {
     sudoku: '数独',
     binary: '二进制',

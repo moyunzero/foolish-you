@@ -8,6 +8,7 @@ import { formatStreakLine } from '../../../lib/copy/streak';
 import { formatFreezeShieldSuffix, pickFreezeConsumedLine } from '../../../lib/copy/freeze';
 import { pickMissedYesterdayLine } from '../../../lib/copy/missedYesterday';
 import { getGameTypeLabel } from '../../../lib/i18n/gameLabels';
+import { getStringsForLocale } from '../../../lib/i18n/strings';
 import { generateSudokuPuzzle } from '../../../lib/puzzles/sudoku/generator';
 import { createEmptyGrid as createEmptySudokuGrid } from '../../../lib/puzzles/sudoku/grid';
 import { buildShareCard } from '../../../lib/share/buildShareCard';
@@ -122,5 +123,31 @@ describe('English locale smoke', () => {
       locale: 'en',
       freezeConsumedToday: false,
     })).not.toMatch(cjk);
+  });
+
+  it('calendar UI strings are English without CJK', () => {
+    const ui = getStringsForLocale('en').ui;
+    const cjk = /[\u4e00-\u9fff]/;
+
+    expect(ui.calendar.viewMonthLink).not.toMatch(cjk);
+    expect(ui.calendar.viewMonthA11y).not.toMatch(cjk);
+    expect(ui.sheet.dismissA11y).not.toMatch(cjk);
+    expect(ui.calendar.streakLine(3)).not.toMatch(cjk);
+    expect(ui.calendar.completedLine(2)).not.toMatch(cjk);
+    expect(ui.calendar.emptyHeading).not.toMatch(cjk);
+    expect(ui.gallery.generateCta).not.toMatch(cjk);
+    expect(ui.gallery.generateCta.length).toBeGreaterThan(0);
+    expect(ui.gallery.errorExport).not.toMatch(cjk);
+  });
+
+  it('reminder UI strings are English without CJK', () => {
+    const ui = getStringsForLocale('en').ui;
+    const cjk = /[\u4e00-\u9fff]/;
+
+    expect(ui.reminder.softAsk.cta).not.toMatch(cjk);
+    expect(ui.reminder.sheet.title).not.toMatch(cjk);
+    expect(ui.reminder.banner.bodyNoPush).not.toMatch(cjk);
+    expect(ui.reminder.errorPermissionDenied).not.toMatch(cjk);
+    expect(ui.sheet.dismissReminderA11y).not.toMatch(cjk);
   });
 });

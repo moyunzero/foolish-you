@@ -14,6 +14,7 @@ const baseStreak = {
   freezeCount: 1,
   lastFreezeGrantWeekKey: '2026-W20',
   freezeConsumedSessionKey: null,
+  freezeConsumedDateKeys: [] as string[],
 };
 
 describe('getIsoWeekKey', () => {
@@ -82,6 +83,7 @@ describe('consumeFreezeForMissedDay', () => {
     expect(state.currentStreak).toBe(5);
     expect(state.lastCheckInDateKey).toBe('2026-05-18');
     expect(state.freezeConsumedSessionKey).toBe('2026-05-19');
+    expect(state.freezeConsumedDateKeys).toEqual(['2026-05-18']);
   });
 
   it('does not consume when yesterday has real completion', () => {

@@ -50,6 +50,68 @@ export const ui = {
     thisWeek: 'This week',
     bestStreak: 'Best streak',
   },
+  sheet: {
+    dismissA11y: 'Dismiss month calendar',
+    dismissReminderA11y: 'Dismiss reminder settings',
+  },
+  reminder: {
+    softAsk: {
+      bodies: [
+        'Same time tomorrow — don’t ghost us again.',
+        'You cleared it — want a nudge tomorrow?',
+      ] as const,
+      cta: 'Remind me tomorrow',
+      ctaA11y: 'Open reminder settings for a daily nudge',
+    },
+    sheet: {
+      title: 'Daily reminder',
+      toggleLabel: 'Turn on reminders',
+      timeLabel: 'Reminder time',
+      privacyHint: 'Scheduled on-device only — turn off anytime here.',
+      toggleA11y: 'Toggle daily reminder',
+      timeA11y: (hour: number, minute: number) =>
+        `Reminder time ${String(hour).padStart(2, '0')}:${String(minute).padStart(2, '0')}`,
+    },
+    banner: {
+      bodyNoPush: 'Almost 8 PM and today’s still open — want a nudge tomorrow?',
+      bodyHasPush: 'Almost 8 PM — don’t leave today hanging.',
+      ctaEnable: 'Turn on reminders',
+      ctaEdit: 'Change reminder',
+    },
+    errorPermissionDenied: 'Notifications blocked — catch you in the app',
+  },
+  calendar: {
+    viewMonthLink: 'View this month',
+    viewMonthA11y: 'View this month calendar',
+    prevMonthA11y: 'Previous month',
+    nextMonthA11y: 'Next month',
+    streakLine: (days: number) => `${days}-day streak`,
+    completedLine: (count: number) => `${count} cleared this month`,
+    weekdays: ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'] as const,
+    cellA11y: (
+      day: number,
+      state: 'completed' | 'abandoned' | 'missed' | 'shield',
+    ) => {
+      const labels = {
+        completed: 'cleared',
+        abandoned: 'bailed',
+        missed: 'missed',
+        shield: 'shield',
+      } as const;
+      return `Day ${day} · ${labels[state]}`;
+    },
+    cellEmptyA11y: (day: number) => `Day ${day} · not yet`,
+    emptyHeading: 'Nothing stamped this month yet',
+    emptyBody: 'Finish a day to light up a cell.',
+  },
+  gallery: {
+    generateCta: "Build this month's gallery",
+    generating: 'Building…',
+    errorExport: 'Gallery export failed — try again',
+    retry: 'Try again',
+    generateA11y: 'Build and share this month gallery image',
+    shareDialogTitle: 'Share monthly gallery',
+  },
   gameTypes: {
     sudoku: 'Sudoku',
     binary: 'Binary',

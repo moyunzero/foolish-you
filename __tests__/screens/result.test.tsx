@@ -159,6 +159,8 @@ describe('ResultScreen', () => {
       expect(screen.getByText('本周')).toBeTruthy();
       expect(screen.getByText('最长连签')).toBeTruthy();
     });
+
+    expect(screen.getByLabelText('查看本月日历')).toBeTruthy();
   });
 
   it('shows slitherlink reveal on completed slitherlink result', async () => {

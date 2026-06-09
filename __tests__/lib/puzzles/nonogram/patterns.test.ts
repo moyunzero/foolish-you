@@ -24,6 +24,12 @@ describe('NONOGRAM_PATTERNS', () => {
     expect(new Set(titles).size).toBe(30);
   });
 
+  it('assigns tier 0–6 metadata with at least one pattern per tier', () => {
+    for (let tier = 0; tier <= 6; tier += 1) {
+      expect(NONOGRAM_PATTERNS.some((p) => p.tier === tier)).toBe(true);
+    }
+  });
+
   it.each(NONOGRAM_PATTERNS.map((p) => [p.id, p] as const))(
     '%s is 8×8 with self-consistent clues',
     (_id, pattern) => {

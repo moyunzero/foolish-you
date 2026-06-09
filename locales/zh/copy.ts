@@ -251,6 +251,16 @@ export const share = {
   ] as const,
 } as const;
 
+export const calendarSummaryPools = {
+  taunt: [
+    '这月格子亮得还行，别明天全灰。',
+    '通关天数说话，认怂天数闭嘴。',
+    '连签在涨，漏玩在盯你。',
+    '月历比脸诚实，明天继续填色。',
+    '护盾用了就别浪，格子记得亮。',
+  ] as const,
+} as const;
+
 export const resultFooter = {
   default: '明天 0 点后刷新，题型会变哦',
   ios: '明天 0 点后刷新，题型会变哦。iOS 上点按钮后请从屏幕底部上滑回主屏幕。',

@@ -31,6 +31,7 @@ describe('GameScreen missed-yesterday banner', () => {
       freezeCount: 0,
       lastFreezeGrantWeekKey: '2026-W21',
       freezeConsumedSessionKey: null,
+      freezeConsumedDateKeys: [],
     });
     await saveDailySnapshot(makeBinaryPlayingSnapshot());
 
@@ -52,6 +53,7 @@ describe('GameScreen missed-yesterday banner', () => {
       freezeCount: 0,
       lastFreezeGrantWeekKey: '2026-W21',
       freezeConsumedSessionKey: FIXTURE_TODAY,
+      freezeConsumedDateKeys: ['2026-05-18'],
     });
     await saveDailySnapshot(makeBinaryPlayingSnapshot());
 
@@ -72,6 +74,7 @@ describe('GameScreen missed-yesterday banner', () => {
       freezeCount: 0,
       lastFreezeGrantWeekKey: '2026-W21',
       freezeConsumedSessionKey: null,
+      freezeConsumedDateKeys: [],
     });
     await saveDailySnapshot(makeBinaryPlayingSnapshot());
 
@@ -97,6 +100,7 @@ describe('GameScreen missed-yesterday banner', () => {
       freezeCount: 0,
       lastFreezeGrantWeekKey: '2026-W21',
       freezeConsumedSessionKey: FIXTURE_TODAY,
+      freezeConsumedDateKeys: ['2026-05-18'],
     });
     await saveDailySnapshot(makeBinaryPlayingSnapshot());
 

@@ -8,11 +8,15 @@ import {
 import { mergeBackfillFromStreak } from './backfillCompletionHistory';
 import { loadStreakState } from './streakStorage';
 
+export type CompletionOutcome = 'completed' | 'abandoned';
+
 export type CompletionEntry = {
   dateKey: string;
   elapsedMs: number;
   /** Upgrade backfill from streak; excluded from elapsed comparisons. */
   inferred?: boolean;
+  /** Defaults to completed when absent (legacy v1 entries). */
+  outcome?: CompletionOutcome;
 };
 
 export type CompletionHistoryState = {
@@ -25,6 +29,10 @@ type PersistedCompletionHistory = CompletionHistoryState & {
 
 function isDateKey(value: unknown): value is string {
   return typeof value === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(value);
+}
+
+function normalizeOutcome(value: unknown): CompletionOutcome {
+  return value === 'abandoned' ? 'abandoned' : 'completed';
 }
 
 function normalizeCompletionHistory(raw: unknown): CompletionHistoryState | null {
@@ -55,7 +63,13 @@ function normalizeCompletionHistory(raw: unknown): CompletionHistoryState | null
         ? Math.max(0, Math.floor(entry.elapsedMs))
         : 0;
     const inferred = entry.inferred === true;
-    entries.push({ dateKey: entry.dateKey, elapsedMs, ...(inferred ? { inferred: true } : {}) });
+    const outcome = normalizeOutcome(entry.outcome);
+    entries.push({
+      dateKey: entry.dateKey,
+      elapsedMs,
+      ...(inferred ? { inferred: true } : {}),
+      ...(outcome === 'abandoned' ? { outcome: 'abandoned' as const } : {}),
+    });
   }
 
   entries.sort((a, b) => a.dateKey.localeCompare(b.dateKey));
@@ -111,7 +125,23 @@ export async function recordCompletion(
   const current = await readCompletionHistoryFromStorage();
   const without = current.entries.filter((e) => e.dateKey !== dateKey);
   const next: CompletionHistoryState = {
-    entries: [...without, { dateKey, elapsedMs: Math.max(0, elapsedMs) }],
+    entries: [...without, { dateKey, elapsedMs: Math.max(0, elapsedMs), outcome: 'completed' }],
+  };
+  await saveCompletionHistory(next);
+}
+
+/** 认怂日写入/更新（同 dateKey 覆盖 elapsed） */
+export async function recordAbandon(
+  dateKey: string,
+  elapsedMs: number,
+): Promise<void> {
+  const current = await readCompletionHistoryFromStorage();
+  const without = current.entries.filter((e) => e.dateKey !== dateKey);
+  const next: CompletionHistoryState = {
+    entries: [
+      ...without,
+      { dateKey, elapsedMs: Math.max(0, elapsedMs), outcome: 'abandoned' },
+    ],
   };
   await saveCompletionHistory(next);
 }
@@ -119,3 +149,5 @@ export async function recordCompletion(
 export async function clearCompletionHistory(): Promise<void> {
   await AsyncStorage.removeItem(COMPLETION_HISTORY_STORAGE_KEY);
 }
+
+export { normalizeCompletionHistory };

@@ -1,5 +1,5 @@
 import { useRouter } from 'expo-router';
-import { useEffect } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { ScrollView, Text, useWindowDimensions, View } from 'react-native';
 import {
   SafeAreaView,
@@ -13,6 +13,8 @@ import GameScreenHeader from '../components/game/GameScreenHeader';
 import NonogramGameSection from '../components/game/NonogramGameSection';
 import SlitherlinkGameSection from '../components/game/SlitherlinkGameSection';
 import SudokuGameSection from '../components/game/SudokuGameSection';
+import EveningMissRiskBanner from '../components/reminder/EveningMissRiskBanner';
+import ReminderSheet from '../components/reminder/ReminderSheet';
 import OutlinePillButton from '../components/ui/OutlinePillButton';
 import { useDailyGame } from '../contexts/DailyGameContext';
 import { useDevBottomInset } from '../contexts/DevToolsUiContext';
@@ -20,6 +22,8 @@ import { useElapsedTimer } from '../hooks/useElapsedTimer';
 import { useGameBoardSession } from '../hooks/useGameBoardSession';
 import { useGameScreenActions } from '../hooks/useGameScreenActions';
 import { useI18n } from '../lib/i18n';
+import { shouldShowEveningReminderBanner } from '../lib/reminder/eveningBanner';
+import { loadReminderState } from '../lib/storage/reminderStorage';
 
 const HORIZONTAL_PADDING = 24;
 
@@ -53,6 +57,9 @@ export default function GameScreen() {
   const elapsed = useElapsedTimer(snapshot?.startedAt);
   const gridMaxWidth = screenWidth - HORIZONTAL_PADDING * 2;
   const bottomInset = useDevBottomInset(insets.bottom + 8);
+  const [reminderOpen, setReminderOpen] = useState(false);
+  const [reminderEnabled, setReminderEnabled] = useState(false);
+  const [localHour, setLocalHour] = useState(() => new Date().getHours());
 
   const session = useGameBoardSession({
     gameType,
@@ -74,6 +81,18 @@ export default function GameScreen() {
     }
   }, [status, router]);
 
+  useEffect(() => {
+    if (status !== 'playing') return;
+    const id = setInterval(() => {
+      setLocalHour(new Date().getHours());
+    }, 60_000);
+    return () => clearInterval(id);
+  }, [status]);
+
+  useEffect(() => {
+    void loadReminderState().then((state) => setReminderEnabled(state.enabled));
+  }, [reminderOpen]);
+
   const showPlayChrome = session.showBoardChrome;
   const streakSubline =
     showPlayChrome && freezeConsumedToday
@@ -81,6 +100,17 @@ export default function GameScreen() {
       : showPlayChrome && missedYesterdayLine != null
         ? missedYesterdayLine
         : null;
+
+  const showEveningBanner = useMemo(() => {
+    if (dateKey == null) return false;
+    return shouldShowEveningReminderBanner({
+      todayKey: dateKey,
+      status,
+      localHour,
+      freezeConsumedToday,
+      showMissedYesterday: missedYesterdayLine != null,
+    });
+  }, [dateKey, status, localHour, freezeConsumedToday, missedYesterdayLine]);
 
   return (
     <SafeAreaView className="flex-1 bg-canvas" edges={['top']}>
@@ -112,6 +142,23 @@ export default function GameScreen() {
           onRetry={() => void retryStreakSave()}
         />
       ) : null}
+
+      {showEveningBanner ? (
+        <EveningMissRiskBanner
+          reminderEnabled={reminderEnabled}
+          horizontalPadding={HORIZONTAL_PADDING}
+          onOpenReminder={() => setReminderOpen(true)}
+        />
+      ) : null}
+
+      <ReminderSheet
+        visible={reminderOpen}
+        onClose={() => setReminderOpen(false)}
+        dateKey={dateKey}
+        seed={snapshot?.seed ?? null}
+        todayStatus={status}
+        onReminderChange={(state) => setReminderEnabled(state.enabled)}
+      />
 
       {session.showReload ? (
         <View className="flex-1 items-center justify-center gap-3 px-8">

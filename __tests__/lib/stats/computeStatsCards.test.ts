@@ -58,6 +58,7 @@ describe('computeStatsCards', () => {
       freezeCount: 2,
       lastFreezeGrantWeekKey: '2026-W21',
       freezeConsumedSessionKey: null,
+      freezeConsumedDateKeys: [],
     });
     await recordCompletion('2026-05-19', 150_000);
 

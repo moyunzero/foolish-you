@@ -1,4 +1,5 @@
 import '../global.css';
+import '../lib/notifications/setup';
 
 import {
   Inter_400Regular,

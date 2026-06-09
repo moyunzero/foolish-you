@@ -1,11 +1,24 @@
 import { selectDailyGame } from '../../../lib/puzzles/dailySelector';
 import { deriveSeed } from '../../../lib/puzzles/rng';
+import { countGivens } from '../../../lib/puzzles/sudoku/grid';
 import {
   isBinaryPuzzle,
   isNonogramPuzzle,
   isSlitherlinkPuzzle,
   isSudokuPuzzle,
 } from '../../../lib/puzzles/types';
+import type { GameType } from '../../../lib/puzzles/types';
+
+/** Pre-v2.1 gameType golden vectors (seed chain unchanged; puzzleHash may differ). */
+const WEEKDAY_GAME_TYPE_GOLDEN: ReadonlyArray<{ dateKey: string; gameType: GameType }> = [
+  { dateKey: '2026-06-01', gameType: 'nonogram' },
+  { dateKey: '2026-06-02', gameType: 'slitherlink' },
+  { dateKey: '2026-06-03', gameType: 'slitherlink' },
+  { dateKey: '2026-06-04', gameType: 'slitherlink' },
+  { dateKey: '2026-06-05', gameType: 'binary' },
+  { dateKey: '2026-06-06', gameType: 'sudoku' },
+  { dateKey: '2026-06-07', gameType: 'nonogram' },
+];
 
 describe('selectDailyGame', () => {
   it('returns stable gameType for the same dateKey', () => {
@@ -100,6 +113,30 @@ describe('selectDailyGame', () => {
     });
     expect(second.gameType).toBe('slitherlink');
     expect(second.puzzleHash).not.toBe(first.puzzleHash);
+  });
+
+  it('keeps pre-v2.1 gameType golden vectors for a Mon–Sun week', () => {
+    for (const { dateKey, gameType } of WEEKDAY_GAME_TYPE_GOLDEN) {
+      expect(selectDailyGame({ dateKey }).gameType).toBe(gameType);
+    }
+  });
+
+  it('gives Monday sudoku more givens than Sunday sudoku', () => {
+    const mon = selectDailyGame({
+      dateKey: '2026-06-01',
+      forceGameType: 'sudoku',
+    });
+    const sun = selectDailyGame({
+      dateKey: '2026-06-07',
+      forceGameType: 'sudoku',
+    });
+    expect(isSudokuPuzzle(mon.puzzle)).toBe(true);
+    expect(isSudokuPuzzle(sun.puzzle)).toBe(true);
+    if (isSudokuPuzzle(mon.puzzle) && isSudokuPuzzle(sun.puzzle)) {
+      expect(countGivens(mon.puzzle.givens)).toBeGreaterThan(
+        countGivens(sun.puzzle.givens),
+      );
+    }
   });
 
   it('can pick slitherlink from the four-type pool', () => {

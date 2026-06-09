@@ -3,7 +3,7 @@
     "name": "傻了么",
     "slug": "foolish-you",
     "scheme": "foolish-you",
-    "version": "2.0.0",
+    "version": "2.1.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "dark",
@@ -16,14 +16,18 @@
     "ios": {
       "supportsTablet": false,
       "bundleIdentifier": "com.moyunzero.foolish-you",
-      "buildNumber": "1",
+      "buildNumber": "2",
       "infoPlist": {
-        "ITSAppUsesNonExemptEncryption": false
+        "ITSAppUsesNonExemptEncryption": false,
+        "NSUserNotificationsUsageDescription": "Daily reminders nudge you to finish today's puzzle. Scheduled locally on your device."
       }
     },
     "android": {
       "package": "com.moyunzero.foolishyou",
-      "versionCode": 1,
+      "versionCode": 2,
+      "permissions": [
+        "POST_NOTIFICATIONS"
+      ],
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#0a0a0a"
@@ -37,7 +41,15 @@
     "plugins": [
       "expo-router",
       "expo-font",
-      "expo-localization"
+      "expo-localization",
+      [
+        "expo-notifications",
+        {
+          "icon": "./assets/icon.png",
+          "color": "#ff7a17"
+        }
+      ],
+      "@react-native-community/datetimepicker"
     ],
     "extra": {
       "router": {},

@@ -276,6 +276,16 @@ export const share = {
   ] as const,
 } as const;
 
+export const calendarSummaryPools = {
+  taunt: [
+    'Cells lit up — don’t go gray tomorrow.',
+    'Completed days talk. Bailed days whisper.',
+    'Streak’s climbing. Missed days are watching.',
+    'The calendar doesn’t lie. Fill it in.',
+    'Used a shield? Earn the next green cell.',
+  ] as const,
+} as const;
+
 export const resultFooter = {
   default: 'New puzzle after midnight; game type may change.',
   ios: 'New puzzle after midnight; game type may change. On iOS, swipe up from the bottom to return home after tapping the button.',

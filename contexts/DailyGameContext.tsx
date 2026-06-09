@@ -59,9 +59,10 @@ import {
   isSlitherlinkPuzzle,
   isSudokuPuzzle,
 } from '../lib/puzzles/types';
-import { recordCompletion, loadCompletionHistory } from '../lib/storage/completionHistoryStorage';
+import { recordCompletion, recordAbandon, loadCompletionHistory } from '../lib/storage/completionHistoryStorage';
 import type { CompletionEntry } from '../lib/storage/completionHistoryStorage';
 import { incrementRatingCompletedCount } from '../lib/storage/ratingStorage';
+import { runReminderSync } from '../lib/notifications/runReminderSync';
 import { clearDailySnapshot } from '../lib/storage/dailyStorage';
 import { loadStreakState, saveStreakState } from '../lib/storage/streakStorage';
 import { isSnapshotPuzzleConsistent } from '../lib/storage/snapshotValidate';
@@ -247,16 +248,42 @@ function useDailyGameProviderValue(): DailyGameState {
     }
 
     if (next.status === 'completed') {
-      const startedAt = next.startedAt ?? Date.now();
-      const finishedAt = next.finishedAt ?? Date.now();
-      await recordCompletion(next.dateKey, finishedAt - startedAt);
+      const alreadyRecorded = entries.some(
+        (entry) =>
+          entry.dateKey === next.dateKey &&
+          !entry.inferred &&
+          entry.outcome !== 'abandoned',
+      );
+      if (!alreadyRecorded) {
+        const startedAt = next.startedAt ?? Date.now();
+        const finishedAt = next.finishedAt ?? Date.now();
+        await recordCompletion(next.dateKey, finishedAt - startedAt);
+      }
+    } else if (next.status === 'abandoned') {
+      const alreadyRecorded = entries.some(
+        (entry) =>
+          entry.dateKey === next.dateKey && entry.outcome === 'abandoned',
+      );
+      if (!alreadyRecorded) {
+        const startedAt = next.startedAt ?? Date.now();
+        const finishedAt = next.finishedAt ?? Date.now();
+        await recordAbandon(next.dateKey, finishedAt - startedAt);
+      }
     }
 
     setSnapshot(next);
     setStatus(next.status);
     setStreak(streakState);
     setHistoryEntries(entries);
-  }, [handleSaveFailed]);
+
+    await runReminderSync({
+      todayKey: next.dateKey,
+      todayStatus: next.status,
+      seed: next.seed,
+      locale,
+      localHour: new Date().getHours(),
+    });
+  }, [handleSaveFailed, locale]);
 
   const loadHydratedStateRef = useRef(loadHydratedState);
   loadHydratedStateRef.current = loadHydratedState;
@@ -264,7 +291,9 @@ function useDailyGameProviderValue(): DailyGameState {
   const hydrateCore = useCallback(async () => {
     if (hydratingRef.current) return;
     hydratingRef.current = true;
-    setStatus('loading');
+    if (snapshotRef.current == null) {
+      setStatus('loading');
+    }
 
     try {
       await flushPlayStateRef.current();
@@ -368,7 +397,18 @@ function useDailyGameProviderValue(): DailyGameState {
             await recordCompletion(updated.dateKey, finishedAt - startedAt);
             await recordStreakCheckIn(updated.dateKey);
             await incrementRatingCompletedCount();
+          } else if (nextStatus === 'abandoned') {
+            const startedAt = updated.startedAt ?? Date.now();
+            const finishedAt = updated.finishedAt ?? Date.now();
+            await recordAbandon(updated.dateKey, finishedAt - startedAt);
           }
+          await runReminderSync({
+            todayKey: updated.dateKey,
+            todayStatus: nextStatus,
+            seed: updated.seed,
+            locale,
+            localHour: new Date().getHours(),
+          });
         }
       });
     },
@@ -376,6 +416,7 @@ function useDailyGameProviderValue(): DailyGameState {
       drainPendingInto,
       persistSnapshot,
       recordStreakCheckIn,
+      locale,
     ],
   );
 

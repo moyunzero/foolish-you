@@ -2,6 +2,7 @@ import {
   SUDOKU_GIVEN_COUNT,
   SUDOKU_MAX_GEN_ATTEMPTS,
 } from '../../../constants/config';
+import { sudokuGivensForDate } from '../difficulty/weekdayBand';
 import { deriveSubSeed, mulberry32 } from '../rng';
 import type { SudokuPuzzle } from '../types';
 import {
@@ -93,10 +94,10 @@ function carvePuzzle(
   return givens;
 }
 
-function generateOnce(seed: number): SudokuPuzzle | null {
+function generateOnce(seed: number, targetGivens: number): SudokuPuzzle | null {
   const rng = mulberry32(seed);
   const complete = fillCompleteGrid(rng);
-  const givens = carvePuzzle(complete, rng, SUDOKU_GIVEN_COUNT);
+  const givens = carvePuzzle(complete, rng, targetGivens);
   if (givens == null) return null;
 
   return {
@@ -106,14 +107,16 @@ function generateOnce(seed: number): SudokuPuzzle | null {
   };
 }
 
-export function generateSudokuPuzzle(seed: number): SudokuPuzzle {
+export function generateSudokuPuzzle(seed: number, dateKey?: string): SudokuPuzzle {
+  const targetGivens =
+    dateKey != null ? sudokuGivensForDate(dateKey) : SUDOKU_GIVEN_COUNT;
   for (let attempt = 0; attempt < SUDOKU_MAX_GEN_ATTEMPTS; attempt += 1) {
     const attemptSeed = deriveSubSeed(seed, `gen-${attempt}`);
-    const puzzle = generateOnce(attemptSeed);
+    const puzzle = generateOnce(attemptSeed, targetGivens);
     if (puzzle != null) return puzzle;
   }
 
-  const fallback = generateOnce(deriveSubSeed(seed, 'gen-fallback'));
+  const fallback = generateOnce(deriveSubSeed(seed, 'gen-fallback'), targetGivens);
   if (fallback != null) return fallback;
 
   throw new Error('Failed to generate sudoku puzzle');

@@ -1,8 +1,14 @@
 import { computeClues } from './clues';
 import { computePuzzleHash } from './hash';
-import { NONOGRAM_PATTERNS, patternSolution } from './patterns';
+import { weekdayBand } from '../difficulty/weekdayBand';
+import {
+  NONOGRAM_PATTERNS,
+  patternSolution,
+  patternsForTier,
+  type NonogramPattern,
+} from './patterns';
 import { applyTransform, type TransformFlags } from './transform';
-import { deriveSubSeed, mulberry32 } from '../rng';
+import { deriveSubSeed, hashStringToSeed, mulberry32 } from '../rng';
 import type { NonogramPuzzle } from '../types';
 import { NONOGRAM_COLS, NONOGRAM_ROWS } from './spec';
 
@@ -19,8 +25,17 @@ function selectPatternIndex(seed: number): number {
   return Math.floor(rng() * NONOGRAM_PATTERNS.length);
 }
 
-export function generateNonogramPuzzle(seed: number): NonogramPuzzle {
-  const pattern = NONOGRAM_PATTERNS[selectPatternIndex(seed)]!;
+function selectPattern(seed: number, dateKey?: string): NonogramPattern {
+  if (dateKey == null) {
+    return NONOGRAM_PATTERNS[selectPatternIndex(seed)]!;
+  }
+  const bucket = patternsForTier(weekdayBand(dateKey));
+  const idx = hashStringToSeed(`${seed}:nono-pattern`) % bucket.length;
+  return bucket[idx]!;
+}
+
+export function generateNonogramPuzzle(seed: number, dateKey?: string): NonogramPuzzle {
+  const pattern = selectPattern(seed, dateKey);
   const transform = pickTransform(seed);
   const solution = applyTransform(patternSolution(pattern), transform);
   const { rowClues, colClues } = computeClues(solution);

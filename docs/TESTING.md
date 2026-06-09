@@ -82,6 +82,7 @@ __tests__/
 │   ├── streak/             # Streak, freeze, missed-yesterday logic
 │   ├── i18n/               # en-smoke, locale helpers
 │   └── copy/               # User-facing string helpers
+├── integration/            # Cross-module habit-depth flows (v2.1+)
 ├── contexts/               # DailyGameContext RTL
 ├── hooks/                  # useSudokuBoard, useBinaryBoard, useSlitherlinkBoard (Nonogram via grid RTL)
 ├── components/grid/        # SudokuGrid, BinaryGrid, NonogramGrid, SudokuNumpad
@@ -146,7 +147,7 @@ Workflow: `.github/workflows/ci.yml` — job **`verify`**
 Steps (in order):
 
 1. **Typecheck** — `npm run typecheck`
-2. **Tests** — `npm test` (runs both `unit` and `rtl` projects; currently 402 tests)
+2. **Tests** — `npm test` (runs both `unit` and `rtl` projects; currently 473 tests)
 3. **Migration tests** — `npm run test:migration`
 4. **Lint** — `npm run lint`
 
@@ -173,6 +174,23 @@ Automated tests cover logic and component behavior; they do not replace on-devic
 - [ ] **English locale** — Device English or DevTools settings preview; game/result/privacy show **Brainfool** branding; share CTA uses `#Brainfool`.
 
 EAS preview/production builds (`eas.json`) require device verification before tagging release-ready.
+
+### v2.1 habit depth manual QA
+
+Run on **EAS dev client** after `expo-notifications` native rebuild (v21-05). Record build ID when checking off [VERIFICATION.md](../.planning/phases/v2.1-content-depth/VERIFICATION.md).
+
+| # | 区域 | 步骤 | 预期 |
+|---|------|------|------|
+| 1 | 难度 | Dev 改 dateKey Mon vs Sun | 可玩；Mon 更易（givens/clues） |
+| 2 | 月历 | 结果页「查看本月」 | Sheet 四态；上月导航；summary 数字 |
+| 3 | 月历 | 认怂后 reopen 月历 | ○ 显示（含历史 v2） |
+| 4 | 月历 | 护盾消耗日 | 🛡 显示 |
+| 5 | 提醒 | 首次通关 soft ask | inline card；abandon 无 |
+| 6 | 提醒 | 20:00+ playing | D banner；freeze 日不冲突 |
+| 7 | 提醒 | EAS dev build 权限 grant/deny | D-06 行为 |
+| 8 | 提醒 | 完成后再到提醒时刻 | 无推送 |
+| 9 | 图鉴 | 月历 CTA 生成 | PNG share sheet |
+| 10 | i18n | 系统 en | Brainfool + 新 strings |
 
 Start the dev server for manual testing:
 

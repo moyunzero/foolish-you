@@ -27,6 +27,10 @@ Break one, you break existing users.
 | `contexts/DailyGameContext.tsx` | **Source of truth** for today's game (hydrate, play, persist, complete/abandon) |
 | `hooks/useDailyGame.ts` | Thin re-export — do **not** duplicate orchestration |
 | `lib/puzzles/` | Generation, validation, solving; hydrate uses `selectDailyGameSafe` |
+| `lib/calendar/` | Month grid, cell state derivation, summary (v2.1) |
+| `lib/gallery/` | Month gallery PNG composition (v2.1) |
+| `lib/reminder/` | Soft ask / evening banner gates (v2.1) |
+| `lib/notifications/` | Local push setup, routine scheduler, sync on hydrate/complete (v2.1) |
 | `lib/storage/` | Snapshot read/write, validate, migrate, recover; history, rating, recovery log |
 | `lib/copy/` + `locales/` | All user-facing strings via `useI18n()` — no hardcoded zh/en in UI |
 | `constants/` | `config.ts`, `design.ts`, `dev.ts` |
@@ -80,7 +84,7 @@ Manual QA → [docs/TESTING.md § Manual QA checklist](./docs/TESTING.md#manual-
 | Area | Notes |
 |------|--------|
 | Auth / backend | `(auth)/login.tsx` placeholder only |
-| Notifications | Defer (v2.1+) |
+| Notifications | v2.1 local routine only (`expo-notifications`); no remote config |
 | Hints, history UI, social, leaderboards | Defer |
 | Remote puzzle config | Violates offline-first |
 | Heavy date libraries | Use `lib/date/localDay.ts` |

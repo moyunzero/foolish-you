@@ -81,6 +81,7 @@ function streakBase(today: string, overrides: Partial<StreakState>): StreakState
     freezeCount: 0,
     lastFreezeGrantWeekKey: getIsoWeekKey(today),
     freezeConsumedSessionKey: null,
+    freezeConsumedDateKeys: [],
     ...overrides,
   };
 }

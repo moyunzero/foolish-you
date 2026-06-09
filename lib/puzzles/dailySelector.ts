@@ -43,17 +43,22 @@ function pickGameType(
 
 function buildSudokuPuzzle(
   seed: number,
+  dateKey: string,
   avoidHash?: string,
 ): { puzzle: PuzzlePayload; puzzleHash: string } {
   for (let attempt = 0; attempt < 50; attempt += 1) {
     const puzzle = generateSudokuPuzzle(
       deriveSubSeed(seed, `daily-sudo-${attempt}`),
+      dateKey,
     );
     if (avoidHash == null || puzzle.puzzleHash !== avoidHash) {
       return { puzzle, puzzleHash: puzzle.puzzleHash };
     }
   }
-  const puzzle = generateSudokuPuzzle(deriveSubSeed(seed, 'daily-sudo-fallback'));
+  const puzzle = generateSudokuPuzzle(
+    deriveSubSeed(seed, 'daily-sudo-fallback'),
+    dateKey,
+  );
   return { puzzle, puzzleHash: puzzle.puzzleHash };
 }
 
@@ -69,57 +74,69 @@ export function selectDailyGame(
   if (gameType === 'sudoku') {
     const { puzzle, puzzleHash } = buildSudokuPuzzle(
       seed,
+      params.dateKey,
       params.previous?.puzzleHash,
     );
     return { gameType, seed, puzzle, puzzleHash };
   }
 
   if (gameType === 'binary') {
-    const puzzle = buildBinaryPuzzle(seed, params.previous?.puzzleHash);
+    const puzzle = buildBinaryPuzzle(seed, params.dateKey, params.previous?.puzzleHash);
     return { gameType, seed, puzzle, puzzleHash: puzzle.puzzleHash };
   }
 
   if (gameType === 'nonogram') {
-    const puzzle = buildNonogramPuzzle(seed, params.previous?.puzzleHash);
+    const puzzle = buildNonogramPuzzle(seed, params.dateKey, params.previous?.puzzleHash);
     return { gameType, seed, puzzle, puzzleHash: puzzle.puzzleHash };
   }
 
-  const puzzle = buildSlitherlinkPuzzle(seed, params.previous?.puzzleHash);
+  const puzzle = buildSlitherlinkPuzzle(seed, params.dateKey, params.previous?.puzzleHash);
   return { gameType, seed, puzzle, puzzleHash: puzzle.puzzleHash };
 }
 
-function buildNonogramPuzzle(seed: number, avoidHash?: string) {
+function buildNonogramPuzzle(seed: number, dateKey: string, avoidHash?: string) {
   for (let attempt = 0; attempt < 50; attempt += 1) {
     const puzzle = generateNonogramPuzzle(
       deriveSubSeed(seed, `daily-nono-${attempt}`),
+      dateKey,
     );
     if (avoidHash == null || puzzle.puzzleHash !== avoidHash) {
       return puzzle;
     }
   }
-  return generateNonogramPuzzle(deriveSubSeed(seed, 'daily-nono-fallback'));
+  return generateNonogramPuzzle(deriveSubSeed(seed, 'daily-nono-fallback'), dateKey);
 }
 
-function buildBinaryPuzzle(seed: number, avoidHash?: string): BinaryPuzzle {
+function buildBinaryPuzzle(
+  seed: number,
+  dateKey: string,
+  avoidHash?: string,
+): BinaryPuzzle {
   for (let attempt = 0; attempt < 50; attempt += 1) {
     const puzzle = generateBinaryPuzzle(
       deriveSubSeed(seed, `daily-bin-${attempt}`),
+      dateKey,
     );
     if (avoidHash == null || puzzle.puzzleHash !== avoidHash) {
       return puzzle;
     }
   }
-  const puzzle = generateBinaryPuzzle(deriveSubSeed(seed, 'daily-bin-fallback'));
+  const puzzle = generateBinaryPuzzle(
+    deriveSubSeed(seed, 'daily-bin-fallback'),
+    dateKey,
+  );
   return puzzle;
 }
 
 function buildSlitherlinkPuzzle(
   seed: number,
+  dateKey: string,
   avoidHash?: string,
 ): SlitherlinkPuzzle {
   for (let attempt = 0; attempt < 50; attempt += 1) {
     const puzzle = generateSlitherlinkPuzzle(
       deriveSubSeed(seed, `daily-sl-${attempt}`),
+      dateKey,
     );
     if (avoidHash == null || puzzle.puzzleHash !== avoidHash) {
       return puzzle;

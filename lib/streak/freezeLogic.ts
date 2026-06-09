@@ -1,11 +1,21 @@
 import { hasRealCompletionForDateKey } from '../completion/completionHistoryQueries';
 import { addDaysToDateKey, getIsoWeekKey } from '../date/dateKeyMath';
 import type { CompletionEntry } from '../storage/completionHistoryStorage';
+import { COMPLETION_HISTORY_MAX_ENTRIES } from '../../constants/config';
 import { applyCheckIn, daysBetweenDateKeys } from './streakLogic';
 import type { StreakState } from './types';
 import { EMPTY_STREAK_STATE } from './types';
 
 const MAX_FREEZE_COUNT = 2;
+
+export function trimFreezeConsumedDateKeys(
+  keys: string[],
+  maxEntries: number = COMPLETION_HISTORY_MAX_ENTRIES,
+): string[] {
+  const unique = [...new Set(keys.filter((k) => /^\d{4}-\d{2}-\d{2}$/.test(k)))];
+  unique.sort((a, b) => a.localeCompare(b));
+  return unique.slice(-maxEntries);
+}
 
 export function grantWeeklyFreeze(
   state: StreakState,
@@ -61,6 +71,10 @@ export function consumeFreezeForMissedDay(
       freezeCount: state.freezeCount - 1,
       lastCheckInDateKey: yesterdayKey,
       freezeConsumedSessionKey: todayKey,
+      freezeConsumedDateKeys: trimFreezeConsumedDateKeys([
+        ...state.freezeConsumedDateKeys,
+        yesterdayKey,
+      ]),
     },
     consumed: true,
   };

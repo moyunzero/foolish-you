@@ -6,6 +6,10 @@ import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context'
 
 import ShareButton from '../components/result/ShareButton';
 import StatsCards from '../components/result/StatsCards';
+import MonthCalendarLink from '../components/calendar/MonthCalendarLink';
+import MonthCalendarSheet from '../components/calendar/MonthCalendarSheet';
+import ReminderSoftAskCard from '../components/reminder/ReminderSoftAskCard';
+import ReminderSheet from '../components/reminder/ReminderSheet';
 import FoolFaceBadge from '../components/result/FoolFaceBadge';
 import NonogramRevealCard from '../components/result/NonogramRevealCard';
 import SlitherlinkRevealCard from '../components/result/SlitherlinkRevealCard';
@@ -30,6 +34,9 @@ import { maybePromptAppReview } from '../lib/rating/maybePromptAppReview';
 import { computeStatsCards, type StatsCardsData } from '../lib/stats/computeStatsCards';
 import { buildShareCard } from '../lib/share/buildShareCard';
 import { isNonogramPuzzle, isSlitherlinkPuzzle } from '../lib/puzzles/types';
+import { shouldShowReminderSoftAsk } from '../lib/reminder/shouldShowSoftAsk';
+import { loadRatingState } from '../lib/storage/ratingStorage';
+import { loadReminderState } from '../lib/storage/reminderStorage';
 
 const HORIZONTAL_PADDING = 24;
 
@@ -85,6 +92,9 @@ export default function ResultScreen() {
   const bottomPadding = useDevBottomInset(insets.bottom + 16);
   const ratingPromptAttemptedRef = useRef(false);
   const [statsCards, setStatsCards] = useState<StatsCardsData | null>(null);
+  const [calendarOpen, setCalendarOpen] = useState(false);
+  const [reminderOpen, setReminderOpen] = useState(false);
+  const [softAskVisible, setSoftAskVisible] = useState(false);
 
   useEffect(() => {
     if (copy == null || snapshot == null || dateKey == null) {
@@ -126,6 +136,33 @@ export default function ResultScreen() {
 
     return () => clearTimeout(timer);
   }, [isSuccess, dateKey, displayStreak]);
+
+  useEffect(() => {
+    if (!isSuccess) {
+      setSoftAskVisible(false);
+      return;
+    }
+
+    let cancelled = false;
+    void (async () => {
+      const [rating, reminder] = await Promise.all([
+        loadRatingState(),
+        loadReminderState(),
+      ]);
+      if (cancelled) return;
+      setSoftAskVisible(
+        shouldShowReminderSoftAsk({
+          outcome: 'completed',
+          completedCount: rating.completedCount,
+          softAskDismissed: reminder.softAskDismissed,
+        }),
+      );
+    })();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [isSuccess]);
 
   const nonogramPuzzle =
     isSuccess &&
@@ -247,7 +284,39 @@ export default function ResultScreen() {
           )}
         </View>
 
-        {statsCards != null ? <StatsCards data={statsCards} /> : null}
+        {statsCards != null ? (
+          <>
+            <StatsCards data={statsCards} />
+            {softAskVisible && dateKey != null ? (
+              <ReminderSoftAskCard
+                dateKey={dateKey}
+                seed={seed ?? snapshot?.seed}
+                onOpenReminder={() => setReminderOpen(true)}
+              />
+            ) : null}
+            <MonthCalendarLink onPress={() => setCalendarOpen(true)} />
+          </>
+        ) : null}
+
+        <ReminderSheet
+          visible={reminderOpen}
+          onClose={() => setReminderOpen(false)}
+          dateKey={dateKey}
+          seed={seed ?? snapshot?.seed ?? null}
+          todayStatus={
+            status === 'completed' || status === 'abandoned' ? status : 'playing'
+          }
+        />
+
+        <MonthCalendarSheet
+          visible={calendarOpen}
+          onClose={() => setCalendarOpen(false)}
+          dateKey={dateKey}
+          seed={seed ?? snapshot?.seed}
+          todaySnapshotStatus={
+            status === 'completed' || status === 'abandoned' ? status : undefined
+          }
+        />
 
         <Animated.View entering={FadeIn.delay(900).duration(450)} style={{ marginTop: 32 }}>
           {shareText != null ? (

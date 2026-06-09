@@ -41,6 +41,7 @@ function normalizeFreezeFields(row: Record<string, unknown>): {
   freezeCount: number;
   lastFreezeGrantWeekKey: string | null;
   freezeConsumedSessionKey: string | null;
+  freezeConsumedDateKeys: string[];
 } | null {
   const rawFreezeCount = row.freezeCount;
   let freezeCount = 0;
@@ -71,12 +72,28 @@ function normalizeFreezeFields(row: Record<string, unknown>): {
     return null;
   }
 
+  const rawDateKeys = row.freezeConsumedDateKeys;
+  let freezeConsumedDateKeys: string[] = [];
+  if (rawDateKeys !== undefined) {
+    if (!Array.isArray(rawDateKeys)) {
+      return null;
+    }
+    for (const item of rawDateKeys) {
+      if (typeof item !== 'string' || !/^\d{4}-\d{2}-\d{2}$/.test(item)) {
+        return null;
+      }
+      freezeConsumedDateKeys.push(item);
+    }
+    freezeConsumedDateKeys = [...new Set(freezeConsumedDateKeys)].sort();
+  }
+
   return {
     freezeCount,
     lastFreezeGrantWeekKey:
       rawGrantWeek === undefined ? null : (rawGrantWeek as string | null),
     freezeConsumedSessionKey:
       rawConsumedKey === undefined ? null : (rawConsumedKey as string | null),
+    freezeConsumedDateKeys,
   };
 }
 

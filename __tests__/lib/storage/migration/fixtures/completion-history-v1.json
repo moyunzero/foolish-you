@@ -1,0 +1,7 @@
+{
+  "version": 1,
+  "entries": [
+    { "dateKey": "2026-05-18", "elapsedMs": 120000 },
+    { "dateKey": "2026-05-19", "elapsedMs": 90000, "inferred": true }
+  ]
+}

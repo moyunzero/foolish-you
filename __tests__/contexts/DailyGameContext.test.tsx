@@ -24,7 +24,18 @@ import {
   loadStreakState,
   saveStreakState,
 } from '../../lib/storage/streakStorage';
-import { recordCompletion } from '../../lib/storage/completionHistoryStorage';
+import {
+  loadCompletionHistory,
+  recordCompletion,
+} from '../../lib/storage/completionHistoryStorage';
+import * as completionHistoryStorage from '../../lib/storage/completionHistoryStorage';
+import { runReminderSync } from '../../lib/notifications/runReminderSync';
+
+jest.mock('../../lib/notifications/runReminderSync', () => ({
+  runReminderSync: jest.fn(async () => undefined),
+}));
+
+const runReminderSyncMock = jest.mocked(runReminderSync);
 import {
   FIXTURE_TODAY,
   FIXTURE_TOMORROW,
@@ -80,6 +91,7 @@ describe('DailyGameContext', () => {
     await AsyncStorage.clear();
     getLocalDateKeyMock.mockReturnValue(FIXTURE_TODAY);
     appStateHandlers.length = 0;
+    runReminderSyncMock.mockClear();
 
     jest.spyOn(AppState, 'addEventListener').mockImplementation((_, handler) => {
       appStateHandlers.push(handler as AppStateHandler);
@@ -222,6 +234,7 @@ describe('DailyGameContext', () => {
       freezeCount: 0,
       lastFreezeGrantWeekKey: '2026-W21',
       freezeConsumedSessionKey: null,
+      freezeConsumedDateKeys: [],
     });
 
     jest.useRealTimers();
@@ -259,6 +272,7 @@ describe('DailyGameContext', () => {
       freezeCount: 0,
       lastFreezeGrantWeekKey: '2026-W21',
       freezeConsumedSessionKey: null,
+      freezeConsumedDateKeys: [],
     });
   });
 
@@ -450,6 +464,69 @@ describe('DailyGameContext', () => {
     });
   });
 
+  it('keeps playing status during foreground re-hydrate', async () => {
+    await saveDailySnapshot(makeBinaryPlayingSnapshot());
+    const { result } = await renderAndHydrate();
+    expect(result.current.status).toBe('playing');
+
+    const seen: string[] = [];
+    await act(async () => {
+      emitAppState('active');
+      seen.push(result.current.status);
+      await Promise.resolve();
+    });
+
+    await waitFor(() => {
+      expect(result.current.status).toBe('playing');
+    });
+    expect(seen).not.toContain('loading');
+  });
+
+  it('keeps completed status during foreground re-hydrate on result', async () => {
+    await saveDailySnapshot(
+      makeBinaryPlayingSnapshot({ status: 'completed', dateKey: FIXTURE_TODAY }),
+    );
+
+    const { result } = await renderAndHydrate();
+    expect(result.current.status).toBe('completed');
+
+    const seen: string[] = [];
+    await act(async () => {
+      emitAppState('active');
+      seen.push(result.current.status);
+      await Promise.resolve();
+    });
+
+    await waitFor(() => {
+      expect(result.current.status).toBe('completed');
+    });
+    expect(seen).not.toContain('loading');
+  });
+
+  it('does not rewrite completion history when re-hydrating terminal snapshot', async () => {
+    const recordSpy = jest.spyOn(completionHistoryStorage, 'recordCompletion');
+    await recordCompletion(FIXTURE_TODAY, 60_000);
+    await saveDailySnapshot(
+      makeBinaryPlayingSnapshot({ status: 'completed', dateKey: FIXTURE_TODAY }),
+    );
+    recordSpy.mockClear();
+
+    const { result } = await renderAndHydrate();
+    expect(result.current.status).toBe('completed');
+    expect(recordSpy).not.toHaveBeenCalled();
+
+    await act(async () => {
+      emitAppState('active');
+      await Promise.resolve();
+    });
+
+    await waitFor(() => {
+      expect(result.current.status).toBe('completed');
+    });
+    expect(recordSpy).not.toHaveBeenCalled();
+    recordSpy.mockRestore();
+  });
+
   it('devRegenerateToday clears storage and builds a new snapshot', async () => {
     const stored = makeBinaryPlayingSnapshot({ seed: 555 });
     await saveDailySnapshot(stored);
@@ -536,6 +613,45 @@ describe('DailyGameContext', () => {
     expect(result.current.snapshot?.status).toBe('abandoned');
   });
 
+  it('markAbandoned records abandoned outcome in completion history', async () => {
+    const stored = makeBinaryPlayingSnapshot();
+    await saveDailySnapshot(stored);
+
+    const { result } = await renderAndHydrate();
+
+    await act(async () => {
+      await result.current.markAbandoned();
+    });
+
+    const { entries } = await loadCompletionHistory();
+    expect(entries).toEqual([
+      expect.objectContaining({
+        dateKey: FIXTURE_TODAY,
+        outcome: 'abandoned',
+        elapsedMs: expect.any(Number),
+      }),
+    ]);
+  });
+
+  it('markCompleted invokes runReminderSync after persist', async () => {
+    const stored = makeBinaryPlayingSnapshot();
+    await saveDailySnapshot(stored);
+
+    const { result } = await renderAndHydrate();
+    runReminderSyncMock.mockClear();
+
+    await act(async () => {
+      await result.current.markCompleted();
+    });
+
+    expect(runReminderSyncMock).toHaveBeenCalledWith(
+      expect.objectContaining({
+        todayKey: FIXTURE_TODAY,
+        todayStatus: 'completed',
+      }),
+    );
+  });
+
   it('refresh re-runs hydrate', async () => {
     const stored = makeBinaryPlayingSnapshot({ status: 'completed' });
     await saveDailySnapshot(stored);
@@ -564,6 +680,7 @@ describe('DailyGameContext', () => {
       freezeCount: 1,
       lastFreezeGrantWeekKey: '2026-W21',
       freezeConsumedSessionKey: null,
+      freezeConsumedDateKeys: [],
     });
     await saveDailySnapshot(makeBinaryPlayingSnapshot());
 
@@ -578,6 +695,7 @@ describe('DailyGameContext', () => {
       freezeCount: 0,
       lastFreezeGrantWeekKey: '2026-W21',
       freezeConsumedSessionKey: FIXTURE_TODAY,
+      freezeConsumedDateKeys: ['2026-05-18'],
     });
   });
 
@@ -589,6 +707,7 @@ describe('DailyGameContext', () => {
       freezeCount: 1,
       lastFreezeGrantWeekKey: '2026-W21',
       freezeConsumedSessionKey: null,
+      freezeConsumedDateKeys: [],
     });
     await recordCompletion('2026-05-18', 120_000);
     await saveDailySnapshot(makeBinaryPlayingSnapshot());
@@ -603,6 +722,7 @@ describe('DailyGameContext', () => {
       freezeCount: 1,
       lastFreezeGrantWeekKey: '2026-W21',
       freezeConsumedSessionKey: null,
+      freezeConsumedDateKeys: [],
     });
   });
 

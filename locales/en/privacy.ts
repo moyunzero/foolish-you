@@ -34,6 +34,14 @@ export const privacy = {
       ],
     },
     {
+      title: 'Local reminders',
+      paragraphs: [
+        'If you turn on “Daily reminder” from the result or game screen, the App schedules local notifications on your device to nudge you about today’s puzzle.',
+        'Reminder preferences (on/off and time) are stored only on your device and are not uploaded to the developer or third parties.',
+        'You can turn reminders off anytime in the in-app reminder sheet; no further local notifications will be sent after you disable them.',
+      ],
+    },
+    {
       title: "Children's privacy",
       paragraphs: [
         'The App does not knowingly collect personal information from children under 13. Because we do not collect personal data, the same “no collection” principle applies when children use the App with a guardian’s consent.',

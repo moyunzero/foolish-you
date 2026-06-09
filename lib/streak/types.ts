@@ -9,6 +9,8 @@ export type StreakState = {
   lastFreezeGrantWeekKey: string | null;
   /** Equals todayKey when freeze was consumed this session/day */
   freezeConsumedSessionKey?: string | null;
+  /** dateKeys when a freeze shield was consumed (calendar 🛡), trimmed to 90 days */
+  freezeConsumedDateKeys: string[];
 };
 
 export const EMPTY_STREAK_STATE: StreakState = {
@@ -18,6 +20,7 @@ export const EMPTY_STREAK_STATE: StreakState = {
   freezeCount: 0,
   lastFreezeGrantWeekKey: null,
   freezeConsumedSessionKey: null,
+  freezeConsumedDateKeys: [],
 };
 
 export type StreakDisplay = {
