@@ -160,9 +160,13 @@ npm test
 使用 [EAS Build](https://docs.expo.dev/build/introduction/) 或本地预构建：
 
 ```bash
-# 需先安装 eas-cli 并登录 Expo 账号
-npx eas build --platform ios
-npx eas build --platform android
+# 需先安装 eas-cli 并登录 Expo 账号（npm install -g eas-cli && eas login）
+eas build --platform ios
+eas build --platform android
+
+# 或使用项目脚本（preview profile）
+npm run build:preview:ios
+npm run build:preview:android
 ```
 
 `app.json` 中已配置应用名 **傻了么**、Bundle ID `com.moyunzero.foolish-you`、深色界面。发布前请自行替换图标、签名与商店元数据。
