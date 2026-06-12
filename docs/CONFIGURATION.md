@@ -26,13 +26,13 @@ Primary Expo configuration (static JSON, no `app.config.js`).
 |------|-------|-------|
 | Display name | 傻了么 | User-facing app name |
 | Slug / scheme | `foolish-you` | Deep links and Expo project slug |
-| Version | `2.0.0` | Marketing version (aligned with `package.json`) |
+| Version | `2.1.0` | Marketing version (aligned with `package.json`) |
 | UI style | `dark` | System appearance default |
 | New architecture | `true` | React Native new arch enabled |
 | Entry | `expo-router/entry` | Set in `package.json` `main` |
 | Plugins | `expo-router`, `expo-font` | Router + font loading |
-| iOS bundle ID | `com.moyunzero.foolish-you` | `buildNumber`: `1` |
-| Android package | `com.moyunzero.foolishyou` | `versionCode`: `1` |
+| iOS bundle ID | `com.moyunzero.foolish-you` | `buildNumber`: `2` |
+| Android package | `com.moyunzero.foolishyou` | `versionCode`: `2` |
 | Splash / icons | `./assets/*` | Background `#0a0a0a` (matches design canvas) |
 
 `expo.extra.eas.projectId` links the repo to EAS project `c966dcb9-f523-46a1-aa38-00053eb7d8d4`. <!-- VERIFY: EAS project ownership and dashboard URL if documenting for a team -->

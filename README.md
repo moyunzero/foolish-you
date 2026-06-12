@@ -190,7 +190,7 @@ npm run build:preview:android
 |------|----|----|-----|------|----------------|
 | v1.0（已上架基线） | — | — | — | 已公测 | 0%（无入口） |
 | v1.1 目标（≈ 3 月） | 32% | 12% | 5% | ≥ 4.4 | ≥ 3% |
-| **当前 v2.0（`2.0.0`，代码已交付）** | 待公测 | 待公测 | 待公测 | 目标 ≥ 4.5 | 目标 ≥ 5% |
+| **当前 v2.1（`2.1.0`，已交付）** | 待公测 | 待公测 | 待公测 | 目标 ≥ 4.5 | 目标 ≥ 5% |
 | v2.0 后 ≈ 6 月 | **35%+** | **15%+** | **7%+** | **≥ 4.5** | ≥ 5% |
 | 12 月目标 | 38% | 18% | 9% | 4.6 | 7% |
 
@@ -203,8 +203,8 @@ npm run build:preview:android
 | **v1.0** | 已发布 | 每日数独 / 二进制 / 数绘（**不含数回**）、本地进度、连签、结果动效、计时、规则弹窗 | — |
 | **v1.1** | 已发布（`1.1.x`） | ① 结果页 emoji 战报拷贝（`lib/share/` + `expo-clipboard`）；② 评分引导（通关 + 完成局数等门槛，`expo-store-review`）；③ 结果页三数据小卡（今日用时 / 本周完成 / 历史最长连签，`historicalMax`）；④ 防御：`selectDailyGameSafe`、快照 `recoverSnapshot`、计时校正、迁移 + recovery 单测、Dev 恢复日志 | Wordle 90→300K DAU 来自一键 emoji 分享 |
 | **v1.2** | 已发布（`1.2.0`） | 系统语言 zh/en（`expo-localization`）；英文品牌 **Brainfool**；`locales/` + `useI18n`；双语隐私；DevTools **设置占位**（不写存储，Release 无入口） | 海外可读性 + 商店合规 |
-| **v2.0** | 已交付（`2.0.0`；closeout EAS 矩阵见 `.planning/`) | ✅ 数回 7×7；✅ Streak Freeze；✅ 昨日错过召回 | Duolingo：streak 寿命 +48% |
-| **v2.1** | **已交付**（手测签收 2026-06-09） | ✅ 周节奏难度；✅ 本月月历 + 摘要；✅ 每日提醒 A+D；✅ 月度图鉴 PNG | NYT Mini/Midi 节奏 · D1→D2 |
+| **v2.0** | 已交付（`2.0.0`；含于 `2.1.0` 发版） | ✅ 数回 7×7；✅ Streak Freeze；✅ 昨日错过召回 | Duolingo：streak 寿命 +48% |
+| **v2.1** | **已发布**（`2.1.0`；手测签收 2026-06-09） | ✅ 周节奏难度；✅ 本月月历 + 摘要；✅ 每日提醒 A+D；✅ 月度图鉴 PNG | NYT Mini/Midi 节奏 · D1→D2 |
 | **v3.0** | 规划中 | iCloud / Google 端到端同步或 QR 导入导出；30 天历史归档 | 避免与「离线优先 / 无社交」冲突 |
 | **v4.0** | 规划中 | 匿名挑战码；Year in 傻了么 年终长图 | 朋友间话题，无好友列表 |
 
@@ -230,7 +230,7 @@ npm run build:preview:android
 
 ## 徽章
 
-![version](https://img.shields.io/badge/version-2.0.0-blue)
+![version](https://img.shields.io/badge/version-2.1.0-blue)
 
 ## 使用示例
 
