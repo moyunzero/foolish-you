@@ -50,4 +50,68 @@ describe('computeMonthSummary', () => {
     });
     expect(summary.summaryTaunt).not.toMatch(/[\u4e00-\u9fff]/);
   });
+
+  describe('growthDelta (D-18 / first-month suppression)', () => {
+    const base = {
+      monthKey: '2026-05',
+      streak: null,
+      seed: 42,
+      locale: 'zh' as const,
+    };
+
+    it('is positive when this month > last month (>0)', () => {
+      const summary = computeMonthSummary({
+        ...base,
+        entries: [
+          { dateKey: '2026-04-01', elapsedMs: 1000 },
+          { dateKey: '2026-04-02', elapsedMs: 1000 },
+          { dateKey: '2026-05-01', elapsedMs: 1000 },
+          { dateKey: '2026-05-02', elapsedMs: 1000 },
+          { dateKey: '2026-05-03', elapsedMs: 1000 },
+        ],
+      });
+      expect(summary.monthCompletedCount).toBe(3);
+      expect(summary.growthDelta).toBe(1);
+    });
+
+    it('is 0 when this month < last month (never negative)', () => {
+      const summary = computeMonthSummary({
+        ...base,
+        entries: [
+          { dateKey: '2026-04-01', elapsedMs: 1000 },
+          { dateKey: '2026-04-02', elapsedMs: 1000 },
+          { dateKey: '2026-04-03', elapsedMs: 1000 },
+          { dateKey: '2026-05-01', elapsedMs: 1000 },
+        ],
+      });
+      expect(summary.growthDelta).toBe(0);
+    });
+
+    it('is 0 when this month equals last month', () => {
+      const summary = computeMonthSummary({
+        ...base,
+        entries: [
+          { dateKey: '2026-04-01', elapsedMs: 1000 },
+          { dateKey: '2026-04-02', elapsedMs: 1000 },
+          { dateKey: '2026-05-01', elapsedMs: 1000 },
+          { dateKey: '2026-05-02', elapsedMs: 1000 },
+        ],
+      });
+      expect(summary.growthDelta).toBe(0);
+    });
+
+    it('does not mislead on the first month (lastMonthCount === 0)', () => {
+      const summary = computeMonthSummary({
+        ...base,
+        entries: [
+          { dateKey: '2026-05-01', elapsedMs: 1000 },
+          { dateKey: '2026-05-02', elapsedMs: 1000 },
+          { dateKey: '2026-05-03', elapsedMs: 1000 },
+        ],
+      });
+      expect(summary.monthCompletedCount).toBe(3);
+      // No real previous month → must NOT claim "more than last month".
+      expect(summary.growthDelta).toBe(0);
+    });
+  });
 });
