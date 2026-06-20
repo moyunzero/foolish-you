@@ -26,6 +26,9 @@ import {
   getResultFooterHint,
   pickResultCopy,
 } from '../lib/copy/resultMessages';
+import { pickGrowthLine } from '../lib/copy/growthLine';
+import { resolveGrowthTone } from '../lib/growth/resolveGrowthLine';
+import { loadCompletionHistory } from '../lib/storage/completionHistoryStorage';
 import { useI18n } from '../lib/i18n';
 import { formatTodayMeta } from '../lib/i18n/format';
 import { exitApplication } from '../lib/platform/exitApp';
@@ -92,6 +95,7 @@ export default function ResultScreen() {
   const bottomPadding = useDevBottomInset(insets.bottom + 16);
   const ratingPromptAttemptedRef = useRef(false);
   const [statsCards, setStatsCards] = useState<StatsCardsData | null>(null);
+  const [growthLine, setGrowthLine] = useState<string | null>(null);
   const [calendarOpen, setCalendarOpen] = useState(false);
   const [reminderOpen, setReminderOpen] = useState(false);
   const [softAskVisible, setSoftAskVisible] = useState(false);
@@ -119,6 +123,30 @@ export default function ResultScreen() {
       cancelled = true;
     };
   }, [copy, snapshot, dateKey, seed, locale]);
+
+  useEffect(() => {
+    if ((status !== 'completed' && status !== 'abandoned') || dateKey == null) {
+      setGrowthLine(null);
+      return;
+    }
+
+    const outcome = status;
+    let cancelled = false;
+
+    void loadCompletionHistory().then(({ entries }) => {
+      if (cancelled) return;
+      const tone = resolveGrowthTone({ entries, today: dateKey, outcome });
+      setGrowthLine(
+        tone == null
+          ? null
+          : pickGrowthLine(tone, dateKey, seed ?? snapshot?.seed, locale),
+      );
+    });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [status, dateKey, seed, snapshot?.seed, locale]);
 
   useEffect(() => {
     if (!isSuccess || dateKey == null || ratingPromptAttemptedRef.current) {
@@ -283,6 +311,21 @@ export default function ResultScreen() {
             />
           )}
         </View>
+
+        {growthLine != null ? (
+          <Text
+            className="text-muted"
+            style={{
+              fontFamily: 'SpaceMono_400Regular',
+              fontSize: 12,
+              lineHeight: 18,
+              marginTop: 4,
+              marginBottom: 4,
+            }}
+          >
+            {growthLine}
+          </Text>
+        ) : null}
 
         {statsCards != null ? (
           <>
