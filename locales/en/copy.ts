@@ -165,6 +165,27 @@ export const missedYesterday = {
   ] as const,
 } as const;
 
+export const growthLine = {
+  comeback: [
+    'Long time no see — you showed up today.',
+    'Gone a while, yet here you are again.',
+    'Welcome back. We kept your seat.',
+    'Vanished for days, still crawled back. Respect.',
+  ] as const,
+  hot: [
+    'You’ve shown up almost every day this week.',
+    'On a roll lately — pace yourself.',
+    'Most of the last seven days, that was you.',
+    'You’re hot right now. Don’t stop.',
+  ] as const,
+  steady: [
+    'You’ve been around a lot lately.',
+    'Steadily showing up these days.',
+    'Holding the pace nicely — no slacking.',
+    'Nice rhythm. Keep it going.',
+  ] as const,
+} as const;
+
 export const statsPools = {
   elapsedFast: [
     'Speed run. Keyboard smoking.',

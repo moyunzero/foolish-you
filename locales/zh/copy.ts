@@ -143,6 +143,27 @@ export const missedYesterday = {
   ] as const,
 } as const;
 
+export const growthLine = {
+  comeback: [
+    '好久不见，今天也来了。',
+    '消失这么久，居然还记得回来。',
+    '欢迎回来，位置一直给你留着。',
+    '断了几天又冒头，算你有种。',
+  ] as const,
+  hot: [
+    '这周你几乎天天都来。',
+    '最近来得有点猛，悠着点。',
+    '七天里你来了大半，卷王是你。',
+    '这阵子手感正热，别停。',
+  ] as const,
+  steady: [
+    '最近来得挺勤。',
+    '这几天稳稳地都在。',
+    '保持得不错，没掉队。',
+    '节奏挺稳，继续。',
+  ] as const,
+} as const;
+
 export const statsPools = {
   elapsedFast: [
     '飞快，键盘要冒烟了',
