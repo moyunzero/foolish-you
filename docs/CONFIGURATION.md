@@ -30,7 +30,7 @@ Primary Expo configuration (static JSON, no `app.config.js`).
 | UI style | `dark` | System appearance default |
 | New architecture | `true` | React Native new arch enabled |
 | Entry | `expo-router/entry` | Set in `package.json` `main` |
-| Plugins | `expo-router`, `expo-font` | Router + font loading |
+| Plugins | `expo-router`, `expo-font`, `expo-localization`, `expo-notifications`, `@react-native-community/datetimepicker` | Router, fonts, locale, local reminders |
 | iOS bundle ID | `com.moyunzero.foolish-you` | `buildNumber`: `2` |
 | Android package | `com.moyunzero.foolishyou` | `versionCode`: `2` |
 | Splash / icons | `./assets/*` | Background `#0a0a0a` (matches design canvas) |
@@ -56,6 +56,17 @@ npm run build:production
 ```
 
 Submit profile `production` is defined but empty in-repo; store credentials are configured in EAS. <!-- VERIFY: App Store Connect / Play Console linkage in EAS dashboard -->
+
+## Store distribution
+
+| Channel | Status | Notes |
+|---------|--------|-------|
+| **iOS App Store** | **Live `2.1.0`** (2026-06-09) | [App Store](https://apps.apple.com/app/id6770218110) · Bundle `com.moyunzero.foolish-you` · CN 名称「傻了么」/ US「Brainfool」 |
+| **Google Play** | Not published | Package `com.moyunzero.foolishyou` configured in `app.json` only |
+
+Retention and acquisition KPIs: **App Store Connect → Analytics** (no third-party analytics SDK in-app). See README § 版本与规划.
+
+Public privacy policy URL (configure in App Store Connect): `constants/legal.ts` → `PRIVACY_POLICY_URL` (GitHub Pages under `docs/` — ensure Pages deploy is live before store review).
 
 ## Application constants (`constants/config.ts`)
 

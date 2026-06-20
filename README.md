@@ -1,83 +1,112 @@
 # 傻了么 (Brainfool)
 
-一款极简的**每日益智**移动应用：每天打开，系统会在 **数独**、**8×8 二进制谜题（Takuzu / Binairo）**、**8×8 数绘（Nonogram / Picross）** 与 **7×7 数回（Slitherlink）** 中随机分配一局。玩完或认怂后，用带点毒舌的文案收尾；第二天 0 点自动换新题。
+**English** | [简体中文](./README.zh-CN.md)
 
-无社交、无排行榜、无填格提示——专注「今天这一局」。
+> A minimalist **daily puzzle** app. Open it once a day and the app hands you exactly one randomly assigned puzzle — **Sudoku**, **Binary (Takuzu/Binairo)**, **Nonogram (Picross)**, or **Slitherlink** — then closes the loop with a sharp-tongued one-liner. New puzzle at local midnight.
 
-**给 AI / 协作者：** 生产约束与分层规则见 [`AGENTS.md`](./AGENTS.md)；验证、CR、手测清单见 [`docs/DEVELOPMENT.md`](./docs/DEVELOPMENT.md) 与 [`docs/TESTING.md`](./docs/TESTING.md)；GSD 工作流见 [`CLAUDE.md`](./CLAUDE.md)。
+<p>
+  <img alt="version" src="https://img.shields.io/badge/version-2.1.0-blue" />
+  <img alt="platform" src="https://img.shields.io/badge/platform-iOS%20%7C%20Android-lightgrey" />
+  <img alt="expo" src="https://img.shields.io/badge/Expo-SDK%2054-000020?logo=expo" />
+  <img alt="tests" src="https://img.shields.io/badge/tests-476%20passing-success" />
+</p>
 
----
+No social feeds, no leaderboards, no fill-in hints — just **today's one game**.
 
-## 功能概览
+**iOS App Store (`2.1.0`):** [傻了么 / Brainfool](https://apps.apple.com/app/id6770218110) · released 2026-06-09. Android (Google Play) is not published yet.
 
-| 能力 | 说明 |
-|------|------|
-| 每日一题 | 按本地自然日 + 种子确定题型与盘面，同一天多次打开内容一致 |
-| 数独 | 9×9 标准数独，冲突高亮，完成 / 认怂 |
-| 二进制谜题 | 8×8，每行每列各 4 个 0 与 4 个 1，禁止三连、行列不重复 |
-| 数绘 | 8×8 Nonogram，行列提示填格，完成后校验，结果页揭示图案 |
-| 数回 | 7×7 Slitherlink，点边画闭合单环，冲突高亮，结果页揭示回路 |
-| 离线优先 | 谜题在设备端生成与校验，无需联网 |
-| 进度持久化 | AsyncStorage 保存今日状态，杀进程后可续玩 |
-| 结果页 | 随机搞笑文案 + Reanimated 入场动效、「明天再来」提示 |
-| 本局计时 | 游戏页显示 `MM:SS` 用时；前后台切换与系统时间校正（防计时回跳） |
-| 规则说明 | 游戏页标题旁 `?` 弹窗查看玩法 |
-| **v1.1** emoji 战报 | 结果页「拷贝战报」：emoji 网格 + 用时/连签，写入剪贴板（`expo-clipboard`） |
-| **v1.1** 结果统计卡 | 今日用时、本周完成天数、历史最长连签（三列小卡） |
-| **v1.1** 评分引导 | 通关后按门槛延迟唤起系统应用商店评分（`expo-store-review`，可关闭、不阻塞流程） |
-| **v1.1** 防御性保障 | 每日选题可解性校验 + 内置 fallback；快照损坏修复；`completed` 与残缺棋盘矛盾时剥离 `playState` |
-| **v1.2** 系统语言 | 跟随设备 `zh` / `en`（英文品牌 **Brainfool**）；双语隐私政策；**无**正式版应用内语言设置 |
-| **v2.0** 数回 | 7×7 Slitherlink 加入每日随机；边线三态画环、冲突高亮、结果页揭示回路（无剧透战报） |
-| **v2.0** 连签护盾 | 每周自动发放 1 张护盾（最多堆叠 2）；漏玩 1 天时打开 App 自动消耗护盾续连签 |
-| **v2.0** 昨日错过召回 | 漏玩且未触发护盾时，游戏页标题下显示召回副文案（与护盾生效文案互斥） |
-| **v2.1** 周节奏难度 | 周一→周日同题型内渐难（无 UI 难度标签）；`APP_SALT` / 题型选择不变 |
-| **v2.1** 本月月历 | 结果页「查看本月」→ Bottom Sheet 四态（通关/认怂/错过/护盾）+ 连签/本月通关摘要 |
-| **v2.1** 每日提醒 | 首次通关 soft ask + 20:00 游戏页 banner + ReminderSheet；本地 1 条 routine 推送 |
-| **v2.1** 月度图鉴 | 月历底「生成本月图鉴」→ 竖版 PNG 系统分享 |
-
-**仍不包含：** 登录账号、**个人统计 Dashboard**（摘要已合并进月历）、填格提示、社交/排行榜/好友（见 [路线图](#版本与规划)）。
+**For AI / contributors:** production invariants and layer rules live in [`AGENTS.md`](./AGENTS.md); verification, code review, and manual QA checklists in [`docs/DEVELOPMENT.md`](./docs/DEVELOPMENT.md) and [`docs/TESTING.md`](./docs/TESTING.md); the GSD workflow in [`CLAUDE.md`](./CLAUDE.md).
 
 ---
 
-## 技术栈
+## Table of Contents
 
-- [Expo SDK 54](https://docs.expo.dev/) + [expo-router](https://docs.expo.dev/router/introduction/)（文件路由）
-- React Native 0.81 · React 19 · TypeScript
-- [NativeWind v4](https://www.nativewind.dev/)（Tailwind CSS）
-- [react-native-reanimated](https://docs.swmansion.com/react-native-reanimated/)（结果页动效）
-- [@react-native-async-storage/async-storage](https://react-native-async-storage.github.io/async-storage/)（本地存储）
-- 谜题逻辑：纯 TypeScript（`lib/puzzles/`），含生成器、求解器与校验
-
-支持 **iOS**、**Android**（托管工作流，未提交 `ios/` / `android/` 原生目录）。
-
----
-
-## 环境要求
-
-- **Node.js** 22 LTS（与 CI 一致；仓库根目录 `.nvmrc` 为 `22`）
-- **npm** 11+（与 CI 一致；本项目以 `package-lock.json` 为准，请用 `npm ci` 安装）
-- **iOS**：Xcode + 模拟器（仅 macOS），或 [Expo Go](https://expo.dev/go)
-- **Android**：Android Studio 模拟器，或真机 + Expo Go
+- [Features](#features)
+- [Tech Stack](#tech-stack)
+- [Requirements](#requirements)
+- [Quick Start](#quick-start)
+- [Scripts](#scripts)
+- [Project Structure](#project-structure)
+- [Development Tools](#development-tools)
+- [Testing](#testing)
+- [Build & Release](#build--release)
+- [Roadmap](#roadmap)
+- [Usage Examples](#usage-examples)
+- [License](#license)
+- [Documentation](#documentation)
 
 ---
 
-## 快速开始
+## Features
+
+| Capability | Description |
+|------------|-------------|
+| Daily puzzle | Game type and board are derived from the local calendar day + a seed; reopening the same day is deterministic |
+| Sudoku | Standard 9×9, conflict highlighting, complete / surrender |
+| Binary | 8×8, four `0`s and four `1`s per row and column, no triples, no duplicate rows/columns |
+| Nonogram | 8×8 Picross with row/column clues, validated on completion, pattern revealed on the result screen |
+| Slitherlink | 7×7 single closed loop on edges, conflict highlighting, loop revealed on the result screen |
+| Offline-first | Puzzles are generated and validated on-device; no network required |
+| Persistence | Today's state is saved to AsyncStorage; resume after force-quit |
+| Result screen | Randomized humorous copy + Reanimated entrance animations + "come back tomorrow" |
+| Session timer | `MM:SS` elapsed time; foreground/background and system-clock correction (no backward jumps) |
+| Rules sheet | A `?` next to the game title opens the how-to-play modal |
+| **v1.1** Emoji recap | "Copy recap" on the result screen: emoji grid + time/streak written to the clipboard (`expo-clipboard`) |
+| **v1.1** Stats cards | Today's time, days completed this week, all-time longest streak (three compact cards) |
+| **v1.1** Rating prompt | Threshold-gated, delayed system store-review request after a win (`expo-store-review`; dismissable, non-blocking) |
+| **v1.1** Defensive flow | Daily selection solvability check + built-in fallback; snapshot repair; strips `playState` when `completed` contradicts an incomplete board |
+| **v1.2** System locale | Follows device `zh` / `en` (English brand **Brainfool**); bilingual privacy policy; **no** in-app language setting in release |
+| **v2.0** Slitherlink | 7×7 added to the daily rotation; tri-state edges, conflict highlighting, spoiler-free recap |
+| **v2.0** Streak Freeze | One shield granted weekly (max 2 stacked); a single missed day auto-consumes a shield on next open |
+| **v2.0** Missed-yesterday recall | When a day is missed without a shield, the game header shows a recall subline (mutually exclusive with the shield line) |
+| **v2.1** Weekday difficulty | Monday→Sunday ramp within the same game type (no UI difficulty label); `APP_SALT` / type selection unchanged |
+| **v2.1** Month calendar | "View this month" on the result screen → bottom sheet with four states (win / surrender / miss / shield) + streak & monthly summary |
+| **v2.1** Daily reminder | First-win soft ask + 20:00 game-screen banner + ReminderSheet; one local routine notification |
+| **v2.1** Month gallery | "Generate this month's gallery" → portrait PNG shared via the system sheet |
+
+**Out of scope:** accounts/login, a personal **stats dashboard** (the summary is merged into the calendar), fill-in hints, social/leaderboards/friends (see the [Roadmap](#roadmap)).
+
+---
+
+## Tech Stack
+
+- [Expo SDK 54](https://docs.expo.dev/) + [expo-router](https://docs.expo.dev/router/introduction/) (file-based routing)
+- React Native 0.81 · React 19 · TypeScript (strict)
+- [NativeWind v4](https://www.nativewind.dev/) (Tailwind CSS)
+- [react-native-reanimated](https://docs.swmansion.com/react-native-reanimated/) (result-screen animations)
+- [@react-native-async-storage/async-storage](https://react-native-async-storage.github.io/async-storage/) (local persistence)
+- Puzzle logic: pure TypeScript (`lib/puzzles/`) — generators, solvers, and validators
+
+Targets **iOS** and **Android** (managed workflow; no committed `ios/` / `android/` native directories).
+
+---
+
+## Requirements
+
+- **Node.js** 22 LTS (matches CI; repo `.nvmrc` is `22`)
+- **npm** 11+ (matches CI; `package-lock.json` is canonical — install with `npm ci`)
+- **iOS:** Xcode + Simulator (macOS only), or [Expo Go](https://expo.dev/go)
+- **Android:** Android Studio emulator, or a device with Expo Go
+
+---
+
+## Quick Start
 
 ```bash
-# 克隆仓库
+# Clone
 git clone https://github.com/moyunzero/foolish-you.git
 cd foolish-you
 
-# 安装依赖
+# Install dependencies
 npm install
 
-# 启动开发服务器
+# Start the dev server
 npm start
 ```
 
-在终端按 `i` 打开 iOS 模拟器，按 `a` 打开 Android 模拟器，或扫码用 **Expo Go** 连接。
+In the terminal, press `i` for the iOS Simulator, `a` for the Android emulator, or scan the QR code with **Expo Go**.
 
-若修改过 `babel.config.js`（如 Reanimated 插件）或原生依赖，请清缓存后启动：
+If you changed `babel.config.js` (e.g. the Reanimated plugin) or native dependencies, start with a cleared cache:
 
 ```bash
 npx expo start -c
@@ -85,197 +114,191 @@ npx expo start -c
 
 ---
 
-## 常用命令
+## Scripts
 
-| 命令 | 说明 |
-|------|------|
-| `npm start` | 启动 Expo 开发服务器 |
-| `npm run ios` | 在 iOS 模拟器/设备上运行（需预构建或 dev client） |
-| `npm run android` | 在 Android 上运行 |
-| `npm run web` | Web 预览（非主要目标平台） |
-| `npm test` | 运行 Jest 单元 + RTL 测试（谜题、存储、Context、屏幕） |
-| `npm run test:migration` | 仅跑存储迁移黄金样例（与 CI 一致） |
-| `npm run typecheck` | TypeScript 严格检查（`tsc --noEmit`） |
-| `npm run lint` | ESLint（`expo lint`） |
+| Command | Description |
+|---------|-------------|
+| `npm start` | Start the Expo dev server |
+| `npm run ios` | Run on the iOS Simulator/device (requires prebuild or a dev client) |
+| `npm run android` | Run on Android |
+| `npm run web` | Web preview (not the primary target) |
+| `npm test` | Run Jest unit + RTL tests (puzzles, storage, context, screens) |
+| `npm run test:migration` | Run only the storage-migration golden samples (matches CI) |
+| `npm run typecheck` | TypeScript strict check (`tsc --noEmit`) |
+| `npm run lint` | ESLint (`expo lint`) |
 
 ---
 
-## 项目结构
+## Project Structure
 
-完整目录与「新代码放哪」见 [`docs/DEVELOPMENT.md` § Code layout](./docs/DEVELOPMENT.md#code-layout)。架构与数据流见 [`docs/ARCHITECTURE.md`](./docs/ARCHITECTURE.md)。
+For the full tree and "where new code goes," see [`docs/DEVELOPMENT.md` § Code layout](./docs/DEVELOPMENT.md#code-layout). Architecture and data flow are in [`docs/ARCHITECTURE.md`](./docs/ARCHITECTURE.md).
 
 ```
 foolish-you/
-├── app/                    # expo-router 页面（无谜题算法）
+├── app/                    # expo-router screens (no puzzle algorithms)
 ├── components/
-│   ├── grid/               # SudokuGrid、BinaryGrid、NonogramGrid、SudokuNumpad
-│   ├── slitherlink/        # SlitherlinkBoard（边三态交互）
-│   ├── game/               # 各题型 Section、Header/Footer、规则弹窗
-│   ├── result/             # 徽章、统计卡、战报、数绘/数回揭示卡
+│   ├── grid/               # SudokuGrid, BinaryGrid, NonogramGrid, SudokuNumpad
+│   ├── slitherlink/        # SlitherlinkBoard (tri-state edges)
+│   ├── game/               # per-type Sections, Header/Footer, rules modal
+│   ├── result/             # badges, stats cards, recap, Nonogram/Slitherlink reveal cards
 │   ├── ui/ · legal/ · dev/
-├── contexts/               # DailyGameContext、DevToolsUiContext
-├── hooks/                  # 各题型 board hooks、useGameBoardSession、useElapsedTimer
+├── contexts/               # DailyGameContext, DevToolsUiContext
+├── hooks/                  # per-type board hooks, useGameBoardSession, useElapsedTimer
 ├── lib/
 │   ├── date/ · daily/ · puzzles/ · storage/ · streak/ · completion/
 │   ├── share/ · stats/ · rating/ · time/ · copy/ · i18n/ · dev/ · platform/
 ├── locales/                # zh / en
-├── constants/              # config、design、dev、legal
+├── constants/              # config, design, dev, legal
 └── __tests__/              # lib/ · contexts/ · hooks/ · components/ · screens/
 ```
 
-### 核心流程
+### Core Flow
 
-1. **启动** → `DailyGameContext` 读取或创建「今日档案」（`dateKey` + `seed` + `gameType` + 盘面）。
-2. **选题** → `lib/puzzles/dailySelectorSafe.ts`（可解性校验 + 必要时 fallback）根据日期种子在数独 / 二进制 / 数绘 / 数回间稳定随机，并生成可解盘面。
-3. **游玩** → `app/game.tsx` 根据 `gameType` 渲染对应网格与底栏；进度防抖写入本地。
-4. **结束** → 完成或认怂 → `app/result.tsx` 展示文案与动效；次日 `dateKey` 变化后自动新局。
+1. **Launch** → `DailyGameContext` loads or creates today's record (`dateKey` + `seed` + `gameType` + board).
+2. **Selection** → `lib/puzzles/dailySelectorSafe.ts` (solvability check + fallback when needed) stably randomizes across Sudoku / Binary / Nonogram / Slitherlink from the date seed and generates a solvable board.
+3. **Play** → `app/game.tsx` renders the matching grid and footer by `gameType`; progress is debounced to local storage.
+4. **End** → complete or surrender → `app/result.tsx` shows copy and animations; a new game starts automatically once `dateKey` changes the next day.
 
 ---
 
-## 开发调试
+## Development Tools
 
-开发模式下（`__DEV__`）可在首页使用 **开发者面板**（重开今日、强制题型、**设置占位**预览语言等），配置见 `constants/dev.ts`。
+In development (`__DEV__`), a **dev panel** on the home screen lets you regenerate today, force a game type, and preview locales via the **settings placeholder**. See `constants/dev.ts`.
 
 ```ts
 // constants/dev.ts
-export const DEV_FORCE_GAME_TYPE: GameType | null = 'sudoku'; // null = 与线上一致随机；可选 'binary' | 'nonogram' | 'slitherlink'
+export const DEV_FORCE_GAME_TYPE: GameType | null = 'sudoku'; // null = same random as production; 'binary' | 'nonogram' | 'slitherlink'
 ```
 
-正式 Release 构建不会包含该面板。
+Release builds never include this panel.
 
 ---
 
-## 测试
+## Testing
 
 ```bash
 npm test
 ```
 
-当前覆盖：日期工具、RNG、每日选题与 safe 选题、数独/二进制/数绘/数回生成与校验、存储迁移/恢复、完成历史、战报与统计、评分门槛、连签、i18n（含 `en-smoke`）、Context 与主要屏幕 RTL（**402** 项）。另含 `npm run test:migration` 迁移黄金样例。UI 动效与真机布局以手测为主。
+Coverage: date utilities, RNG, daily and safe selection, Sudoku/Binary/Nonogram/Slitherlink generation and validation, storage migration/recovery, completion history, recap and stats, rating thresholds, streaks, i18n (incl. `en-smoke`), and context/screen RTL — **476** tests. Plus `npm run test:migration` golden samples. UI animations and on-device layout are covered by manual QA.
 
 ---
 
-## 构建与发布（概要）
+## Build & Release
 
-使用 [EAS Build](https://docs.expo.dev/build/introduction/) 或本地预构建：
+Use [EAS Build](https://docs.expo.dev/build/introduction/) or a local prebuild:
 
 ```bash
-# 需先安装 eas-cli 并登录 Expo 账号（npm install -g eas-cli && eas login）
+# Install and sign in first: npm install -g eas-cli && eas login
 eas build --platform ios
 eas build --platform android
 
-# 或使用项目脚本（preview profile）
+# Or use the project scripts (preview profile)
 npm run build:preview:ios
 npm run build:preview:android
 ```
 
-`app.json` 中已配置应用名 **傻了么**、Bundle ID `com.moyunzero.foolish-you`、深色界面。发布前请自行替换图标、签名与商店元数据。
+`app.json` configures the app name **傻了么**, bundle ID `com.moyunzero.foolish-you`, and a dark UI. The current **iOS production build `2.1.0`** is shipped via the EAS `production` profile to App Store Connect. Retention KPIs are read from App Store Connect Analytics — there is no third-party analytics SDK in the app.
 
 ---
 
-## 版本与规划
+## Roadmap
 
-> 详见内部 `.planning/ROADMAP.md`。
+> Full internal detail in `.planning/ROADMAP.md`.
 
-### 设计宪法（红线 · 不可破）
+### Design Constitution (hard lines · non-negotiable)
 
-- **离线优先**：`dateKey + seed` 决定盘面，永不远程下发
-- **一天一局**：不变成「每日 3 题」，今天的张力来自唯一性
-- **不做**：排行榜、好友、IM、IAP、广告、提示按钮、可堆叠超过 2 的护盾
-- **毒舌幽默**是品牌护城河，所有文案都要过这一关
+- **Offline-first:** `dateKey + seed` determines the board; never fetched remotely.
+- **One game a day:** never becomes "three puzzles a day" — the tension comes from uniqueness.
+- **Won't build:** leaderboards, friends, IM, IAP, ads, hint buttons, shields stacking beyond 2.
+- **Sharp humor** is the brand moat; every line of copy must clear that bar.
 
-### 北极星与节奏
+### North Star & Cadence
 
-| 阶段 | D1 | D7 | D30 | 评分 | 完成 → 分享率 |
-|------|----|----|-----|------|----------------|
-| v1.0（已上架基线） | — | — | — | 已公测 | 0%（无入口） |
-| v1.1 目标（≈ 3 月） | 32% | 12% | 5% | ≥ 4.4 | ≥ 3% |
-| **当前 v2.1（`2.1.0`，已交付）** | 待公测 | 待公测 | 待公测 | 目标 ≥ 4.5 | 目标 ≥ 5% |
-| v2.0 后 ≈ 6 月 | **35%+** | **15%+** | **7%+** | **≥ 4.5** | ≥ 5% |
-| 12 月目标 | 38% | 18% | 9% | 4.6 | 7% |
+| Stage | D1 | D7 | D30 | Rating | Complete → Share |
+|-------|----|----|-----|--------|------------------|
+| v1.0 (shipped baseline) | — | — | — | live | 0% (no entry) |
+| v1.1 target (≈ 3 mo) | 32% | 12% | 5% | ≥ 4.4 | ≥ 3% |
+| **Current v2.1 (`2.1.0`, iOS live)** | TBD (ASC) | TBD (ASC) | TBD (ASC) | ≥ 4.5 target | ≥ 5% target |
+| Post-v2.0 (≈ 6 mo) | **35%+** | **15%+** | **7%+** | **≥ 4.5** | ≥ 5% |
+| 12-month target | 38% | 18% | 9% | 4.6 | 7% |
 
-> 目标是把「傻了么」从 Puzzle 子类中位推进到 Top 25%（行业 35/15/5 基准）。
+> The goal is to move "傻了么" from the puzzle-subcategory median into the Top 25% (industry 35/15/5 baseline).
 
-### 版本路线
+### Version Roadmap
 
-| 版本 | 状态 | 范围 | 关键押注（数据锚点） |
-|------|------|------|------------------------|
-| **v1.0** | 已发布 | 每日数独 / 二进制 / 数绘（**不含数回**）、本地进度、连签、结果动效、计时、规则弹窗 | — |
-| **v1.1** | 已发布（`1.1.x`） | ① 结果页 emoji 战报拷贝（`lib/share/` + `expo-clipboard`）；② 评分引导（通关 + 完成局数等门槛，`expo-store-review`）；③ 结果页三数据小卡（今日用时 / 本周完成 / 历史最长连签，`historicalMax`）；④ 防御：`selectDailyGameSafe`、快照 `recoverSnapshot`、计时校正、迁移 + recovery 单测、Dev 恢复日志 | Wordle 90→300K DAU 来自一键 emoji 分享 |
-| **v1.2** | 已发布（`1.2.0`） | 系统语言 zh/en（`expo-localization`）；英文品牌 **Brainfool**；`locales/` + `useI18n`；双语隐私；DevTools **设置占位**（不写存储，Release 无入口） | 海外可读性 + 商店合规 |
-| **v2.0** | 已交付（`2.0.0`；含于 `2.1.0` 发版） | ✅ 数回 7×7；✅ Streak Freeze；✅ 昨日错过召回 | Duolingo：streak 寿命 +48% |
-| **v2.1** | **已发布**（`2.1.0`；手测签收 2026-06-09） | ✅ 周节奏难度；✅ 本月月历 + 摘要；✅ 每日提醒 A+D；✅ 月度图鉴 PNG | NYT Mini/Midi 节奏 · D1→D2 |
-| **v3.0** | 规划中 | iCloud / Google 端到端同步或 QR 导入导出；30 天历史归档 | 避免与「离线优先 / 无社交」冲突 |
-| **v4.0** | 规划中 | 匿名挑战码；Year in 傻了么 年终长图 | 朋友间话题，无好友列表 |
+| Version | Status | Scope | Key bet (data anchor) |
+|---------|--------|-------|------------------------|
+| **v1.0** | Released | Daily Sudoku / Binary / Nonogram (**no Slitherlink**), local progress, streaks, result animations, timer, rules modal | — |
+| **v1.1** | Released (`1.1.x`) | ① Emoji recap copy (`lib/share/` + `expo-clipboard`); ② rating prompt (win + completion-count thresholds, `expo-store-review`); ③ three stat cards (today's time / weekly completions / all-time longest streak, `historicalMax`); ④ defenses: `selectDailyGameSafe`, snapshot `recoverSnapshot`, timer correction, migration + recovery tests, dev recovery log | Wordle's 90→300K DAU came from one-tap emoji sharing |
+| **v1.2** | Released (`1.2.0`) | System locale zh/en (`expo-localization`); English brand **Brainfool**; `locales/` + `useI18n`; bilingual privacy; DevTools **settings placeholder** (no storage writes, no release entry) | Overseas readability + store compliance |
+| **v2.0** | Live (in `2.1.0`) | ✅ Slitherlink 7×7; ✅ Streak Freeze; ✅ missed-yesterday recall | Duolingo: streak lifespan +48% |
+| **v2.1** | **Live** (`2.1.0`; App Store 2026-06-09) | ✅ Weekday difficulty; ✅ month calendar + summary; ✅ daily reminder (A+D); ✅ month gallery PNG | NYT Mini/Midi cadence · D1→D2 |
+| **v3.0** | Planned | iCloud / Google end-to-end sync or QR import/export; 30-day history archive | Avoid conflict with offline-first / no-social |
+| **v4.0** | Planned | Anonymous challenge codes; "Year in 傻了么" annual long-image | Conversation between friends, no friend list |
 
-完整决策依据、AB 实验设计与对照取舍见 `.planning/ROADMAP.md`（已加入 `.gitignore`，不随仓库公开）。
-
----
-
-## 设计说明
-
-视觉与交互约定见本地 `DESIGN.md`（已加入 `.gitignore`，不随 GitHub 公开）。
+Full decision rationale, A/B designs, and trade-offs are in `.planning/ROADMAP.md` (gitignored; not published with the repo).
 
 ---
 
-## 许可证
+## Usage Examples
 
-尚未指定开源许可证。若你 fork 或二次发布，请先与仓库维护者确认授权。
+### Player: finish today's game
 
----
+1. Launch the app → `app/index.tsx` routes to `app/game.tsx` based on today's record.
+2. The game header `GameScreenHeader` shows the date, session time, type title, streak subline (`streakLine`), and an optional shield/recall subline (`GameStreakSubline` — shield and missed-yesterday are mutually exclusive).
+3. Fill the board, then tap **Complete** in the footer (`GameScreenFooter`) → on a valid solution you reach the result screen; **surrender** does not count toward the streak.
+4. On the result screen you can tap **Copy recap** (requires a valid `playState`; if the board was stripped during recovery, only copy and stats are shown).
+5. A new puzzle loads automatically once the local `dateKey` changes the next day.
 
-## 致谢
+### Streaks & shields (win-gated)
 
-谜题算法与产品灵感来自经典数独与 Takuzu/Binairo 规则；由 Expo 与 React Native 生态驱动交付。
+- **Only wins count toward the streak**; surrendering does not call `applyCheckIn` (see `contexts/DailyGameContext.tsx`).
+- Logic: `lib/streak/streakLogic.ts` (+1 per consecutive day, reset on a gap); persistence: `lib/storage/streakStorage.ts` (key `@foolish-you/streak-v1`, schema v3, incl. `historicalMax`, `freezeCount`).
+- **Streak Freeze:** `lib/streak/freezeLogic.ts` — one shield granted on the first open of each ISO week (max 2); if exactly one day was missed since the last check-in with no real completion, one shield is auto-consumed on hydrate.
+- **Missed-yesterday recall:** `lib/streak/missedYesterdayBanner.ts` — when a day is missed without consuming a shield, the game header shows recall copy (mutually exclusive with the shield line).
+- Copy: header streak in `lib/copy/streak.ts`; shield/recall in `lib/copy/freeze.ts` and `lib/copy/missedYesterday.ts`; result-card shield suffix in `locales/*/copy.ts`.
 
-## 徽章
+### Developer: pre-commit checks (matches CI)
 
-![version](https://img.shields.io/badge/version-2.1.0-blue)
-
-## 使用示例
-
-### 玩家：完成今日一局
-
-1. 启动 App → `app/index.tsx` 根据今日档案跳转到 `app/game.tsx`。
-2. 游戏页顶栏 `GameScreenHeader` 显示日期、本局用时、题型标题、连签副文案（`streakLine`），以及可选的护盾/召回副行（`GameStreakSubline`，护盾生效与昨日错过互斥）。
-3. 填完盘面后点底栏 **完成今日**（`GameScreenFooter`）→ 校验通过则进入结果页；**认怂**不计入连签。
-4. 结果页可点 **拷贝战报**（需保留有效 `playState`；恢复后若棋盘已剥离则仅展示文案与统计）。
-5. 次日本地 `dateKey` 变更后自动换新题。
-
-### 连签与护盾（通关入账）
-
-- **仅通关计入连签**，认怂不调用 `applyCheckIn`（见 `contexts/DailyGameContext.tsx`）。
-- 逻辑：`lib/streak/streakLogic.ts`（连续自然日 +1，断档归零）；持久化：`lib/storage/streakStorage.ts`（键 `@foolish-you/streak-v1`，schema v3，含 `historicalMax`、`freezeCount` 等）。
-- **护盾（Streak Freeze）**：`lib/streak/freezeLogic.ts` — 每周 ISO 周首次打开发放 1 张（上限 2）；若距上次入账恰好漏 1 天且无真实完成记录，hydrate 时自动消耗 1 张续连签。
-- **昨日错过召回**：`lib/streak/missedYesterdayBanner.ts` — 漏玩且未消耗护盾时，游戏页标题下显示召回文案（与护盾生效行互斥）。
-- 文案：顶栏连签 `lib/copy/streak.ts`；护盾/召回 `lib/copy/freeze.ts`、`lib/copy/missedYesterday.ts`；结果统计卡护盾后缀见 `locales/*/copy.ts`。
-
-### 开发者：提交前本地检查（与 CI 一致）
-
-GitHub Actions 工作流 `.github/workflows/ci.yml` 在 `main` / `master` 的 push 与 PR 上执行：
+The GitHub Actions workflow `.github/workflows/ci.yml` runs on push and PR to `main` / `master`:
 
 ```bash
-npm run typecheck        # tsc --noEmit
-npm test                 # Jest：unit（*.test.ts）+ rtl（*.test.tsx）
-npm run test:migration   # 存储迁移黄金样例
-npm run lint             # expo lint
-npm run lockfile:verify-eas  # npm 10 ci，EAS 构建前建议跑
+npm run typecheck            # tsc --noEmit
+npm test                     # Jest: unit (*.test.ts) + rtl (*.test.tsx)
+npm run test:migration       # storage-migration golden samples
+npm run lint                 # expo lint
+npm run lockfile:verify-eas  # npm 10 ci; recommended before an EAS build
 ```
 
-可选拆分：
+Optional split:
 
 ```bash
-npm run test:unit   # 谜题、存储、连签等纯逻辑
-npm run test:rtl    # Context 与屏幕级 RTL 测试
+npm run test:unit   # pure logic: puzzles, storage, streaks
+npm run test:rtl    # context- and screen-level RTL tests
 ```
 
-## 文档
+---
 
-| 文档 | 说明 |
-|------|------|
-| [AGENTS.md](./AGENTS.md) | AI/协作者：生产约束、分层规则、验证入口 |
-| [docs/ARCHITECTURE.md](./docs/ARCHITECTURE.md) | 架构、数据流、离线优先与持久化 |
-| [docs/GETTING-STARTED.md](./docs/GETTING-STARTED.md) | 安装与首次运行 |
-| [docs/DEVELOPMENT.md](./docs/DEVELOPMENT.md) | 日常开发、CI 校验、DevTools |
-| [docs/TESTING.md](./docs/TESTING.md) | Jest 双项目与手测清单 |
-| [docs/CONFIGURATION.md](./docs/CONFIGURATION.md) | app.json、EAS、常量与存储键 |
+## License
+
+No open-source license has been specified yet. If you fork or redistribute, please confirm permission with the repository maintainer first.
+
+---
+
+## Acknowledgements
+
+Puzzle algorithms and product inspiration come from classic Sudoku and Takuzu/Binairo rules; delivered on the Expo and React Native ecosystem.
+
+---
+
+## Documentation
+
+| Document | Description |
+|----------|-------------|
+| [AGENTS.md](./AGENTS.md) | AI/contributors: production invariants, layer rules, verification entry points |
+| [docs/ARCHITECTURE.md](./docs/ARCHITECTURE.md) | Architecture, data flow, offline-first and persistence |
+| [docs/GETTING-STARTED.md](./docs/GETTING-STARTED.md) | Install and first run |
+| [docs/DEVELOPMENT.md](./docs/DEVELOPMENT.md) | Day-to-day development, CI checks, DevTools |
+| [docs/TESTING.md](./docs/TESTING.md) | Jest dual projects and the manual QA checklist |
+| [docs/CONFIGURATION.md](./docs/CONFIGURATION.md) | app.json, EAS, constants and storage keys |

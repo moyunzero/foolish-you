@@ -43,7 +43,7 @@ Before opening a PR or calling a change done, run the same checks as [`.github/w
 
 ```bash
 npm run typecheck      # tsc --noEmit (strict)
-npm test               # Jest: unit + rtl projects (402 tests)
+npm test               # Jest: unit + rtl projects (476 tests)
 npm run test:migration # snapshot migration golden fixtures only
 npm run lint           # expo lint (ESLint flat config)
 npm run lockfile:verify-eas  # npm 10 ci — run before EAS build when lockfile changed

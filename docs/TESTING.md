@@ -147,7 +147,7 @@ Workflow: `.github/workflows/ci.yml` — job **`verify`**
 Steps (in order):
 
 1. **Typecheck** — `npm run typecheck`
-2. **Tests** — `npm test` (runs both `unit` and `rtl` projects; currently 473 tests)
+2. **Tests** — `npm test` (runs both `unit` and `rtl` projects; currently 476 tests)
 3. **Migration tests** — `npm run test:migration`
 4. **Lint** — `npm run lint`
 
