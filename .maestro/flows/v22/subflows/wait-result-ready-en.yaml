@@ -1,0 +1,7 @@
+appId: com.moyunzero.foolish-you
+---
+- swipe:
+    direction: UP
+- extendedWaitUntil:
+    visible: 'View this month calendar'
+    timeout: 20000

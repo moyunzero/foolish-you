@@ -72,6 +72,10 @@ coverage/
 .turbo/
 .cache/
 
+# Maestro run logs / failure screenshots (keep docs/qa/**/screenshots/)
+docs/qa/**/commands-*
+docs/qa/**/screenshot-*
+
 # --- Lockfile: this repo uses npm (package-lock.json) ---
 yarn.lock
 

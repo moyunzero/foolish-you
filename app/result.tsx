@@ -314,6 +314,8 @@ export default function ResultScreen() {
 
         {growthLine != null ? (
           <Text
+            testID="result-growth-line"
+            accessibilityLabel={growthLine}
             className="text-muted"
             style={{
               fontFamily: 'SpaceMono_400Regular',

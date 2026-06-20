@@ -1,0 +1,9 @@
+appId: com.moyunzero.foolish-you
+---
+# Dev panel → preview English (same locale override as settings placeholder).
+- runFlow: dev-open-panel.yaml
+- tapOn:
+    text: '预览·English'
+- extendedWaitUntil:
+    visible: 'Finish today’s puzzle'
+    timeout: 45000

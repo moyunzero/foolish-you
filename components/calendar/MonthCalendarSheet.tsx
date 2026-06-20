@@ -120,7 +120,7 @@ export default function MonthCalendarSheet({
       onClose={onClose}
       dismissA11y={sheetUi.dismissA11y}
     >
-      <View style={{ maxHeight: '100%' }}>
+      <View style={{ maxHeight: '100%' }} testID="calendar-month-sheet">
         <View className="border-b border-hairline px-5 pb-3 pt-1">
           <View className="flex-row items-center justify-between">
             <Pressable
@@ -181,6 +181,14 @@ export default function MonthCalendarSheet({
             {calendarUi.streakLine(summary.currentStreak)}
           </Text>
           <Text
+            testID={
+              summary.growthDelta > 0 ? 'calendar-growth-delta' : undefined
+            }
+            accessibilityLabel={
+              summary.growthDelta > 0
+                ? `${calendarUi.completedLine(summary.monthCompletedCount)}${calendarUi.completedDeltaLine(summary.growthDelta)}`
+                : calendarUi.completedLine(summary.monthCompletedCount)
+            }
             className="mt-1 text-sm text-body"
             style={{ fontFamily: 'Inter_400Regular', lineHeight: 20 }}
           >

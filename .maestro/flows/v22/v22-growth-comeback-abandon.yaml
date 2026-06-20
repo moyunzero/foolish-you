@@ -1,0 +1,38 @@
+appId: com.moyunzero.foolish-you
+ios:
+  snapshotKeyHonorModalViews: true
+---
+# Manual QA #5 — 认怂·召回：注入召回后走游戏页放弃，结果页仍应有成长行（D-10）。
+- launchApp:
+    clearState: true
+- extendedWaitUntil:
+    visible:
+      text: '完成今日'
+    timeout: 60000
+- runFlow: subflows/dev-force-sudoku.yaml
+- runFlow: subflows/dev-open-panel.yaml
+- tapOn:
+    text: '近况·召回'
+- extendedWaitUntil:
+    visible: '完成今日'
+    timeout: 45000
+- runFlow: subflows/dev-hide-bar.yaml
+- tapOn:
+    text: '放弃今日挑战'
+- extendedWaitUntil:
+    visible: '继续玩'
+    timeout: 10000
+- tapOn:
+    text: '放弃'
+- extendedWaitUntil:
+    visible: '今日战绩 · 认怂'
+    timeout: 60000
+- runFlow: subflows/dev-hide-bar.yaml
+- runFlow: subflows/wait-result-ready.yaml
+- extendedWaitUntil:
+    visible:
+      id: result-growth-line
+    timeout: 15000
+- assertVisible:
+    id: result-growth-line
+- takeScreenshot: 06-result-comeback-abandon-growth-line
