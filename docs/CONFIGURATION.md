@@ -79,7 +79,7 @@ Central runtime constants for puzzles, persistence, and debouncing.
 | `STREAK_STORAGE_KEY` | `@foolish-you/streak-v1` | AsyncStorage key for streak state |
 | `STREAK_STORAGE_VERSION` | `3` | Streak schema (adds `freezeCount`, `lastFreezeGrantWeekKey`, `freezeConsumedSessionKey`) |
 | `COMPLETION_HISTORY_STORAGE_KEY` | `@foolish-you/completion-history-v1` | Rolling completion records for stats |
-| `COMPLETION_HISTORY_STORAGE_VERSION` | `1` | Completion history schema |
+| `COMPLETION_HISTORY_STORAGE_VERSION` | `3` | Completion history schema (v2 adds `outcome`; v3 adds optional `gameType`) |
 | `COMPLETION_HISTORY_MAX_ENTRIES` | `90` | Cap on stored completion rows |
 | `RATING_STORAGE_KEY` | `@foolish-you/rating-v1` | Rating prompt counters / last prompt date |
 | `RATING_STORAGE_VERSION` | `1` | Rating state schema |

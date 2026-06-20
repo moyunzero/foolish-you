@@ -13,8 +13,12 @@ export default function IndexScreen() {
     return (
       <View className="flex-1 items-center justify-center bg-canvas px-6">
         <Text
-          className="text-[32px] leading-9 text-ink"
-          style={{ fontFamily: 'Inter_400Regular', letterSpacing: -0.6 }}
+          className="text-[32px] text-ink"
+          style={{
+            fontFamily: 'Inter_400Regular',
+            letterSpacing: -0.6,
+            lineHeight: 42,
+          }}
         >
           {strings.app.name}
         </Text>

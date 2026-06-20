@@ -17,15 +17,18 @@ function LocaleSegment({
   active,
   onPress,
   a11yLabel,
+  testID,
 }: {
   label: string;
   active: boolean;
   onPress: () => void;
   a11yLabel: string;
+  testID?: string;
 }) {
   return (
     <Pressable
       onPress={onPress}
+      testID={testID}
       accessibilityRole="button"
       accessibilityLabel={a11yLabel}
       accessibilityState={{ selected: active }}
@@ -126,6 +129,7 @@ export default function SettingsScreen() {
             active={previewMode === 'en'}
             a11yLabel={settingsUi.segmentA11y(settingsUi.segments.en)}
             onPress={() => setLocaleOverride('en')}
+            testID="settings-locale-en"
           />
         </View>
 

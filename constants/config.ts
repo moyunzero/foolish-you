@@ -8,7 +8,7 @@ export const STREAK_STORAGE_KEY = '@foolish-you/streak-v1';
 /** Bump when persisted streak JSON shape changes (see docs/CONFIGURATION.md § Storage version bumps). */
 export const STREAK_STORAGE_VERSION = 4;
 export const COMPLETION_HISTORY_STORAGE_KEY = '@foolish-you/completion-history-v1';
-export const COMPLETION_HISTORY_STORAGE_VERSION = 2;
+export const COMPLETION_HISTORY_STORAGE_VERSION = 3;
 export const COMPLETION_HISTORY_MAX_ENTRIES = 90;
 export const RECOVERY_LOG_STORAGE_KEY = '@foolish-you/snapshot-recovery-log-v1';
 export const RECOVERY_LOG_MAX_ENTRIES = 10;
@@ -32,3 +32,12 @@ export const SLITHERLINK_MIN_CLUES = 18;
 export const SLITHERLINK_MAX_GEN_ATTEMPTS = 50;
 
 export const PLAY_STATE_DEBOUNCE_MS = 300;
+
+/**
+ * Gentle-growth (v2.2) 结果页近况文案阈值。初始值，可调参（D-08）；
+ * 运行时常量，非持久化 shape，无 storage version bump。
+ */
+export const GROWTH_WINDOW_DAYS = 7;
+export const GROWTH_COMEBACK_MIN_DAYS = 3;
+export const GROWTH_HOT_MIN_DAYS = 6;
+export const GROWTH_STEADY_MIN_DAYS = 4;

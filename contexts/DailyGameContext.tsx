@@ -257,7 +257,7 @@ function useDailyGameProviderValue(): DailyGameState {
       if (!alreadyRecorded) {
         const startedAt = next.startedAt ?? Date.now();
         const finishedAt = next.finishedAt ?? Date.now();
-        await recordCompletion(next.dateKey, finishedAt - startedAt);
+        await recordCompletion(next.dateKey, finishedAt - startedAt, next.gameType);
       }
     } else if (next.status === 'abandoned') {
       const alreadyRecorded = entries.some(
@@ -267,7 +267,7 @@ function useDailyGameProviderValue(): DailyGameState {
       if (!alreadyRecorded) {
         const startedAt = next.startedAt ?? Date.now();
         const finishedAt = next.finishedAt ?? Date.now();
-        await recordAbandon(next.dateKey, finishedAt - startedAt);
+        await recordAbandon(next.dateKey, finishedAt - startedAt, next.gameType);
       }
     }
 
@@ -394,13 +394,13 @@ function useDailyGameProviderValue(): DailyGameState {
           if (nextStatus === 'completed') {
             const startedAt = updated.startedAt ?? Date.now();
             const finishedAt = updated.finishedAt ?? Date.now();
-            await recordCompletion(updated.dateKey, finishedAt - startedAt);
+            await recordCompletion(updated.dateKey, finishedAt - startedAt, updated.gameType);
             await recordStreakCheckIn(updated.dateKey);
             await incrementRatingCompletedCount();
           } else if (nextStatus === 'abandoned') {
             const startedAt = updated.startedAt ?? Date.now();
             const finishedAt = updated.finishedAt ?? Date.now();
-            await recordAbandon(updated.dateKey, finishedAt - startedAt);
+            await recordAbandon(updated.dateKey, finishedAt - startedAt, updated.gameType);
           }
           await runReminderSync({
             todayKey: updated.dateKey,

@@ -1,0 +1,12 @@
+appId: com.moyunzero.foolish-you
+---
+# Expand collapsed DEV panel once (header tap toggles — skip if already open).
+- runFlow:
+    when:
+      notVisible: '一键通关'
+    commands:
+      - tapOn:
+          text: 'DEV 调试'
+- extendedWaitUntil:
+    visible: '一键通关'
+    timeout: 15000

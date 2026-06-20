@@ -50,10 +50,15 @@ export function countSolutionsUpTo(givens: number[][], limit: number): number {
 }
 
 export function solve(givens: number[][]): boolean {
+  return solveFirstGrid(givens) != null;
+}
+
+/** First complete grid satisfying givens, or null if none / ambiguous. */
+export function solveFirstGrid(givens: number[][]): number[][] | null {
   const grid = cloneGrid(givens);
   const found = { count: 0 };
-  solveBacktrack(grid, 1, found);
-  return found.count === 1;
+  if (!solveBacktrack(grid, 1, found) || found.count !== 1) return null;
+  return grid;
 }
 
 /** 生成完整解时用的宽松校验（仅平衡 + 禁三连 + 行列唯一） */

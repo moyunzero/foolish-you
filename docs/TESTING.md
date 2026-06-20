@@ -201,6 +201,40 @@ npm start
 
 For release confidence, also verify on at least one iOS and one Android device or simulator before shipping store builds (see `eas.json` profiles).
 
+### v2.2 温和成长（Gentle Growth）manual QA
+
+Run on **`__DEV__` build** (Expo dev client or `npx expo run:ios` / `run:android`). Dev panel → **温和成长 QA** 区块注入 history，再点 **一键通关** 进入结果页。设计约束：**永不负反馈**、平常日沉默、无图表/难度标签。
+
+| # | 区域 | 步骤 | 预期 |
+|---|------|------|------|
+| 1 | 结果页·平常 | Dev → **近况·平常** → **一键通关** | 毒舌 + 统计卡之间 **无** 成长行 |
+| 2 | 结果页·火热 | Dev → **近况·火热** → **一键通关** | 出现一行正向近况（如「这周几乎天天都来」类 pool） |
+| 3 | 结果页·稳定 | Dev → **近况·稳定** → **一键通关** | 出现稳定口吻成长行 |
+| 4 | 结果页·召回 | Dev → **近况·召回** → **一键通关** | 出现「好久不见」类召回口吻 |
+| 5 | 认怂·召回 | 同上注入召回 → 游戏页 **放弃**（非一键通关） | 仍显示召回成长行（D-10 唯一例外） |
+| 6 | 月历·成长 | Dev → **月历·比上月多** → **一键通关** → 结果页 **查看本月** | summary 含「本月通关 N 天」+ **比上月多 M 天**（M>0） |
+| 7 | 月历·首月 | 新装 / **重置通关记录** 后仅本月数据 → 打开月历 | **不**出现「比上月多」（lastMonthCount=0 抑制） |
+| 8 | i18n | 系统 en 或 Dev 设置预览 en | 成长行与 `completedDeltaLine` 无 CJK；Brainfool 品牌不变 |
+| 9 | 存储 | 通关后 DevTools date 行 + migration 测试 | `CompletionEntry` 含 `gameType`（v3）；老数据 migration 不回填 |
+
+截图验收目录与 Maestro 命令见 [docs/qa/v2.2-gentle-growth/README.md](./qa/v2.2-gentle-growth/README.md)。
+
+## Maestro E2E（v2.2）
+
+**前提：** iOS Simulator 或 Android 模拟器已安装 **`com.moyunzero.foolish-you` 开发包**（非 Expo Go；与 `.maestro/flows/smoke-launch.yaml` 相同 `appId`）。Metro 可选（开发包已 bundle 时可离线跑 UI 流）。
+
+```bash
+# 单场景（截图 → evidence/YYYYMMDD/screenshots/）
+maestro test .maestro/flows/v22/v22-growth-hot.yaml \
+  --test-output-dir docs/qa/v2.2-gentle-growth/evidence/$(date +%Y%m%d)
+
+# 全流程（8 场景 + 截图）
+maestro test .maestro/flows/v22/v22-full-suite.yaml \
+  --test-output-dir docs/qa/v2.2-gentle-growth/evidence/$(date +%Y%m%d)
+```
+
+Flows 使用 Dev **温和成长 QA** 场景 + **一键通关**（#5 为游戏页 **放弃**）；#7 先 **重置通关记录**；#8 经 Dev **预览·English**（等同设置页 locale 预览）。结果页交互前会自动 **隐藏调试条**（`隐藏调试条，便于截图`）。截图写入 `--test-output-dir` 下的 `screenshots/`，与 [验收证据 README](./qa/v2.2-gentle-growth/README.md) 对照表一并归档。
+
 ## Related docs
 
 | Doc | Purpose |

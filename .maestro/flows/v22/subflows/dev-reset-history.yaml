@@ -1,0 +1,7 @@
+appId: com.moyunzero.foolish-you
+---
+- runFlow: dev-open-panel.yaml
+- tapOn:
+    text: '重置通关记录'
+- waitForAnimationToEnd:
+    timeout: 2000

@@ -7,6 +7,7 @@ import { getGameRules } from '../../../lib/copy/gameRules';
 import { formatStreakLine } from '../../../lib/copy/streak';
 import { formatFreezeShieldSuffix, pickFreezeConsumedLine } from '../../../lib/copy/freeze';
 import { pickMissedYesterdayLine } from '../../../lib/copy/missedYesterday';
+import { pickGrowthLine } from '../../../lib/copy/growthLine';
 import { getGameTypeLabel } from '../../../lib/i18n/gameLabels';
 import { getStringsForLocale } from '../../../lib/i18n/strings';
 import { generateSudokuPuzzle } from '../../../lib/puzzles/sudoku/generator';
@@ -125,6 +126,15 @@ describe('English locale smoke', () => {
     })).not.toMatch(cjk);
   });
 
+  it('growth line copy is English without CJK for all tones', () => {
+    const cjk = /[\u4e00-\u9fff]/;
+    for (const tone of ['comeback', 'hot', 'steady'] as const) {
+      const line = pickGrowthLine(tone, DATE_KEY, SEED, 'en');
+      expect(line.length).toBeGreaterThan(0);
+      expect(line).not.toMatch(cjk);
+    }
+  });
+
   it('calendar UI strings are English without CJK', () => {
     const ui = getStringsForLocale('en').ui;
     const cjk = /[\u4e00-\u9fff]/;
@@ -134,6 +144,8 @@ describe('English locale smoke', () => {
     expect(ui.sheet.dismissA11y).not.toMatch(cjk);
     expect(ui.calendar.streakLine(3)).not.toMatch(cjk);
     expect(ui.calendar.completedLine(2)).not.toMatch(cjk);
+    expect(ui.calendar.completedDeltaLine(2)).not.toMatch(cjk);
+    expect(ui.calendar.completedDeltaLine(2).length).toBeGreaterThan(0);
     expect(ui.calendar.emptyHeading).not.toMatch(cjk);
     expect(ui.gallery.generateCta).not.toMatch(cjk);
     expect(ui.gallery.generateCta.length).toBeGreaterThan(0);

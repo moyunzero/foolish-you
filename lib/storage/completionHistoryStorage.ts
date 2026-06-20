@@ -5,6 +5,7 @@ import {
   COMPLETION_HISTORY_STORAGE_KEY,
   COMPLETION_HISTORY_STORAGE_VERSION,
 } from '../../constants/config';
+import type { GameType } from '../puzzles/types';
 import { mergeBackfillFromStreak } from './backfillCompletionHistory';
 import { loadStreakState } from './streakStorage';
 
@@ -17,6 +18,8 @@ export type CompletionEntry = {
   inferred?: boolean;
   /** Defaults to completed when absent (legacy v1 entries). */
   outcome?: CompletionOutcome;
+  /** Game type at completion (v3+); absent on legacy entries (no backfill). */
+  gameType?: GameType;
 };
 
 export type CompletionHistoryState = {
@@ -33,6 +36,15 @@ function isDateKey(value: unknown): value is string {
 
 function normalizeOutcome(value: unknown): CompletionOutcome {
   return value === 'abandoned' ? 'abandoned' : 'completed';
+}
+
+function isGameType(value: unknown): value is GameType {
+  return (
+    value === 'sudoku' ||
+    value === 'binary' ||
+    value === 'nonogram' ||
+    value === 'slitherlink'
+  );
 }
 
 function normalizeCompletionHistory(raw: unknown): CompletionHistoryState | null {
@@ -64,11 +76,13 @@ function normalizeCompletionHistory(raw: unknown): CompletionHistoryState | null
         : 0;
     const inferred = entry.inferred === true;
     const outcome = normalizeOutcome(entry.outcome);
+    const gameType = isGameType(entry.gameType) ? entry.gameType : undefined;
     entries.push({
       dateKey: entry.dateKey,
       elapsedMs,
       ...(inferred ? { inferred: true } : {}),
       ...(outcome === 'abandoned' ? { outcome: 'abandoned' as const } : {}),
+      ...(gameType ? { gameType } : {}),
     });
   }
 
@@ -121,11 +135,20 @@ export async function saveCompletionHistory(
 export async function recordCompletion(
   dateKey: string,
   elapsedMs: number,
+  gameType?: GameType,
 ): Promise<void> {
   const current = await readCompletionHistoryFromStorage();
   const without = current.entries.filter((e) => e.dateKey !== dateKey);
   const next: CompletionHistoryState = {
-    entries: [...without, { dateKey, elapsedMs: Math.max(0, elapsedMs), outcome: 'completed' }],
+    entries: [
+      ...without,
+      {
+        dateKey,
+        elapsedMs: Math.max(0, elapsedMs),
+        outcome: 'completed',
+        ...(gameType ? { gameType } : {}),
+      },
+    ],
   };
   await saveCompletionHistory(next);
 }
@@ -134,13 +157,19 @@ export async function recordCompletion(
 export async function recordAbandon(
   dateKey: string,
   elapsedMs: number,
+  gameType?: GameType,
 ): Promise<void> {
   const current = await readCompletionHistoryFromStorage();
   const without = current.entries.filter((e) => e.dateKey !== dateKey);
   const next: CompletionHistoryState = {
     entries: [
       ...without,
-      { dateKey, elapsedMs: Math.max(0, elapsedMs), outcome: 'abandoned' },
+      {
+        dateKey,
+        elapsedMs: Math.max(0, elapsedMs),
+        outcome: 'abandoned',
+        ...(gameType ? { gameType } : {}),
+      },
     ],
   };
   await saveCompletionHistory(next);

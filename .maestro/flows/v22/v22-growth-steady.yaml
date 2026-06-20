@@ -1,0 +1,32 @@
+appId: com.moyunzero.foolish-you
+ios:
+  snapshotKeyHonorModalViews: true
+---
+- launchApp:
+    clearState: true
+- extendedWaitUntil:
+    visible:
+      text: '完成今日'
+    timeout: 60000
+- runFlow: subflows/dev-force-sudoku.yaml
+- runFlow: subflows/dev-open-panel.yaml
+- tapOn:
+    text: '近况·稳定'
+- extendedWaitUntil:
+    visible: '完成今日'
+    timeout: 45000
+- runFlow: subflows/dev-open-panel.yaml
+- tapOn:
+    text: '一键通关'
+- extendedWaitUntil:
+    visible: '今日战绩 · 通关'
+    timeout: 60000
+- runFlow: subflows/dev-hide-bar.yaml
+- runFlow: subflows/wait-result-ready.yaml
+- extendedWaitUntil:
+    visible:
+      id: result-growth-line
+    timeout: 15000
+- assertVisible:
+    id: result-growth-line
+- takeScreenshot: 03-result-steady-growth-line

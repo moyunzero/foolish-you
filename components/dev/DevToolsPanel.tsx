@@ -7,10 +7,16 @@ import { DEV_TOOLS_ENABLED } from '../../constants/dev';
 import { colors } from '../../constants/design';
 import { useDailyGame } from '../../contexts/DailyGameContext';
 import { useDevToolsUi } from '../../contexts/DevToolsUiContext';
+import { useI18n } from '../../lib/i18n';
 import type { GameType } from '../../lib/puzzles/types';
 import { isSudokuPuzzle } from '../../lib/puzzles/types';
 import { requestAppStoreReview } from '../../lib/rating/requestReview';
-import { devInjectCompletedEmptyPlayState } from '../../lib/dev/snapshotDevInject';
+import { devInjectCompletedEmptyPlayState, devInjectTodayCompleted } from '../../lib/dev/snapshotDevInject';
+import {
+  applyGrowthDevScenario,
+  GROWTH_DEV_SCENARIOS,
+  type GrowthDevScenarioId,
+} from '../../lib/dev/growthDevScenarios';
 import {
   formatStreakDevSummary,
   STREAK_DEV_SCENARIOS,
@@ -68,6 +74,7 @@ export default function DevToolsPanel() {
     refresh,
   } = useDailyGame();
   const { barVisible, hideBar } = useDevToolsUi();
+  const { setLocaleOverride } = useI18n();
 
   const refreshRecoveryLog = useCallback(async () => {
     setRecoveryLog(await loadRecoveryLog());
@@ -76,6 +83,23 @@ export default function DevToolsPanel() {
   const refreshStreakSummary = useCallback(async () => {
     setStreakSummary(formatStreakDevSummary(await loadStreakState()));
   }, []);
+
+  const applyGrowthScenario = async (scenario: GrowthDevScenarioId) => {
+    if (status === 'completed' || status === 'abandoned') {
+      await devRegenerateToday('sudoku');
+    }
+    await applyGrowthDevScenario(scenario);
+    await refresh();
+    router.replace('/game');
+  };
+
+  const injectTodayCompleted = async () => {
+    const ok = await devInjectTodayCompleted();
+    if (ok) {
+      await refresh();
+      router.replace('/result');
+    }
+  };
 
   const applyStreakScenario = async (scenario: StreakDevScenarioId) => {
     if (
@@ -132,6 +156,8 @@ export default function DevToolsPanel() {
       <View className="mb-2 flex-row items-center justify-between gap-2">
         <Pressable
           onPress={onToggleExpanded}
+          accessibilityRole="button"
+          accessibilityLabel="DEV 调试"
           className="min-h-[32px] flex-1 flex-row items-center justify-between"
         >
           <Text
@@ -181,6 +207,12 @@ export default function DevToolsPanel() {
               label="设置占位"
               onPress={() => {
                 router.push('/settings');
+              }}
+            />
+            <DevButton
+              label="预览·English"
+              onPress={() => {
+                setLocaleOverride('en');
               }}
             />
             <DevButton
@@ -244,6 +276,30 @@ export default function DevToolsPanel() {
               }}
             />
           </View>
+
+          <Text className="text-[10px] text-accent-sunset" style={{ fontFamily: 'SpaceMono_400Regular' }}>
+            温和成长 QA（注入 history → 点「一键通关」→ 结果页 / 月历）
+          </Text>
+          <View className="flex-row flex-wrap gap-2">
+            {GROWTH_DEV_SCENARIOS.map((scenario) => (
+              <DevButton
+                key={scenario.id}
+                label={scenario.label}
+                onPress={() => {
+                  void applyGrowthScenario(scenario.id);
+                }}
+              />
+            ))}
+            <DevButton
+              label="一键通关"
+              onPress={() => {
+                void injectTodayCompleted();
+              }}
+            />
+          </View>
+          <Text className="text-[10px] leading-4 text-muted">
+            {GROWTH_DEV_SCENARIOS.map((s) => `${s.label}：${s.hint}`).join(' · ')}
+          </Text>
 
           <Text className="text-[10px] text-accent-sunset" style={{ fontFamily: 'SpaceMono_400Regular' }}>
             连签 / 护盾 QA（注入后自动 hydrate → 跳转 game）

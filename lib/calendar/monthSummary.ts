@@ -5,11 +5,12 @@ import { createStatsSublineRng } from '../copy/statsSublines';
 import type { Locale } from '../i18n/types';
 import type { CompletionEntry } from '../storage/completionHistoryStorage';
 import type { StreakState } from '../streak/types';
-import { getMonthKeyForDateKey } from './buildMonthGrid';
+import { getMonthKeyForDateKey, getPreviousMonthKey } from './buildMonthGrid';
 
 export type MonthSummary = {
   currentStreak: number;
   monthCompletedCount: number;
+  growthDelta: number;
   summaryTaunt: string;
 };
 
@@ -44,6 +45,10 @@ export function computeMonthSummary(input: ComputeMonthSummaryInput): MonthSumma
   const { monthKey, entries, streak, seed, locale } = input;
   const currentStreak = streak?.currentStreak ?? 0;
   const monthCompletedCount = countMonthCompletedDays(entries, monthKey);
+  const lastMonthCount = countMonthCompletedDays(entries, getPreviousMonthKey(monthKey));
+  // Suppress on first month (no real previous data) and never go negative (D-18 / D-04).
+  const growthDelta =
+    lastMonthCount > 0 ? Math.max(0, monthCompletedCount - lastMonthCount) : 0;
   const rng = createStatsSublineRng(monthKey, seed, 9);
   const pools = calendarSummaryPools(locale);
   const summaryTaunt = pickFromPool(rng, pools.taunt);
@@ -51,6 +56,7 @@ export function computeMonthSummary(input: ComputeMonthSummaryInput): MonthSumma
   return {
     currentStreak,
     monthCompletedCount,
+    growthDelta,
     summaryTaunt,
   };
 }

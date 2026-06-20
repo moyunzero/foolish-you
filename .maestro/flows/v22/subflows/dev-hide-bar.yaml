@@ -1,0 +1,11 @@
+appId: com.moyunzero.foolish-you
+---
+- runFlow:
+    when:
+      visible: 'DEV 调试'
+    commands:
+      - tapOn:
+          text: '隐藏调试条，便于截图'
+      - extendedWaitUntil:
+          notVisible: 'DEV 调试'
+          timeout: 10000

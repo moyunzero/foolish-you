@@ -8,6 +8,9 @@ import {
 } from '@testing-library/react-native';
 
 import ResultScreen from '../../app/result';
+import { growthLine as zhGrowthLine } from '../../locales/zh/copy';
+import { saveCompletionHistory } from '../../lib/storage/completionHistoryStorage';
+import type { CompletionEntry } from '../../lib/storage/completionHistoryStorage';
 import { saveDailySnapshot } from '../../lib/storage/dailyStorage';
 import { saveRatingState } from '../../lib/storage/ratingStorage';
 import { saveStreakState } from '../../lib/storage/streakStorage';
@@ -49,6 +52,29 @@ function renderResult() {
       <ResultScreen />
     </ScreenProviders>,
   );
+}
+
+function poolRegex(lines: readonly string[]): RegExp {
+  const escaped = lines.map((line) =>
+    line.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'),
+  );
+  return new RegExp(escaped.join('|'));
+}
+
+const GROWTH_HOT_RE = poolRegex(zhGrowthLine.hot);
+const GROWTH_COMEBACK_RE = poolRegex(zhGrowthLine.comeback);
+const ALL_GROWTH_RE = poolRegex([
+  ...zhGrowthLine.comeback,
+  ...zhGrowthLine.hot,
+  ...zhGrowthLine.steady,
+]);
+
+function completedEntry(dateKey: string): CompletionEntry {
+  return { dateKey, elapsedMs: 1000, outcome: 'completed' };
+}
+
+async function seedCompletionHistory(entries: CompletionEntry[]) {
+  await saveCompletionHistory({ entries });
 }
 
 describe('ResultScreen', () => {
@@ -171,6 +197,65 @@ describe('ResultScreen', () => {
       expect(screen.getByText(/今日战绩 · 通关/)).toBeTruthy();
       expect(screen.getByText('今日数回 ·')).toBeTruthy();
     });
+  });
+
+  it('shows a hot growth line when last 7 days are dense completions', async () => {
+    await seedCompletionHistory([
+      completedEntry('2026-05-14'),
+      completedEntry('2026-05-15'),
+      completedEntry('2026-05-16'),
+      completedEntry('2026-05-17'),
+      completedEntry('2026-05-18'),
+      completedEntry('2026-05-19'),
+    ]);
+    await saveDailySnapshot(makeSudokuCompletedSnapshot());
+    renderResult();
+
+    await waitFor(() => {
+      expect(screen.getByText(GROWTH_HOT_RE)).toBeTruthy();
+    });
+  });
+
+  it('shows a comeback growth line when last completion was >= 3 days ago', async () => {
+    await seedCompletionHistory([
+      completedEntry('2026-05-15'),
+      completedEntry('2026-05-19'),
+    ]);
+    await saveDailySnapshot(makeSudokuCompletedSnapshot());
+    renderResult();
+
+    await waitFor(() => {
+      expect(screen.getByText(GROWTH_COMEBACK_RE)).toBeTruthy();
+    });
+  });
+
+  it('shows comeback line even when today is abandoned (D-10 exception)', async () => {
+    await seedCompletionHistory([completedEntry('2026-05-15')]);
+    await saveDailySnapshot(
+      makeBinaryPlayingSnapshot({
+        status: 'abandoned',
+        finishedAt: 1_700_000_900_000,
+      }),
+    );
+    renderResult();
+
+    await waitFor(() => {
+      expect(screen.getByText(GROWTH_COMEBACK_RE)).toBeTruthy();
+    });
+  });
+
+  it('shows no growth line on an ordinary completed day', async () => {
+    await seedCompletionHistory([
+      completedEntry('2026-05-18'),
+      completedEntry('2026-05-19'),
+    ]);
+    await saveDailySnapshot(makeSudokuCompletedSnapshot());
+    renderResult();
+
+    await waitFor(() => {
+      expect(screen.getByText(/今日战绩 · 通关/)).toBeTruthy();
+    });
+    expect(screen.queryByText(ALL_GROWTH_RE)).toBeNull();
   });
 
   it('requests store review after delay when rating gates pass', async () => {

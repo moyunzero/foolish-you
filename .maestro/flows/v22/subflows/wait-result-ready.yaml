@@ -1,0 +1,7 @@
+appId: com.moyunzero.foolish-you
+---
+- swipe:
+    direction: UP
+- extendedWaitUntil:
+    visible: '查看本月日历'
+    timeout: 20000

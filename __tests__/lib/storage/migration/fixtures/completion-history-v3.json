@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "entries": [
+    { "dateKey": "2026-05-20", "elapsedMs": 60000, "outcome": "completed", "gameType": "sudoku" },
+    { "dateKey": "2026-05-21", "elapsedMs": 70000, "outcome": "completed", "gameType": "chess" }
+  ]
+}

@@ -1,0 +1,11 @@
+appId: com.moyunzero.foolish-you
+---
+# v2.2 gentle growth — full Maestro acceptance suite (requires __DEV__ build).
+- runFlow: v22-growth-silent.yaml
+- runFlow: v22-growth-hot.yaml
+- runFlow: v22-growth-steady.yaml
+- runFlow: v22-growth-comeback.yaml
+- runFlow: v22-growth-calendar.yaml
+- runFlow: v22-growth-comeback-abandon.yaml
+- runFlow: v22-growth-calendar-first-month.yaml
+- runFlow: v22-growth-i18n-en.yaml

@@ -26,16 +26,17 @@ export default function BottomSheetShell({
       transparent
       animationType="slide"
       onRequestClose={onClose}
+      accessibilityViewIsModal
     >
-      <Pressable
-        className="flex-1 justify-end"
-        style={{ backgroundColor: 'rgba(0, 0, 0, 0.72)' }}
-        onPress={onClose}
-        accessibilityRole="button"
-        accessibilityLabel={dismissA11y}
-      >
+      <View className="flex-1 justify-end" style={{ backgroundColor: 'rgba(0, 0, 0, 0.72)' }}>
         <Pressable
-          onPress={(e) => e.stopPropagation()}
+          accessibilityRole="button"
+          accessibilityLabel={dismissA11y}
+          className="absolute inset-0"
+          onPress={onClose}
+        />
+        <View
+          testID="bottom-sheet-panel"
           className="overflow-hidden rounded-t-xl border border-hairline bg-canvas-card"
           style={{
             paddingBottom: Math.max(insets.bottom, 12),
@@ -58,8 +59,8 @@ export default function BottomSheetShell({
             />
           </View>
           {children}
-        </Pressable>
-      </Pressable>
+        </View>
+      </View>
     </Modal>
   );
 }

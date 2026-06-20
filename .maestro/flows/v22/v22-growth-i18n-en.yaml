@@ -1,0 +1,72 @@
+appId: com.moyunzero.foolish-you
+ios:
+  snapshotKeyHonorModalViews: true
+---
+# Manual QA #8 — Dev 预览 English：成长行 + 月历 delta 无 CJK；分享区英文 UI。
+# Block A: result growth line in English
+- launchApp:
+    clearState: true
+- extendedWaitUntil:
+    visible:
+      text: '完成今日'
+    timeout: 60000
+- runFlow: subflows/dev-set-locale-en.yaml
+- runFlow: subflows/dev-force-sudoku-en.yaml
+- runFlow: subflows/dev-open-panel.yaml
+- tapOn:
+    text: '近况·火热'
+- extendedWaitUntil:
+    visible: 'Finish today’s puzzle'
+    timeout: 45000
+- runFlow: subflows/dev-open-panel.yaml
+- tapOn:
+    text: '一键通关'
+- extendedWaitUntil:
+    visible: 'Today · Cleared'
+    timeout: 60000
+- runFlow: subflows/dev-hide-bar.yaml
+- extendedWaitUntil:
+    visible:
+      id: result-growth-line
+    timeout: 15000
+- assertVisible:
+    id: result-growth-line
+- takeScreenshot: 08-i18n-en-result-growth-line
+# Block B: calendar completedDeltaLine in English
+- launchApp:
+    clearState: true
+- extendedWaitUntil:
+    visible:
+      text: '完成今日'
+    timeout: 60000
+- runFlow: subflows/dev-set-locale-en.yaml
+- runFlow: subflows/dev-force-sudoku-en.yaml
+- runFlow: subflows/dev-open-panel.yaml
+- tapOn:
+    text: '月历·比上月多'
+- extendedWaitUntil:
+    visible: 'Finish today’s puzzle'
+    timeout: 45000
+- runFlow: subflows/dev-open-panel.yaml
+- tapOn:
+    text: '一键通关'
+- extendedWaitUntil:
+    visible: 'Today · Cleared'
+    timeout: 60000
+- runFlow: subflows/dev-hide-bar.yaml
+- runFlow: subflows/wait-result-ready-en.yaml
+- tapOn:
+    text: 'View this month calendar'
+- waitForAnimationToEnd:
+    timeout: 3000
+- extendedWaitUntil:
+    visible:
+      id: calendar-month-sheet
+    timeout: 20000
+- extendedWaitUntil:
+    visible:
+      id: calendar-growth-delta
+    timeout: 30000
+- assertVisible:
+    id: calendar-growth-delta
+- takeScreenshot: 08-i18n-en-calendar-delta

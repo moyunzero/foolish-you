@@ -1,0 +1,8 @@
+appId: com.moyunzero.foolish-you
+---
+- runFlow: dev-open-panel.yaml
+- tapOn:
+    text: '数独'
+- extendedWaitUntil:
+    visible: '完成今日'
+    timeout: 45000
