@@ -1,0 +1,7 @@
+{
+  "version": 2,
+  "entries": [
+    { "dateKey": "2026-05-18", "elapsedMs": 120000, "outcome": "completed" },
+    { "dateKey": "2026-05-19", "elapsedMs": 45000, "outcome": "abandoned" }
+  ]
+}
