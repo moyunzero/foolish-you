@@ -87,6 +87,7 @@ export const ui = {
     nextMonthA11y: '下一个月',
     streakLine: (days: number) => `连签 ${days} 天`,
     completedLine: (count: number) => `本月通关 ${count} 天`,
+    completedDeltaLine: (delta: number) => `，比上月多扛了 ${delta} 天`,
     weekdays: ['日', '一', '二', '三', '四', '五', '六'] as const,
     cellA11y: (
       day: number,

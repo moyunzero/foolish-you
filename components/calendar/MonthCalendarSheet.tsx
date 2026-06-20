@@ -185,6 +185,9 @@ export default function MonthCalendarSheet({
             style={{ fontFamily: 'Inter_400Regular', lineHeight: 20 }}
           >
             {calendarUi.completedLine(summary.monthCompletedCount)}
+            {summary.growthDelta > 0
+              ? calendarUi.completedDeltaLine(summary.growthDelta)
+              : ''}
           </Text>
           <Text
             className="mt-2 text-xs text-muted"

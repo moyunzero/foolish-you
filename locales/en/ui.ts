@@ -87,6 +87,7 @@ export const ui = {
     nextMonthA11y: 'Next month',
     streakLine: (days: number) => `${days}-day streak`,
     completedLine: (count: number) => `${count} cleared this month`,
+    completedDeltaLine: (delta: number) => `, ${delta} more than last month`,
     weekdays: ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'] as const,
     cellA11y: (
       day: number,

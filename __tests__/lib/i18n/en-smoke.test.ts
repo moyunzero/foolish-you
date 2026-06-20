@@ -134,6 +134,8 @@ describe('English locale smoke', () => {
     expect(ui.sheet.dismissA11y).not.toMatch(cjk);
     expect(ui.calendar.streakLine(3)).not.toMatch(cjk);
     expect(ui.calendar.completedLine(2)).not.toMatch(cjk);
+    expect(ui.calendar.completedDeltaLine(2)).not.toMatch(cjk);
+    expect(ui.calendar.completedDeltaLine(2).length).toBeGreaterThan(0);
     expect(ui.calendar.emptyHeading).not.toMatch(cjk);
     expect(ui.gallery.generateCta).not.toMatch(cjk);
     expect(ui.gallery.generateCta.length).toBeGreaterThan(0);
