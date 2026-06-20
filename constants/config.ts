@@ -8,7 +8,7 @@ export const STREAK_STORAGE_KEY = '@foolish-you/streak-v1';
 /** Bump when persisted streak JSON shape changes (see docs/CONFIGURATION.md § Storage version bumps). */
 export const STREAK_STORAGE_VERSION = 4;
 export const COMPLETION_HISTORY_STORAGE_KEY = '@foolish-you/completion-history-v1';
-export const COMPLETION_HISTORY_STORAGE_VERSION = 2;
+export const COMPLETION_HISTORY_STORAGE_VERSION = 3;
 export const COMPLETION_HISTORY_MAX_ENTRIES = 90;
 export const RECOVERY_LOG_STORAGE_KEY = '@foolish-you/snapshot-recovery-log-v1';
 export const RECOVERY_LOG_MAX_ENTRIES = 10;
