@@ -128,7 +128,7 @@ describe('English locale smoke', () => {
 
   it('growth line copy is English without CJK for all tones', () => {
     const cjk = /[\u4e00-\u9fff]/;
-    for (const tone of ['comeback', 'hot', 'steady'] as const) {
+    for (const tone of ['comeback', 'hot', 'steady', 'smoother'] as const) {
       const line = pickGrowthLine(tone, DATE_KEY, SEED, 'en');
       expect(line.length).toBeGreaterThan(0);
       expect(line).not.toMatch(cjk);

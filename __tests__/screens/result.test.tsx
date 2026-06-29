@@ -63,14 +63,20 @@ function poolRegex(lines: readonly string[]): RegExp {
 
 const GROWTH_HOT_RE = poolRegex(zhGrowthLine.hot);
 const GROWTH_COMEBACK_RE = poolRegex(zhGrowthLine.comeback);
+const GROWTH_SMOOTHER_RE = poolRegex(zhGrowthLine.smoother);
 const ALL_GROWTH_RE = poolRegex([
   ...zhGrowthLine.comeback,
   ...zhGrowthLine.hot,
   ...zhGrowthLine.steady,
+  ...zhGrowthLine.smoother,
 ]);
 
-function completedEntry(dateKey: string): CompletionEntry {
-  return { dateKey, elapsedMs: 1000, outcome: 'completed' };
+function completedEntry(
+  dateKey: string,
+  elapsedMs = 1000,
+  gameType: CompletionEntry['gameType'] = 'sudoku',
+): CompletionEntry {
+  return { dateKey, elapsedMs, outcome: 'completed', gameType };
 }
 
 async function seedCompletionHistory(entries: CompletionEntry[]) {
@@ -256,6 +262,27 @@ describe('ResultScreen', () => {
       expect(screen.getByText(/今日战绩 · 通关/)).toBeTruthy();
     });
     expect(screen.queryByText(ALL_GROWTH_RE)).toBeNull();
+  });
+
+  it('shows a smoother growth line on an ordinary win with faster same-type history', async () => {
+    await seedCompletionHistory([
+      completedEntry('2026-05-12', 180_000, 'sudoku'),
+      completedEntry('2026-05-05', 180_000, 'sudoku'),
+      completedEntry('2026-04-28', 180_000, 'sudoku'),
+      completedEntry('2026-05-18', 120_000, 'sudoku'),
+      completedEntry('2026-05-19', 120_000, 'sudoku'),
+    ]);
+    await saveDailySnapshot(
+      makeSudokuCompletedSnapshot({
+        startedAt: 1_700_000_820_000,
+        finishedAt: 1_700_000_900_000,
+      }),
+    );
+    renderResult();
+
+    await waitFor(() => {
+      expect(screen.getByText(GROWTH_SMOOTHER_RE)).toBeTruthy();
+    });
   });
 
   it('requests store review after delay when rating gates pass', async () => {

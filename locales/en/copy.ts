@@ -184,6 +184,12 @@ export const growthLine = {
     'Holding the pace nicely — no slacking.',
     'Nice rhythm. Keep it going.',
   ] as const,
+  smoother: [
+    'That one flowed — fingers still working?',
+    'Smoother than your usual self today.',
+    'Same puzzle type, unusually clean run.',
+    'Too smooth. Don’t get cocky tomorrow.',
+  ] as const,
 } as const;
 
 export const statsPools = {

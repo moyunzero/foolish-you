@@ -198,7 +198,7 @@ npm run build:preview:ios
 npm run build:preview:android
 ```
 
-`app.json` configures the app name **傻了么**, bundle ID `com.moyunzero.foolish-you`, and a dark UI. The current **iOS production build `2.1.0`** is shipped via the EAS `production` profile to App Store Connect. Retention KPIs are read from App Store Connect Analytics — there is no third-party analytics SDK in the app.
+`app.json` configures the app name **傻了么**, bundle ID `com.moyunzero.foolish-you`, and a dark UI. The current **iOS production build `2.2.0`** is shipped via the EAS `production` profile to App Store Connect. Retention KPIs are read from App Store Connect Analytics — there is no third-party analytics SDK in the app.
 
 ---
 
@@ -235,8 +235,11 @@ npm run build:preview:android
 | **v2.0** | Live (in `2.1.0`) | ✅ Slitherlink 7×7; ✅ Streak Freeze; ✅ missed-yesterday recall | Duolingo: streak lifespan +48% |
 | **v2.1** | **Live** (`2.1.0`; App Store 2026-06-09) | ✅ Weekday difficulty; ✅ month calendar + summary; ✅ daily reminder (A+D); ✅ month gallery PNG | NYT Mini/Midi cadence · D1→D2 |
 | **v2.2** | **Live** (`2.2.0`) | ✅ Gentle growth: result “recent streak” line + calendar growth summary; no negative feedback | Mastery · non-competitive retention |
-| **v3.0** | Planned | iCloud / Google end-to-end sync or QR import/export; 30-day history archive | Avoid conflict with offline-first / no-social |
-| **v4.0** | Planned | Anonymous challenge codes; "Year in 傻了么" annual long-image | Conversation between friends, no friend list |
+| **v2.3** | **Next** (`2.3.0`) | 「Same-type smoother」easter egg: same `gameType` + weekday band + enough samples + clearly faster today → one extra positive result line; still never-negative; extends `resolveGrowthLine` | Vertical mastery without speed PK |
+| **v2.4** | Planned | Content depth: 5th puzzle type *or* Sunday special (one per day unchanged) | Rotation freshness |
+| **v3.0** | Planned | QR backup/restore (progress + streak + calendar); optional Android ship in same cycle | Device transfer without accounts |
+| **v3.1** | Planned | **Year in 傻了么** annual long-image (reuse month gallery pipeline) | Wrapped-style share; schedule before Q4 |
+| **v4.0** | Planned | Anonymous challenge codes (“play my day”); optional aggregate social proof | Conversation without friend list |
 
 Full decision rationale, A/B designs, and trade-offs are in `.planning/ROADMAP.md` (gitignored; not published with the repo).
 

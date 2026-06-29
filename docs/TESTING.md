@@ -219,6 +219,18 @@ Run on **`__DEV__` build** (Expo dev client or `npx expo run:ios` / `run:android
 
 截图验收目录与 Maestro 命令见 [docs/qa/v2.2-gentle-growth/README.md](./qa/v2.2-gentle-growth/README.md)。
 
+### v2.3 同类更顺（Same-Type Smoother）manual QA
+
+在 v2.2 手测基础上追加。Dev → **温和成长 QA** → **彩蛋·同类更顺** → **一键通关**。
+
+| # | 区域 | 步骤 | 预期 |
+|---|------|------|------|
+| 1 | 结果页·smoother | Dev → **彩蛋·同类更顺** → **一键通关** | 平常日（非火热/召回）出现 **smoother** 成长行 |
+| 2 | 节奏优先 | 先注入 **近况·火热** 再通关（同历史） | 显示火热行，**不**显示 smoother |
+| 3 | i18n | en 预览下 smoother 场景 | 成长行无 CJK |
+
+Maestro：`maestro test .maestro/flows/v23/v23-growth-smoother.yaml` — 见 [docs/qa/v2.3-same-type-smoother/README.md](./qa/v2.3-same-type-smoother/README.md)。
+
 ## Maestro E2E（v2.2）
 
 **前提：** iOS Simulator 或 Android 模拟器已安装 **`com.moyunzero.foolish-you` 开发包**（非 Expo Go；与 `.maestro/flows/smoke-launch.yaml` 相同 `appId`）。Metro 可选（开发包已 bundle 时可离线跑 UI 流）。
