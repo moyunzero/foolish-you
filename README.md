@@ -5,7 +5,7 @@
 > A minimalist **daily puzzle** app. Open it once a day and the app hands you exactly one randomly assigned puzzle — **Sudoku**, **Binary (Takuzu/Binairo)**, **Nonogram (Picross)**, or **Slitherlink** — then closes the loop with a sharp-tongued one-liner. New puzzle at local midnight.
 
 <p>
-  <img alt="version" src="https://img.shields.io/badge/version-2.1.0-blue" />
+  <img alt="version" src="https://img.shields.io/badge/version-2.2.0-blue" />
   <img alt="platform" src="https://img.shields.io/badge/platform-iOS%20%7C%20Android-lightgrey" />
   <img alt="expo" src="https://img.shields.io/badge/Expo-SDK%2054-000020?logo=expo" />
   <img alt="tests" src="https://img.shields.io/badge/tests-476%20passing-success" />
@@ -13,7 +13,7 @@
 
 No social feeds, no leaderboards, no fill-in hints — just **today's one game**.
 
-**iOS App Store (`2.1.0`):** [傻了么 / Brainfool](https://apps.apple.com/app/id6770218110) · released 2026-06-09. Android (Google Play) is not published yet.
+**iOS App Store:** Live [`2.2.0`](https://apps.apple.com/app/id6770218110) (gentle growth). Android (Google Play) is not published yet.
 
 **For AI / contributors:** production invariants and layer rules live in [`AGENTS.md`](./AGENTS.md); verification, code review, and manual QA checklists in [`docs/DEVELOPMENT.md`](./docs/DEVELOPMENT.md) and [`docs/TESTING.md`](./docs/TESTING.md); the GSD workflow in [`CLAUDE.md`](./CLAUDE.md).
 
@@ -234,6 +234,7 @@ npm run build:preview:android
 | **v1.2** | Released (`1.2.0`) | System locale zh/en (`expo-localization`); English brand **Brainfool**; `locales/` + `useI18n`; bilingual privacy; DevTools **settings placeholder** (no storage writes, no release entry) | Overseas readability + store compliance |
 | **v2.0** | Live (in `2.1.0`) | ✅ Slitherlink 7×7; ✅ Streak Freeze; ✅ missed-yesterday recall | Duolingo: streak lifespan +48% |
 | **v2.1** | **Live** (`2.1.0`; App Store 2026-06-09) | ✅ Weekday difficulty; ✅ month calendar + summary; ✅ daily reminder (A+D); ✅ month gallery PNG | NYT Mini/Midi cadence · D1→D2 |
+| **v2.2** | **Live** (`2.2.0`) | ✅ Gentle growth: result “recent streak” line + calendar growth summary; no negative feedback | Mastery · non-competitive retention |
 | **v3.0** | Planned | iCloud / Google end-to-end sync or QR import/export; 30-day history archive | Avoid conflict with offline-first / no-social |
 | **v4.0** | Planned | Anonymous challenge codes; "Year in 傻了么" annual long-image | Conversation between friends, no friend list |
 

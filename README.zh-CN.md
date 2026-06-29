@@ -5,7 +5,7 @@
 > 一款极简的**每日益智**移动应用：每天打开，系统会在 **数独**、**8×8 二进制谜题（Takuzu / Binairo）**、**8×8 数绘（Nonogram / Picross）** 与 **7×7 数回（Slitherlink）** 中随机分配一局。玩完或认怂后，用带点毒舌的文案收尾；第二天 0 点自动换新题。
 
 <p>
-  <img alt="version" src="https://img.shields.io/badge/version-2.1.0-blue" />
+  <img alt="version" src="https://img.shields.io/badge/version-2.2.0-blue" />
   <img alt="platform" src="https://img.shields.io/badge/platform-iOS%20%7C%20Android-lightgrey" />
   <img alt="expo" src="https://img.shields.io/badge/Expo-SDK%2054-000020?logo=expo" />
   <img alt="tests" src="https://img.shields.io/badge/tests-476%20passing-success" />
@@ -13,7 +13,7 @@
 
 无社交、无排行榜、无填格提示——专注「今天这一局」。
 
-**iOS App Store（`2.1.0`）：** [傻了么 / Brainfool](https://apps.apple.com/app/id6770218110) · 2026-06-09 上架。Android Google Play 尚未发布。
+**iOS App Store：** 线上 [`2.2.0`](https://apps.apple.com/app/id6770218110)（温和成长）。Android Google Play 尚未发布。
 
 **给 AI / 协作者：** 生产约束与分层规则见 [`AGENTS.md`](./AGENTS.md)；验证、CR、手测清单见 [`docs/DEVELOPMENT.md`](./docs/DEVELOPMENT.md) 与 [`docs/TESTING.md`](./docs/TESTING.md)；GSD 工作流见 [`CLAUDE.md`](./CLAUDE.md)。
 
@@ -234,6 +234,7 @@ npm run build:preview:android
 | **v1.2** | 已发布（`1.2.0`） | 系统语言 zh/en（`expo-localization`）；英文品牌 **Brainfool**；`locales/` + `useI18n`；双语隐私；DevTools **设置占位**（不写存储，Release 无入口） | 海外可读性 + 商店合规 |
 | **v2.0** | 已上架（含于 `2.1.0`） | ✅ 数回 7×7；✅ Streak Freeze；✅ 昨日错过召回 | Duolingo：streak 寿命 +48% |
 | **v2.1** | **已上架**（`2.1.0`；App Store 2026-06-09） | ✅ 周节奏难度；✅ 本月月历 + 摘要；✅ 每日提醒 A+D；✅ 月度图鉴 PNG | NYT Mini/Midi 节奏 · D1→D2 |
+| **v2.2** | **已上架**（`2.2.0`） | ✅ 温和成长：结果页近况行 + 月历成长摘要；永不负反馈 | 掌控感 · 非竞争留存 |
 | **v3.0** | 规划中 | iCloud / Google 端到端同步或 QR 导入导出；30 天历史归档 | 避免与「离线优先 / 无社交」冲突 |
 | **v4.0** | 规划中 | 匿名挑战码；Year in 傻了么 年终长图 | 朋友间话题，无好友列表 |
 

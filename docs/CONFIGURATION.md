@@ -26,13 +26,13 @@ Primary Expo configuration (static JSON, no `app.config.js`).
 |------|-------|-------|
 | Display name | 傻了么 | User-facing app name |
 | Slug / scheme | `foolish-you` | Deep links and Expo project slug |
-| Version | `2.1.0` | Marketing version (aligned with `package.json`) |
+| Version | `2.2.0` | Marketing version (aligned with `package.json`) |
 | UI style | `dark` | System appearance default |
 | New architecture | `true` | React Native new arch enabled |
 | Entry | `expo-router/entry` | Set in `package.json` `main` |
 | Plugins | `expo-router`, `expo-font`, `expo-localization`, `expo-notifications`, `@react-native-community/datetimepicker` | Router, fonts, locale, local reminders |
-| iOS bundle ID | `com.moyunzero.foolish-you` | `buildNumber`: `2` |
-| Android package | `com.moyunzero.foolishyou` | `versionCode`: `2` |
+| iOS bundle ID | `com.moyunzero.foolish-you` | `buildNumber`: `25` in `app.json` → next production build **26** (`autoIncrement`) |
+| Android package | `com.moyunzero.foolishyou` | `versionCode`: `3` |
 | Splash / icons | `./assets/*` | Background `#0a0a0a` (matches design canvas) |
 
 `expo.extra.eas.projectId` links the repo to EAS project `c966dcb9-f523-46a1-aa38-00053eb7d8d4`. <!-- VERIFY: EAS project ownership and dashboard URL if documenting for a team -->
@@ -45,7 +45,7 @@ Primary Expo configuration (static JSON, no `app.config.js`).
 | `preview` | Internal QA | Internal distribution; Android `buildType: apk` |
 | `production` | Store builds | `autoIncrement: true` for build numbers |
 
-CLI requires **EAS CLI >= 16.0.0**. `appVersionSource` is `remote` (versions managed on EAS, not only local `app.json`).
+CLI requires **EAS CLI >= 16.0.0**. `appVersionSource` is `local` (`ios.buildNumber` in `app.json`; production profile uses `autoIncrement`).
 
 npm scripts:
 
@@ -61,8 +61,44 @@ Submit profile `production` is defined but empty in-repo; store credentials are 
 
 | Channel | Status | Notes |
 |---------|--------|-------|
-| **iOS App Store** | **Live `2.1.0`** (2026-06-09) | [App Store](https://apps.apple.com/app/id6770218110) · Bundle `com.moyunzero.foolish-you` · CN 名称「傻了么」/ US「Brainfool」 |
+| **iOS App Store** | **Live `2.2.0`** | [App Store](https://apps.apple.com/app/id6770218110) · Bundle `com.moyunzero.foolish-you` · CN「傻了么」/ US「Brainfool」 |
 | **Google Play** | Not published | Package `com.moyunzero.foolishyou` configured in `app.json` only |
+
+### iOS build number vs App Store Connect
+
+`eas.json` uses `appVersionSource: local` and production `autoIncrement: true`. Each production iOS build bumps `app.json` → `ios.buildNumber` before compiling.
+
+If upload fails with **「捆绑包版本必须高于之前上传的版本 "N"」** / *build number already used*:
+
+1. Open App Store Connect → your app → **Activity** (or the version’s build list) and note the **highest build number already uploaded** (e.g. `25`).
+2. Set `app.json` → `expo.ios.buildNumber` to that number (e.g. `"25"`), save, then run a **new** production build — `autoIncrement` will produce **N+1** (e.g. `26`).
+3. Submit the **new** `.ipa` from that build. Re-submitting an old artifact with the same build number always fails.
+
+Previously `appVersionSource` was `remote`; EAS remote counter (`eas build:version:get`) can drift from App Store Connect if builds were uploaded outside EAS or counters were reset. Local source avoids that mismatch for store releases.
+
+### App Store · 更新说明（`2.2.0` What's New）
+
+粘贴到 App Store Connect → 版本 → **更新说明**（中/英各一份）。隐私政策与权限无变更。
+
+**中文（傻了么 · 中国区）**
+
+```
+· 通关后，来得勤时会多一句「近况」——不唠叨，只在值得说的时候说
+· 月历里本月总结更有人味；比上个月多坚持时，会轻轻点一下
+· 好久不见再来，即使今天认怂，也会欢迎回来
+· 修复与体验优化
+```
+
+**English（Brainfool · United States）**
+
+```
+· After you clear a puzzle, a gentle “you’ve been showing up” line when you’re on a roll—not every day
+· Month calendar summary feels more personal; see when you’re ahead of last month
+· Welcome back—even on a bail-out day after a long break
+· Bug fixes and polish
+```
+
+可选截图：`docs/qa/v2.2-gentle-growth/evidence/20260620/screenshots/`（结果页成长行 02/04/06，月历 delta 05，英文 08）。
 
 Retention and acquisition KPIs: **App Store Connect → Analytics** (no third-party analytics SDK in-app). See README § 版本与规划.
 
