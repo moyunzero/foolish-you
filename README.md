@@ -5,15 +5,15 @@
 > A minimalist **daily puzzle** app. Open it once a day and the app hands you exactly one randomly assigned puzzle — **Sudoku**, **Binary (Takuzu/Binairo)**, **Nonogram (Picross)**, or **Slitherlink** — then closes the loop with a sharp-tongued one-liner. New puzzle at local midnight.
 
 <p>
-  <img alt="version" src="https://img.shields.io/badge/version-2.2.0-blue" />
+  <img alt="version" src="https://img.shields.io/badge/version-2.3.0-blue" />
   <img alt="platform" src="https://img.shields.io/badge/platform-iOS%20%7C%20Android-lightgrey" />
   <img alt="expo" src="https://img.shields.io/badge/Expo-SDK%2054-000020?logo=expo" />
-  <img alt="tests" src="https://img.shields.io/badge/tests-476%20passing-success" />
+  <img alt="tests" src="https://img.shields.io/badge/tests-529%20passing-success" />
 </p>
 
 No social feeds, no leaderboards, no fill-in hints — just **today's one game**.
 
-**iOS App Store:** Live [`2.2.0`](https://apps.apple.com/app/id6770218110) (gentle growth). Android (Google Play) is not published yet.
+**iOS App Store:** Live [`2.2.0`](https://apps.apple.com/app/id6770218110) · **`2.3.0`** in release pipeline (same-type smoother). Android (Google Play) is not published yet.
 
 **For AI / contributors:** production invariants and layer rules live in [`AGENTS.md`](./AGENTS.md); verification, code review, and manual QA checklists in [`docs/DEVELOPMENT.md`](./docs/DEVELOPMENT.md) and [`docs/TESTING.md`](./docs/TESTING.md); the GSD workflow in [`CLAUDE.md`](./CLAUDE.md).
 
@@ -198,7 +198,7 @@ npm run build:preview:ios
 npm run build:preview:android
 ```
 
-`app.json` configures the app name **傻了么**, bundle ID `com.moyunzero.foolish-you`, and a dark UI. The current **iOS production build `2.2.0`** is shipped via the EAS `production` profile to App Store Connect. Retention KPIs are read from App Store Connect Analytics — there is no third-party analytics SDK in the app.
+`app.json` configures the app name **傻了么**, bundle ID `com.moyunzero.foolish-you`, and a dark UI. **App Store live:** `2.2.0`. **Next production build:** `2.3.0` via EAS `production` profile. Retention KPIs are read from App Store Connect Analytics — there is no third-party analytics SDK in the app.
 
 ---
 
@@ -235,7 +235,7 @@ npm run build:preview:android
 | **v2.0** | Live (in `2.1.0`) | ✅ Slitherlink 7×7; ✅ Streak Freeze; ✅ missed-yesterday recall | Duolingo: streak lifespan +48% |
 | **v2.1** | **Live** (`2.1.0`; App Store 2026-06-09) | ✅ Weekday difficulty; ✅ month calendar + summary; ✅ daily reminder (A+D); ✅ month gallery PNG | NYT Mini/Midi cadence · D1→D2 |
 | **v2.2** | **Live** (`2.2.0`) | ✅ Gentle growth: result “recent streak” line + calendar growth summary; no negative feedback | Mastery · non-competitive retention |
-| **v2.3** | **Next** (`2.3.0`) | 「Same-type smoother」easter egg: same `gameType` + weekday band + enough samples + clearly faster today → one extra positive result line; still never-negative; extends `resolveGrowthLine` | Vertical mastery without speed PK |
+| **v2.3** | **Releasing** (`2.3.0`) | ✅ Same-type smoother easter egg: extra positive result line when same puzzle type feels clearly faster; rhythm-first; never-negative | Vertical mastery without speed PK |
 | **v2.4** | Planned | Content depth: 5th puzzle type *or* Sunday special (one per day unchanged) | Rotation freshness |
 | **v3.0** | Planned | QR backup/restore (progress + streak + calendar); optional Android ship in same cycle | Device transfer without accounts |
 | **v3.1** | Planned | **Year in 傻了么** annual long-image (reuse month gallery pipeline) | Wrapped-style share; schedule before Q4 |
