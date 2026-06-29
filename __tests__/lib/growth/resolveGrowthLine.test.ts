@@ -175,6 +175,26 @@ describe('resolveGrowthTone', () => {
       ).toBe('hot');
     });
 
+    it('returns steady instead of smoother when rhythm is steady', () => {
+      const entries = [
+        ...slowerSudokuHistory(),
+        completed(D.minus4),
+        completed(D.minus3),
+        completed(D.minus2),
+        completed(D.minus1),
+        completed(D.today),
+      ];
+      expect(
+        resolveGrowthTone({
+          entries,
+          today: TODAY,
+          outcome: 'completed',
+          gameType: 'sudoku',
+          elapsedMs: 80_000,
+        }),
+      ).toBe('steady');
+    });
+
     it('returns comeback instead of smoother when gap is large', () => {
       const entries = [...slowerSudokuHistory(), completed(D.minus4), completed(D.today)];
       expect(

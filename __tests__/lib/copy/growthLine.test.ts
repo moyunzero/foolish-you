@@ -53,4 +53,14 @@ describe('pickGrowthLine', () => {
       Object.keys(enCopy.growthLine).sort(),
     );
   });
+
+  it('smoother pools avoid numeric timing leaks (D-10)', () => {
+    const digit = /\d/;
+    for (const line of zhCopy.growthLine.smoother) {
+      expect(line).not.toMatch(digit);
+    }
+    for (const line of enCopy.growthLine.smoother) {
+      expect(line).not.toMatch(digit);
+    }
+  });
 });

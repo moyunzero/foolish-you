@@ -128,6 +128,11 @@ describe('isSmootherEligible', () => {
     expect(isSmootherEligible(entries, today, 'sudoku', 80_000)).toBe(true);
   });
 
+  it('returns false when today equals median × ratio (strict less-than)', () => {
+    const entries = sudokuHistory(120_000);
+    expect(isSmootherEligible(entries, today, 'sudoku', 90_000)).toBe(false);
+  });
+
   it('returns false when today is not faster enough', () => {
     const entries = sudokuHistory(120_000);
     expect(isSmootherEligible(entries, today, 'sudoku', 100_000)).toBe(false);
