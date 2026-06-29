@@ -36,7 +36,8 @@ describe('growthDevScenarios', () => {
   it('growth-smoother seeds same-weekday band history without hot rhythm', async () => {
     await applyGrowthDevScenario('growth-smoother');
     const { entries } = await loadCompletionHistory();
-    expect(entries).toHaveLength(3);
+    expect(entries).toHaveLength(4);
     expect(entries.every((e) => e.gameType === 'sudoku')).toBe(true);
+    expect(entries.every((e) => e.elapsedMs === 120_000)).toBe(true);
   });
 });

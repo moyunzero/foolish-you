@@ -138,8 +138,12 @@ export async function applyGrowthDevScenario(
 
     case 'growth-smoother': {
       for (const weeks of [1, 2, 3]) {
-        entries.push(completedEntry(addDaysToDateKey(today, -7 * weeks)));
+        entries.push(
+          completedEntry(addDaysToDateKey(today, -7 * weeks), 'sudoku', 120_000),
+        );
       }
+      // Gap < GROWTH_COMEBACK_MIN_DAYS so rhythm can reach smoother (see resolveGrowthLine tests).
+      entries.push(completedEntry(addDaysToDateKey(today, -1), 'sudoku', 120_000));
       await saveCompletionHistory({ entries });
       return true;
     }
