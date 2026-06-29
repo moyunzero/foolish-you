@@ -5,15 +5,15 @@
 > 一款极简的**每日益智**移动应用：每天打开，系统会在 **数独**、**8×8 二进制谜题（Takuzu / Binairo）**、**8×8 数绘（Nonogram / Picross）** 与 **7×7 数回（Slitherlink）** 中随机分配一局。玩完或认怂后，用带点毒舌的文案收尾；第二天 0 点自动换新题。
 
 <p>
-  <img alt="version" src="https://img.shields.io/badge/version-2.2.0-blue" />
+  <img alt="version" src="https://img.shields.io/badge/version-2.3.0-blue" />
   <img alt="platform" src="https://img.shields.io/badge/platform-iOS%20%7C%20Android-lightgrey" />
   <img alt="expo" src="https://img.shields.io/badge/Expo-SDK%2054-000020?logo=expo" />
-  <img alt="tests" src="https://img.shields.io/badge/tests-476%20passing-success" />
+  <img alt="tests" src="https://img.shields.io/badge/tests-529%20passing-success" />
 </p>
 
 无社交、无排行榜、无填格提示——专注「今天这一局」。
 
-**iOS App Store：** 线上 [`2.2.0`](https://apps.apple.com/app/id6770218110)（温和成长）。Android Google Play 尚未发布。
+**iOS App Store：** 线上 [`2.2.0`](https://apps.apple.com/app/id6770218110) · **`2.3.0`** 发版中（同类更顺彩蛋）。Android Google Play 尚未发布。
 
 **给 AI / 协作者：** 生产约束与分层规则见 [`AGENTS.md`](./AGENTS.md)；验证、CR、手测清单见 [`docs/DEVELOPMENT.md`](./docs/DEVELOPMENT.md) 与 [`docs/TESTING.md`](./docs/TESTING.md)；GSD 工作流见 [`CLAUDE.md`](./CLAUDE.md)。
 
@@ -198,7 +198,7 @@ npm run build:preview:ios
 npm run build:preview:android
 ```
 
-`app.json` 中已配置应用名 **傻了么**、Bundle ID `com.moyunzero.foolish-you`、深色界面。当前 **iOS 生产版 `2.2.0`** 经 EAS `production` 构建并提交 App Store Connect；留存 KPI 见 App Store Connect Analytics（应用内无第三方 analytics SDK）。
+`app.json` 中已配置应用名 **傻了么**、Bundle ID `com.moyunzero.foolish-you`、深色界面。**App Store 线上：** `2.2.0`。**下一版生产构建：** `2.3.0`（EAS `production`）；留存 KPI 见 App Store Connect Analytics（应用内无第三方 analytics SDK）。
 
 ---
 
@@ -235,7 +235,7 @@ npm run build:preview:android
 | **v2.0** | 已上架（含于 `2.1.0`） | ✅ 数回 7×7；✅ Streak Freeze；✅ 昨日错过召回 | Duolingo：streak 寿命 +48% |
 | **v2.1** | **已上架**（`2.1.0`；App Store 2026-06-09） | ✅ 周节奏难度；✅ 本月月历 + 摘要；✅ 每日提醒 A+D；✅ 月度图鉴 PNG | NYT Mini/Midi 节奏 · D1→D2 |
 | **v2.2** | **已上架**（`2.2.0`） | ✅ 温和成长：结果页近况行 + 月历成长摘要；永不负反馈 | 掌控感 · 非竞争留存 |
-| **v2.3** | **下一版**（`2.3.0`） | 「同类更顺」彩蛋：同玩法 + 同星期难度档 + 样本足 + 今日明显更快 → 结果页多一句正向彩蛋；仍永不负反馈；扩展 `resolveGrowthLine` | 纵向掌控感，不做速度 PK |
+| **v2.3** | **发版中**（`2.3.0`） | ✅ 同类更顺彩蛋：同玩法明显更快时多一句正向彩蛋；节奏优先；永不负反馈 | 纵向掌控感，不做速度 PK |
 | **v2.4** | 规划中 | 内容深度：第五种玩法 *或* 周日特辑（仍保持每天一局） | 轮换新鲜感 |
 | **v3.0** | 规划中 | QR 备份/恢复（进度 + 连签 + 月历）；可与 Android 首发同周期 | 换机无账号 |
 | **v3.1** | 规划中 | **Year in 傻了么** 年终长图（复用月度图鉴管线） | Wrapped 式传播；Q4 前排期 |

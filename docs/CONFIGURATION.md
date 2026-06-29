@@ -26,12 +26,12 @@ Primary Expo configuration (static JSON, no `app.config.js`).
 |------|-------|-------|
 | Display name | 傻了么 | User-facing app name |
 | Slug / scheme | `foolish-you` | Deep links and Expo project slug |
-| Version | `2.2.0` | Marketing version (aligned with `package.json`) |
+| Version | `2.3.0` | Marketing version (aligned with `package.json`) |
 | UI style | `dark` | System appearance default |
 | New architecture | `true` | React Native new arch enabled |
 | Entry | `expo-router/entry` | Set in `package.json` `main` |
 | Plugins | `expo-router`, `expo-font`, `expo-localization`, `expo-notifications`, `@react-native-community/datetimepicker` | Router, fonts, locale, local reminders |
-| iOS bundle ID | `com.moyunzero.foolish-you` | `buildNumber`: `25` in `app.json` → next production build **26** (`autoIncrement`) |
+| iOS bundle ID | `com.moyunzero.foolish-you` | `buildNumber`: `26` in `app.json` → next production build **27** (`autoIncrement`) |
 | Android package | `com.moyunzero.foolishyou` | `versionCode`: `3` |
 | Splash / icons | `./assets/*` | Background `#0a0a0a` (matches design canvas) |
 
@@ -61,7 +61,7 @@ Submit profile `production` is defined but empty in-repo; store credentials are 
 
 | Channel | Status | Notes |
 |---------|--------|-------|
-| **iOS App Store** | **Live `2.2.0`** | [App Store](https://apps.apple.com/app/id6770218110) · Bundle `com.moyunzero.foolish-you` · CN「傻了么」/ US「Brainfool」 |
+| **iOS App Store** | **Live `2.2.0`** · **Next `2.3.0`** | [App Store](https://apps.apple.com/app/id6770218110) · Bundle `com.moyunzero.foolish-you` · CN「傻了么」/ US「Brainfool」 |
 | **Google Play** | Not published | Package `com.moyunzero.foolishyou` configured in `app.json` only |
 
 ### iOS build number vs App Store Connect
@@ -76,7 +76,29 @@ If upload fails with **「捆绑包版本必须高于之前上传的版本 "N"�
 
 Previously `appVersionSource` was `remote`; EAS remote counter (`eas build:version:get`) can drift from App Store Connect if builds were uploaded outside EAS or counters were reset. Local source avoids that mismatch for store releases.
 
-### App Store · 更新说明（`2.2.0` What's New）
+### App Store · 更新说明（`2.3.0` What's New）
+
+粘贴到 App Store Connect → 版本 **2.3.0** → **更新说明**（中/英各一份）。隐私政策与权限无变更。
+
+**中文（傻了么 · 中国区）**
+
+```
+· 同一种谜题玩顺手了，偶尔会在结果页多一句「你今天格外顺」——不比较、不排行
+· 还是老规矩：来得勤有近况、好久不见会欢迎，认怂不打击
+· 修复与体验优化
+```
+
+**English（Brainfool · United States）**
+
+```
+· When the same puzzle type clicks, you might get a quiet “that felt smooth” line—no rankings, no speed battle
+· Same gentle rules: show-up streak lines when you’re on a roll, welcome back after a break, no pile-on when you bail
+· Bug fixes and polish
+```
+
+可选截图：`docs/qa/v2.3-same-type-smoother/evidence/20260629/screenshots/01-result-smoother-growth-line.png`。
+
+### App Store · 更新说明（`2.2.0` What's New · 已上架）
 
 粘贴到 App Store Connect → 版本 → **更新说明**（中/英各一份）。隐私政策与权限无变更。
 
@@ -129,6 +151,8 @@ Central runtime constants for puzzles, persistence, and debouncing.
 | `SLITHERLINK_MIN_CLUES` | `18` | Minimum clue cells for 7×7 Slitherlink dailies |
 | `SLITHERLINK_MAX_GEN_ATTEMPTS` | `50` | Slitherlink generator retry cap |
 | `PLAY_STATE_DEBOUNCE_MS` | `300` | Debounce before writing play state to disk |
+| `GROWTH_SMOOTHER_MIN_SAMPLES` | `3` | Same-type smoother: min prior completions (same `gameType` + `weekdayBand`) |
+| `GROWTH_SMOOTHER_MEDIAN_RATIO` | `0.75` | Smoother triggers when today `elapsedMs` **<** median × ratio (strict) |
 
 Changing `APP_SALT` or daily selection logic without product approval breaks **daily determinism** for existing users.
 
