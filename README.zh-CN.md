@@ -198,7 +198,7 @@ npm run build:preview:ios
 npm run build:preview:android
 ```
 
-`app.json` 中已配置应用名 **傻了么**、Bundle ID `com.moyunzero.foolish-you`、深色界面。当前 **iOS 生产版 `2.1.0`** 经 EAS `production` 构建并提交 App Store Connect；留存 KPI 见 App Store Connect Analytics（应用内无第三方 analytics SDK）。
+`app.json` 中已配置应用名 **傻了么**、Bundle ID `com.moyunzero.foolish-you`、深色界面。当前 **iOS 生产版 `2.2.0`** 经 EAS `production` 构建并提交 App Store Connect；留存 KPI 见 App Store Connect Analytics（应用内无第三方 analytics SDK）。
 
 ---
 
@@ -235,8 +235,11 @@ npm run build:preview:android
 | **v2.0** | 已上架（含于 `2.1.0`） | ✅ 数回 7×7；✅ Streak Freeze；✅ 昨日错过召回 | Duolingo：streak 寿命 +48% |
 | **v2.1** | **已上架**（`2.1.0`；App Store 2026-06-09） | ✅ 周节奏难度；✅ 本月月历 + 摘要；✅ 每日提醒 A+D；✅ 月度图鉴 PNG | NYT Mini/Midi 节奏 · D1→D2 |
 | **v2.2** | **已上架**（`2.2.0`） | ✅ 温和成长：结果页近况行 + 月历成长摘要；永不负反馈 | 掌控感 · 非竞争留存 |
-| **v3.0** | 规划中 | iCloud / Google 端到端同步或 QR 导入导出；30 天历史归档 | 避免与「离线优先 / 无社交」冲突 |
-| **v4.0** | 规划中 | 匿名挑战码；Year in 傻了么 年终长图 | 朋友间话题，无好友列表 |
+| **v2.3** | **下一版**（`2.3.0`） | 「同类更顺」彩蛋：同玩法 + 同星期难度档 + 样本足 + 今日明显更快 → 结果页多一句正向彩蛋；仍永不负反馈；扩展 `resolveGrowthLine` | 纵向掌控感，不做速度 PK |
+| **v2.4** | 规划中 | 内容深度：第五种玩法 *或* 周日特辑（仍保持每天一局） | 轮换新鲜感 |
+| **v3.0** | 规划中 | QR 备份/恢复（进度 + 连签 + 月历）；可与 Android 首发同周期 | 换机无账号 |
+| **v3.1** | 规划中 | **Year in 傻了么** 年终长图（复用月度图鉴管线） | Wrapped 式传播；Q4 前排期 |
+| **v4.0** | 规划中 | 匿名挑战码（「来玩我那天」）；可选聚合社交证明 | 朋友间话题，无好友列表 |
 
 完整决策依据、AB 实验设计与对照取舍见 `.planning/ROADMAP.md`（已加入 `.gitignore`，不随仓库公开）。
 

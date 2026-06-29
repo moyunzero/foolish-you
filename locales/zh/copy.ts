@@ -162,6 +162,12 @@ export const growthLine = {
     '保持得不错，没掉队。',
     '节奏挺稳，继续。',
   ] as const,
+  smoother: [
+    '这局格外顺手，手没抽筋吧。',
+    '今天这手感，像是开了倍速。',
+    '同类题里今天最丝滑的一把。',
+    '顺得离谱，别飘明天。',
+  ] as const,
 } as const;
 
 export const statsPools = {

@@ -135,7 +135,16 @@ export default function ResultScreen() {
 
     void loadCompletionHistory().then(({ entries }) => {
       if (cancelled) return;
-      const tone = resolveGrowthTone({ entries, today: dateKey, outcome });
+      const startedAt = snapshot?.startedAt ?? Date.now();
+      const finishedAt = snapshot?.finishedAt ?? Date.now();
+      const elapsedMs = Math.max(0, finishedAt - startedAt);
+      const tone = resolveGrowthTone({
+        entries,
+        today: dateKey,
+        outcome,
+        gameType: gameType ?? undefined,
+        elapsedMs,
+      });
       setGrowthLine(
         tone == null
           ? null
@@ -146,7 +155,7 @@ export default function ResultScreen() {
     return () => {
       cancelled = true;
     };
-  }, [status, dateKey, seed, snapshot?.seed, locale]);
+  }, [status, dateKey, seed, snapshot?.seed, snapshot?.startedAt, snapshot?.finishedAt, locale, gameType]);
 
   useEffect(() => {
     if (!isSuccess || dateKey == null || ratingPromptAttemptedRef.current) {

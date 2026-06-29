@@ -5,7 +5,7 @@ import * as zhCopy from '../../../locales/zh/copy';
 
 const DATE_KEY = '2026-05-19';
 const SEED = 9001;
-const TONES: GrowthTone[] = ['comeback', 'hot', 'steady'];
+const TONES: GrowthTone[] = ['comeback', 'hot', 'steady', 'smoother'];
 
 describe('pickGrowthLine', () => {
   it('returns a line belonging to the matching zh pool', () => {

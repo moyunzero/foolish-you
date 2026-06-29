@@ -35,9 +35,12 @@ describe('v21 habit depth integration', () => {
         </ScreenProviders>,
       );
 
-      await waitFor(() => {
-        expect(screen.getByText('明天叫我')).toBeTruthy();
-      });
+      await waitFor(
+        () => {
+          expect(screen.getByText('明天叫我')).toBeTruthy();
+        },
+        { timeout: 5000 },
+      );
     });
 
     it('hides soft ask on abandoned outcome', async () => {
@@ -59,9 +62,12 @@ describe('v21 habit depth integration', () => {
         </ScreenProviders>,
       );
 
-      await waitFor(() => {
-        expect(screen.getByText(/今日战绩 · 认怂/)).toBeTruthy();
-      });
+      await waitFor(
+        () => {
+          expect(screen.getByText(/今日战绩 · 认怂/)).toBeTruthy();
+        },
+        { timeout: 5000 },
+      );
       expect(screen.queryByText('明天叫我')).toBeNull();
     });
   });

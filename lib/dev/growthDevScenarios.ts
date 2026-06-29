@@ -14,7 +14,8 @@ export type GrowthDevScenarioId =
   | 'growth-hot'
   | 'growth-steady'
   | 'growth-comeback'
-  | 'growth-calendar';
+  | 'growth-calendar'
+  | 'growth-smoother';
 
 export type GrowthDevScenarioMeta = {
   id: GrowthDevScenarioId;
@@ -48,15 +49,21 @@ export const GROWTH_DEV_SCENARIOS: GrowthDevScenarioMeta[] = [
     label: '月历·比上月多',
     hint: '上月 2 天 + 本月若干天；Sheet 应追加正向 delta',
   },
+  {
+    id: 'growth-smoother',
+    label: '彩蛋·同类更顺',
+    hint: '同玩法三周同星期几较慢历史；今日通关更快 → smoother 行',
+  },
 ];
 
 function completedEntry(
   dateKey: string,
   gameType: GameType = 'sudoku',
+  elapsedMs = 120_000,
 ): CompletionEntry {
   return {
     dateKey,
-    elapsedMs: 120_000,
+    elapsedMs,
     outcome: 'completed',
     gameType,
   };
@@ -126,6 +133,14 @@ export async function applyGrowthDevScenario(
           ...thisMonthEntries,
         ],
       });
+      return true;
+    }
+
+    case 'growth-smoother': {
+      for (const weeks of [1, 2, 3]) {
+        entries.push(completedEntry(addDaysToDateKey(today, -7 * weeks)));
+      }
+      await saveCompletionHistory({ entries });
       return true;
     }
 
