@@ -41,3 +41,9 @@ export const GROWTH_WINDOW_DAYS = 7;
 export const GROWTH_COMEBACK_MIN_DAYS = 3;
 export const GROWTH_HOT_MIN_DAYS = 6;
 export const GROWTH_STEADY_MIN_DAYS = 4;
+
+/**
+ * Same-type smoother (v2.3) 彩蛋阈值。初始值，可调参；运行时常量，无 storage bump。
+ */
+export const GROWTH_SMOOTHER_MIN_SAMPLES = 3;
+export const GROWTH_SMOOTHER_MEDIAN_RATIO = 0.75;

@@ -1,7 +1,9 @@
 import {
   countCompletedInLastDays,
+  collectSameTypeBandElapsedSamples,
   daysSincePreviousCompletion,
   hasRealCompletionForDateKey,
+  isSmootherEligible,
 } from '../../../lib/completion/completionHistoryQueries';
 import type { CompletionEntry } from '../../../lib/storage/completionHistoryStorage';
 
@@ -76,5 +78,58 @@ describe('daysSincePreviousCompletion', () => {
   it('detects a >= 3 day comeback gap', () => {
     const entries: CompletionEntry[] = [{ dateKey: '2026-05-22', elapsedMs: 1 }];
     expect(daysSincePreviousCompletion(entries, '2026-05-25')).toBe(3);
+  });
+});
+
+describe('collectSameTypeBandElapsedSamples', () => {
+  const today = '2026-05-19'; // Tuesday band
+
+  it('collects same gameType and weekday band before today', () => {
+    const entries: CompletionEntry[] = [
+      { dateKey: '2026-05-12', elapsedMs: 120_000, outcome: 'completed', gameType: 'sudoku' },
+      { dateKey: '2026-05-05', elapsedMs: 130_000, outcome: 'completed', gameType: 'sudoku' },
+      { dateKey: '2026-04-28', elapsedMs: 140_000, outcome: 'completed', gameType: 'sudoku' },
+      { dateKey: '2026-05-18', elapsedMs: 90_000, outcome: 'completed', gameType: 'binary' },
+    ];
+    expect(collectSameTypeBandElapsedSamples(entries, today, 'sudoku')).toEqual([
+      120_000, 130_000, 140_000,
+    ]);
+  });
+
+  it('skips undefined gameType, abandoned, inferred, and wrong band', () => {
+    const entries: CompletionEntry[] = [
+      { dateKey: '2026-05-12', elapsedMs: 100_000, outcome: 'completed' },
+      { dateKey: '2026-05-13', elapsedMs: 100_000, outcome: 'completed', gameType: 'sudoku' },
+      { dateKey: '2026-05-11', elapsedMs: 100_000, outcome: 'abandoned', gameType: 'sudoku' },
+      { dateKey: '2026-05-10', elapsedMs: 100_000, inferred: true, gameType: 'sudoku' },
+    ];
+    expect(collectSameTypeBandElapsedSamples(entries, today, 'sudoku')).toEqual([]);
+  });
+});
+
+describe('isSmootherEligible', () => {
+  const today = '2026-05-19';
+
+  function sudokuHistory(elapsedMs: number): CompletionEntry[] {
+    return [
+      { dateKey: '2026-05-12', elapsedMs, outcome: 'completed', gameType: 'sudoku' },
+      { dateKey: '2026-05-05', elapsedMs, outcome: 'completed', gameType: 'sudoku' },
+      { dateKey: '2026-04-28', elapsedMs, outcome: 'completed', gameType: 'sudoku' },
+    ];
+  }
+
+  it('returns false with fewer than 3 samples', () => {
+    const entries = sudokuHistory(120_000).slice(0, 2);
+    expect(isSmootherEligible(entries, today, 'sudoku', 60_000)).toBe(false);
+  });
+
+  it('returns true when today is clearly faster than median', () => {
+    const entries = sudokuHistory(120_000);
+    expect(isSmootherEligible(entries, today, 'sudoku', 80_000)).toBe(true);
+  });
+
+  it('returns false when today is not faster enough', () => {
+    const entries = sudokuHistory(120_000);
+    expect(isSmootherEligible(entries, today, 'sudoku', 100_000)).toBe(false);
   });
 });

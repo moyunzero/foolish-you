@@ -14,8 +14,8 @@ const D = {
   today: TODAY,
 } as const;
 
-function completed(dateKey: string): CompletionEntry {
-  return { dateKey, elapsedMs: 1000, outcome: 'completed' };
+function completed(dateKey: string, gameType: 'sudoku' = 'sudoku'): CompletionEntry {
+  return { dateKey, elapsedMs: 1000, outcome: 'completed', gameType };
 }
 
 function abandoned(dateKey: string): CompletionEntry {
@@ -128,6 +128,93 @@ describe('resolveGrowthTone', () => {
       const entries = [completed(D.minus1), abandoned(D.today)];
       expect(
         resolveGrowthTone({ entries, today: TODAY, outcome: 'abandoned' }),
+      ).toBeNull();
+    });
+  });
+
+  describe('smoother easter egg (v2.3)', () => {
+    function slowerSudokuHistory(): CompletionEntry[] {
+      return [
+        { dateKey: '2026-05-12', elapsedMs: 120_000, outcome: 'completed', gameType: 'sudoku' },
+        { dateKey: '2026-05-05', elapsedMs: 120_000, outcome: 'completed', gameType: 'sudoku' },
+        { dateKey: '2026-04-28', elapsedMs: 120_000, outcome: 'completed', gameType: 'sudoku' },
+      ];
+    }
+
+    it('returns smoother on an ordinary win when same-type history is clearly slower', () => {
+      const entries = [...slowerSudokuHistory(), completed(D.minus1), completed(D.today)];
+      expect(
+        resolveGrowthTone({
+          entries,
+          today: TODAY,
+          outcome: 'completed',
+          gameType: 'sudoku',
+          elapsedMs: 80_000,
+        }),
+      ).toBe('smoother');
+    });
+
+    it('returns hot instead of smoother when rhythm is hot', () => {
+      const entries = [
+        ...slowerSudokuHistory(),
+        completed(D.minus5),
+        completed(D.minus4),
+        completed(D.minus3),
+        completed(D.minus2),
+        completed(D.minus1),
+        completed(D.today),
+      ];
+      expect(
+        resolveGrowthTone({
+          entries,
+          today: TODAY,
+          outcome: 'completed',
+          gameType: 'sudoku',
+          elapsedMs: 80_000,
+        }),
+      ).toBe('hot');
+    });
+
+    it('returns comeback instead of smoother when gap is large', () => {
+      const entries = [...slowerSudokuHistory(), completed(D.minus4), completed(D.today)];
+      expect(
+        resolveGrowthTone({
+          entries,
+          today: TODAY,
+          outcome: 'completed',
+          gameType: 'sudoku',
+          elapsedMs: 80_000,
+        }),
+      ).toBe('comeback');
+    });
+
+    it('returns null when sample history is insufficient', () => {
+      const entries = [completed(D.minus1), completed(D.today)];
+      expect(
+        resolveGrowthTone({
+          entries,
+          today: TODAY,
+          outcome: 'completed',
+          gameType: 'sudoku',
+          elapsedMs: 80_000,
+        }),
+      ).toBeNull();
+    });
+
+    it('returns null on abandoned even when smoother would qualify', () => {
+      const entries = [
+        ...slowerSudokuHistory(),
+        completed(D.minus1),
+        abandoned(D.today),
+      ];
+      expect(
+        resolveGrowthTone({
+          entries,
+          today: TODAY,
+          outcome: 'abandoned',
+          gameType: 'sudoku',
+          elapsedMs: 80_000,
+        }),
       ).toBeNull();
     });
   });

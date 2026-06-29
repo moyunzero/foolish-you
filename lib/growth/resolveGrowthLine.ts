@@ -7,15 +7,19 @@ import {
 import {
   countCompletedInLastDays,
   daysSincePreviousCompletion,
+  isSmootherEligible,
 } from '../completion/completionHistoryQueries';
+import type { GameType } from '../puzzles/types';
 import type { CompletionEntry } from '../storage/completionHistoryStorage';
 
-export type GrowthTone = 'comeback' | 'hot' | 'steady';
+export type GrowthTone = 'comeback' | 'hot' | 'steady' | 'smoother';
 
 export type ResolveGrowthInput = {
   entries: CompletionEntry[];
   today: string;
   outcome: 'completed' | 'abandoned';
+  gameType?: GameType;
+  elapsedMs?: number;
 };
 
 /**
@@ -38,5 +42,19 @@ export function resolveGrowthTone(input: ResolveGrowthInput): GrowthTone | null 
   );
   if (last7 >= GROWTH_HOT_MIN_DAYS) return 'hot';
   if (last7 >= GROWTH_STEADY_MIN_DAYS) return 'steady';
+
+  if (
+    input.gameType != null &&
+    input.elapsedMs != null &&
+    isSmootherEligible(
+      input.entries,
+      input.today,
+      input.gameType,
+      input.elapsedMs,
+    )
+  ) {
+    return 'smoother';
+  }
+
   return null;
 }
