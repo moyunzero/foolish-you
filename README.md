@@ -13,7 +13,7 @@
 
 No social feeds, no leaderboards, no fill-in hints — just **today's one game**.
 
-**iOS App Store:** Live [`2.2.0`](https://apps.apple.com/app/id6770218110) · **`2.3.0`** in release pipeline (same-type smoother). Android (Google Play) is not published yet.
+**iOS App Store:** Live [`2.3.0`](https://apps.apple.com/app/id6770218110) (same-type smoother). Android (Google Play) is not published yet.
 
 **For AI / contributors:** production invariants and layer rules live in [`AGENTS.md`](./AGENTS.md); verification, code review, and manual QA checklists in [`docs/DEVELOPMENT.md`](./docs/DEVELOPMENT.md) and [`docs/TESTING.md`](./docs/TESTING.md); the GSD workflow in [`CLAUDE.md`](./CLAUDE.md).
 
@@ -63,6 +63,8 @@ No social feeds, no leaderboards, no fill-in hints — just **today's one game**
 | **v2.1** Month calendar | "View this month" on the result screen → bottom sheet with four states (win / surrender / miss / shield) + streak & monthly summary |
 | **v2.1** Daily reminder | First-win soft ask + 20:00 game-screen banner + ReminderSheet; one local routine notification |
 | **v2.1** Month gallery | "Generate this month's gallery" → portrait PNG shared via the system sheet |
+| **v2.2** Gentle growth | Result “recent streak” line + calendar growth summary; never-negative tone |
+| **v2.3** Same-type smoother | Extra positive result line when the same puzzle type feels clearly faster (sample + median gate); no speed PK |
 
 **Out of scope:** accounts/login, a personal **stats dashboard** (the summary is merged into the calendar), fill-in hints, social/leaderboards/friends (see the [Roadmap](#roadmap)).
 
@@ -198,7 +200,7 @@ npm run build:preview:ios
 npm run build:preview:android
 ```
 
-`app.json` configures the app name **傻了么**, bundle ID `com.moyunzero.foolish-you`, and a dark UI. **App Store live:** `2.2.0`. **Next production build:** `2.3.0` via EAS `production` profile. Retention KPIs are read from App Store Connect Analytics — there is no third-party analytics SDK in the app.
+`app.json` configures the app name **傻了么**, bundle ID `com.moyunzero.foolish-you`, and a dark UI. The current **iOS production build `2.3.0`** is shipped via the EAS `production` profile to App Store Connect. Retention KPIs are read from App Store Connect Analytics — there is no third-party analytics SDK in the app.
 
 ---
 
@@ -219,7 +221,7 @@ npm run build:preview:android
 |-------|----|----|-----|--------|------------------|
 | v1.0 (shipped baseline) | — | — | — | live | 0% (no entry) |
 | v1.1 target (≈ 3 mo) | 32% | 12% | 5% | ≥ 4.4 | ≥ 3% |
-| **Current v2.1 (`2.1.0`, iOS live)** | TBD (ASC) | TBD (ASC) | TBD (ASC) | ≥ 4.5 target | ≥ 5% target |
+| **Current v2.3 (`2.3.0`, iOS live)** | TBD (ASC) | TBD (ASC) | TBD (ASC) | ≥ 4.5 target | ≥ 5% target |
 | Post-v2.0 (≈ 6 mo) | **35%+** | **15%+** | **7%+** | **≥ 4.5** | ≥ 5% |
 | 12-month target | 38% | 18% | 9% | 4.6 | 7% |
 
@@ -235,7 +237,7 @@ npm run build:preview:android
 | **v2.0** | Live (in `2.1.0`) | ✅ Slitherlink 7×7; ✅ Streak Freeze; ✅ missed-yesterday recall | Duolingo: streak lifespan +48% |
 | **v2.1** | **Live** (`2.1.0`; App Store 2026-06-09) | ✅ Weekday difficulty; ✅ month calendar + summary; ✅ daily reminder (A+D); ✅ month gallery PNG | NYT Mini/Midi cadence · D1→D2 |
 | **v2.2** | **Live** (`2.2.0`) | ✅ Gentle growth: result “recent streak” line + calendar growth summary; no negative feedback | Mastery · non-competitive retention |
-| **v2.3** | **Releasing** (`2.3.0`) | ✅ Same-type smoother easter egg: extra positive result line when same puzzle type feels clearly faster; rhythm-first; never-negative | Vertical mastery without speed PK |
+| **v2.3** | **Live** (`2.3.0`) | ✅ Same-type smoother easter egg: extra positive result line when same puzzle type feels clearly faster; rhythm-first; never-negative | Vertical mastery without speed PK |
 | **v2.4** | Planned | Content depth: 5th puzzle type *or* Sunday special (one per day unchanged) | Rotation freshness |
 | **v3.0** | Planned | QR backup/restore (progress + streak + calendar); optional Android ship in same cycle | Device transfer without accounts |
 | **v3.1** | Planned | **Year in 傻了么** annual long-image (reuse month gallery pipeline) | Wrapped-style share; schedule before Q4 |

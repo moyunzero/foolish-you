@@ -4,7 +4,7 @@
 
 This guide takes you from a fresh clone to a running app on a simulator, emulator, or physical device. The project uses the **Expo managed workflow** (no committed `ios/` or `android/` directories).
 
-**End users:** install **[傻了么 / Brainfool on the App Store](https://apps.apple.com/app/id6770218110)** (`2.2.0`). The steps below are for contributors cloning the repo.
+**End users:** install **[傻了么 / Brainfool on the App Store](https://apps.apple.com/app/id6770218110)** (`2.3.0`). The steps below are for contributors cloning the repo.
 
 ## Prerequisites
 
