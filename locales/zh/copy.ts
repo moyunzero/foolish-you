@@ -292,3 +292,8 @@ export const resultFooter = {
   default: '明天 0 点后刷新，题型会变哦',
   ios: '明天 0 点后刷新，题型会变哦。iOS 上点按钮后请从屏幕底部上滑回主屏幕。',
 } as const;
+
+/** Sunday Special ritual identity (v2.4 D-03 / D-12) */
+export const sundaySpecial = {
+  gameSubline: '今天是周日特辑。',
+} as const;

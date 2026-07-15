@@ -21,6 +21,7 @@ import { useDevBottomInset } from '../contexts/DevToolsUiContext';
 import { useElapsedTimer } from '../hooks/useElapsedTimer';
 import { useGameBoardSession } from '../hooks/useGameBoardSession';
 import { useGameScreenActions } from '../hooks/useGameScreenActions';
+import { resolveGameStreakSubline } from '../lib/copy/sundaySpecial';
 import { useI18n } from '../lib/i18n';
 import { shouldShowEveningReminderBanner } from '../lib/reminder/eveningBanner';
 import { loadReminderState } from '../lib/storage/reminderStorage';
@@ -94,12 +95,14 @@ export default function GameScreen() {
   }, [reminderOpen]);
 
   const showPlayChrome = session.showBoardChrome;
-  const streakSubline =
-    showPlayChrome && freezeConsumedToday
-      ? freezeConsumedLine
-      : showPlayChrome && missedYesterdayLine != null
-        ? missedYesterdayLine
-        : null;
+  const streakSubline = resolveGameStreakSubline({
+    showPlayChrome,
+    freezeConsumedToday,
+    freezeConsumedLine,
+    missedYesterdayLine,
+    dateKey,
+    sundayGameSubline: strings.copy.sundaySpecial.gameSubline,
+  });
 
   const showEveningBanner = useMemo(() => {
     if (dateKey == null) return false;

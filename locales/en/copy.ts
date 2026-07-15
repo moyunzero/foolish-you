@@ -317,3 +317,8 @@ export const resultFooter = {
   default: 'New puzzle after midnight; game type may change.',
   ios: 'New puzzle after midnight; game type may change. On iOS, swipe up from the bottom to return home after tapping the button.',
 } as const;
+
+/** Sunday Special ritual identity (v2.4 D-03 / D-12) */
+export const sundaySpecial = {
+  gameSubline: 'Sunday Special.',
+} as const;
