@@ -26,7 +26,7 @@ Primary Expo configuration (static JSON, no `app.config.js`).
 |------|-------|-------|
 | Display name | 傻了么 | User-facing app name |
 | Slug / scheme | `foolish-you` | Deep links and Expo project slug |
-| Version | `2.3.0` | Marketing version (aligned with `package.json`) |
+| Version | `2.4.0` | Marketing version (aligned with `package.json`) |
 | UI style | `dark` | System appearance default |
 | New architecture | `true` | React Native new arch enabled |
 | Entry | `expo-router/entry` | Set in `package.json` `main` |
@@ -75,6 +75,28 @@ If upload fails with **「捆绑包版本必须高于之前上传的版本 "N"�
 3. Submit the **new** `.ipa` from that build. Re-submitting an old artifact with the same build number always fails.
 
 Previously `appVersionSource` was `remote`; EAS remote counter (`eas build:version:get`) can drift from App Store Connect if builds were uploaded outside EAS or counters were reset. Local source avoids that mismatch for store releases.
+
+### App Store · 更新说明（`2.4.0` What's New · 待提审）
+
+粘贴到 App Store Connect → 版本 **2.4.0** → **更新说明**（中/英各一份）。隐私政策与权限无变更。
+
+**中文（傻了么 · 中国区）**
+
+```
+· 每周日开出「周日特辑」：进游戏多一句仪式感问候，通关或认怂也更有约会感——不加压、不额外一局
+· 数绘图案库大幅扩充，更多幽默小图轮着来
+· 修复与体验优化
+```
+
+**English（Brainfool · United States）**
+
+```
+· Sundays get a Sunday Special: a short ritual greeting in-game, and warmer roast energy on clear or bail—still one puzzle a day, no harder rules
+· More Nonogram pictures in the pool—extra cheeky 8×8 grids to rotate through
+· Bug fixes and polish
+```
+
+可选截图：`docs/qa/v2.4-sunday-special/evidence/20260715/screenshots/01-sunday-game-subline.png.png`、`04-sunday-complete-roast.png.png`。
 
 ### App Store · 更新说明（`2.3.0` What's New · 已上架）
 
