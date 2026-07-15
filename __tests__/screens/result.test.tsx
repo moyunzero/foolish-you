@@ -115,7 +115,8 @@ describe('ResultScreen', () => {
 
     await waitFor(() => {
       expect(screen.getByText(/今日战绩 · 通关/)).toBeTruthy();
-      expect(screen.getByText('今日', { exact: true })).toBeTruthy();
+      // Header uses formatTodayMeta → single node「今日 · YYYY-MM-DD」(not bare「今日」).
+      expect(screen.getByText(/今日 · \d{4}-\d{2}-\d{2}/)).toBeTruthy();
     });
     expect(screen.queryByText('拷贝战报')).toBeNull();
   });
