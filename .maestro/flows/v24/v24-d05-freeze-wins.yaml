@@ -1,0 +1,28 @@
+appId: com.moyunzero.foolish-you
+ios:
+  snapshotKeyHonorModalViews: true
+---
+# D-05 — freeze-consumed wins over Sunday Special (never stacked).
+- launchApp:
+    clearState: true
+- extendedWaitUntil:
+    visible:
+      text: '完成今日'
+    timeout: 60000
+- runFlow: subflows/dev-force-sunday.yaml
+- runFlow: ../v22/subflows/dev-open-panel.yaml
+- tapOn:
+    text: '护盾已垫'
+- extendedWaitUntil:
+    visible: '完成今日'
+    timeout: 45000
+- waitForAnimationToEnd:
+    timeout: 5000
+- runFlow: ../v22/subflows/dev-hide-bar.yaml
+- assertNotVisible: '今天是周日特辑。'
+# freeze.consumedLines are long; assert via testID (Maestro `|` regex is unreliable here).
+- extendedWaitUntil:
+    visible:
+      id: 'game-streak-subline'
+    timeout: 20000
+- takeScreenshot: 02-d05-freeze-wins.png

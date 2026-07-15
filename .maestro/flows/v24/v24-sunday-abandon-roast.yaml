@@ -1,0 +1,34 @@
+appId: com.moyunzero.foolish-you
+ios:
+  snapshotKeyHonorModalViews: true
+---
+# D-07 — Sunday abandon roast warm; no waste-shame for the special.
+- launchApp:
+    clearState: true
+- extendedWaitUntil:
+    visible:
+      text: '完成今日'
+    timeout: 60000
+- runFlow: subflows/dev-force-sunday.yaml
+- runFlow: subflows/dev-clear-streak.yaml
+- runFlow: ../v22/subflows/dev-hide-bar.yaml
+- tapOn:
+    text: '放弃今日挑战'
+- extendedWaitUntil:
+    visible: '放弃今日挑战？'
+    timeout: 15000
+- tapOn:
+    text: '放弃'
+- extendedWaitUntil:
+    visible: '今日战绩 · 认怂'
+    timeout: 60000
+- waitForAnimationToEnd:
+    timeout: 10000
+- extendedWaitUntil:
+    visible:
+      id: result-punchline
+    timeout: 20000
+- assertVisible: '今日 · 2026-07-12'
+- assertNotVisible: '浪费'
+- takeScreenshot: 05-sunday-abandon-roast.png
+- runFlow: ../v22/subflows/wait-result-ready.yaml

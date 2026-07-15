@@ -235,7 +235,7 @@ Maestro：`maestro test .maestro/flows/v23/v23-growth-smoother.yaml` — 见 [do
 
 验收矩阵：[v2.4-VERIFICATION.md](../.planning/phases/v2.4-sunday-special/v2.4-VERIFICATION.md)。完整步骤与可选证据目录：[docs/qa/v2.4-sunday-special/README.md](./qa/v2.4-sunday-special/README.md)。
 
-**前置：** iOS Simulator → Settings → General → **Date & Time** → 关闭自动 → 设为已知 **周日**（例 `2026-07-12`）→ 完全退出 App 再开；必要时 Dev **重新生成今日**，使 snapshot `dateKey` 与本地周日一致。
+**前置（推荐）：** `__DEV__` 面板点 **假日期·周日**（固定 `2026-07-12`）。或：Simulator → Settings → Date & Time → 关自动 → 设周日 → 杀 App 重开。
 
 | # | 区域 | 步骤 | 预期 |
 |---|------|------|------|
@@ -245,10 +245,16 @@ Maestro：`maestro test .maestro/flows/v23/v23-growth-smoother.yaml` — 见 [do
 | 4 | 结果·通关 | 周日完成今日 | 主毒舌可点名特辑；`growthLine`/smoother 仍至多一行（D-11） |
 | 5 | 结果·认怂 | 周日放弃 | 周日认怂池；**不**嘲讽「浪费特辑」 |
 | 6 | D-08·战报 | 周日拷贝战报 | 无「周日特辑」/ “Sunday Special”；数绘无图案名剧透 |
-| 7 | D-06·平常日 | 设备改周一～六 | 游戏页 + 结果页 **零** 特辑品牌词 |
+| 7 | D-06·平常日 | 设备改周一～六（或 **假日期·清除**） | 游戏页 + 结果页 **零** 特辑品牌词 |
 | 8 | 数绘（可选） | 遇新图案日 | 揭示卡标题为双语文案，非 raw id |
 
-Maestro **不阻塞**本 phase；若有 flow 须同样满足「设备本地日为周日」前提。
+Maestro（推荐自动化门禁）：
+
+```bash
+./scripts/maestro-v24-acceptance.sh
+```
+
+证据与签核见 [docs/qa/v2.4-sunday-special/README.md](./qa/v2.4-sunday-special/README.md)。
 
 ## Maestro E2E（v2.2）
 

@@ -1,0 +1,13 @@
+appId: com.moyunzero.foolish-you
+---
+# Pin dateKey to DEV_QA_SUNDAY_DATE_KEY (2026-07-12) via panel — no Simulator calendar change.
+# Note: do not assert the bare ISO date as Maestro textRegex (hyphen flakiness); later flows
+# assert Sunday Special copy / D-05 lines which only appear when force Sunday took effect.
+- runFlow: ../../v22/subflows/dev-open-panel.yaml
+- tapOn:
+    text: '假日期·周日'
+- extendedWaitUntil:
+    visible: '完成今日'
+    timeout: 60000
+- waitForAnimationToEnd:
+    timeout: 5000

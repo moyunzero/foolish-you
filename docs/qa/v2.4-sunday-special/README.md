@@ -9,7 +9,7 @@
 | 项 | 要求 |
 |----|------|
 | 构建 | `__DEV__` 开发包（Expo dev client / `npx expo run:ios`） |
-| **日期前提** | 设备/模拟器本地日期为 **周日**（例：`2026-07-12`）。Settings → General → Date & Time → 关闭自动 → 设为周日后 **完全关掉 App 再开**；必要时 Dev **重新生成今日** 使 snapshot `dateKey` 对齐 |
+| **日期前提** | 推荐 `__DEV__` 面板 **假日期·周日**（固定 `2026-07-12`）。也可手动设模拟器日历为周日后杀 App 重开。 |
 | 系统语言 | 简体中文默认；英文预览用于零 CJK / Brainfool 抽查 |
 | Dev 面板 | **连签 QA 场景** → `freeze-consumed-ui`、`gap2-recall`（测 D-05 互斥） |
 
@@ -25,19 +25,26 @@
 
 通过后在 `v2.4-VERIFICATION.md` 勾选 Manual 行并人工签字。
 
-## Maestro（可选 — 不阻塞 phase）
+## Maestro（推荐自动化门禁）
 
-本 phase **不强制** Maestro。若后续补 flow，须带与手测相同的 **周日日期前提**（模拟器已设为周日或 flow 内等价预置）；没有该前提的自动化不能替代手测签字。
+须带 **周日 dateKey**。推荐用 `__DEV__` 面板 **假日期·周日**（固定 `2026-07-12`），无需改模拟器系统日历。`status_bar --time` 仍不能改 App `dateKey`。
 
 ```bash
-# Placeholder — add flows under .maestro/flows/v24/ only when written
-# maestro test .maestro/flows/v24/... --test-output-dir docs/qa/v2.4-sunday-special/evidence/$(date +%Y%m%d)
+# Metro 需在跑（开发包）；推荐逐条 flow（规避长 suite 的 XCTest hierarchy flake）：
+./scripts/maestro-v24-acceptance.sh
+# 或：
+# maestro test .maestro/flows/v24/v24-full-suite.yaml --test-output-dir docs/qa/v2.4-sunday-special/evidence/$(date +%Y%m%d)
 ```
 
 | Flow | 断言 | 状态 |
 |------|------|------|
-| — | — | 未提供；手测为门禁 |
-
+| `subflows/dev-force-sunday.yaml` | 点「假日期·周日」→ header 见 `2026-07-12` | 已写 |
+| `v24-sunday-subline.yaml` | 「今天是周日特辑。」可见 | 已写 |
+| `v24-d05-freeze-wins.yaml` | 护盾行胜出，无特辑叠行 | 已写 |
+| `v24-d05-recall-wins.yaml` | 召回行胜出，无特辑叠行 | 已写 |
+| `v24-sunday-complete-roast.yaml` | 通关烤串含特辑 + growth line | 已写 |
+| `v24-sunday-abandon-roast.yaml` | 认怂烤串含特辑语气，无「浪费」 | 已写 |
+| `v24-full-suite.yaml` | 以上串联 | 已写 |
 ## 证据目录（可选归档）
 
 ```bash

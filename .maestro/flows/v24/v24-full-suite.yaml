@@ -1,0 +1,11 @@
+appId: com.moyunzero.foolish-you
+ios:
+  snapshotKeyHonorModalViews: true
+---
+# Full v2.4 Sunday Special Maestro suite (zh-Hans).
+# PRECONDITION: __DEV__ panel「假日期·周日」(2026-07-12). Flows use launch-home-clear.
+- runFlow: v24-sunday-subline.yaml
+- runFlow: v24-d05-freeze-wins.yaml
+- runFlow: v24-d05-recall-wins.yaml
+- runFlow: v24-sunday-complete-roast.yaml
+- runFlow: v24-sunday-abandon-roast.yaml

@@ -13,6 +13,11 @@ import { isSudokuPuzzle } from '../../lib/puzzles/types';
 import { requestAppStoreReview } from '../../lib/rating/requestReview';
 import { devInjectCompletedEmptyPlayState, devInjectTodayCompleted } from '../../lib/dev/snapshotDevInject';
 import {
+  DEV_QA_SUNDAY_DATE_KEY,
+  getDevForceDateKey,
+  setDevForceDateKey,
+} from '../../lib/dev/forceDateKey';
+import {
   applyGrowthDevScenario,
   GROWTH_DEV_SCENARIOS,
   type GrowthDevScenarioId,
@@ -64,6 +69,9 @@ export default function DevToolsPanel() {
   const [regenerating, setRegenerating] = useState(false);
   const [recoveryLog, setRecoveryLog] = useState<RecoveryLogEntry[]>([]);
   const [streakSummary, setStreakSummary] = useState('streak: —');
+  const [forceDateActive, setForceDateActive] = useState(
+    () => getDevForceDateKey() === DEV_QA_SUNDAY_DATE_KEY,
+  );
   const {
     status,
     dateKey,
@@ -136,10 +144,47 @@ export default function DevToolsPanel() {
     }
   };
 
+  /** Maestro / Sunday Special QA: pin dateKey to a known Sunday then rebuild today. */
+  const applyFakeSunday = async () => {
+    if (regenerating) return;
+    setRegenerating(true);
+    try {
+      setDevForceDateKey(DEV_QA_SUNDAY_DATE_KEY);
+      setForceDateActive(true);
+      await devRegenerateToday();
+      router.replace('/game');
+    } catch (error) {
+      if (__DEV__) {
+        console.error('[DevTools] applyFakeSunday failed', error);
+      }
+    } finally {
+      setRegenerating(false);
+    }
+  };
+
+  const clearFakeDate = async () => {
+    if (regenerating) return;
+    setRegenerating(true);
+    try {
+      setDevForceDateKey(null);
+      setForceDateActive(false);
+      await devRegenerateToday();
+      router.replace('/game');
+    } catch (error) {
+      if (__DEV__) {
+        console.error('[DevTools] clearFakeDate failed', error);
+      }
+    } finally {
+      setRegenerating(false);
+    }
+  };
+
   const onToggleExpanded = () => {
     setExpanded((v) => {
       const next = !v;
       if (next) {
+        // Resync after Fast Refresh / Maestro so "清除" stays enabled when force is live.
+        setForceDateActive(getDevForceDateKey() === DEV_QA_SUNDAY_DATE_KEY);
         void refreshRecoveryLog();
         void refreshStreakSummary();
       }
@@ -214,6 +259,17 @@ export default function DevToolsPanel() {
               onPress={() => {
                 setLocaleOverride('en');
               }}
+            />
+            <DevButton
+              label="假日期·周日"
+              active={forceDateActive}
+              disabled={regenerating}
+              onPress={() => void applyFakeSunday()}
+            />
+            <DevButton
+              label="假日期·清除"
+              disabled={regenerating || !forceDateActive}
+              onPress={() => void clearFakeDate()}
             />
             <DevButton
               label="数独"

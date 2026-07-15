@@ -79,7 +79,11 @@ export default function ResultOutcomeBody({
       </Animated.View>
 
       <Animated.View entering={FadeInDown.delay(420).duration(450).springify()}>
-        <Text className="mt-12 text-center text-ink" style={PUNCHLINE_STYLE}>
+        <Text
+          testID="result-punchline"
+          className="mt-12 text-center text-ink"
+          style={PUNCHLINE_STYLE}
+        >
           {punchline}
         </Text>
       </Animated.View>
