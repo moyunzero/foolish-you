@@ -1,0 +1,67 @@
+appId: com.apple.Preferences
+---
+# Set Simulator calendar to a known Sunday so App dateKey is Sunday (D-04).
+# Host Mac date is irrelevant once Set Automatically is off.
+# Target: Sunday 2026-07-12.
+- launchApp:
+    clearState: false
+- extendedWaitUntil:
+    visible: 'General|通用'
+    timeout: 30000
+- runFlow:
+    when:
+      visible: 'General'
+    commands:
+      - tapOn: 'General'
+- runFlow:
+    when:
+      visible: '通用'
+    commands:
+      - tapOn: '通用'
+- extendedWaitUntil:
+    visible: 'Date & Time|日期与时间'
+    timeout: 15000
+- runFlow:
+    when:
+      visible: 'Date & Time'
+    commands:
+      - tapOn: 'Date & Time'
+- runFlow:
+    when:
+      visible: '日期与时间'
+    commands:
+      - tapOn: '日期与时间'
+# Toggle Set Automatically OFF if currently on (best-effort; re-run is idempotent).
+- runFlow:
+    when:
+      visible: 'Set Automatically'
+    commands:
+      - tapOn:
+          text: 'Set Automatically'
+          optional: true
+- runFlow:
+    when:
+      visible: '自动设置'
+    commands:
+      - tapOn:
+          text: '自动设置'
+          optional: true
+# Open the date picker row (label varies by locale / iOS version).
+- runFlow:
+    when:
+      visible: 'Date'
+    commands:
+      - tapOn:
+          text: 'Date'
+          index: 0
+- runFlow:
+    when:
+      visible: '日期'
+    commands:
+      - tapOn:
+          text: '日期'
+          index: 0
+# Wheel: scroll toward July / 7 / 12 / 2026 — Maestro inputText rarely works on wheels.
+# Prefer human pre-set date if this subflow flakes; suite still asserts Sunday brand after launch.
+- takeScreenshot: 00-settings-date-time.png
+- pressKey: Home

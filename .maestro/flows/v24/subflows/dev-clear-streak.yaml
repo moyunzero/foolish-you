@@ -1,0 +1,9 @@
+appId: com.moyunzero.foolish-you
+---
+# Clear streak so Sunday subline is not displaced by freeze/recall.
+- runFlow: ../../v22/subflows/dev-open-panel.yaml
+- tapOn:
+    text: '清空连签'
+- extendedWaitUntil:
+    visible: '完成今日'
+    timeout: 45000

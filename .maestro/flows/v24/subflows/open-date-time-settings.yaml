@@ -1,0 +1,19 @@
+appId: com.apple.Preferences
+---
+# Open Date & Time via Search (zh-Hans). Date wheel still usually needs a human tap.
+- launchApp
+- extendedWaitUntil:
+    visible: '设置'
+    timeout: 20000
+- tapOn:
+    text: '搜索'
+    index: 0
+- inputText: '日期与时间'
+- extendedWaitUntil:
+    visible: '日期与时间'
+    timeout: 10000
+- tapOn:
+    text: '日期与时间'
+    index: 0
+- takeScreenshot: 00-date-time-via-search.png
+- pressKey: Home

@@ -1,0 +1,18 @@
+appId: com.moyunzero.foolish-you
+ios:
+  snapshotKeyHonorModalViews: true
+---
+# SC-01 / D-04 / D-12 — Sunday Special game-header subline when freeze/recall absent.
+# Uses __DEV__「假日期·周日」(no Simulator Date & Time change).
+- launchApp:
+    clearState: true
+- extendedWaitUntil:
+    visible:
+      text: '完成今日'
+    timeout: 60000
+- runFlow: subflows/dev-force-sunday.yaml
+- runFlow: subflows/dev-clear-streak.yaml
+- runFlow: ../v22/subflows/dev-hide-bar.yaml
+- assertVisible: '今天是周日特辑。'
+- assertNotVisible: '护盾生效'
+- takeScreenshot: 01-sunday-game-subline.png

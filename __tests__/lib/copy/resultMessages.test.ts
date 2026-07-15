@@ -3,6 +3,19 @@ jest.mock('react-native', () => ({
 }));
 
 import { pickResultCopy } from '../../../lib/copy/resultMessages';
+import * as enCopy from '../../../locales/en/copy';
+import * as zhCopy from '../../../locales/zh/copy';
+
+const SUNDAY_BRAND_ZH = /周日特辑/;
+const SUNDAY_BRAND_EN = /Sunday Special/i;
+const WASTE_SHAME_ZH = /浪费.*特辑|特辑.*浪费|糟蹋.*特辑/;
+const WASTE_SHAME_EN = /wast(ed|ing).*(special|Sunday)|special.*wast/i;
+
+function flattenResultText(
+  copy: ReturnType<typeof pickResultCopy>,
+): string {
+  return [copy.headline, copy.punchline, ...copy.sublines, copy.cta].join('\n');
+}
 
 describe('pickResultCopy', () => {
   const dateKey = '2026-05-20';
@@ -52,5 +65,78 @@ describe('pickResultCopy', () => {
     const a = pickResultCopy('completed', 125_000, dateKey, seed, 'en');
     const b = pickResultCopy('completed', 125_000, dateKey, seed, 'en');
     expect(a).toEqual(b);
+  });
+
+  it('weekday completed/abandoned never mention Sunday brand', () => {
+    const monday = '2026-07-13';
+    for (const status of ['completed', 'abandoned'] as const) {
+      const zh = flattenResultText(
+        pickResultCopy(status, 90_000, monday, seed, 'zh'),
+      );
+      const en = flattenResultText(
+        pickResultCopy(status, 90_000, monday, seed, 'en'),
+      );
+      expect(zh).not.toMatch(SUNDAY_BRAND_ZH);
+      expect(en).not.toMatch(SUNDAY_BRAND_EN);
+    }
+  });
+
+  it('Sunday completed draws from dedicated sunday success pools', () => {
+    const sunday = '2026-07-12';
+    const zh = pickResultCopy('completed', 90_000, sunday, seed, 'zh');
+    const en = pickResultCopy('completed', 90_000, sunday, seed, 'en');
+
+    expect(zhCopy.resultPools.sundaySuccessPunchlines).toContain(zh.punchline);
+    expect(enCopy.resultPools.sundaySuccessPunchlines).toContain(en.punchline);
+    for (const line of zh.sublines) {
+      expect(zhCopy.resultPools.sundaySuccessSublines).toContain(line);
+    }
+    for (const line of en.sublines) {
+      expect(enCopy.resultPools.sundaySuccessSublines).toContain(line);
+    }
+  });
+
+  it('Sunday abandoned draws from dedicated sunday fail pools without waste shame', () => {
+    const sunday = '2026-07-12';
+    const zh = pickResultCopy('abandoned', 90_000, sunday, seed, 'zh');
+    const en = pickResultCopy('abandoned', 90_000, sunday, seed, 'en');
+
+    expect(zhCopy.resultPools.sundayFailPunchlines).toContain(zh.punchline);
+    expect(enCopy.resultPools.sundayFailPunchlines).toContain(en.punchline);
+    expect(flattenResultText(zh)).not.toMatch(WASTE_SHAME_ZH);
+    expect(flattenResultText(en)).not.toMatch(WASTE_SHAME_EN);
+
+    const zhPoolText = [
+      ...zhCopy.resultPools.sundayFailPunchlines,
+      ...zhCopy.resultPools.sundayFailSublines,
+    ].join('\n');
+    const enPoolText = [
+      ...enCopy.resultPools.sundayFailPunchlines,
+      ...enCopy.resultPools.sundayFailSublines,
+    ].join('\n');
+    expect(zhPoolText).not.toMatch(WASTE_SHAME_ZH);
+    expect(enPoolText).not.toMatch(WASTE_SHAME_EN);
+  });
+
+  it('Sunday pools may name the brand and stay deterministic', () => {
+    const sunday = '2026-07-12';
+    const a = pickResultCopy('completed', 90_000, sunday, seed, 'zh');
+    const b = pickResultCopy('completed', 90_000, sunday, seed, 'zh');
+    expect(a).toEqual(b);
+
+    const zhPools = [
+      ...zhCopy.resultPools.sundaySuccessPunchlines,
+      ...zhCopy.resultPools.sundaySuccessSublines,
+      ...zhCopy.resultPools.sundayFailPunchlines,
+      ...zhCopy.resultPools.sundayFailSublines,
+    ].join('\n');
+    const enPools = [
+      ...enCopy.resultPools.sundaySuccessPunchlines,
+      ...enCopy.resultPools.sundaySuccessSublines,
+      ...enCopy.resultPools.sundayFailPunchlines,
+      ...enCopy.resultPools.sundayFailSublines,
+    ].join('\n');
+    expect(zhPools).toMatch(SUNDAY_BRAND_ZH);
+    expect(enPools).toMatch(SUNDAY_BRAND_EN);
   });
 });

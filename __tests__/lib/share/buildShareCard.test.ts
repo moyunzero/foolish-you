@@ -240,4 +240,68 @@ describe('buildShareCard', () => {
     expect(card).toContain('✅ Cleared');
     expect(card).not.toContain('傻了么');
   });
+
+  it('Sunday dateKey share cards omit Sunday Special brand tokens', () => {
+    const sunday = '2026-07-12';
+    const sudoku = generateSudokuPuzzle(9001);
+    const nonogram = makeNonogramFixture();
+
+    const cards = [
+      buildShareCard(
+        {
+          gameType: 'sudoku',
+          dateKey: sunday,
+          elapsedMs: 120_000,
+          status: 'completed',
+          playState: createEmptySudokuGrid(),
+          puzzle: sudoku,
+          seed: 9001,
+          streakDays: 2,
+        },
+        'zh',
+      ),
+      buildShareCard(
+        {
+          gameType: 'sudoku',
+          dateKey: sunday,
+          elapsedMs: 68_000,
+          status: 'abandoned',
+          playState: createEmptySudokuGrid(),
+          puzzle: sudoku,
+          seed: 9001,
+        },
+        'en',
+      ),
+      buildShareCard(
+        {
+          gameType: 'nonogram',
+          dateKey: sunday,
+          elapsedMs: 180_000,
+          status: 'completed',
+          playState: createEmptyNonogramGrid(),
+          puzzle: nonogram,
+          seed: 777,
+          streakDays: 2,
+        },
+        'zh',
+      ),
+      buildShareCard(
+        {
+          gameType: 'nonogram',
+          dateKey: sunday,
+          elapsedMs: 90_000,
+          status: 'abandoned',
+          playState: createEmptyNonogramGrid(),
+          puzzle: nonogram,
+          seed: 777,
+        },
+        'en',
+      ),
+    ];
+
+    for (const card of cards) {
+      expect(card).not.toMatch(/周日特辑/);
+      expect(card).not.toMatch(/Sunday Special/i);
+    }
+  });
 });

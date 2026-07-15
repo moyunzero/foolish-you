@@ -71,6 +71,22 @@ describe('English locale smoke', () => {
     expect(copy.cta).not.toMatch(cjk);
   });
 
+  it('Sunday Special copy keys exist and English Sunday roast has no CJK', () => {
+    const en = getStringsForLocale('en');
+    const cjk = /[\u4e00-\u9fff]/;
+    const sunday = '2026-07-12';
+
+    expect(en.copy.sundaySpecial.gameSubline).toBe('Sunday Special.');
+    expect(en.copy.sundaySpecial.gameSubline).not.toMatch(cjk);
+
+    const completed = pickResultCopy('completed', 90_000, sunday, SEED, 'en');
+    const abandoned = pickResultCopy('abandoned', 90_000, sunday, SEED, 'en');
+    expect(completed.punchline).not.toMatch(cjk);
+    expect(abandoned.punchline).not.toMatch(cjk);
+    expect(en.copy.resultPools.sundaySuccessPunchlines.length).toBeGreaterThan(0);
+    expect(en.copy.resultPools.sundayFailPunchlines.length).toBeGreaterThan(0);
+  });
+
   it('binary rules mention row and column triple ban', () => {
     const bullet = getGameRules('en').binary.bullets[1];
     expect(bullet).toMatch(/row or column/i);

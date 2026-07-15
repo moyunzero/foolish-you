@@ -6,6 +6,42 @@ import {
 import { NONOGRAM_COLS, NONOGRAM_FILL, NONOGRAM_ROWS } from '../../../../lib/puzzles/nonogram/spec';
 import { applyTransform } from '../../../../lib/puzzles/nonogram/transform';
 import { isCompleteAndValid } from '../../../../lib/puzzles/nonogram/validate';
+import { patterns as enPatterns } from '../../../../locales/en/patterns';
+import { patterns as zhPatterns } from '../../../../locales/zh/patterns';
+
+/** Frozen pre-expand id order (D-17 append-only prefix lock). */
+const PREFIX_IDS = [
+  'silly-face',
+  'silly-cat',
+  'ghost',
+  'heart',
+  'star',
+  'rocket',
+  'mushroom',
+  'duck',
+  'apple',
+  'cherry',
+  'fish',
+  'tree',
+  'house',
+  'moon',
+  'sun',
+  'cloud',
+  'cup',
+  'bell',
+  'bow',
+  'crown',
+  'skull',
+  'balloon',
+  'pizza',
+  'ice-cream',
+  'carrot',
+  'paw',
+  'note',
+  'bolt',
+  'anchor',
+  'gem',
+] as const;
 
 function filledCount(line: boolean[]): number {
   return line.filter(Boolean).length;
@@ -16,17 +52,43 @@ function clueFillSum(clues: number[]): number {
 }
 
 describe('NONOGRAM_PATTERNS', () => {
-  it('contains 30 patterns with unique ids and titles', () => {
-    expect(NONOGRAM_PATTERNS).toHaveLength(30);
+  // D-20: after bucket growth, same dateKey may pick a different pattern across app versions — accepted.
+  it('expands to ~90 patterns with unique ids and titles (D-13)', () => {
+    const { length } = NONOGRAM_PATTERNS;
+    expect(length).toBeGreaterThanOrEqual(84);
+    expect(length).toBeLessThanOrEqual(98);
     const ids = NONOGRAM_PATTERNS.map((p) => p.id);
     const titles = NONOGRAM_PATTERNS.map((p) => p.title);
-    expect(new Set(ids).size).toBe(30);
-    expect(new Set(titles).size).toBe(30);
+    expect(new Set(ids).size).toBe(length);
+    expect(new Set(titles).size).toBe(length);
   });
 
-  it('assigns tier 0–6 metadata with at least one pattern per tier', () => {
+  it('keeps the first 30 pattern ids in original order (D-17 prefix lock)', () => {
+    expect(NONOGRAM_PATTERNS.slice(0, 30).map((p) => p.id)).toEqual([...PREFIX_IDS]);
+  });
+
+  it('balances tiers 0–6 to 12–14 patterns each (D-15)', () => {
     for (let tier = 0; tier <= 6; tier += 1) {
-      expect(NONOGRAM_PATTERNS.some((p) => p.tier === tier)).toBe(true);
+      const count = NONOGRAM_PATTERNS.filter((p) => p.tier === tier).length;
+      expect(count).toBeGreaterThanOrEqual(12);
+      expect(count).toBeLessThanOrEqual(14);
+    }
+  });
+
+  it('assigns titleKey equal to id on every pattern (D-17)', () => {
+    for (const pattern of NONOGRAM_PATTERNS) {
+      expect(pattern.titleKey).toBe(pattern.id);
+    }
+  });
+
+  it('has non-empty zh and en titles for every pattern id (D-17)', () => {
+    for (const pattern of NONOGRAM_PATTERNS) {
+      const zh = zhPatterns[pattern.id as keyof typeof zhPatterns];
+      const en = enPatterns[pattern.id as keyof typeof enPatterns];
+      expect(typeof zh).toBe('string');
+      expect(zh.length).toBeGreaterThan(0);
+      expect(typeof en).toBe('string');
+      expect(en.length).toBeGreaterThan(0);
     }
   });
 
