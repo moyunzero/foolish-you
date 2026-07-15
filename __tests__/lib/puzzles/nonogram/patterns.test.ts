@@ -6,6 +6,8 @@ import {
 import { NONOGRAM_COLS, NONOGRAM_FILL, NONOGRAM_ROWS } from '../../../../lib/puzzles/nonogram/spec';
 import { applyTransform } from '../../../../lib/puzzles/nonogram/transform';
 import { isCompleteAndValid } from '../../../../lib/puzzles/nonogram/validate';
+import { patterns as enPatterns } from '../../../../locales/en/patterns';
+import { patterns as zhPatterns } from '../../../../locales/zh/patterns';
 
 /** Frozen pre-expand id order (D-17 append-only prefix lock). */
 const PREFIX_IDS = [
@@ -76,6 +78,17 @@ describe('NONOGRAM_PATTERNS', () => {
   it('assigns titleKey equal to id on every pattern (D-17)', () => {
     for (const pattern of NONOGRAM_PATTERNS) {
       expect(pattern.titleKey).toBe(pattern.id);
+    }
+  });
+
+  it('has non-empty zh and en titles for every pattern id (D-17)', () => {
+    for (const pattern of NONOGRAM_PATTERNS) {
+      const zh = zhPatterns[pattern.id as keyof typeof zhPatterns];
+      const en = enPatterns[pattern.id as keyof typeof enPatterns];
+      expect(typeof zh).toBe('string');
+      expect(zh.length).toBeGreaterThan(0);
+      expect(typeof en).toBe('string');
+      expect(en.length).toBeGreaterThan(0);
     }
   });
 
