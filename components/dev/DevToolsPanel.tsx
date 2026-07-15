@@ -180,16 +180,14 @@ export default function DevToolsPanel() {
   };
 
   const onToggleExpanded = () => {
-    setExpanded((v) => {
-      const next = !v;
-      if (next) {
-        // Resync after Fast Refresh / Maestro so "清除" stays enabled when force is live.
-        setForceDateActive(getDevForceDateKey() === DEV_QA_SUNDAY_DATE_KEY);
-        void refreshRecoveryLog();
-        void refreshStreakSummary();
-      }
-      return next;
-    });
+    const next = !expanded;
+    setExpanded(next);
+    if (next) {
+      // Resync after Fast Refresh / Maestro so "清除" stays enabled when force is live.
+      setForceDateActive(getDevForceDateKey() === DEV_QA_SUNDAY_DATE_KEY);
+      void refreshRecoveryLog();
+      void refreshStreakSummary();
+    }
   };
 
   return (
