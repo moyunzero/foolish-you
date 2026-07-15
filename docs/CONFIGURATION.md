@@ -61,7 +61,7 @@ Submit profile `production` is defined but empty in-repo; store credentials are 
 
 | Channel | Status | Notes |
 |---------|--------|-------|
-| **iOS App Store** | **Live `2.3.0`** | [App Store](https://apps.apple.com/app/id6770218110) · Bundle `com.moyunzero.foolish-you` · CN「傻了么」/ US「Brainfool」 |
+| **iOS App Store** | **Live `2.4.0`** | [App Store](https://apps.apple.com/app/id6770218110) · Bundle `com.moyunzero.foolish-you` · CN「傻了么」/ US「Brainfool」 |
 | **Google Play** | Not published | Package `com.moyunzero.foolishyou` configured in `app.json` only |
 
 ### iOS build number vs App Store Connect
@@ -76,7 +76,7 @@ If upload fails with **「捆绑包版本必须高于之前上传的版本 "N"�
 
 Previously `appVersionSource` was `remote`; EAS remote counter (`eas build:version:get`) can drift from App Store Connect if builds were uploaded outside EAS or counters were reset. Local source avoids that mismatch for store releases.
 
-### App Store · 更新说明（`2.4.0` What's New · 待提审）
+### App Store · 更新说明（`2.4.0` What's New · 已上架）
 
 粘贴到 App Store Connect → 版本 **2.4.0** → **更新说明**（中/英各一份）。隐私政策与权限无变更。
 
