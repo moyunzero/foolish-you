@@ -231,6 +231,25 @@ Run on **`__DEV__` build** (Expo dev client or `npx expo run:ios` / `run:android
 
 Maestro：`maestro test .maestro/flows/v23/v23-growth-smoother.yaml` — 见 [docs/qa/v2.3-same-type-smoother/README.md](./qa/v2.3-same-type-smoother/README.md)。
 
+### v2.4 周日特辑 + 数绘扩充（Sunday Special + Nonogram）manual QA
+
+验收矩阵：[v2.4-VERIFICATION.md](../.planning/phases/v2.4-sunday-special/v2.4-VERIFICATION.md)。完整步骤与可选证据目录：[docs/qa/v2.4-sunday-special/README.md](./qa/v2.4-sunday-special/README.md)。
+
+**前置：** iOS Simulator → Settings → General → **Date & Time** → 关闭自动 → 设为已知 **周日**（例 `2026-07-12`）→ 完全退出 App 再开；必要时 Dev **重新生成今日**，使 snapshot `dateKey` 与本地周日一致。
+
+| # | 区域 | 步骤 | 预期 |
+|---|------|------|------|
+| 1 | 游戏页·特辑 | 周日、无护盾/召回 | 副行短身份「周日特辑」/ “Sunday Special.”；题型标题无后缀 |
+| 2 | D-05·护盾 | 周日 + Dev **护盾已垫**（`freeze-consumed-ui`） | **仅**护盾副行；不与特辑叠行 |
+| 3 | D-05·召回 | 周日 + Dev **漏签召回**（`gap2-recall`） | **仅**召回副行；不与特辑叠行 |
+| 4 | 结果·通关 | 周日完成今日 | 主毒舌可点名特辑；`growthLine`/smoother 仍至多一行（D-11） |
+| 5 | 结果·认怂 | 周日放弃 | 周日认怂池；**不**嘲讽「浪费特辑」 |
+| 6 | D-08·战报 | 周日拷贝战报 | 无「周日特辑」/ “Sunday Special”；数绘无图案名剧透 |
+| 7 | D-06·平常日 | 设备改周一～六 | 游戏页 + 结果页 **零** 特辑品牌词 |
+| 8 | 数绘（可选） | 遇新图案日 | 揭示卡标题为双语文案，非 raw id |
+
+Maestro **不阻塞**本 phase；若有 flow 须同样满足「设备本地日为周日」前提。
+
 ## Maestro E2E（v2.2）
 
 **前提：** iOS Simulator 或 Android 模拟器已安装 **`com.moyunzero.foolish-you` 开发包**（非 Expo Go；与 `.maestro/flows/smoke-launch.yaml` 相同 `appId`）。Metro 可选（开发包已 bundle 时可离线跑 UI 流）。

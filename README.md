@@ -238,8 +238,9 @@ npm run build:preview:android
 | **v2.1** | **Live** (`2.1.0`; App Store 2026-06-09) | ✅ Weekday difficulty; ✅ month calendar + summary; ✅ daily reminder (A+D); ✅ month gallery PNG | NYT Mini/Midi cadence · D1→D2 |
 | **v2.2** | **Live** (`2.2.0`) | ✅ Gentle growth: result “recent streak” line + calendar growth summary; no negative feedback | Mastery · non-competitive retention |
 | **v2.3** | **Live** (`2.3.0`) | ✅ Same-type smoother easter egg: extra positive result line when same puzzle type feels clearly faster; rhythm-first; never-negative | Vertical mastery without speed PK |
-| **v2.4** | Planned | Content depth: 5th puzzle type *or* Sunday special (one per day unchanged) | Rotation freshness |
-| **v3.0** | Planned | QR backup/restore (progress + streak + calendar); optional Android ship in same cycle | Device transfer without accounts |
+| **v2.4** | In progress (acceptance; store `2.4.0` pending) | **Sunday special** (primary) + **nonogram pattern expansion** (secondary); one per day unchanged; 5th type deferred to v2.5 | Sunday ritual (D7) + fill thinnest content gap |
+| **v2.5** | Deferred | 5th puzzle type (only if ASC shows rotation fatigue) | Rotation freshness |
+| **v3.0** | Parked | QR backup/restore (progress + streak + calendar); optional Android ship in same cycle | Device transfer without accounts |
 | **v3.1** | Planned | **Year in 傻了么** annual long-image (reuse month gallery pipeline) | Wrapped-style share; schedule before Q4 |
 | **v4.0** | Planned | Anonymous challenge codes (“play my day”); optional aggregate social proof | Conversation without friend list |
 
