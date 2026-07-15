@@ -76,6 +76,36 @@ export const resultPools = {
     'Rematch at midnight',
   ] as const,
 
+  /** Sunday Special success roast (v2.4 D-07 / D-11) */
+  sundaySuccessPunchlines: [
+    'Sunday Special cleared. Cute.',
+    'Sunday Special, and you showed up sharp.',
+    'Weekend win on the Sunday Special.',
+    'You finished the Sunday Special. Soft flex.',
+  ] as const,
+
+  sundaySuccessSublines: [
+    'Sunday seriousness looks good on you.',
+    'Special day closed. See you tomorrow.',
+    'Date-night energy, puzzle edition.',
+    'Easy win. Almost a compliment.',
+  ] as const,
+
+  /** Sunday Special abandon roast — warm tease, never “wasted the special” */
+  sundayFailPunchlines: [
+    'Bailed on Sunday Special? Tomorrow’s fine.',
+    'Sunday Special paused — no hard feelings.',
+    'Tough Special day. You’re still here.',
+    'Surrender isn’t goodbye — Sunday Special’ll wait.',
+  ] as const,
+
+  sundayFailSublines: [
+    'The Special stays. So do you.',
+    'Soft brake. Continue tomorrow.',
+    'Rest today. Keep the vibe.',
+    'Graceful exit. See you tomorrow.',
+  ] as const,
+
   elapsedSecondsOnly: (seconds: number) => `${seconds}s`,
 
   elapsedMinutesSeconds: (minutes: number, seconds: number) =>

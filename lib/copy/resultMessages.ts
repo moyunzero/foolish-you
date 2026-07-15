@@ -4,6 +4,7 @@ import * as enCopy from '../../locales/en/copy';
 import * as zhCopy from '../../locales/zh/copy';
 import { formatElapsedDuration } from '../i18n/format';
 import type { Locale } from '../i18n/types';
+import { weekdayBand } from '../puzzles/difficulty/weekdayBand';
 import { deriveSeed, deriveSubSeed, mulberry32 } from '../puzzles/rng';
 import type { DailyStatus } from '../puzzles/types';
 import {
@@ -67,12 +68,17 @@ export function pickResultCopy(
   const baseSeed = seed ?? deriveSeed(dateKey);
   const rng = mulberry32(deriveSubSeed(baseSeed, `result-${status}`));
   const elapsedDisplay = formatElapsedDuration(elapsedMs, locale);
+  const isSunday = weekdayBand(dateKey) === 6;
 
   if (status === 'completed') {
-    const punchline = pickFromPool(rng, pools.successPunchlines);
-    const sublines = pickUniquePlainLines(rng, pools.successSublines, 2, [
-      punchline,
-    ]);
+    const punchPool = isSunday
+      ? pools.sundaySuccessPunchlines
+      : pools.successPunchlines;
+    const subPool = isSunday
+      ? pools.sundaySuccessSublines
+      : pools.successSublines;
+    const punchline = pickFromPool(rng, punchPool);
+    const sublines = pickUniquePlainLines(rng, subPool, 2, [punchline]);
 
     return {
       mode: 'completed',
@@ -84,8 +90,10 @@ export function pickResultCopy(
     };
   }
 
-  const punchline = pickFromPool(rng, pools.failPunchlines);
-  const sublines = pickUniquePlainLines(rng, pools.failSublines, 2, [punchline]);
+  const punchPool = isSunday ? pools.sundayFailPunchlines : pools.failPunchlines;
+  const subPool = isSunday ? pools.sundayFailSublines : pools.failSublines;
+  const punchline = pickFromPool(rng, punchPool);
+  const sublines = pickUniquePlainLines(rng, subPool, 2, [punchline]);
 
   return {
     mode: 'abandoned',

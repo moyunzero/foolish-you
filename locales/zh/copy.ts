@@ -54,6 +54,36 @@ export const resultPools = {
     '明天见，我要赢',
   ] as const,
 
+  /** Sunday Special success roast (v2.4 D-07 / D-11) */
+  sundaySuccessPunchlines: [
+    '周日特辑通关，约会感满分。',
+    '今天是周日特辑，你还挺会选日子。',
+    '周日特辑收工——脑子很乖。',
+    '特辑日赢了，带着点约会味儿。',
+  ] as const,
+
+  sundaySuccessSublines: [
+    '周日也认真，有点撩。',
+    '特辑日收工，明天照样想你。',
+    '约会日你没踩空，保持。',
+    '轻松赢一局，比告白坦荡。',
+  ] as const,
+
+  /** Sunday Special abandon roast — warm tease, never “wasted the special” */
+  sundayFailPunchlines: [
+    '周日特辑认怂了？明天见，不急。',
+    '特辑日也有心跳暂停键，没事。',
+    '周日特辑难不奇怪，你还在呢。',
+    '认怂不算散场——周日特辑回头见。',
+  ] as const,
+
+  sundayFailSublines: [
+    '特辑还在，人也不跑。',
+    '轻点刹车，明天接着聊。',
+    '今天先歇着，约会感留着。',
+    '退一步也体面，明天见。',
+  ] as const,
+
   /** `formatElapsedDuration` — seconds only */
   elapsedSecondsOnly: (seconds: number) => `${seconds} 秒`,
 
