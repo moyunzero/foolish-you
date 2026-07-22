@@ -6,6 +6,7 @@ import {
   useSafeAreaInsets,
 } from 'react-native-safe-area-context';
 
+import AbandonConfirmSheet from '../components/game/AbandonConfirmSheet';
 import BinaryGameSection from '../components/game/BinaryGameSection';
 import GameSaveErrorBanner from '../components/game/GameSaveErrorBanner';
 import GameScreenFooter from '../components/game/GameScreenFooter';
@@ -21,6 +22,7 @@ import { useDevBottomInset } from '../contexts/DevToolsUiContext';
 import { useElapsedTimer } from '../hooks/useElapsedTimer';
 import { useGameBoardSession } from '../hooks/useGameBoardSession';
 import { useGameScreenActions } from '../hooks/useGameScreenActions';
+import { pickAbandonConfirmBody } from '../lib/copy/abandonConfirm';
 import { pickHostIntroLine } from '../lib/copy/hostIntro';
 import { resolveGameStreakSubline } from '../lib/copy/sundaySpecial';
 import { hasPlayProgress } from '../lib/daily/hasPlayProgress';
@@ -75,11 +77,26 @@ export default function GameScreen() {
     updatePlayState,
   });
 
-  const { handleComplete, confirmAbandon } = useGameScreenActions({
+  const {
+    handleComplete,
+    confirmAbandon,
+    abandonSheetVisible,
+    cancelAbandon,
+    performAbandon,
+  } = useGameScreenActions({
     canComplete: session.canComplete,
     markCompleted,
     markAbandoned,
   });
+
+  const abandonConfirmBody = useMemo(() => {
+    if (dateKey == null) return '';
+    return pickAbandonConfirmBody({
+      dateKey,
+      seed: snapshot?.seed,
+      locale,
+    });
+  }, [dateKey, snapshot?.seed, locale]);
 
   useEffect(() => {
     if (status === 'completed' || status === 'abandoned') {
@@ -186,6 +203,13 @@ export default function GameScreen() {
         seed={snapshot?.seed ?? null}
         todayStatus={status}
         onReminderChange={(state) => setReminderEnabled(state.enabled)}
+      />
+
+      <AbandonConfirmSheet
+        visible={abandonSheetVisible}
+        onClose={cancelAbandon}
+        onConfirm={performAbandon}
+        body={abandonConfirmBody}
       />
 
       {session.showReload ? (
