@@ -13,6 +13,8 @@ type BinaryGameSectionProps = {
   maxWidth: number;
   board: BinaryBoardState;
   cardStyle?: StyleProp<ViewStyle>;
+  /** Fired on any board interaction (D-03). */
+  onBoardInteract?: () => void;
 };
 
 export default function BinaryGameSection({
@@ -21,6 +23,7 @@ export default function BinaryGameSection({
   maxWidth,
   board,
   cardStyle,
+  onBoardInteract,
 }: BinaryGameSectionProps) {
   return (
     <View className="flex-1">
@@ -34,8 +37,14 @@ export default function BinaryGameSection({
             playState={playState}
             selected={board.selected}
             conflictCells={board.conflicts}
-            onPressCell={board.handlePress}
-            onLongPressCell={board.handleLongPress}
+            onPressCell={(row, col) => {
+              onBoardInteract?.();
+              board.handlePress(row, col);
+            }}
+            onLongPressCell={(row, col) => {
+              onBoardInteract?.();
+              board.handleLongPress(row, col);
+            }}
           />
         </HairlineCard>
       </View>
