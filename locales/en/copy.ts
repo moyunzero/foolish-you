@@ -352,3 +352,22 @@ export const resultFooter = {
 export const sundaySpecial = {
   gameSubline: 'Sunday Special.',
 } as const;
+
+/** Host opening roast under type title (v2.5 D-04 / D-07) */
+export const hostIntro = [
+  'Warm up that brain — gently.',
+  'Don’t bail yet. Tap one cell.',
+  'Looks easy? That’s the trap.',
+  'Today’s roast, served soft.',
+  'Don’t float — cells bite back.',
+  'Opening counts as half? Cute.',
+] as const;
+
+/** Abandon confirm sheet body (v2.5 D-14) — warm roast, no humiliation */
+export const abandonConfirm = [
+  'Calling it quits? Fine — noted.',
+  'Bailing is a kind of honesty.',
+  'Board stays. You’re out?',
+  'Park it for now — tomorrow’s still there.',
+  'Stepping back isn’t shameful.',
+] as const;

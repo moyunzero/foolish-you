@@ -17,6 +17,8 @@ export const ui = {
   game: {
     completeToday: 'Finish today’s puzzle',
     giveUpToday: 'Give up on today’s puzzle',
+    /** Softer abandon footer label (v2.5 D-11) */
+    bailToday: 'Bail today',
     loadFailed: 'Couldn’t load today’s puzzle. Local data may be corrupted.',
   },
   result: {
@@ -27,6 +29,13 @@ export const ui = {
     elapsedPrefix: 'Time: ',
     foolIndexPrefix: 'Silly index: ',
     daysSuffix: ' days',
+    /** Section tags (v2.5 D-16) */
+    sectionOutcome: 'Outcome',
+    sectionStats: 'Stats',
+  },
+  abandonSheet: {
+    keepGoing: 'Keep going',
+    bail: 'Bail',
   },
   privacy: {
     openInBrowser: 'Open the public version in a browser',
@@ -53,6 +62,7 @@ export const ui = {
   sheet: {
     dismissA11y: 'Dismiss month calendar',
     dismissReminderA11y: 'Dismiss reminder settings',
+    dismissAbandonA11y: 'Dismiss bail confirmation',
   },
   reminder: {
     softAsk: {

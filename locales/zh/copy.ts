@@ -327,3 +327,22 @@ export const resultFooter = {
 export const sundaySpecial = {
   gameSubline: '今天是周日特辑。',
 } as const;
+
+/** Host opening roast under type title (v2.5 D-04 / D-07) — ~12–20 chars */
+export const hostIntro = [
+  '今天这局，脑壳先热热身。',
+  '别急着认怂，先点一格试试。',
+  '盘面看着简单？那是幻觉。',
+  '今日份益智，温柔地折磨你。',
+  '先别飘，格子比你想得倔。',
+  '打开就算赢一半？想得美。',
+] as const;
+
+/** Abandon confirm sheet body (v2.5 D-14) — warm roast, no humiliation */
+export const abandonConfirm = [
+  '今天就到这儿？行，记下了。',
+  '认怂也算一种诚实。',
+  '棋盘还在，人先撤？',
+  '先撤也行，明天还得来。',
+  '这局先放着，不算丢人。',
+] as const;

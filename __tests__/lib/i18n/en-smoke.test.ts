@@ -8,6 +8,8 @@ import { formatStreakLine } from '../../../lib/copy/streak';
 import { formatFreezeShieldSuffix, pickFreezeConsumedLine } from '../../../lib/copy/freeze';
 import { pickMissedYesterdayLine } from '../../../lib/copy/missedYesterday';
 import { pickGrowthLine } from '../../../lib/copy/growthLine';
+import { pickHostIntroLine } from '../../../lib/copy/hostIntro';
+import { pickAbandonConfirmBody } from '../../../lib/copy/abandonConfirm';
 import { getGameTypeLabel } from '../../../lib/i18n/gameLabels';
 import { getStringsForLocale } from '../../../lib/i18n/strings';
 import { generateSudokuPuzzle } from '../../../lib/puzzles/sudoku/generator';
@@ -177,5 +179,32 @@ describe('English locale smoke', () => {
     expect(ui.reminder.banner.bodyNoPush).not.toMatch(cjk);
     expect(ui.reminder.errorPermissionDenied).not.toMatch(cjk);
     expect(ui.sheet.dismissReminderA11y).not.toMatch(cjk);
+  });
+
+  it('host intro and abandon confirm English pools have no CJK', () => {
+    const cjk = /[\u4e00-\u9fff]/;
+    expect(
+      pickHostIntroLine({ dateKey: DATE_KEY, seed: SEED, locale: 'en' }),
+    ).not.toMatch(cjk);
+    expect(
+      pickAbandonConfirmBody({ dateKey: DATE_KEY, seed: SEED, locale: 'en' }),
+    ).not.toMatch(cjk);
+  });
+
+  it('composition UI keys exist and English has no CJK', () => {
+    const ui = getStringsForLocale('en').ui;
+    const cjk = /[\u4e00-\u9fff]/;
+
+    expect(ui.game.bailToday).toBe('Bail today');
+    expect(ui.game.bailToday).not.toMatch(cjk);
+    expect(ui.abandonSheet.keepGoing).toBe('Keep going');
+    expect(ui.abandonSheet.bail).toBe('Bail');
+    expect(ui.abandonSheet.keepGoing).not.toMatch(cjk);
+    expect(ui.abandonSheet.bail).not.toMatch(cjk);
+    expect(ui.result.sectionOutcome).toBe('Outcome');
+    expect(ui.result.sectionStats).toBe('Stats');
+    expect(ui.result.sectionOutcome).not.toMatch(cjk);
+    expect(ui.result.sectionStats).not.toMatch(cjk);
+    expect(ui.sheet.dismissAbandonA11y).not.toMatch(cjk);
   });
 });
