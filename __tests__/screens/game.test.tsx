@@ -54,7 +54,7 @@ describe('GameScreen', () => {
       { timeout: 15_000 },
     );
     expect(screen.getByText('完成今日')).toBeTruthy();
-    expect(screen.getByText('放弃今日挑战')).toBeTruthy();
+    expect(screen.getByText('认怂今日')).toBeTruthy();
     expect(screen.getByText(/连签/)).toBeTruthy();
     expect(screen.queryByText('今日题型')).toBeNull();
   });
@@ -155,10 +155,10 @@ describe('GameScreen', () => {
     renderGame();
 
     await waitFor(() => {
-      expect(screen.getByText('放弃今日挑战')).toBeTruthy();
+      expect(screen.getByText('认怂今日')).toBeTruthy();
     });
 
-    fireEvent.press(screen.getByText('放弃今日挑战'));
+    fireEvent.press(screen.getByText('认怂今日'));
 
     await waitFor(() => {
       expect(mockRouterReplace).toHaveBeenCalledWith('/result');
