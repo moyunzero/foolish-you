@@ -133,6 +133,18 @@ describe('ResultScreen', () => {
     expect(screen.getByText(/傻了么/)).toBeTruthy();
   });
 
+  it('focuses punchline with 结局/数据 sections and StatCard under 数据 (LAYOUT-04)', async () => {
+    await saveDailySnapshot(makeSudokuCompletedSnapshot());
+    renderResult();
+
+    await waitFor(() => {
+      expect(screen.getByTestId('result-punchline')).toBeTruthy();
+    });
+    expect(screen.getByText('结局')).toBeTruthy();
+    expect(screen.getByText('数据')).toBeTruthy();
+    expect(screen.getByText(/用时：/)).toBeTruthy();
+  });
+
   it('shows defeat copy when today is abandoned', async () => {
     await saveDailySnapshot(
       makeBinaryPlayingSnapshot({
