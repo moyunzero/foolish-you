@@ -78,7 +78,7 @@ export function pickResultCopy(
       ? pools.sundaySuccessSublines
       : pools.successSublines;
     const punchline = pickFromPool(rng, punchPool);
-    const sublines = pickUniquePlainLines(rng, subPool, 2, [punchline]);
+    const sublines = pickUniquePlainLines(rng, subPool, 1, [punchline]);
 
     return {
       mode: 'completed',
@@ -93,7 +93,7 @@ export function pickResultCopy(
   const punchPool = isSunday ? pools.sundayFailPunchlines : pools.failPunchlines;
   const subPool = isSunday ? pools.sundayFailSublines : pools.failSublines;
   const punchline = pickFromPool(rng, punchPool);
-  const sublines = pickUniquePlainLines(rng, subPool, 2, [punchline]);
+  const sublines = pickUniquePlainLines(rng, subPool, 1, [punchline]);
 
   return {
     mode: 'abandoned',

@@ -286,21 +286,26 @@ export default function ResultScreen() {
                   <SlitherlinkRevealCard puzzle={slitherlinkPuzzle} />
                 </View>
               ) : null}
-              <ResultOutcomeBody
-                badge={<WinFaceBadge />}
-                statusLabel={strings.ui.result.statusWin}
-                statusTone="victory"
-                headline={copy.headline}
-                punchline={copy.punchline}
-                sublines={copy.sublines}
-                statCard={
-                  <ResultStatCard
-                    variant="victory"
-                    elapsed={copy.elapsedDisplay}
-                  />
-                }
-              />
             </>
+          ) : null}
+
+          <Text
+            testID="result-section-outcome"
+            className="mb-3 text-[12px] text-muted"
+            style={{ fontFamily: 'SpaceMono_400Regular' }}
+          >
+            {strings.ui.result.sectionOutcome}
+          </Text>
+
+          {copy.mode === 'completed' ? (
+            <ResultOutcomeBody
+              badge={<WinFaceBadge />}
+              statusLabel={strings.ui.result.statusWin}
+              statusTone="victory"
+              headline={copy.headline}
+              punchline={copy.punchline}
+              sublines={copy.sublines}
+            />
           ) : (
             <ResultOutcomeBody
               badge={<FoolFaceBadge />}
@@ -309,15 +314,36 @@ export default function ResultScreen() {
               headline={copy.headline}
               punchline={copy.punchline}
               sublines={copy.sublines}
-              statCard={
-                <ResultStatCard
-                  variant="defeat"
-                  percent={copy.foolIndexPercent}
-                  hint={copy.foolIndexHint}
-                />
-              }
-              extraStats={copy.statsLine}
             />
+          )}
+
+          <Text
+            testID="result-section-stats"
+            className="mb-1 mt-10 text-[12px] text-muted"
+            style={{ fontFamily: 'SpaceMono_400Regular' }}
+          >
+            {strings.ui.result.sectionStats}
+          </Text>
+
+          {copy.mode === 'completed' ? (
+            <ResultStatCard
+              variant="victory"
+              elapsed={copy.elapsedDisplay}
+            />
+          ) : (
+            <>
+              <ResultStatCard
+                variant="defeat"
+                percent={copy.foolIndexPercent}
+                hint={copy.foolIndexHint}
+              />
+              <Text
+                className="mt-4 text-center text-xs text-muted"
+                style={{ fontFamily: 'SpaceMono_400Regular' }}
+              >
+                {copy.statsLine}
+              </Text>
+            </>
           )}
         </View>
 

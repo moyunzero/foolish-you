@@ -9,15 +9,6 @@ import Animated, {
 import { colors } from '../../constants/design';
 import { useI18n } from '../../lib/i18n';
 
-const HEADLINE_STYLE = {
-  fontFamily: 'Inter_400Regular' as const,
-  fontSize: 28,
-  lineHeight: 36,
-  fontWeight: '700' as const,
-  letterSpacing: -0.4,
-  textAlign: 'center' as const,
-};
-
 const PUNCHLINE_STYLE = {
   fontFamily: 'Inter_400Regular' as const,
   fontSize: 26,
@@ -33,8 +24,6 @@ type ResultOutcomeBodyProps = {
   headline: string;
   punchline: string;
   sublines: string[];
-  statCard: ReactNode;
-  extraStats?: string;
 };
 
 export default function ResultOutcomeBody({
@@ -44,12 +33,11 @@ export default function ResultOutcomeBody({
   headline,
   punchline,
   sublines,
-  statCard,
-  extraStats,
 }: ResultOutcomeBodyProps) {
   const { strings } = useI18n();
   const statusColor =
     statusTone === 'victory' ? colors.accentSunset : colors.sudokuError;
+  const visibleSublines = sublines.slice(0, 1);
 
   return (
     <View className="items-center">
@@ -67,34 +55,29 @@ export default function ResultOutcomeBody({
         >
           {`${strings.ui.result.recordPrefix} ${statusLabel}`}
         </Text>
-      </Animated.View>
-
-      <Animated.View entering={FadeInDown.delay(280).duration(450).springify()}>
         <Text
-          className="mt-6 text-center text-accent-sunset"
-          style={HEADLINE_STYLE}
+          className="mt-1 text-center text-[12px] text-muted"
+          style={{ fontFamily: 'SpaceMono_400Regular' }}
         >
           {headline}
         </Text>
       </Animated.View>
 
-      <Animated.View entering={FadeInDown.delay(420).duration(450).springify()}>
+      <Animated.View entering={FadeInDown.delay(280).duration(450).springify()}>
         <Text
           testID="result-punchline"
-          className="mt-12 text-center text-ink"
+          className="mt-8 text-center text-ink"
           style={PUNCHLINE_STYLE}
         >
           {punchline}
         </Text>
       </Animated.View>
 
-      <View className="mt-8 w-full" style={{ gap: 28 }}>
-        {sublines.map((line, index) => (
+      <View className="mt-6 w-full" style={{ gap: 28 }}>
+        {visibleSublines.map((line) => (
           <Animated.View
             key={line}
-            entering={FadeInDown.delay(520 + index * 120)
-              .duration(400)
-              .springify()}
+            entering={FadeInDown.delay(420).duration(400).springify()}
           >
             <Text
               className="text-center text-base leading-7 text-body"
@@ -105,23 +88,6 @@ export default function ResultOutcomeBody({
           </Animated.View>
         ))}
       </View>
-
-      <Animated.View
-        entering={FadeInDown.delay(760).duration(450).springify()}
-        className="w-full"
-      >
-        {statCard}
-      </Animated.View>
-
-      {extraStats != null ? (
-        <Animated.Text
-          entering={FadeIn.delay(900).duration(400)}
-          className="mt-6 text-center text-xs text-muted"
-          style={{ fontFamily: 'SpaceMono_400Regular' }}
-        >
-          {extraStats}
-        </Animated.Text>
-      ) : null}
     </View>
   );
 }
