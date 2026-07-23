@@ -256,6 +256,23 @@ Maestro（推荐自动化门禁）：
 
 证据与签核见 [docs/qa/v2.4-sunday-special/README.md](./qa/v2.4-sunday-special/README.md)。
 
+### v2.5-01 Composition manual QA
+
+整页构图手测（LAYOUT-01..04 / EXP-01 / EXP-02）。建议 iPhone SE 或同等小屏各跑一遍数独 / 二进制 / 数绘 / 数回。
+
+| # | 区域 | 步骤 | 预期 |
+|---|------|------|------|
+| 1 | 完成路径·顶栏 | 新开今日局 | 瘦身顶栏（日期/连签/计时器）；24pt 题型标题；不挡「完成今日」；（开场旁白已产品决策移除） |
+| 2 | 完成路径·主 CTA | 合法完成后点「完成今日」 | 进入结果页；第一屏 punchline 主导；≤1 条子行；`结局`/`数据` 短标签；StatCard 在「数据」下 |
+| 3 | 认怂确认 | 点弱化「认怂今日」 | BottomSheet 暖吐槽正文；主按钮「再撑一会儿」；次按钮「认怂」（非日落橙） |
+| 4 | 认怂·取消 | Sheet 开着点「再撑一会儿」或点遮罩 | 留在游戏页；当日未结束 |
+| 5 | 认怂·确认 | Sheet 点「认怂」 | 立即进结果页（无仪式停顿）；败局文案 |
+| 6 | 周日副行 | 周日无进度 / 护盾或召回 | 至多一条副行（特辑/护盾/召回互斥）；**无**开场旁白 |
+| 7 | 结果·折痕下 | 通关后下滑 | growth → StatsCards → soft-ask（首次合格通关仍可见）→ 月历 → 分享 → CTA |
+| 8 | SE·数绘/数回 | 小屏开局 | 顶栏不挤占数绘线索带与数回棋盘可点区 |
+| 9 | 首遇题型 scaffold | （本 phase 仅 checklist） | **占位 → v2.5-02 FEEL-05**：首遇题型可跳过操作演示；本 phase **不**实现 first-type demo |
+| 10 | 月历周六列 | 结果页「查看本月」 | 周六列有日期且与表头「六」对齐（非空列） |
+
 ## Maestro E2E（v2.2）
 
 **前提：** iOS Simulator 或 Android 模拟器已安装 **`com.moyunzero.foolish-you` 开发包**（非 Expo Go；与 `.maestro/flows/smoke-launch.yaml` 相同 `appId`）。Metro 可选（开发包已 bundle 时可离线跑 UI 流）。

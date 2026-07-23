@@ -1,7 +1,4 @@
-import { useCallback } from 'react';
-import { Alert } from 'react-native';
-
-import { useI18n } from '../lib/i18n';
+import { useCallback, useState } from 'react';
 
 type UseGameScreenActionsParams = {
   canComplete: boolean;
@@ -14,28 +11,31 @@ export function useGameScreenActions({
   markCompleted,
   markAbandoned,
 }: UseGameScreenActionsParams) {
-  const { strings } = useI18n();
-  const alerts = strings.ui.alerts;
+  const [abandonSheetVisible, setAbandonSheetVisible] = useState(false);
 
   const handleComplete = useCallback(async () => {
     if (!canComplete) return;
     await markCompleted();
   }, [canComplete, markCompleted]);
 
-  const handleAbandon = useCallback(async () => {
-    await markAbandoned();
+  const confirmAbandon = useCallback(() => {
+    setAbandonSheetVisible(true);
+  }, []);
+
+  const cancelAbandon = useCallback(() => {
+    setAbandonSheetVisible(false);
+  }, []);
+
+  const performAbandon = useCallback(() => {
+    setAbandonSheetVisible(false);
+    void markAbandoned();
   }, [markAbandoned]);
 
-  const confirmAbandon = useCallback(() => {
-    Alert.alert(alerts.abandonTitle, alerts.abandonMessage, [
-      { text: alerts.continuePlay, style: 'cancel' },
-      {
-        text: alerts.giveUp,
-        style: 'destructive',
-        onPress: () => void handleAbandon(),
-      },
-    ]);
-  }, [handleAbandon, alerts]);
-
-  return { handleComplete, confirmAbandon };
+  return {
+    handleComplete,
+    confirmAbandon,
+    abandonSheetVisible,
+    cancelAbandon,
+    performAbandon,
+  };
 }

@@ -32,7 +32,7 @@ describe('GameScreenFooter', () => {
     );
 
     fireEvent.press(screen.getByText('完成今日'));
-    fireEvent.press(screen.getByText('放弃今日挑战'));
+    fireEvent.press(screen.getByText('认怂今日'));
     expect(onComplete).toHaveBeenCalledTimes(1);
     expect(onAbandon).toHaveBeenCalledTimes(1);
   });
@@ -49,6 +49,24 @@ describe('GameScreenFooter', () => {
     );
 
     expect(screen.getByText('Finish today’s puzzle')).toBeTruthy();
-    expect(screen.getByText('Give up on today’s puzzle')).toBeTruthy();
+    expect(screen.getByText('Bail today')).toBeTruthy();
+  });
+
+  it('renders abandon as text-link with min 44px hit target', () => {
+    renderWithI18n(
+      <GameScreenFooter
+        statusHint={null}
+        canComplete
+        onComplete={jest.fn()}
+        onAbandon={jest.fn()}
+      />,
+    );
+
+    const abandon = screen.getByText('认怂今日');
+    expect(abandon).toHaveStyle({
+      fontSize: 16,
+      lineHeight: 24,
+    });
+    expect(screen.getByLabelText('认怂今日')).toBeTruthy();
   });
 });

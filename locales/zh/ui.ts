@@ -17,6 +17,8 @@ export const ui = {
   game: {
     completeToday: '完成今日',
     giveUpToday: '放弃今日挑战',
+    /** Softer abandon footer label (v2.5 D-11) */
+    bailToday: '认怂今日',
     loadFailed: '今日题目加载失败，可能是本地数据损坏。',
   },
   result: {
@@ -27,6 +29,13 @@ export const ui = {
     elapsedPrefix: '用时：',
     foolIndexPrefix: '傻了指数：',
     daysSuffix: '天',
+    /** Section tags (v2.5 D-16) */
+    sectionOutcome: '结局',
+    sectionStats: '数据',
+  },
+  abandonSheet: {
+    keepGoing: '再撑一会儿',
+    bail: '认怂',
   },
   privacy: {
     openInBrowser: '在浏览器中打开公开版',
@@ -53,6 +62,7 @@ export const ui = {
   sheet: {
     dismissA11y: '关闭月历',
     dismissReminderA11y: '关闭提醒设置',
+    dismissAbandonA11y: '关闭认怂确认',
   },
   reminder: {
     softAsk: {

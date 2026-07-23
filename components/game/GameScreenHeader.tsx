@@ -19,7 +19,7 @@ type GameScreenHeaderProps = {
   streakSubline?: string | null;
 };
 
-/** 游戏页顶栏：日期、连签、用时、题型标题（四种每日题型共用） */
+/** 游戏页顶栏：单行元信息、题型标题、连签副行 */
 export default function GameScreenHeader({
   dateKey,
   streakLine,
@@ -31,21 +31,25 @@ export default function GameScreenHeader({
   streakSubline,
 }: GameScreenHeaderProps) {
   const { locale, strings } = useI18n();
+  const dateMeta = formatTodayMeta(dateKey, locale);
 
   return (
     <View className="gap-2">
       <View className="flex-row items-start justify-between gap-3">
-        <View className="min-w-0 flex-1">
-          <Text className="text-muted" style={GAME_HEADER_META_STYLE}>
-            {formatTodayMeta(dateKey, locale)}
-          </Text>
+        <Text
+          className="min-w-0 flex-1 text-muted"
+          style={GAME_HEADER_META_STYLE}
+          numberOfLines={2}
+        >
+          {dateMeta}
+          {' · '}
           <Text
             className={streakHighlight ? 'text-accent-sunset' : 'text-muted'}
-            style={{ ...GAME_HEADER_META_STYLE, marginTop: 2 }}
+            style={GAME_HEADER_META_STYLE}
           >
             {streakLine}
           </Text>
-        </View>
+        </Text>
         <View
           className="shrink-0 flex-row items-center rounded-full border border-hairline px-2.5 py-1"
           style={{ backgroundColor: 'rgba(255, 255, 255, 0.04)' }}
@@ -67,8 +71,8 @@ export default function GameScreenHeader({
           className="flex-1 text-ink"
           style={{
             fontFamily: 'Inter_400Regular',
-            fontSize: 28,
-            lineHeight: 34,
+            fontSize: 24,
+            lineHeight: 29,
             fontWeight: '700',
             letterSpacing: -0.6,
           }}

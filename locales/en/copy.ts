@@ -352,3 +352,12 @@ export const resultFooter = {
 export const sundaySpecial = {
   gameSubline: 'Sunday Special.',
 } as const;
+
+/** Abandon confirm sheet body (v2.5 D-14) — warm roast, no humiliation */
+export const abandonConfirm = [
+  'Calling it quits? Fine — noted.',
+  'Bailing is a kind of honesty.',
+  'Board stays. You’re out?',
+  'Park it for now — tomorrow’s still there.',
+  'Stepping back isn’t shameful.',
+] as const;

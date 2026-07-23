@@ -35,6 +35,13 @@ describe('pickResultCopy', () => {
     expect(completed.punchline).not.toBe(abandoned.punchline);
   });
 
+  it('returns at most one subline for completed and abandoned (D-21)', () => {
+    const completed = pickResultCopy('completed', 90_000, dateKey, seed);
+    const abandoned = pickResultCopy('abandoned', 90_000, dateKey, seed);
+    expect(completed.sublines.length).toBeLessThanOrEqual(1);
+    expect(abandoned.sublines.length).toBeLessThanOrEqual(1);
+  });
+
   it('derives seed from dateKey when seed omitted', () => {
     const a = pickResultCopy('abandoned', 30_000, dateKey);
     const b = pickResultCopy('abandoned', 30_000, dateKey);

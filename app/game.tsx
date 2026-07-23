@@ -6,6 +6,7 @@ import {
   useSafeAreaInsets,
 } from 'react-native-safe-area-context';
 
+import AbandonConfirmSheet from '../components/game/AbandonConfirmSheet';
 import BinaryGameSection from '../components/game/BinaryGameSection';
 import GameSaveErrorBanner from '../components/game/GameSaveErrorBanner';
 import GameScreenFooter from '../components/game/GameScreenFooter';
@@ -21,6 +22,7 @@ import { useDevBottomInset } from '../contexts/DevToolsUiContext';
 import { useElapsedTimer } from '../hooks/useElapsedTimer';
 import { useGameBoardSession } from '../hooks/useGameBoardSession';
 import { useGameScreenActions } from '../hooks/useGameScreenActions';
+import { pickAbandonConfirmBody } from '../lib/copy/abandonConfirm';
 import { resolveGameStreakSubline } from '../lib/copy/sundaySpecial';
 import { useI18n } from '../lib/i18n';
 import { shouldShowEveningReminderBanner } from '../lib/reminder/eveningBanner';
@@ -29,7 +31,7 @@ import { loadReminderState } from '../lib/storage/reminderStorage';
 const HORIZONTAL_PADDING = 24;
 
 export default function GameScreen() {
-  const { strings } = useI18n();
+  const { strings, locale } = useI18n();
   const router = useRouter();
   const insets = useSafeAreaInsets();
   const { width: screenWidth } = useWindowDimensions();
@@ -70,11 +72,26 @@ export default function GameScreen() {
     updatePlayState,
   });
 
-  const { handleComplete, confirmAbandon } = useGameScreenActions({
+  const {
+    handleComplete,
+    confirmAbandon,
+    abandonSheetVisible,
+    cancelAbandon,
+    performAbandon,
+  } = useGameScreenActions({
     canComplete: session.canComplete,
     markCompleted,
     markAbandoned,
   });
+
+  const abandonConfirmBody = useMemo(() => {
+    if (dateKey == null) return '';
+    return pickAbandonConfirmBody({
+      dateKey,
+      seed: snapshot?.seed,
+      locale,
+    });
+  }, [dateKey, snapshot?.seed, locale]);
 
   useEffect(() => {
     if (status === 'completed' || status === 'abandoned') {
@@ -161,6 +178,13 @@ export default function GameScreen() {
         seed={snapshot?.seed ?? null}
         todayStatus={status}
         onReminderChange={(state) => setReminderEnabled(state.enabled)}
+      />
+
+      <AbandonConfirmSheet
+        visible={abandonSheetVisible}
+        onClose={cancelAbandon}
+        onConfirm={performAbandon}
+        body={abandonConfirmBody}
       />
 
       {session.showReload ? (

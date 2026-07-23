@@ -1,4 +1,4 @@
-import { Text, View } from 'react-native';
+import { Pressable, Text, View } from 'react-native';
 
 import { useI18n } from '../../lib/i18n';
 import OutlinePillButton from '../ui/OutlinePillButton';
@@ -10,7 +10,7 @@ type GameScreenFooterProps = {
   onAbandon: () => void;
 };
 
-/** 游戏页底栏：状态提示 + 完成/放弃（数独 / 二进制 / 数绘 / 数回共用） */
+/** 游戏页底栏：状态提示 + 完成主按钮 / 认怂文字链（D-11） */
 export default function GameScreenFooter({
   statusHint,
   canComplete,
@@ -19,6 +19,7 @@ export default function GameScreenFooter({
 }: GameScreenFooterProps) {
   const { strings } = useI18n();
   const ui = strings.ui;
+  const bailLabel = ui.game.bailToday;
 
   return (
     <View className="gap-3 border-t border-hairline pt-4">
@@ -43,12 +44,23 @@ export default function GameScreenFooter({
         onPress={onComplete}
       />
 
-      <OutlinePillButton
-        label={ui.game.giveUpToday}
-        variant="outline"
+      <Pressable
+        accessibilityRole="button"
+        accessibilityLabel={bailLabel}
         onPress={onAbandon}
-        className="min-h-[40px] border-transparent py-2 opacity-80"
-      />
+        className="min-h-[44px] items-center justify-center px-4"
+      >
+        <Text
+          className="text-muted"
+          style={{
+            fontFamily: 'Inter_400Regular',
+            fontSize: 16,
+            lineHeight: 24,
+          }}
+        >
+          {bailLabel}
+        </Text>
+      </Pressable>
     </View>
   );
 }

@@ -6,7 +6,6 @@ import {
   screen,
   waitFor,
 } from '@testing-library/react-native';
-import { Alert } from 'react-native';
 
 import { PLAY_STATE_DEBOUNCE_MS } from '../../constants/config';
 import GameScreen from '../../app/game';
@@ -36,7 +35,6 @@ describe('GameScreen', () => {
   beforeEach(async () => {
     resetRouterMocks();
     await AsyncStorage.clear();
-    jest.spyOn(Alert, 'alert').mockImplementation(() => {});
   });
 
   afterEach(() => {
@@ -54,7 +52,7 @@ describe('GameScreen', () => {
       { timeout: 15_000 },
     );
     expect(screen.getByText('完成今日')).toBeTruthy();
-    expect(screen.getByText('放弃今日挑战')).toBeTruthy();
+    expect(screen.getByText('认怂今日')).toBeTruthy();
     expect(screen.getByText(/连签/)).toBeTruthy();
     expect(screen.queryByText('今日题型')).toBeNull();
   });
@@ -143,27 +141,42 @@ describe('GameScreen', () => {
     jest.useRealTimers();
   });
 
-  it('navigates to result after confirming abandon', async () => {
-    const alertSpy = jest
-      .spyOn(Alert, 'alert')
-      .mockImplementation((_title, _message, buttons) => {
-        const abandon = buttons?.find((b) => b.text === '放弃');
-        abandon?.onPress?.();
-      });
-
+  it('does not navigate when abandon opens sheet without confirm (EXP-02)', async () => {
     await saveDailySnapshot(makeSudokuPlayingSnapshot());
     renderGame();
 
     await waitFor(() => {
-      expect(screen.getByText('放弃今日挑战')).toBeTruthy();
+      expect(screen.getByText('认怂今日')).toBeTruthy();
     });
 
-    fireEvent.press(screen.getByText('放弃今日挑战'));
+    fireEvent.press(screen.getByText('认怂今日'));
+
+    await waitFor(() => {
+      expect(screen.getByTestId('bottom-sheet-panel')).toBeTruthy();
+    });
+    expect(screen.getByText('再撑一会儿')).toBeTruthy();
+    expect(screen.getByText('认怂')).toBeTruthy();
+    expect(mockRouterReplace).not.toHaveBeenCalledWith('/result');
+  });
+
+  it('navigates to result after confirming abandon on sheet (EXP-02)', async () => {
+    await saveDailySnapshot(makeSudokuPlayingSnapshot());
+    renderGame();
+
+    await waitFor(() => {
+      expect(screen.getByText('认怂今日')).toBeTruthy();
+    });
+
+    fireEvent.press(screen.getByText('认怂今日'));
+
+    await waitFor(() => {
+      expect(screen.getByTestId('bottom-sheet-panel')).toBeTruthy();
+    });
+
+    fireEvent.press(screen.getByText('认怂'));
 
     await waitFor(() => {
       expect(mockRouterReplace).toHaveBeenCalledWith('/result');
     });
-
-    alertSpy.mockRestore();
   });
 });
