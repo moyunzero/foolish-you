@@ -3,7 +3,6 @@ import { Text, View } from 'react-native';
 import { useI18n } from '../../lib/i18n';
 import { formatTodayMeta } from '../../lib/i18n/format';
 import { GAME_HEADER_META_STYLE } from './gameHeaderMetaStyle';
-import GameHostIntro from './GameHostIntro';
 import GameRulesButton from './GameRulesButton';
 import GameStreakSubline from './GameStreakSubline';
 import type { GameType } from '../../lib/puzzles/types';
@@ -18,12 +17,9 @@ type GameScreenHeaderProps = {
   showRules: boolean;
   /** Shield consumed or missed-yesterday recall; mutually exclusive at call site. */
   streakSubline?: string | null;
-  /** Seeded host roast under type title (LAYOUT-02). */
-  hostIntroLine?: string | null;
-  showHostIntro?: boolean;
 };
 
-/** 游戏页顶栏：单行元信息、题型标题、主持人旁白、连签副行 */
+/** 游戏页顶栏：单行元信息、题型标题、连签副行 */
 export default function GameScreenHeader({
   dateKey,
   streakLine,
@@ -33,15 +29,12 @@ export default function GameScreenHeader({
   gameType,
   showRules,
   streakSubline,
-  hostIntroLine,
-  showHostIntro = false,
 }: GameScreenHeaderProps) {
   const { locale, strings } = useI18n();
   const dateMeta = formatTodayMeta(dateKey, locale);
-  const compactGap = showHostIntro;
 
   return (
-    <View className={compactGap ? 'gap-1' : 'gap-2'}>
+    <View className="gap-2">
       <View className="flex-row items-start justify-between gap-3">
         <Text
           className="min-w-0 flex-1 text-muted"
@@ -90,10 +83,6 @@ export default function GameScreenHeader({
           <GameRulesButton gameType={gameType} />
         ) : null}
       </View>
-
-      {showHostIntro && hostIntroLine != null && hostIntroLine !== '' ? (
-        <GameHostIntro line={hostIntroLine} />
-      ) : null}
 
       <GameStreakSubline line={streakSubline} />
     </View>

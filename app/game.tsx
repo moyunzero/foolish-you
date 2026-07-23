@@ -23,9 +23,7 @@ import { useElapsedTimer } from '../hooks/useElapsedTimer';
 import { useGameBoardSession } from '../hooks/useGameBoardSession';
 import { useGameScreenActions } from '../hooks/useGameScreenActions';
 import { pickAbandonConfirmBody } from '../lib/copy/abandonConfirm';
-import { pickHostIntroLine } from '../lib/copy/hostIntro';
 import { resolveGameStreakSubline } from '../lib/copy/sundaySpecial';
-import { hasPlayProgress } from '../lib/daily/hasPlayProgress';
 import { useI18n } from '../lib/i18n';
 import { shouldShowEveningReminderBanner } from '../lib/reminder/eveningBanner';
 import { loadReminderState } from '../lib/storage/reminderStorage';
@@ -65,9 +63,6 @@ export default function GameScreen() {
   const [reminderOpen, setReminderOpen] = useState(false);
   const [reminderEnabled, setReminderEnabled] = useState(false);
   const [localHour, setLocalHour] = useState(() => new Date().getHours());
-  const hasProgress =
-    gameType != null && hasPlayProgress(gameType, playState);
-  const [hostIntroDismissed, setHostIntroDismissed] = useState(hasProgress);
 
   const session = useGameBoardSession({
     gameType,
@@ -126,24 +121,6 @@ export default function GameScreen() {
     sundayGameSubline: strings.copy.sundaySpecial.gameSubline,
   });
 
-  useEffect(() => {
-    if (hasProgress) setHostIntroDismissed(true);
-  }, [hasProgress]);
-
-  const hostIntroLine = useMemo(() => {
-    if (dateKey == null) return null;
-    return pickHostIntroLine({
-      dateKey,
-      seed: snapshot?.seed,
-      locale,
-    });
-  }, [dateKey, snapshot?.seed, locale]);
-
-  const showHostIntro =
-    showPlayChrome && !hostIntroDismissed && !hasProgress;
-
-  const onBoardInteract = () => setHostIntroDismissed(true);
-
   const showEveningBanner = useMemo(() => {
     if (dateKey == null) return false;
     return shouldShowEveningReminderBanner({
@@ -167,8 +144,6 @@ export default function GameScreen() {
           gameType={gameType}
           showRules={showPlayChrome}
           streakSubline={streakSubline}
-          hostIntroLine={hostIntroLine}
-          showHostIntro={showHostIntro}
         />
       </View>
 
@@ -244,7 +219,6 @@ export default function GameScreen() {
                 playState={session.sudokuPlay}
                 maxWidth={gridMaxWidth}
                 board={session.sudokuBoard}
-                onBoardInteract={onBoardInteract}
               />
             ) : null}
 
@@ -254,7 +228,6 @@ export default function GameScreen() {
                 playState={session.binaryPlay}
                 maxWidth={gridMaxWidth}
                 board={session.binaryBoard}
-                onBoardInteract={onBoardInteract}
               />
             ) : null}
 
@@ -264,7 +237,6 @@ export default function GameScreen() {
                 playState={session.nonogramPlay}
                 maxWidth={gridMaxWidth}
                 board={session.nonogramBoard}
-                onBoardInteract={onBoardInteract}
               />
             ) : null}
 
@@ -274,7 +246,6 @@ export default function GameScreen() {
                 playState={session.slitherlinkPlay}
                 maxWidth={gridMaxWidth}
                 board={session.slitherlinkBoard}
-                onBoardInteract={onBoardInteract}
               />
             ) : null}
           </ScrollView>

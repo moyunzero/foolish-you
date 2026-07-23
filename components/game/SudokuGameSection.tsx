@@ -14,8 +14,6 @@ type SudokuGameSectionProps = {
   maxWidth: number;
   board: SudokuBoardState;
   cardStyle?: StyleProp<ViewStyle>;
-  /** Fired on any board interaction including cell select (D-03). */
-  onBoardInteract?: () => void;
 };
 
 export default function SudokuGameSection({
@@ -24,7 +22,6 @@ export default function SudokuGameSection({
   maxWidth,
   board,
   cardStyle,
-  onBoardInteract,
 }: SudokuGameSectionProps) {
   return (
     <View className="flex-1">
@@ -38,28 +35,16 @@ export default function SudokuGameSection({
             playState={playState}
             selected={board.selected}
             conflictCells={board.conflicts}
-            onSelectCell={(row, col) => {
-              onBoardInteract?.();
-              board.handleSelect(row, col);
-            }}
-            onLongPressCell={(row, col) => {
-              onBoardInteract?.();
-              board.handleLongPress(row, col);
-            }}
+            onSelectCell={board.handleSelect}
+            onLongPressCell={board.handleLongPress}
           />
         </HairlineCard>
       </View>
 
       <View className="mt-5">
         <SudokuNumpad
-          onDigit={(digit) => {
-            onBoardInteract?.();
-            board.handleDigit(digit);
-          }}
-          onClear={() => {
-            onBoardInteract?.();
-            board.handleClear();
-          }}
+          onDigit={board.handleDigit}
+          onClear={board.handleClear}
           disabled={board.numpadDisabled}
           dimmedDigits={board.dimmedDigits}
         />

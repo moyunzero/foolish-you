@@ -73,41 +73,4 @@ describe('GameScreenHeader', () => {
 
     expect(screen.getByText('护盾生效：昨天缺席，连签还在，别得瑟。')).toBeTruthy();
   });
-
-  it('shows host intro with testID when showHostIntro', () => {
-    renderWithI18n(
-      <GameScreenHeader
-        dateKey="2026-05-25"
-        streakLine="连续 1 天 · 今天没傻过"
-        streakHighlight={false}
-        elapsed="00:10"
-        typeLabel="数独"
-        gameType="sudoku"
-        showRules
-        hostIntroLine="今天这局，脑壳先热热身。"
-        showHostIntro
-      />,
-    );
-
-    expect(screen.getByTestId('game-host-intro')).toBeTruthy();
-    expect(screen.getByText('今天这局，脑壳先热热身。')).toBeTruthy();
-  });
-
-  it('hides host intro when showHostIntro is false', () => {
-    renderWithI18n(
-      <GameScreenHeader
-        dateKey="2026-05-25"
-        streakLine="连续 1 天 · 今天没傻过"
-        streakHighlight={false}
-        elapsed="00:10"
-        typeLabel="数独"
-        gameType="sudoku"
-        showRules
-        hostIntroLine="今天这局，脑壳先热热身。"
-        showHostIntro={false}
-      />,
-    );
-
-    expect(screen.queryByTestId('game-host-intro')).toBeNull();
-  });
 });

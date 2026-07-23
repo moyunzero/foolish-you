@@ -8,7 +8,6 @@ import { formatStreakLine } from '../../../lib/copy/streak';
 import { formatFreezeShieldSuffix, pickFreezeConsumedLine } from '../../../lib/copy/freeze';
 import { pickMissedYesterdayLine } from '../../../lib/copy/missedYesterday';
 import { pickGrowthLine } from '../../../lib/copy/growthLine';
-import { pickHostIntroLine } from '../../../lib/copy/hostIntro';
 import { pickAbandonConfirmBody } from '../../../lib/copy/abandonConfirm';
 import { getGameTypeLabel } from '../../../lib/i18n/gameLabels';
 import { getStringsForLocale } from '../../../lib/i18n/strings';
@@ -181,11 +180,8 @@ describe('English locale smoke', () => {
     expect(ui.sheet.dismissReminderA11y).not.toMatch(cjk);
   });
 
-  it('host intro and abandon confirm English pools have no CJK', () => {
+  it('abandon confirm English pool has no CJK', () => {
     const cjk = /[\u4e00-\u9fff]/;
-    expect(
-      pickHostIntroLine({ dateKey: DATE_KEY, seed: SEED, locale: 'en' }),
-    ).not.toMatch(cjk);
     expect(
       pickAbandonConfirmBody({ dateKey: DATE_KEY, seed: SEED, locale: 'en' }),
     ).not.toMatch(cjk);
