@@ -2,6 +2,7 @@ import {
   slitherlinkParamsForBand,
   slitherlinkParamsForDate,
 } from '../../../../lib/puzzles/difficulty/slitherlinkBand';
+import { generateSlitherlinkPuzzle } from '../../../../lib/puzzles/slitherlink/generator';
 
 describe('slitherlinkBand params', () => {
   it('locks easy band 0 endpoints (D-08)', () => {
@@ -32,5 +33,13 @@ describe('slitherlinkBand params', () => {
     expect(slitherlinkParamsForDate('2026-06-07')).toEqual(
       slitherlinkParamsForBand(6),
     );
+  });
+});
+
+describe('slitherlink dateKey generation', () => {
+  it('is deterministic for the same seed + Sunday dateKey', () => {
+    const first = generateSlitherlinkPuzzle(77_001, '2026-06-07');
+    const second = generateSlitherlinkPuzzle(77_001, '2026-06-07');
+    expect(second.puzzleHash).toBe(first.puzzleHash);
   });
 });
