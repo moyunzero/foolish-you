@@ -2,19 +2,19 @@
 gsd_state_version: 1.0
 milestone: v2.4.2
 milestone_name: Content Depth
-current_phase: 4.2
-status: executing
-stopped_at: Phase v2.4.2-02 context gathered
-last_updated: "2026-07-27T11:57:46.222Z"
+current_phase: v2.4.2-02
+status: planning
+stopped_at: Phase v2.4.2-02 plans created
+last_updated: "2026-07-27T12:20:00.000Z"
 last_activity: 2026-07-27
-last_activity_desc: Phase v2.4.2-01 complete
+last_activity_desc: Phase v2.4.2-02 plans created (2 plans)
 progress:
   total_phases: 19
   completed_phases: 2
-  total_plans: 6
+  total_plans: 8
   completed_plans: 9
   percent: 11
-current_phase_name: band-retune
+current_phase_name: nonogram-expand
 ---
 
 # Project State
@@ -24,14 +24,14 @@ current_phase_name: band-retune
 See: .planning/PROJECT.md（v2.4.2 Content Depth · started 2026-07-26）
 
 **Core value:** 用户每天打开就能玩到唯一、确定的今日谜题，结束时获得情绪化反馈。  
-**Current focus:** Phase v2.4.2-01 — band-retune
+**Current focus:** Phase v2.4.2-02 — nonogram-expand
 
 ## Current Position
 
-Phase: v2.4.2-01
-Plan: Not started
-Status: Executing Phase v2.4.2-01
-Last activity: 2026-07-27 — Phase v2.4.2-01 complete
+Phase: v2.4.2-02
+Plan: 01 (ready to execute)
+Status: Plans complete — ready for `/gsd-execute-phase v2.4.2-02`
+Last activity: 2026-07-27 — Phase v2.4.2-02 plans created
 
 ## Accumulated Context
 
@@ -41,7 +41,7 @@ Last activity: 2026-07-27 — Phase v2.4.2-01 complete
 - **Four types only**: Sudoku / Binary / Nonogram / Slitherlink
 - **Absorb DIFF-01/02** into v2.4.2; DIFF-03 stays for v2.5 resume
 - **Disclose board drift** in release notes; repair-path tests required
-- **Nonogram**: 90→≈120 append-only; prefix locked
+- **Nonogram**: 90→exactly 120 append-only; hist 17/17/17/17/17/17/18; prefix locked (CONTEXT D-01..D-03)
 - **Band targets**: Sudoku 35→24; Binary 28→18; Slitherlink widen easy/hard ranges
 - **Do not** clear `.planning/phases/v2.5-01-composition/` — preserve for resume
 
@@ -70,6 +70,10 @@ Last activity: 2026-07-27 — Phase v2.4.2-01 complete
 | v24-03 | 2 | **done** | CI + VERIFICATION + Maestro 签核 |
 | v2.5-01-01 | 1 | **done** | Copy + hasPlayProgress + slim header/host intro + footer demote |
 | v2.5-01-02 | 2 | **done** | Result punchline focus + Abandon sheet + EXP-01 checklist |
+| v2.4.2-01-01 | 1 | **done** | SHIP-02 lock + Sudoku/Binary endpoints |
+| v2.4.2-01-02 | 2 | **done** | Slitherlink bandLerp + soft dig |
+| v2.4.2-02-01 | 1 | pending | Exact 120 catalog + zh/en titles |
+| v2.4.2-02-02 | 2 | pending | silly-face SHIP-02 nonogram fixture |
 
 ### Pending Todos
 
@@ -81,13 +85,13 @@ Last activity: 2026-07-27 — Phase v2.4.2-01 complete
 
 ## Session Continuity
 
-**Resume file:** .planning/phases/v2.4.2-02-nonogram-expand/v2.4.2-02-CONTEXT.md
+**Resume file:** .planning/phases/v2.4.2-02-nonogram-expand/v2.4.2-02-01-PLAN.md
 
-**Stopped at:** Phase v2.4.2-02 context gathered
+**Stopped at:** Phase v2.4.2-02 plans created
 
-**Resume:** `/gsd-execute-phase v2.4.2-01`
+**Resume:** `/gsd-execute-phase v2.4.2-02`
 
-Last session: 2026-07-27T11:57:46.207Z
+Last session: 2026-07-27T12:20:00.000Z
 
 ## Performance Metrics
 
@@ -97,6 +101,8 @@ Last session: 2026-07-27T11:57:46.207Z
 | Phase v2.5-01 P02 | 6min | 3 tasks | 10 files |
 
 ## Decisions
+
+- [Phase v2.4.2-02 plan]: Exact length 120 + hist [17,17,17,17,17,17,18] (CONTEXT D-01..D-03 overrides ROADMAP soft ≈120/±1); SHIP-02 nonogram fixture → silly-face in plan 02
 
 - [Phase v2.4.2-01 P02]: SL per-day bandLerp 28→12 / inside 34–46→10–24; carveWithSoften +2×3; builtin&lt;5%
 

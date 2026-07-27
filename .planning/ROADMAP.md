@@ -25,7 +25,7 @@
 - [x] **Phase v2.4: 周日特辑 + 数绘扩充**（主：周日仪式感；辅：数绘图案库；**shipped** App Store `2.4.0` 2026-07-15）
 - [x] **Phase v2.5-01: Composition（整页构图）** — 游戏页/结果页舞台化 (completed 2026-07-22)
 - [x] **Phase v2.4.2-01: Band Retune（难度带）** — 数独/二进制/数回周节奏拉宽 + 变盘修复路径测试 (completed 2026-07-27)
-- [ ] **Phase v2.4.2-02: Nonogram Expand（数绘扩库）** — 90→≈120 append-only + zh/en 标题
+- [ ] **Phase v2.4.2-02: Nonogram Expand（数绘扩库）** — 90→exactly 120 append-only + zh/en 标题 + SHIP-02 silly-face fixture
 - [ ] **Phase v2.4.2-03: Ship 2.4.2（发版签核）** — 营销版本 bump + 变盘披露文案 + QA
 
 > **Paused（v2.5 剩余，2.4.2 发版后恢复）：**  
@@ -360,18 +360,26 @@ Plans:
 
 ### Phase v2.4.2-02: Nonogram Expand（数绘扩库）
 
-**Goal**: 数绘静态库从 90 扩到约 120（全 8×8），只追加、不改前缀；新图有双语标题；各 weekday tier 大致均衡。  
+**Goal**: 数绘静态库从 90 扩到正好 120（全 8×8），只追加、不改前缀；新图有双语标题；tier 精确均衡 17/17/17/17/17/17/18（CONTEXT D-01..D-03 覆盖 ROADMAP 旧软区间）。  
 **Depends on**: Phase v2.4.2-01（可并行，但建议难度带先落地）  
 **Requirements**: NONO-01, NONO-02  
 **UI hint**: no  
 **Success Criteria**:
 
-  1. `NONOGRAM_PATTERNS.length` ≈ 120；前 90 条 id/顺序与 2.4.x 一致（append-only）
-  2. 各 tier 数量大致均衡（允许 ±1）
-  3. 新图案均可通过现有 generator 选出并完成；`titleKey` 在 zh/en locales 有对应文案
-  4. 单元/迁移类测试覆盖前缀锁定与库大小门槛
+  1. `NONOGRAM_PATTERNS.length === 120`；前 90 条 id/顺序与 2.4.x 一致（append-only，D-01/D-09）
+  2. 各 tier 精确直方图 `[17,17,17,17,17,17,18]`（D-02/D-03 — 不允许 ±1）
+  3. 新图案均可通过现有 generator 选出并完成；`titleKey` 在 zh/en locales 有对应文案（NONO-02）
+  4. 单元测试覆盖前缀锁定 + 精确库大小；SHIP-02 nonogram fixture 升级为 silly-face + stale hash（D-12..D-14）
 
-**Plans:** TBD via `/gsd-plan-phase v2.4.2-02`
+**Plans:** 2 plans
+
+**Wave 1**
+
+- [ ] v2.4.2-02-01-PLAN.md — RED exact catalog asserts + GREEN append 30 patterns + zh/en titles
+
+**Wave 2** *(blocked on Wave 1)*
+
+- [ ] v2.4.2-02-02-PLAN.md — Upgrade stale-playing-nonogram to silly-face + deliberate stale hash
 
 ---
 
@@ -493,7 +501,7 @@ Plans:
 | **v2.4 周日特辑 + 数绘扩充** | 3/3 | **Shipped** App Store `2.4.0` | 2026-07-15 |
 | **v2.5-01 Composition** | 2/2 | Complete | 2026-07-22 |
 | **v2.4.2-01 Band Retune** | 2/2 | Complete | 2026-07-27 |
-| **v2.4.2-02 Nonogram Expand** | 0/? | Pending | — |
+| **v2.4.2-02 Nonogram Expand** | 0/2 | Planned | — |
 | **v2.4.2-03 Ship 2.4.2** | 0/? | Pending | — |
 | **v2.5-02 Feel + Mechanics** | 0/? | **Paused** | — |
 | **v2.5-03 Signature (DIFF-03)** | 0/? | **Paused** (DIFF-01/02 → v2.4.2) | — |
