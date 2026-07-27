@@ -2,11 +2,11 @@
 gsd_state_version: 1.0
 milestone: v2.4.2
 milestone_name: Content Depth
-current_phase: v2.4.2-01
+current_phase: 4.2
 current_phase_name: band-retune
 status: executing
 stopped_at: Phase v2.4.2-01 plans created
-last_updated: "2026-07-27T08:04:57.612Z"
+last_updated: "2026-07-27T08:49:30.153Z"
 last_activity: 2026-07-27
 last_activity_desc: Phase v2.4.2-01 execution started
 progress:
@@ -29,7 +29,7 @@ See: .planning/PROJECT.md（v2.4.2 Content Depth · started 2026-07-26）
 ## Current Position
 
 Phase: v2.4.2-01 (band-retune) — EXECUTING
-Plan: 2 of 2
+Plan: 2 of 2 (complete)
 Status: Executing Phase v2.4.2-01
 Last activity: 2026-07-27 — Phase v2.4.2-01 execution started
 
@@ -97,6 +97,8 @@ Last session: 2026-07-26T09:30:12.933Z
 | Phase v2.5-01 P02 | 6min | 3 tasks | 10 files |
 
 ## Decisions
+
+- [Phase v2.4.2-01 P02]: SL per-day bandLerp 28→12 / inside 34–46→10–24; carveWithSoften +2×3; builtin&lt;5%
 
 - [Phase v2.4.2-01 P01]: SHIP-02 test-only lock; Sudoku 35→24 / Binary 28→18; generators unchanged (D-11)
 

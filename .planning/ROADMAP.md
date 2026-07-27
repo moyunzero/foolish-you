@@ -24,7 +24,7 @@
 - [x] **Phase v2.3: 同类更顺彩蛋** — 同玩法纵向正向反馈；节奏优先、单行、永不负反馈（**shipped** App Store `2.3.0`）
 - [x] **Phase v2.4: 周日特辑 + 数绘扩充**（主：周日仪式感；辅：数绘图案库；**shipped** App Store `2.4.0` 2026-07-15）
 - [x] **Phase v2.5-01: Composition（整页构图）** — 游戏页/结果页舞台化 (completed 2026-07-22)
-- [ ] **Phase v2.4.2-01: Band Retune（难度带）** — 数独/二进制/数回周节奏拉宽 + 变盘修复路径测试
+- [x] **Phase v2.4.2-01: Band Retune（难度带）** — 数独/二进制/数回周节奏拉宽 + 变盘修复路径测试 (completed 2026-07-27)
 - [ ] **Phase v2.4.2-02: Nonogram Expand（数绘扩库）** — 90→≈120 append-only + zh/en 标题
 - [ ] **Phase v2.4.2-03: Ship 2.4.2（发版签核）** — 营销版本 bump + 变盘披露文案 + QA
 
@@ -345,7 +345,7 @@ Plans:
   3. `APP_SALT` 与题型选择逻辑未改；同版本内同 `dateKey` 仍确定性复现
   4. 「未通关快照 + 生成参数已变」场景下，修复路径测试通过，不会静默换成另一盘面
 
-**Plans:** 1/2 plans executed
+**Plans:** 2/2 plans complete
 
 Plans:
 **Wave 1**
@@ -354,7 +354,7 @@ Plans:
 
 **Wave 2** *(blocked on Wave 1 completion)*
 
-- [ ] v2.4.2-01-02-PLAN.md — Slitherlink per-day bandLerp + soft dig + timing/builtin gates
+- [x] v2.4.2-01-02-PLAN.md — Slitherlink per-day bandLerp + soft dig + timing/builtin gates
 
 ---
 
