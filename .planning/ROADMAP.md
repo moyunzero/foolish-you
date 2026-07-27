@@ -492,7 +492,7 @@ Plans:
 | **v2.3 同类更顺彩蛋** | 2/2 | **Shipped** App Store `2.3.0` | 2026-07 |
 | **v2.4 周日特辑 + 数绘扩充** | 3/3 | **Shipped** App Store `2.4.0` | 2026-07-15 |
 | **v2.5-01 Composition** | 2/2 | Complete | 2026-07-22 |
-| **v2.4.2-01 Band Retune** | 0/2 | **Planned** | — |
+| **v2.4.2-01 Band Retune** | 2/2 | Complete | 2026-07-27 |
 | **v2.4.2-02 Nonogram Expand** | 0/? | Pending | — |
 | **v2.4.2-03 Ship 2.4.2** | 0/? | Pending | — |
 | **v2.5-02 Feel + Mechanics** | 0/? | **Paused** | — |
