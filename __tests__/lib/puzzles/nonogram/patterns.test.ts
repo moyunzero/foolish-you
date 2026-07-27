@@ -9,7 +9,7 @@ import { isCompleteAndValid } from '../../../../lib/puzzles/nonogram/validate';
 import { patterns as enPatterns } from '../../../../locales/en/patterns';
 import { patterns as zhPatterns } from '../../../../locales/zh/patterns';
 
-/** Frozen pre-expand id order (D-17 append-only prefix lock). */
+/** Frozen pre-v2.4.2-02 id order (D-09 / D-11 append-only prefix lock). */
 const PREFIX_IDS = [
   'silly-face',
   'silly-cat',
@@ -41,6 +41,66 @@ const PREFIX_IDS = [
   'bolt',
   'anchor',
   'gem',
+  'bagel',
+  'snail',
+  'pear',
+  'leaf',
+  'egg',
+  'key',
+  'worm',
+  'taco',
+  'cookie',
+  'lamp',
+  'sock',
+  'hat',
+  'bunny',
+  'toast',
+  'cactus',
+  'donut',
+  'umbrella',
+  'spider',
+  'frog',
+  'kiwi',
+  'whale',
+  'cake',
+  'guitar',
+  'boot',
+  'bottle',
+  'laptop',
+  'crab',
+  'penguin',
+  'train',
+  'octopus',
+  'spaceship',
+  'castle',
+  'robot',
+  'dragon',
+  'trophy',
+  'sandwich',
+  'teapot',
+  'goblin',
+  'rainbow',
+  'monkey',
+  'piano',
+  'submarine',
+  'helicopter',
+  'volcano',
+  'turtle',
+  'camera',
+  'fridge',
+  'bicycle',
+  'mask',
+  'lighthouse',
+  'dragonfly',
+  'crystal',
+  'spacesuit',
+  'fireworks',
+  'hammer',
+  'snorkel',
+  'satellite',
+  'treasure',
+  'phoenix',
+  'compass',
 ] as const;
 
 function filledCount(line: boolean[]): number {
@@ -53,25 +113,23 @@ function clueFillSum(clues: number[]): number {
 
 describe('NONOGRAM_PATTERNS', () => {
   // D-20: after bucket growth, same dateKey may pick a different pattern across app versions — accepted.
-  it('expands to ~90 patterns with unique ids and titles (D-13)', () => {
-    const { length } = NONOGRAM_PATTERNS;
-    expect(length).toBeGreaterThanOrEqual(84);
-    expect(length).toBeLessThanOrEqual(98);
+  it('expands to exactly 120 patterns with unique ids and titles (D-01/D-03)', () => {
+    expect(NONOGRAM_PATTERNS).toHaveLength(120);
     const ids = NONOGRAM_PATTERNS.map((p) => p.id);
     const titles = NONOGRAM_PATTERNS.map((p) => p.title);
-    expect(new Set(ids).size).toBe(length);
-    expect(new Set(titles).size).toBe(length);
+    expect(new Set(ids).size).toBe(120);
+    expect(new Set(titles).size).toBe(120);
   });
 
-  it('keeps the first 30 pattern ids in original order (D-17 prefix lock)', () => {
-    expect(NONOGRAM_PATTERNS.slice(0, 30).map((p) => p.id)).toEqual([...PREFIX_IDS]);
+  it('keeps the first 90 pattern ids in original order (D-09/D-11 prefix lock)', () => {
+    expect(PREFIX_IDS).toHaveLength(90);
+    expect(NONOGRAM_PATTERNS.slice(0, 90).map((p) => p.id)).toEqual([...PREFIX_IDS]);
   });
 
-  it('balances tiers 0–6 to 12–14 patterns each (D-15)', () => {
+  it('balances tiers 0–6 to exact hist [17,17,17,17,17,17,18] (D-02/D-03)', () => {
+    const expected = [17, 17, 17, 17, 17, 17, 18];
     for (let tier = 0; tier <= 6; tier += 1) {
-      const count = NONOGRAM_PATTERNS.filter((p) => p.tier === tier).length;
-      expect(count).toBeGreaterThanOrEqual(12);
-      expect(count).toBeLessThanOrEqual(14);
+      expect(NONOGRAM_PATTERNS.filter((p) => p.tier === tier)).toHaveLength(expected[tier]!);
     }
   });
 
