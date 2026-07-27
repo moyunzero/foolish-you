@@ -25,7 +25,7 @@
 - [x] **Phase v2.4: 周日特辑 + 数绘扩充**（主：周日仪式感；辅：数绘图案库；**shipped** App Store `2.4.0` 2026-07-15）
 - [x] **Phase v2.5-01: Composition（整页构图）** — 游戏页/结果页舞台化 (completed 2026-07-22)
 - [x] **Phase v2.4.2-01: Band Retune（难度带）** — 数独/二进制/数回周节奏拉宽 + 变盘修复路径测试 (completed 2026-07-27)
-- [ ] **Phase v2.4.2-02: Nonogram Expand（数绘扩库）** — 90→exactly 120 append-only + zh/en 标题 + SHIP-02 silly-face fixture
+- [x] **Phase v2.4.2-02: Nonogram Expand（数绘扩库）** — 90→exactly 120 append-only + zh/en 标题 + SHIP-02 silly-face fixture (completed 2026-07-27)
 - [ ] **Phase v2.4.2-03: Ship 2.4.2（发版签核）** — 营销版本 bump + 变盘披露文案 + QA
 
 > **Paused（v2.5 剩余，2.4.2 发版后恢复）：**  
@@ -371,7 +371,7 @@ Plans:
   3. 新图案均可通过现有 generator 选出并完成；`titleKey` 在 zh/en locales 有对应文案（NONO-02）
   4. 单元测试覆盖前缀锁定 + 精确库大小；SHIP-02 nonogram fixture 升级为 silly-face + stale hash（D-12..D-14）
 
-**Plans:** 1/2 plans executed
+**Plans:** 2/2 plans complete
 
 **Wave 1**
 
@@ -379,7 +379,7 @@ Plans:
 
 **Wave 2** *(blocked on Wave 1)*
 
-- [ ] v2.4.2-02-02-PLAN.md — Upgrade stale-playing-nonogram to silly-face + deliberate stale hash
+- [x] v2.4.2-02-02-PLAN.md — Upgrade stale-playing-nonogram to silly-face + deliberate stale hash
 
 ---
 
@@ -501,7 +501,7 @@ Plans:
 | **v2.4 周日特辑 + 数绘扩充** | 3/3 | **Shipped** App Store `2.4.0` | 2026-07-15 |
 | **v2.5-01 Composition** | 2/2 | Complete | 2026-07-22 |
 | **v2.4.2-01 Band Retune** | 2/2 | Complete | 2026-07-27 |
-| **v2.4.2-02 Nonogram Expand** | 1/2 | In Progress | — |
+| **v2.4.2-02 Nonogram Expand** | 2/2 | Complete | 2026-07-27 |
 | **v2.4.2-03 Ship 2.4.2** | 0/? | Pending | — |
 | **v2.5-02 Feel + Mechanics** | 0/? | **Paused** | — |
 | **v2.5-03 Signature (DIFF-03)** | 0/? | **Paused** (DIFF-01/02 → v2.4.2) | — |

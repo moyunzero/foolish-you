@@ -2,19 +2,19 @@
 gsd_state_version: 1.0
 milestone: v2.4.2
 milestone_name: Content Depth
-current_phase: v2.4.2-02
-status: executing
-stopped_at: Completed v2.4.2-02-01-PLAN.md
-last_updated: "2026-07-27T15:01:09.000Z"
+current_phase: v2.4.2-03
+status: phase_complete
+stopped_at: Completed v2.4.2-02-02-PLAN.md
+last_updated: "2026-07-27T15:04:30.000Z"
 last_activity: 2026-07-27
-last_activity_desc: Completed v2.4.2-02-01 (exact 120 catalog + zh/en titles)
+last_activity_desc: Completed v2.4.2-02-02 (silly-face SHIP-02 nonogram fixture)
 progress:
   total_phases: 19
-  completed_phases: 2
+  completed_phases: 3
   total_plans: 8
-  completed_plans: 10
-  percent: 12
-current_phase_name: nonogram-expand
+  completed_plans: 11
+  percent: 13
+current_phase_name: ship-2.4.2
 ---
 
 # Project State
@@ -24,14 +24,14 @@ current_phase_name: nonogram-expand
 See: .planning/PROJECT.md（v2.4.2 Content Depth · started 2026-07-26）
 
 **Core value:** 用户每天打开就能玩到唯一、确定的今日谜题，结束时获得情绪化反馈。  
-**Current focus:** Phase v2.4.2-02 — nonogram-expand
+**Current focus:** Phase v2.4.2-03 — Ship 2.4.2
 
 ## Current Position
 
-Phase: v2.4.2-02
-Plan: 02 (next)
-Status: Plan 01 complete — ready for `/gsd-execute-phase v2.4.2-02` (plan 02)
-Last activity: 2026-07-27 — Completed v2.4.2-02-01 (exact 120 catalog)
+Phase: v2.4.2-02 (complete) → next v2.4.2-03
+Plan: — (phase plans done)
+Status: Phase v2.4.2-02 complete — ready for `/gsd-plan-phase v2.4.2-03` or `/gsd-execute-phase` when planned
+Last activity: 2026-07-27 — Completed v2.4.2-02-02 (silly-face SHIP-02 fixture)
 
 ## Accumulated Context
 
@@ -73,7 +73,7 @@ Last activity: 2026-07-27 — Completed v2.4.2-02-01 (exact 120 catalog)
 | v2.4.2-01-01 | 1 | **done** | SHIP-02 lock + Sudoku/Binary endpoints |
 | v2.4.2-01-02 | 2 | **done** | Slitherlink bandLerp + soft dig |
 | v2.4.2-02-01 | 1 | **done** | Exact 120 catalog + zh/en titles |
-| v2.4.2-02-02 | 2 | pending | silly-face SHIP-02 nonogram fixture |
+| v2.4.2-02-02 | 2 | **done** | silly-face SHIP-02 nonogram fixture |
 
 ### Pending Todos
 
@@ -85,13 +85,13 @@ Last activity: 2026-07-27 — Completed v2.4.2-02-01 (exact 120 catalog)
 
 ## Session Continuity
 
-**Resume file:** .planning/phases/v2.4.2-02-nonogram-expand/v2.4.2-02-02-PLAN.md
+**Resume file:** None (phase v2.4.2-02 complete)
 
-**Stopped at:** Completed v2.4.2-02-01-PLAN.md
+**Stopped at:** Completed v2.4.2-02-02-PLAN.md
 
-**Resume:** `/gsd-execute-phase v2.4.2-02` (continue plan 02)
+**Resume:** `/gsd-plan-phase v2.4.2-03` (Ship 2.4.2)
 
-Last session: 2026-07-27T15:01:09.000Z
+Last session: 2026-07-27T15:04:30.000Z
 
 ## Performance Metrics
 
@@ -100,9 +100,11 @@ Last session: 2026-07-27T15:01:09.000Z
 | Phase v2.5-01 P01 | 7min | 3 tasks | 20 files |
 | Phase v2.5-01 P02 | 6min | 3 tasks | 10 files |
 | Phase v2.4.2-02 P01 | 3min | 2 tasks | 4 files |
+| Phase v2.4.2-02 P02 | 1min | 1 task | 1 file |
 
 ## Decisions
 
+- [Phase v2.4.2-02 P02]: SHIP-02 nonogram fixture → silly-face + stale-ship02-nonogram-silly-face (D-12..D-14); ship02 suite structure unchanged
 - [Phase v2.4.2-02 P01]: Claude-authored 30 mixed silly silhouettes (+6 tier6 then +4× tiers 0–5); PREFIX_IDS from RESEARCH never re-exported after append
 - [Phase v2.4.2-02 plan]: Exact length 120 + hist [17,17,17,17,17,17,18] (CONTEXT D-01..D-03 overrides ROADMAP soft ≈120/±1); SHIP-02 nonogram fixture → silly-face in plan 02
 
