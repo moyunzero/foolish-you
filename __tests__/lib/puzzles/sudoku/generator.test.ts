@@ -1,4 +1,5 @@
 import { SUDOKU_GIVEN_COUNT } from '../../../../constants/config';
+import { sudokuGivensForDate } from '../../../../lib/puzzles/difficulty/weekdayBand';
 import { generateSudokuPuzzle } from '../../../../lib/puzzles/sudoku/generator';
 import { countGivens } from '../../../../lib/puzzles/sudoku/grid';
 import { countSolutionsUpTo } from '../../../../lib/puzzles/sudoku/solver';
@@ -19,8 +20,8 @@ describe('generateSudokuPuzzle', () => {
   it('uses weekday band givens when dateKey is provided', () => {
     const mon = generateSudokuPuzzle(99_010, '2026-06-01');
     const sun = generateSudokuPuzzle(99_010, '2026-06-07');
-    expect(countGivens(mon.givens)).toBe(33);
-    expect(countGivens(sun.givens)).toBe(27);
+    expect(countGivens(mon.givens)).toBe(sudokuGivensForDate('2026-06-01'));
+    expect(countGivens(sun.givens)).toBe(sudokuGivensForDate('2026-06-07'));
     expect(countGivens(mon.givens)).toBeGreaterThan(countGivens(sun.givens));
   });
 
