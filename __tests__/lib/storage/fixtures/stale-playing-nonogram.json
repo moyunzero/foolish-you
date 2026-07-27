@@ -8,197 +8,49 @@
     "kind": "nonogram",
     "rows": 8,
     "cols": 8,
-    "pictureTitle": "ship02-stale",
-    "puzzleHash": "stale-ship02-nonogram-minimal",
+    "pictureTitle": "silly-face",
+    "puzzleHash": "stale-ship02-nonogram-silly-face",
     "rowClues": [
-      [
-        1
-      ],
-      [],
-      [],
-      [],
-      [],
-      [],
-      [],
-      []
+      [6],
+      [1, 4, 1],
+      [1, 1],
+      [1, 4, 1],
+      [1, 2, 1],
+      [1, 1],
+      [6],
+      [0]
     ],
     "colClues": [
-      [
-        1
-      ],
-      [],
-      [],
-      [],
-      [],
-      [],
-      [],
-      []
+      [5],
+      [1, 1],
+      [2, 1, 1],
+      [2, 2, 1],
+      [2, 2, 1],
+      [2, 1, 1],
+      [1, 1],
+      [5]
     ],
     "solution": [
-      [
-        true,
-        false,
-        false,
-        false,
-        false,
-        false,
-        false,
-        false
-      ],
-      [
-        false,
-        false,
-        false,
-        false,
-        false,
-        false,
-        false,
-        false
-      ],
-      [
-        false,
-        false,
-        false,
-        false,
-        false,
-        false,
-        false,
-        false
-      ],
-      [
-        false,
-        false,
-        false,
-        false,
-        false,
-        false,
-        false,
-        false
-      ],
-      [
-        false,
-        false,
-        false,
-        false,
-        false,
-        false,
-        false,
-        false
-      ],
-      [
-        false,
-        false,
-        false,
-        false,
-        false,
-        false,
-        false,
-        false
-      ],
-      [
-        false,
-        false,
-        false,
-        false,
-        false,
-        false,
-        false,
-        false
-      ],
-      [
-        false,
-        false,
-        false,
-        false,
-        false,
-        false,
-        false,
-        false
-      ]
+      [false, true, true, true, true, true, true, false],
+      [true, false, true, true, true, true, false, true],
+      [true, false, false, false, false, false, false, true],
+      [true, false, true, true, true, true, false, true],
+      [true, false, false, true, true, false, false, true],
+      [true, false, false, false, false, false, false, true],
+      [false, true, true, true, true, true, true, false],
+      [false, false, false, false, false, false, false, false]
     ]
   },
-  "puzzleHash": "stale-ship02-nonogram-minimal",
+  "puzzleHash": "stale-ship02-nonogram-silly-face",
   "playState": [
-    [
-      1,
-      -1,
-      -1,
-      -1,
-      -1,
-      -1,
-      -1,
-      -1
-    ],
-    [
-      -1,
-      -1,
-      -1,
-      -1,
-      -1,
-      -1,
-      -1,
-      -1
-    ],
-    [
-      -1,
-      -1,
-      -1,
-      -1,
-      -1,
-      -1,
-      -1,
-      -1
-    ],
-    [
-      -1,
-      -1,
-      -1,
-      -1,
-      -1,
-      -1,
-      -1,
-      -1
-    ],
-    [
-      -1,
-      -1,
-      -1,
-      -1,
-      -1,
-      -1,
-      -1,
-      -1
-    ],
-    [
-      -1,
-      -1,
-      -1,
-      -1,
-      -1,
-      -1,
-      -1,
-      -1
-    ],
-    [
-      -1,
-      -1,
-      -1,
-      -1,
-      -1,
-      -1,
-      -1,
-      -1
-    ],
-    [
-      -1,
-      -1,
-      -1,
-      -1,
-      -1,
-      -1,
-      -1,
-      -1
-    ]
+    [ -1, 1, 1, -1, -1, -1, -1, -1 ],
+    [ -1, -1, -1, -1, -1, -1, -1, -1 ],
+    [ -1, -1, -1, -1, -1, -1, -1, -1 ],
+    [ -1, -1, -1, -1, -1, -1, -1, -1 ],
+    [ -1, -1, -1, -1, -1, -1, -1, -1 ],
+    [ -1, -1, -1, -1, -1, -1, -1, -1 ],
+    [ -1, -1, -1, -1, -1, -1, -1, -1 ],
+    [ -1, -1, -1, -1, -1, -1, -1, -1 ]
   ],
   "startedAt": 1700000000000
 }
