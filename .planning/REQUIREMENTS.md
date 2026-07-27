@@ -24,8 +24,8 @@
 
 ### Nonogram pool（NONO）
 
-- [ ] **NONO-01**: User can encounter more Nonogram pictures — curated library grows from **90 → ~120** 8×8 patterns, tiers roughly balanced, **append-only** (existing prefix ids/order locked)
-- [ ] **NONO-02**: Every new pattern has zh + en picture titles via existing i18n path (`titleKey` / locales)
+- [x] **NONO-01**: User can encounter more Nonogram pictures — curated library grows from **90 → ~120** 8×8 patterns, tiers roughly balanced, **append-only** (existing prefix ids/order locked)
+- [x] **NONO-02**: Every new pattern has zh + en picture titles via existing i18n path (`titleKey` / locales)
 
 ### Ship safety（SHIP）
 
@@ -79,8 +79,8 @@ Which phases cover which requirements. Updated during roadmap creation.
 | BAND-02 | Phase v2.4.2-01 | Complete |
 | BAND-03 | Phase v2.4.2-01 | Complete |
 | SHIP-02 | Phase v2.4.2-01 | Complete |
-| NONO-01 | Phase v2.4.2-02 | Pending |
-| NONO-02 | Phase v2.4.2-02 | Pending |
+| NONO-01 | Phase v2.4.2-02 | Complete |
+| NONO-02 | Phase v2.4.2-02 | Complete |
 | SHIP-01 | Phase v2.4.2-03 | Pending |
 | SHIP-03 | Phase v2.4.2-03 | Pending |
 

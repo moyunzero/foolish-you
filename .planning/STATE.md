@@ -3,17 +3,17 @@ gsd_state_version: 1.0
 milestone: v2.4.2
 milestone_name: Content Depth
 current_phase: v2.4.2-02
-status: planning
-stopped_at: Phase v2.4.2-02 plans created
-last_updated: "2026-07-27T12:20:00.000Z"
+status: executing
+stopped_at: Completed v2.4.2-02-01-PLAN.md
+last_updated: "2026-07-27T15:01:09.000Z"
 last_activity: 2026-07-27
-last_activity_desc: Phase v2.4.2-02 plans created (2 plans)
+last_activity_desc: Completed v2.4.2-02-01 (exact 120 catalog + zh/en titles)
 progress:
   total_phases: 19
   completed_phases: 2
   total_plans: 8
-  completed_plans: 9
-  percent: 11
+  completed_plans: 10
+  percent: 12
 current_phase_name: nonogram-expand
 ---
 
@@ -29,9 +29,9 @@ See: .planning/PROJECT.md（v2.4.2 Content Depth · started 2026-07-26）
 ## Current Position
 
 Phase: v2.4.2-02
-Plan: 01 (ready to execute)
-Status: Plans complete — ready for `/gsd-execute-phase v2.4.2-02`
-Last activity: 2026-07-27 — Phase v2.4.2-02 plans created
+Plan: 02 (next)
+Status: Plan 01 complete — ready for `/gsd-execute-phase v2.4.2-02` (plan 02)
+Last activity: 2026-07-27 — Completed v2.4.2-02-01 (exact 120 catalog)
 
 ## Accumulated Context
 
@@ -72,7 +72,7 @@ Last activity: 2026-07-27 — Phase v2.4.2-02 plans created
 | v2.5-01-02 | 2 | **done** | Result punchline focus + Abandon sheet + EXP-01 checklist |
 | v2.4.2-01-01 | 1 | **done** | SHIP-02 lock + Sudoku/Binary endpoints |
 | v2.4.2-01-02 | 2 | **done** | Slitherlink bandLerp + soft dig |
-| v2.4.2-02-01 | 1 | pending | Exact 120 catalog + zh/en titles |
+| v2.4.2-02-01 | 1 | **done** | Exact 120 catalog + zh/en titles |
 | v2.4.2-02-02 | 2 | pending | silly-face SHIP-02 nonogram fixture |
 
 ### Pending Todos
@@ -85,13 +85,13 @@ Last activity: 2026-07-27 — Phase v2.4.2-02 plans created
 
 ## Session Continuity
 
-**Resume file:** .planning/phases/v2.4.2-02-nonogram-expand/v2.4.2-02-01-PLAN.md
+**Resume file:** .planning/phases/v2.4.2-02-nonogram-expand/v2.4.2-02-02-PLAN.md
 
-**Stopped at:** Phase v2.4.2-02 plans created
+**Stopped at:** Completed v2.4.2-02-01-PLAN.md
 
-**Resume:** `/gsd-execute-phase v2.4.2-02`
+**Resume:** `/gsd-execute-phase v2.4.2-02` (continue plan 02)
 
-Last session: 2026-07-27T12:20:00.000Z
+Last session: 2026-07-27T15:01:09.000Z
 
 ## Performance Metrics
 
@@ -99,9 +99,11 @@ Last session: 2026-07-27T12:20:00.000Z
 |-------|------|----------|-------|
 | Phase v2.5-01 P01 | 7min | 3 tasks | 20 files |
 | Phase v2.5-01 P02 | 6min | 3 tasks | 10 files |
+| Phase v2.4.2-02 P01 | 3min | 2 tasks | 4 files |
 
 ## Decisions
 
+- [Phase v2.4.2-02 P01]: Claude-authored 30 mixed silly silhouettes (+6 tier6 then +4× tiers 0–5); PREFIX_IDS from RESEARCH never re-exported after append
 - [Phase v2.4.2-02 plan]: Exact length 120 + hist [17,17,17,17,17,17,18] (CONTEXT D-01..D-03 overrides ROADMAP soft ≈120/±1); SHIP-02 nonogram fixture → silly-face in plan 02
 
 - [Phase v2.4.2-01 P02]: SL per-day bandLerp 28→12 / inside 34–46→10–24; carveWithSoften +2×3; builtin&lt;5%

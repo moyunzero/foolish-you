@@ -371,11 +371,11 @@ Plans:
   3. 新图案均可通过现有 generator 选出并完成；`titleKey` 在 zh/en locales 有对应文案（NONO-02）
   4. 单元测试覆盖前缀锁定 + 精确库大小；SHIP-02 nonogram fixture 升级为 silly-face + stale hash（D-12..D-14）
 
-**Plans:** 2 plans
+**Plans:** 1/2 plans executed
 
 **Wave 1**
 
-- [ ] v2.4.2-02-01-PLAN.md — RED exact catalog asserts + GREEN append 30 patterns + zh/en titles
+- [x] v2.4.2-02-01-PLAN.md — RED exact catalog asserts + GREEN append 30 patterns + zh/en titles
 
 **Wave 2** *(blocked on Wave 1)*
 
@@ -501,7 +501,7 @@ Plans:
 | **v2.4 周日特辑 + 数绘扩充** | 3/3 | **Shipped** App Store `2.4.0` | 2026-07-15 |
 | **v2.5-01 Composition** | 2/2 | Complete | 2026-07-22 |
 | **v2.4.2-01 Band Retune** | 2/2 | Complete | 2026-07-27 |
-| **v2.4.2-02 Nonogram Expand** | 0/2 | Planned | — |
+| **v2.4.2-02 Nonogram Expand** | 1/2 | In Progress | — |
 | **v2.4.2-03 Ship 2.4.2** | 0/? | Pending | — |
 | **v2.5-02 Feel + Mechanics** | 0/? | **Paused** | — |
 | **v2.5-03 Signature (DIFF-03)** | 0/? | **Paused** (DIFF-01/02 → v2.4.2) | — |
