@@ -2,19 +2,19 @@
 gsd_state_version: 1.0
 milestone: v2.4.2
 milestone_name: Content Depth
-current_phase: v2.4.2-03
-current_phase_name: ship-2-4-2
-status: ready_to_execute
-stopped_at: Phase v2.4.2-03 plans created — ready for execute
-last_updated: "2026-07-28T06:35:00.000Z"
+current_phase: 4.2
+status: in_progress
+stopped_at: Phase v2.4.2-03 ship complete — repo ready (VERIFICATION signed)
+last_updated: "2026-07-28T09:45:03.070Z"
 last_activity: 2026-07-28
-last_activity_desc: Planned v2.4.2-03 Ship 2.4.2 (2 plans)
+last_activity_desc: Executed v2.4.2-03-01 (marketing 2.4.2 + What's New + NONO-01 wording)
 progress:
   total_phases: 19
   completed_phases: 2
-  total_plans: 8
+  total_plans: 6
   completed_plans: 9
   percent: 11
+current_phase_name: ship-2-4-2
 ---
 
 # Project State
@@ -29,9 +29,9 @@ See: .planning/PROJECT.md（v2.4.2 Content Depth · started 2026-07-26）
 ## Current Position
 
 Phase: v2.4.2-03 Ship 2.4.2（发版签核）
-Plan: 01 / 02 (ready to execute)
-Status: Plans created — ready for `/gsd-execute-phase v2.4.2-03`
-Last activity: 2026-07-28 — Planned v2.4.2-03 (version+What's New; QA/Maestro/CI/VERIFICATION)
+Plan: 02 / 02
+Status: Plan 01 complete — ready for plan 02 (Maestro + hand QA + CI + VERIFICATION)
+Last activity: 2026-07-28 — Executed v2.4.2-03-01 (marketing 2.4.2 + What's New + NONO-01 wording)
 
 ## Accumulated Context
 
@@ -74,7 +74,7 @@ Last activity: 2026-07-28 — Planned v2.4.2-03 (version+What's New; QA/Maestro/
 | v2.4.2-01-02 | 2 | **done** | Slitherlink bandLerp + soft dig |
 | v2.4.2-02-01 | 1 | **done** | Exact 120 catalog + zh/en titles |
 | v2.4.2-02-02 | 2 | **done** | silly-face SHIP-02 nonogram fixture |
-| v2.4.2-03-01 | 1 | pending | Marketing 2.4.2 + What's New + NONO-01 wording |
+| v2.4.2-03-01 | 1 | **done** | Marketing 2.4.2 + What's New + NONO-01 wording |
 | v2.4.2-03-02 | 2 | pending | Maestro + hand QA + CI + VERIFICATION sign-off |
 
 ### Pending Todos
@@ -87,13 +87,13 @@ Last activity: 2026-07-28 — Planned v2.4.2-03 (version+What's New; QA/Maestro/
 
 ## Session Continuity
 
-**Resume file:** .planning/phases/v2.4.2-03-ship-2-4-2/v2.4.2-03-01-PLAN.md
+**Resume file:** .planning/phases/v2.4.2-03-ship-2-4-2/v2.4.2-03-VERIFICATION.md
 
-**Stopped at:** Phase v2.4.2-03 plans created
+**Stopped at:** Phase v2.4.2-03 ship complete — repo ready (VERIFICATION signed)
 
-**Resume:** `/gsd-execute-phase v2.4.2-03` (Ship 2.4.2)
+**Resume:** `/gsd-execute-phase v2.4.2-03` (continue plan 02)
 
-Last session: 2026-07-28T06:35:00.000Z
+Last session: 2026-07-28T09:45:03.060Z
 
 ## Performance Metrics
 
@@ -103,9 +103,11 @@ Last session: 2026-07-28T06:35:00.000Z
 | Phase v2.5-01 P02 | 6min | 3 tasks | 10 files |
 | Phase v2.4.2-02 P01 | 3min | 2 tasks | 4 files |
 | Phase v2.4.2-02 P02 | 1min | 1 task | 1 file |
+| Phase v2.4.2-03 P01 | 5min | 2 tasks | 9 files |
 
 ## Decisions
 
+- [Phase v2.4.2-03 P01]: Marketing 2.4.2 only; buildNumber 30 / versionCode 3 unchanged (D-01/D-02); Live 2.4.1 · shipping 2.4.2 (D-03); What's New 3 features then D-05 drift; NONO-01 exact 120 + hist 17×6+18 (D-16)
 - [Phase v2.4.2-02 P02]: SHIP-02 nonogram fixture → silly-face + stale-ship02-nonogram-silly-face (D-12..D-14); ship02 suite structure unchanged
 - [Phase v2.4.2-02 P01]: Claude-authored 30 mixed silly silhouettes (+6 tier6 then +4× tiers 0–5); PREFIX_IDS from RESEARCH never re-exported after append
 - [Phase v2.4.2-02 plan]: Exact length 120 + hist [17,17,17,17,17,17,18] (CONTEXT D-01..D-03 overrides ROADMAP soft ≈120/±1); SHIP-02 nonogram fixture → silly-face in plan 02

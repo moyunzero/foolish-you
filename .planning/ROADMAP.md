@@ -26,7 +26,7 @@
 - [x] **Phase v2.5-01: Composition（整页构图）** — 游戏页/结果页舞台化 (completed 2026-07-22)
 - [x] **Phase v2.4.2-01: Band Retune（难度带）** — 数独/二进制/数回周节奏拉宽 + 变盘修复路径测试 (completed 2026-07-27)
 - [x] **Phase v2.4.2-02: Nonogram Expand（数绘扩库）** — 90→exactly 120 append-only + zh/en 标题 + SHIP-02 silly-face fixture (completed 2026-07-27)
-- [ ] **Phase v2.4.2-03: Ship 2.4.2（发版签核）** — 营销版本 bump + 变盘披露文案 + QA
+- [x] **Phase v2.4.2-03: Ship 2.4.2（发版签核）** — 营销版本 bump + 变盘披露文案 + QA (completed 2026-07-28)
 
 > **Paused（v2.5 剩余，2.4.2 发版后恢复）：**  
 > - Phase v2.5-02 Feel + Mechanics（FEEL-01..06）  
@@ -396,11 +396,16 @@ Plans:
   3. `npm run typecheck && npm test && npm run test:migration && npm run lint` 全绿
   4. 手测覆盖四题型各至少一天（含周一松 / 周日紧抽样）+ 进行中存档重开不丢盘
 
-**Plans:** 2 plans
+**Plans:** 1/2 plans executed
 
 Plans:
-- [ ] v2.4.2-03-01-PLAN.md — Marketing `2.4.2` + What's New disclosure + NONO-01 exact wording
-- [ ] v2.4.2-03-02-PLAN.md — Maestro four-type smoke + hand QA + CI + VERIFICATION sign-off
+**Wave 1**
+
+- [x] v2.4.2-03-01-PLAN.md — Marketing `2.4.2` + What's New disclosure + NONO-01 exact wording
+
+**Wave 2** *(blocked on Wave 1 completion)*
+
+- [x] v2.4.2-03-02-PLAN.md — Maestro four-type smoke + hand QA + CI + VERIFICATION sign-off
 
 ---
 
@@ -506,7 +511,7 @@ Plans:
 | **v2.5-01 Composition** | 2/2 | Complete | 2026-07-22 |
 | **v2.4.2-01 Band Retune** | 2/2 | Complete | 2026-07-27 |
 | **v2.4.2-02 Nonogram Expand** | 2/2 | Complete | 2026-07-27 |
-| **v2.4.2-03 Ship 2.4.2** | 0/2 | Pending | — |
+| **v2.4.2-03 Ship 2.4.2** | 2/2 | Complete | 2026-07-28 |
 | **v2.5-02 Feel + Mechanics** | 0/? | **Paused** | — |
 | **v2.5-03 Signature (DIFF-03)** | 0/? | **Paused** (DIFF-01/02 → v2.4.2) | — |
 | 第五玩法（TYPE-01） | — | Deferred（需 ASC 证据） | — |
