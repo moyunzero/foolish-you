@@ -361,11 +361,13 @@ Plans:
   2. 生成循环在合理次数内产出目标档唯一解盘
   3. Expert 档有 CPU/步数预算，超时则降级重试而非卡死
 
-**Plans:** 2 plans
+**Plans:** 2/3 plans complete (1 gap-closure pending)
 
 Plans:
-- [ ] v2.5-02-01-PLAN.md — Candidates + technique ladder + rateSudoku fixtures (TIER-01/02 rater)
-- [ ] v2.5-02-02-PLAN.md — generateSudokuPuzzleForTier accept/soften loop (TIER-02 gen)
+
+- [x] v2.5-02-01-PLAN.md — Candidates + technique ladder + rateSudoku fixtures (TIER-01/02 rater)
+- [x] v2.5-02-02-PLAN.md — generateSudokuPuzzleForTier accept/soften loop (TIER-02 gen)
+- [ ] v2.5-02-03-PLAN.md — Gap closure: sound short_chain + conflict-checked solved + expectedPeak (CR-01/WR-01/WR-02)
 
 ---
 
@@ -608,7 +610,7 @@ Plans:
 | **v2.4.2-02 Nonogram Expand** | 2/2 | Complete | 2026-07-27 |
 | **v2.4.2-03 Ship 2.4.2** | 2/2 | Complete | 2026-07-28 |
 | **v2.5-01 Mastery Foundation** | 2/2 | Complete | 2026-07-28 |
-| **v2.5-02 Sudoku Rater** | 0/2 | Pending | — |
+| **v2.5-02 Sudoku Rater** | 2/3 | Gaps Found (03 gap-closure pending) | — |
 | **v2.5-03 Binary + SL Raters** | 0/? | Pending | — |
 | **v2.5-04 Nonogram Tiering** | 0/? | Pending | — |
 | **v2.5-05 Dedupe + Wire** | 0/? | Pending | — |
