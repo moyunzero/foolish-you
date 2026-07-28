@@ -3,7 +3,7 @@
     "name": "傻了么",
     "slug": "foolish-you",
     "scheme": "foolish-you",
-    "version": "2.4.1",
+    "version": "2.4.2",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "dark",
@@ -16,7 +16,7 @@
     "ios": {
       "supportsTablet": false,
       "bundleIdentifier": "com.moyunzero.foolish-you",
-      "buildNumber": "29",
+      "buildNumber": "30",
       "infoPlist": {
         "ITSAppUsesNonExemptEncryption": false,
         "NSUserNotificationsUsageDescription": "Daily reminders nudge you to finish today's puzzle. Scheduled locally on your device."

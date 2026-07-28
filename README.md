@@ -5,7 +5,7 @@
 > A minimalist **daily puzzle** app. Open it once a day and the app hands you exactly one randomly assigned puzzle — **Sudoku**, **Binary (Takuzu/Binairo)**, **Nonogram (Picross)**, or **Slitherlink** — then closes the loop with a sharp-tongued one-liner. New puzzle at local midnight.
 
 <p>
-  <img alt="version" src="https://img.shields.io/badge/version-2.4.1-blue" />
+  <img alt="version" src="https://img.shields.io/badge/version-2.4.2-blue" />
   <img alt="platform" src="https://img.shields.io/badge/platform-iOS%20%7C%20Android-lightgrey" />
   <img alt="expo" src="https://img.shields.io/badge/Expo-SDK%2054-000020?logo=expo" />
   <img alt="tests" src="https://img.shields.io/badge/tests-529%20passing-success" />
@@ -13,7 +13,7 @@
 
 No social feeds, no leaderboards, no fill-in hints — just **today's one game**.
 
-**iOS App Store:** Live [`2.4.0`](https://apps.apple.com/app/id6770218110); shipping **`2.4.1`** (Composition polish). Android (Google Play) is not published yet.
+**iOS App Store:** Live [`2.4.1`](https://apps.apple.com/app/id6770218110); shipping **`2.4.2`** (content depth: week rhythm + Nonogram 120). Android (Google Play) is not published yet.
 
 **For AI / contributors:** production invariants and layer rules live in [`AGENTS.md`](./AGENTS.md); verification, code review, and manual QA checklists in [`docs/DEVELOPMENT.md`](./docs/DEVELOPMENT.md) and [`docs/TESTING.md`](./docs/TESTING.md); the GSD workflow in [`CLAUDE.md`](./CLAUDE.md).
 
@@ -201,7 +201,7 @@ npm run build:preview:ios
 npm run build:preview:android
 ```
 
-`app.json` configures the app name **傻了么**, bundle ID `com.moyunzero.foolish-you`, and a dark UI. Marketing version **`2.4.1`** ships via the EAS `production` profile to App Store Connect (store still live on `2.4.0` until review). Retention KPIs are read from App Store Connect Analytics — there is no third-party analytics SDK in the app.
+`app.json` configures the app name **傻了么**, bundle ID `com.moyunzero.foolish-you`, and a dark UI. Marketing version **`2.4.2`** ships via the EAS `production` profile to App Store Connect (store still live on `2.4.1` until review). Retention KPIs are read from App Store Connect Analytics — there is no third-party analytics SDK in the app.
 
 ---
 
@@ -222,7 +222,7 @@ npm run build:preview:android
 |-------|----|----|-----|--------|------------------|
 | v1.0 (shipped baseline) | — | — | — | live | 0% (no entry) |
 | v1.1 target (≈ 3 mo) | 32% | 12% | 5% | ≥ 4.4 | ≥ 3% |
-| **Current v2.4 (`2.4.1` shipping / `2.4.0` live)** | TBD (ASC) | TBD (ASC) | TBD (ASC) | ≥ 4.5 target | ≥ 5% target |
+| **Current v2.4 (`2.4.2` shipping / `2.4.1` live)** | TBD (ASC) | TBD (ASC) | TBD (ASC) | ≥ 4.5 target | ≥ 5% target |
 | Post-v2.0 (≈ 6 mo) | **35%+** | **15%+** | **7%+** | **≥ 4.5** | ≥ 5% |
 | 12-month target | 38% | 18% | 9% | 4.6 | 7% |
 
@@ -239,7 +239,7 @@ npm run build:preview:android
 | **v2.1** | **Live** (`2.1.0`; App Store 2026-06-09) | ✅ Weekday difficulty; ✅ month calendar + summary; ✅ daily reminder (A+D); ✅ month gallery PNG | NYT Mini/Midi cadence · D1→D2 |
 | **v2.2** | **Live** (`2.2.0`) | ✅ Gentle growth: result “recent streak” line + calendar growth summary; no negative feedback | Mastery · non-competitive retention |
 | **v2.3** | **Live** (`2.3.0`) | ✅ Same-type smoother easter egg: extra positive result line when same puzzle type feels clearly faster; rhythm-first; never-negative | Vertical mastery without speed PK |
-| **v2.4** | **Live** (`2.4.0`; App Store 2026-07-15) · **`2.4.1` shipping** (Composition) | ✅ Sunday Special + ✅ Nonogram expansion; ✅ Composition polish (slim game chrome, punchline-first result, calendar Saturday fix); 5th type deferred to v2.5 | Sunday ritual (D7) + fill thinnest content gap + host-crafted play chrome |
+| **v2.4** | **Live** (`2.4.1`) · **`2.4.2` shipping** (Content Depth) | ✅ Sunday Special + ✅ Nonogram expansion; ✅ Composition polish; ✅ week-rhythm bands + Nonogram library to 120; 5th type deferred to v2.5 | Sunday ritual (D7) + fill thinnest content gap + host-crafted play chrome + content depth |
 | **v2.5** | Deferred | 5th puzzle type (only if ASC shows rotation fatigue) | Rotation freshness |
 | **v3.0** | Parked | QR backup/restore (progress + streak + calendar); optional Android ship in same cycle | Device transfer without accounts |
 | **v3.1** | Planned | **Year in 傻了么** annual long-image (reuse month gallery pipeline) | Wrapped-style share; schedule before Q4 |
