@@ -1,0 +1,19 @@
+appId: com.moyunzero.foolish-you
+ios:
+  snapshotKeyHonorModalViews: true
+---
+# D-10 — Slitherlink enter-game smoke via Dev force type.
+- launchApp:
+    clearState: true
+- extendedWaitUntil:
+    visible: '完成今日'
+    timeout: 60000
+- runFlow: ../v22/subflows/dev-open-panel.yaml
+- tapOn:
+    text: '数回'
+- extendedWaitUntil:
+    visible: '完成今日'
+    timeout: 45000
+- runFlow: ../v22/subflows/dev-hide-bar.yaml
+- assertVisible: '数回'
+- takeScreenshot: 04-slitherlink-game.png
