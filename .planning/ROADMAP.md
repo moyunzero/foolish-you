@@ -4,8 +4,8 @@
 
 从空仓库到可玩的每日益智 MVP：先搭建 Expo 骨架与「今日游戏」管道，再分别交付数独与二进制谜题，最后补上结果页幽默反馈与动效，形成「打开 → 玩 → 嘲讽/鼓励 → 明天见」的完整闭环。
 
-**v1.0 已交付（2026-05-16）** · **Nonogram（2026-05-25）** · **v1.1 / v1.2 已发布** · **v2.1 App Store 已上架（`2.1.0`，2026-06-09）** · **v2.2 `2.2.0`** · **v2.3 `2.3.0`** · **v2.4 `2.4.0` 已上架（2026-07-15）** · **v2.5-01 Composition 已合入**。  
-**当前执行里程碑：v2.4.2 Content Depth**（内容补丁；v2.5-02/03 暂停）。留存 KPI 待 **App Store Connect Analytics** 采集（应用内无 analytics SDK）。
+**v1.0 已交付（2026-05-16）** · **Nonogram（2026-05-25）** · **v1.1 / v1.2 已发布** · **v2.1 App Store 已上架（`2.1.0`，2026-06-09）** · **v2.2 `2.2.0`** · **v2.3 `2.3.0`** · **v2.4 `2.4.0` 已上架（2026-07-15）** · **v2.4.2 repo ready** · **Composition 已合入（现标 v2.6-01）**。  
+**当前执行里程碑：v2.5 Adaptive Mastery**（适应性掌握度）。原 Host-Crafted FEEL/DIFF-03 改标 **v2.6** 并暂停。留存 KPI 待 **App Store Connect Analytics** 采集（应用内无 analytics SDK）。
 
 ## Phases
 
@@ -23,14 +23,20 @@
 - [x] **Phase v2.2: 温和成长（掌控感）** — 结果页近况文案 + 月历成长口吻 + gameType 埋点（3 plans；**shipped** App Store `2.2.0`）
 - [x] **Phase v2.3: 同类更顺彩蛋** — 同玩法纵向正向反馈；节奏优先、单行、永不负反馈（**shipped** App Store `2.3.0`）
 - [x] **Phase v2.4: 周日特辑 + 数绘扩充**（主：周日仪式感；辅：数绘图案库；**shipped** App Store `2.4.0` 2026-07-15）
-- [x] **Phase v2.5-01: Composition（整页构图）** — 游戏页/结果页舞台化 (completed 2026-07-22)
+- [x] **Phase v2.6-01: Composition（整页构图）** — 原 v2.5-01；游戏页/结果页舞台化 (completed 2026-07-22；dir `v2.6-01-composition`)
 - [x] **Phase v2.4.2-01: Band Retune（难度带）** — 数独/二进制/数回周节奏拉宽 + 变盘修复路径测试 (completed 2026-07-27)
 - [x] **Phase v2.4.2-02: Nonogram Expand（数绘扩库）** — 90→exactly 120 append-only + zh/en 标题 + SHIP-02 silly-face fixture (completed 2026-07-27)
 - [x] **Phase v2.4.2-03: Ship 2.4.2（发版签核）** — 营销版本 bump + 变盘披露文案 + QA (completed 2026-07-28)
+- [x] **Phase v2.5-01: Mastery Foundation** — FSRS-lite 存储 + 日历轻调 + 当日冻结 (completed 2026-07-28)
+- [ ] **Phase v2.5-02: Sudoku Technique Rater** — 四档技巧门控 + 生成接受环
+- [ ] **Phase v2.5-03: Binary + Slitherlink Raters** — 技巧梯映射四档
+- [ ] **Phase v2.5-04: Nonogram Tiering** — 库内分档 + 按档选取
+- [ ] **Phase v2.5-05: Dedupe + Diversity + Wire** — hash 环 + 选题接入 mastery
+- [ ] **Phase v2.5-06: Ship 2.5.0** — 披露 + 测试 + VERIFICATION
 
-> **Paused（v2.5 剩余，2.4.2 发版后恢复）：**  
-> - Phase v2.5-02 Feel + Mechanics（FEEL-01..06）  
-> - Phase v2.5-03 缩为 **DIFF-03 only**（DIFF-01/02 已吸收进 v2.4.2）
+> **Paused（v2.6 Host-Crafted 剩余，Adaptive 之后恢复）：**  
+> - Phase v2.6-02 Feel + Mechanics（FEEL-01..06）  
+> - Phase v2.6-03 Signature **DIFF-03 only**
 
 > **Deferred：** 第五玩法（`TYPE-01`）— 见 `.planning/REQUIREMENTS.md` Future Requirements
 
@@ -309,33 +315,122 @@ Plans:
 
 ---
 
-### Phase v2.5-01: Composition（整页构图）
+### Phase v2.6-01: Composition（整页构图）
 
-**Goal**: 游戏页与结果页舞台化——顶栏瘦身让棋盘成为视觉主角，主持人开场旁白落地，认怂从裸 `Alert` 升级为毒舌语气二次确认，结果页第一屏收窄到揭示+金句+结局章，其余内容（统计卡/月历/提醒/成长行/彩蛋）明确下沉并各有归位。  
-**Depends on**: v2.4 shipped（`2.4.0`）  
-**Requirements**: LAYOUT-01, LAYOUT-02, LAYOUT-03, LAYOUT-04, EXP-01, EXP-02  
-**UI hint**: yes  
-**Success Criteria**（用户可观察的行为）:
+**Status:** Complete（2026-07-22）。原编号 v2.5-01；2026-07-28 产品口径改标 **v2.6**；目录 `phases/v2.6-01-composition/`。  
+**Goal**: 游戏页/结果页舞台化（主持人构图）。  
+**Depends on**: v2.4  
 
-  1. 用户打开游戏页看到瘦身顶栏（日期/连签/计时器不再抢占棋盘视觉焦点）+ 一句开场旁白，且不阻塞立即开始游玩
-  2. 用户点击「放弃」时先看到毒舌语气的确认弹层，需二次确认才会真正退出当日（不会因误触而丢局）
-  3. 用户完成或放弃后，结果页第一屏只显示揭示（如适用）+ 主持人金句 + 结局章；统计卡/月历入口/提醒/成长行/彩蛋等明确下沉到折叠区，各自有清晰的分区归位（不是机械地整体下移）
-  4. 手测 checklist（`EXP-01`）已建立，覆盖「完成路径 / 认怂确认路径 / 首遇题型」三条主线，作为后续阶段体验 KPI 的代理指标
-  5. 四种题型页面在小屏设备（如 iPhone SE）下新增的顶栏/旁白不挤占既有棋盘区域（重点检查数绘线索带）
+Plans:
+
+- [x] v2.6-01-01-PLAN.md — Copy pools + hasPlayProgress + slim header/host intro fade + demoted abandon footer
+- [x] v2.6-01-02-PLAN.md — Result punchline-first + 结局/数据 + Abandon BottomSheet + EXP-01 checklist
+
+---
+
+### Phase v2.5-01: Mastery Foundation
+
+**Goal**: 分题型掌握度可持久化；遗忘曲线更新；日历仅轻调；当日盘面冻结。  
+**Depends on**: v2.4.2-03 complete  
+**Requirements**: MAST-01, MAST-02, MAST-03, MAST-04  
+**UI hint**: no  
+**Success Criteria**:
+
+  1. 新装用户四种题型均有默认 Easy 向掌握度，可读写且经 migration 校验
+  2. 完成/放弃后该题型掌握度按遗忘曲线规则变化（可用单元测试固定时钟验证）
+  3. 同一 `dateKey` 首次创建后改 mastery 不改变已写入 snapshot 的 puzzleHash
+  4. 日历 band 对目标档的偏移不超过 ±1（或仅档内参数轻推）
 
 **Plans:** 2/2 plans complete
 
 Plans:
 
-- [x] v2.5-01-01-PLAN.md — Copy pools + hasPlayProgress + slim header/host intro fade + demoted abandon footer
-- [x] v2.5-01-02-PLAN.md — Result punchline-first + 结局/数据 + Abandon BottomSheet + EXP-01 checklist
+- [x] v2.5-01-01-PLAN.md — DifficultyTier + FSRS-lite + resolveTargetTier + masteryStorage (MAST-01..03)
+- [x] v2.5-01-02-PLAN.md — persistStatus wire + same-day freeze regression (MAST-02, MAST-04)
+
+---
+
+### Phase v2.5-02: Sudoku Technique Rater
+
+**Goal**: 数独按四档技巧峰值接受/拒绝生成盘，线索数为引导非唯一标准。  
+**Depends on**: v2.5-01  
+**Requirements**: TIER-01, TIER-02  
+**Success Criteria**:
+
+  1. Fixture 盘面被 rater 分到与标注一致的档位
+  2. 生成循环在合理次数内产出目标档唯一解盘
+  3. Expert 档有 CPU/步数预算，超时则降级重试而非卡死
+
+**Plans:** 2 plans
+
+Plans:
+- [ ] v2.5-02-01-PLAN.md — Candidates + technique ladder + rateSudoku fixtures (TIER-01/02 rater)
+- [ ] v2.5-02-02-PLAN.md — generateSudokuPuzzleForTier accept/soften loop (TIER-02 gen)
+
+---
+
+### Phase v2.5-03: Binary + Slitherlink Raters
+
+**Goal**: 二进制与数回具备与四档对齐的技巧门控。  
+**Depends on**: v2.5-02（复用门控模式）  
+**Requirements**: TIER-03, TIER-05  
+**Success Criteria**:
+
+  1. 各档至少一组 fixture 分类正确
+  2. 生成/参数路径能稳定命中目标档（含 fallback）
+
+Plans: TBD via `/gsd-plan-phase v2.5-03`
+
+---
+
+### Phase v2.5-04: Nonogram Tiering
+
+**Goal**: 120 图案库按四档标记/评级，选题按目标档过滤。  
+**Depends on**: v2.5-01  
+**Requirements**: TIER-04  
+**Success Criteria**:
+
+  1. 每档可用图案数量可审计（避免空档）
+  2. 目标档选取失败时有相邻档 fallback 且可测
+
+Plans: TBD via `/gsd-plan-phase v2.5-04`
+
+---
+
+### Phase v2.5-05: Dedupe + Diversity + Wire
+
+**Goal**: 历史 hash 去重 + 同档多样性；selector/Context 全链路接入 mastery。  
+**Depends on**: v2.5-02..04  
+**Requirements**: DIV-01, DIV-02, TIER-01（接线）  
+**Success Criteria**:
+
+  1. 近期玩过的 hash 在重试上限内被避开
+  2. 完成一局后 mastery 与 hash ring 一并持久化
+  3. hydrate 路径使用 mastery 解析目标档
+
+Plans: TBD via `/gsd-plan-phase v2.5-05`
+
+---
+
+### Phase v2.5-06: Ship 2.5.0
+
+**Goal**: 营销版本 `2.5.0` + 变盘披露 + 验证签核。  
+**Depends on**: v2.5-05  
+**Requirements**: SHIP-01, SHIP-02  
+**Success Criteria**:
+
+  1. What's New / CONFIGURATION 披露未玩过日期可能变盘
+  2. CI：typecheck + test + migration + lint 绿
+  3. VERIFICATION 签核
+
+Plans: TBD via `/gsd-plan-phase v2.5-06`
 
 ---
 
 ### Phase v2.4.2-01: Band Retune（难度带）
 
 **Goal**: 在现有周节奏上拉宽数独/二进制/数回难度带，使周一明显更松、周日明显更紧；配套「进行中快照不被静默换盘」回归测试。  
-**Depends on**: v2.5-01 shipped in codebase（本阶段不改 UI）  
+**Depends on**: Composition shipped in codebase（本阶段不改 UI）  
 **Requirements**: BAND-01, BAND-02, BAND-03, SHIP-02  
 **UI hint**: no  
 **Success Criteria**（用户可观察 / 可验证）:
@@ -409,11 +504,11 @@ Plans:
 
 ---
 
-### Phase v2.5-02: Feel + Mechanics（手感+机制） — PAUSED
+### Phase v2.6-02: Feel + Mechanics（手感+机制） — PAUSED
 
-**Status:** **Paused** until v2.4.2 ships（2026-07-26）。  
+**Status:** **Paused** until v2.5 Adaptive ships（2026-07-28 renumber from v2.5-02）。  
 **Goal**: 四种题型都具备可撤销的输入手感；数独可记会话内笔记；二进制/数绘支持拖填；数回边命中更可靠且不破坏角点判定；首遇题型有可跳过的操作演示；关键操作有触感反馈。  
-**Depends on**: Phase v2.5-01；resume after v2.4.2-03  
+**Depends on**: Phase v2.6-01；resume after v2.5-06  
 **Requirements**: FEEL-01, FEEL-02, FEEL-03, FEEL-04, FEEL-05, FEEL-06  
 **UI hint**: yes  
 **Success Criteria**（用户可观察的行为）:
@@ -433,11 +528,11 @@ Plans:
 
 ---
 
-### Phase v2.5-03: Signature（招牌时刻） — PAUSED / narrowed
+### Phase v2.6-03: Signature（招牌时刻） — PAUSED / narrowed
 
-**Status:** **Paused**；原 DIFF-01/DIFF-02 已吸收进 **v2.4.2**。恢复后仅交付 DIFF-03。  
+**Status:** **Paused**；原 DIFF-01/DIFF-02 已吸收进 **v2.4.2**。恢复后仅交付 DIFF-03。原编号 v2.5-03。  
 **Goal**: 择一题型落地「招牌时刻」微交互（~200ms 可识别反馈）。  
-**Depends on**: Phase v2.5-02（招牌时刻需观察 Feel 落地效果后再选）  
+**Depends on**: Phase v2.6-02（招牌时刻需观察 Feel 落地效果后再选）  
 **Requirements**: DIFF-03  
 **UI hint**: yes  
 **Success Criteria**（用户可观察的行为）:
@@ -490,7 +585,7 @@ Plans:
 
 ## Progress
 
-**Execution Order:** 1 → 2 → 3 → 4 → Nonogram → v1.1 → v1.2 → v2.0 ∥ v2.0-slitherlink → v2.1 → v2.2 → v2.3 → v2.4 → v2.5-01 → **v2.4.2-01 → v2.4.2-02 → v2.4.2-03** → (resume) v2.5-02 → v2.5-03(DIFF-03) → (第五玩法 deferred) → v3.0 → v4.0
+**Execution Order:** 1 → 2 → 3 → 4 → Nonogram → v1.1 → v1.2 → v2.0 ∥ v2.0-slitherlink → v2.1 → v2.2 → v2.3 → v2.4 → **v2.6-01 Composition** → **v2.4.2** → **v2.5 Adaptive (01→06)** → (resume) **v2.6-02 Feel** → **v2.6-03 DIFF-03** → (第五玩法 deferred) → v3.0 → v4.0
 
 | Phase | Plans | Status | Completed |
 |-------|-------|--------|-----------|
@@ -508,12 +603,18 @@ Plans:
 | **v2.2 温和成长** | 3/3 | **Shipped** App Store `2.2.0` | 2026-06-29 |
 | **v2.3 同类更顺彩蛋** | 2/2 | **Shipped** App Store `2.3.0` | 2026-07 |
 | **v2.4 周日特辑 + 数绘扩充** | 3/3 | **Shipped** App Store `2.4.0` | 2026-07-15 |
-| **v2.5-01 Composition** | 2/2 | Complete | 2026-07-22 |
+| **v2.6-01 Composition** | 2/2 | Complete（原 v2.5-01） | 2026-07-22 |
 | **v2.4.2-01 Band Retune** | 2/2 | Complete | 2026-07-27 |
 | **v2.4.2-02 Nonogram Expand** | 2/2 | Complete | 2026-07-27 |
 | **v2.4.2-03 Ship 2.4.2** | 2/2 | Complete | 2026-07-28 |
-| **v2.5-02 Feel + Mechanics** | 0/? | **Paused** | — |
-| **v2.5-03 Signature (DIFF-03)** | 0/? | **Paused** (DIFF-01/02 → v2.4.2) | — |
+| **v2.5-01 Mastery Foundation** | 2/2 | Complete | 2026-07-28 |
+| **v2.5-02 Sudoku Rater** | 0/2 | Pending | — |
+| **v2.5-03 Binary + SL Raters** | 0/? | Pending | — |
+| **v2.5-04 Nonogram Tiering** | 0/? | Pending | — |
+| **v2.5-05 Dedupe + Wire** | 0/? | Pending | — |
+| **v2.5-06 Ship 2.5.0** | 0/? | Pending | — |
+| **v2.6-02 Feel + Mechanics** | 0/? | **Paused** | — |
+| **v2.6-03 Signature (DIFF-03)** | 0/? | **Paused** | — |
 | 第五玩法（TYPE-01） | — | Deferred（需 ASC 证据） | — |
 | v3.0 跨端 | 0/3 | Parked（待丢档反馈 / Android） | — |
 | v4.0 伙伴感 | 0/2 | Conditional | — |
