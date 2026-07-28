@@ -3,6 +3,8 @@ ios:
   snapshotKeyHonorModalViews: true
 ---
 # D-10 — Slitherlink enter-game smoke via Dev force type.
+# Today may already be slitherlink — tap below DEV bar so we hit the Dev force
+# button, not the header rules control (a11y "查看数回规则" also matches 数回).
 - launchApp:
     clearState: true
 - extendedWaitUntil:
@@ -11,9 +13,15 @@ ios:
 - runFlow: ../v22/subflows/dev-open-panel.yaml
 - tapOn:
     text: '数回'
+    below: 'DEV 调试'
 - extendedWaitUntil:
     visible: '完成今日'
     timeout: 45000
+- runFlow:
+    when:
+      visible: '知道了'
+    commands:
+      - tapOn: '知道了'
 - runFlow: ../v22/subflows/dev-hide-bar.yaml
 - assertVisible: '数回'
-- takeScreenshot: 04-slitherlink-game.png
+- takeScreenshot: 04-slitherlink-game
