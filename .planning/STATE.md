@@ -2,17 +2,17 @@
 gsd_state_version: 1.0
 milestone: v2.4.2
 milestone_name: Content Depth
-current_phase: 4.2
-current_phase_name: verified passed
-status: phase_complete
-stopped_at: Phase v2.4.2-03 context gathered
-last_updated: "2026-07-28T04:27:37.443Z"
-last_activity: 2026-07-27
-last_activity_desc: Verified v2.4.2-02 (catalog 120 + silly-face SHIP-02)
+current_phase: v2.4.2-03
+current_phase_name: ship-2-4-2
+status: ready_to_execute
+stopped_at: Phase v2.4.2-03 plans created — ready for execute
+last_updated: "2026-07-28T06:35:00.000Z"
+last_activity: 2026-07-28
+last_activity_desc: Planned v2.4.2-03 Ship 2.4.2 (2 plans)
 progress:
   total_phases: 19
   completed_phases: 2
-  total_plans: 6
+  total_plans: 8
   completed_plans: 9
   percent: 11
 ---
@@ -28,10 +28,10 @@ See: .planning/PROJECT.md（v2.4.2 Content Depth · started 2026-07-26）
 
 ## Current Position
 
-Phase: v2.4.2-02 (verified passed) → next v2.4.2-03
-Plan: — (phase plans done)
-Status: Phase v2.4.2-02 verified passed — ready for `/gsd-plan-phase v2.4.2-03`
-Last activity: 2026-07-27 — Verified v2.4.2-02 (catalog 120 + silly-face SHIP-02)
+Phase: v2.4.2-03 Ship 2.4.2（发版签核）
+Plan: 01 / 02 (ready to execute)
+Status: Plans created — ready for `/gsd-execute-phase v2.4.2-03`
+Last activity: 2026-07-28 — Planned v2.4.2-03 (version+What's New; QA/Maestro/CI/VERIFICATION)
 
 ## Accumulated Context
 
@@ -74,6 +74,8 @@ Last activity: 2026-07-27 — Verified v2.4.2-02 (catalog 120 + silly-face SHIP-
 | v2.4.2-01-02 | 2 | **done** | Slitherlink bandLerp + soft dig |
 | v2.4.2-02-01 | 1 | **done** | Exact 120 catalog + zh/en titles |
 | v2.4.2-02-02 | 2 | **done** | silly-face SHIP-02 nonogram fixture |
+| v2.4.2-03-01 | 1 | pending | Marketing 2.4.2 + What's New + NONO-01 wording |
+| v2.4.2-03-02 | 2 | pending | Maestro + hand QA + CI + VERIFICATION sign-off |
 
 ### Pending Todos
 
@@ -85,13 +87,13 @@ Last activity: 2026-07-27 — Verified v2.4.2-02 (catalog 120 + silly-face SHIP-
 
 ## Session Continuity
 
-**Resume file:** .planning/phases/v2.4.2-03-ship-2-4-2/v2.4.2-03-CONTEXT.md
+**Resume file:** .planning/phases/v2.4.2-03-ship-2-4-2/v2.4.2-03-01-PLAN.md
 
-**Stopped at:** Phase v2.4.2-03 context gathered
+**Stopped at:** Phase v2.4.2-03 plans created
 
-**Resume:** `/gsd-plan-phase v2.4.2-03` (Ship 2.4.2)
+**Resume:** `/gsd-execute-phase v2.4.2-03` (Ship 2.4.2)
 
-Last session: 2026-07-28T04:27:37.429Z
+Last session: 2026-07-28T06:35:00.000Z
 
 ## Performance Metrics
 
