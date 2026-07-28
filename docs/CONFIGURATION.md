@@ -26,12 +26,12 @@ Primary Expo configuration (static JSON, no `app.config.js`).
 |------|-------|-------|
 | Display name | 傻了么 | User-facing app name |
 | Slug / scheme | `foolish-you` | Deep links and Expo project slug |
-| Version | `2.4.1` | Marketing version (aligned with `package.json`) |
+| Version | `2.4.2` | Marketing version (aligned with `package.json`) |
 | UI style | `dark` | System appearance default |
 | New architecture | `true` | React Native new arch enabled |
 | Entry | `expo-router/entry` | Set in `package.json` `main` |
 | Plugins | `expo-router`, `expo-font`, `expo-localization`, `expo-notifications`, `@react-native-community/datetimepicker` | Router, fonts, locale, local reminders |
-| iOS bundle ID | `com.moyunzero.foolish-you` | `buildNumber`: `29` in `app.json` → next production build **30** (`autoIncrement`) |
+| iOS bundle ID | `com.moyunzero.foolish-you` | `buildNumber`: `30` in `app.json` → next production build **31** (`autoIncrement`) |
 | Android package | `com.moyunzero.foolishyou` | `versionCode`: `3` |
 | Splash / icons | `./assets/*` | Background `#0a0a0a` (matches design canvas) |
 
@@ -61,7 +61,7 @@ Submit profile `production` is defined but empty in-repo; store credentials are 
 
 | Channel | Status | Notes |
 |---------|--------|-------|
-| **iOS App Store** | **Live `2.4.0`** · shipping **`2.4.1`** | [App Store](https://apps.apple.com/app/id6770218110) · Bundle `com.moyunzero.foolish-you` · CN「傻了么」/ US「Brainfool」 |
+| **iOS App Store** | **Live `2.4.1`** · shipping **`2.4.2`** | [App Store](https://apps.apple.com/app/id6770218110) · Bundle `com.moyunzero.foolish-you` · CN「傻了么」/ US「Brainfool」 |
 | **Google Play** | Not published | Package `com.moyunzero.foolishyou` configured in `app.json` only |
 
 ### iOS build number vs App Store Connect
@@ -76,7 +76,29 @@ If upload fails with **「捆绑包版本必须高于之前上传的版本 "N"�
 
 Previously `appVersionSource` was `remote`; EAS remote counter (`eas build:version:get`) can drift from App Store Connect if builds were uploaded outside EAS or counters were reset. Local source avoids that mismatch for store releases.
 
-### App Store · 更新说明（`2.4.1` What's New · 待提交）
+### App Store · 更新说明（`2.4.2` What's New · 待提交）
+
+粘贴到 App Store Connect → 版本 **2.4.2** → **更新说明**（中/英各一份）。隐私政策与权限无变更。
+
+**中文（傻了么 · 中国区）**
+
+```
+· 数独、二进制的一周难度节奏更清楚：周一更轻松，周日更有挑战
+· 数回难度梯度拉宽，一周里松紧更好分辨
+· 数绘图案库扩充到 120，更多小图轮着来
+· 更新后，尚未游玩的日期盘面可能变化；进行中的进度会保留
+```
+
+**English（Brainfool · United States）**
+
+```
+· Clearer week rhythm for Sudoku and Binary—easier Mondays, tougher Sundays
+· Wider Slitherlink difficulty stretch across the week
+· Nonogram picture library expanded to 120
+· After updating, boards for dates you have not opened yet may change; in-progress progress is kept
+```
+
+### App Store · 更新说明（`2.4.1` What's New · 已上架）
 
 粘贴到 App Store Connect → 版本 **2.4.1** → **更新说明**（中/英各一份）。隐私政策与权限无变更。
 

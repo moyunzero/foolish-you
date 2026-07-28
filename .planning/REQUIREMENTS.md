@@ -24,7 +24,7 @@
 
 ### Nonogram pool（NONO）
 
-- [x] **NONO-01**: User can encounter more Nonogram pictures — curated library grows from **90 → ~120** 8×8 patterns, tiers roughly balanced, **append-only** (existing prefix ids/order locked)
+- [x] **NONO-01**: User can encounter more Nonogram pictures — curated library grows from **90 → exactly 120** 8×8 patterns, tier hist **17/17/17/17/17/17/18**, **append-only** (existing prefix ids/order locked)
 - [x] **NONO-02**: Every new pattern has zh + en picture titles via existing i18n path (`titleKey` / locales)
 
 ### Ship safety（SHIP）
