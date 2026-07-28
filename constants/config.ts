@@ -18,6 +18,9 @@ export const RATING_STORAGE_VERSION = 1;
 export const REMINDER_STORAGE_KEY = '@foolish-you/reminder-v1';
 /** Bump when persisted reminder JSON shape changes (see docs/CONFIGURATION.md § Storage version bumps). */
 export const REMINDER_STORAGE_VERSION = 1;
+export const MASTERY_STORAGE_KEY = '@foolish-you/mastery-v1';
+/** Bump when persisted mastery JSON shape changes (see docs/CONFIGURATION.md § Storage version bumps). */
+export const MASTERY_STORAGE_VERSION = 1;
 /** Bump when persisted snapshot shape changes; v2 drops puzzleStub / placeholders. */
 export const STORAGE_VERSION = 2;
 
