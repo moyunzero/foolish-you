@@ -74,12 +74,13 @@ describe('candidates + singles path', () => {
 
 describe('rateSudoku fixtures', () => {
   it.each(TIER_FIXTURES)(
-    '$id rates to expectedTier $expectedTier',
+    '$id rates to expectedTier $expectedTier peak $expectedPeak',
     (fixture) => {
       const result = rateSudoku(fixture.givens);
       expect(result.status).toBe('solved');
       if (result.status === 'solved') {
         expect(result.tier).toBe(fixture.expectedTier);
+        expect(result.peak).toBe(fixture.expectedPeak);
         expect(peakToTier(result.peak)).toBe(fixture.expectedTier);
       }
     },
@@ -142,6 +143,23 @@ describe('rateSudoku determinism + budgets', () => {
       status: 'incomplete',
       peak: null,
     });
+  });
+
+  it('rejects conflicted full grid as incomplete (WR-01)', () => {
+    // Shape-valid full 9×9 with a deliberate house duplicate (two 5s in row 0).
+    const conflicted: number[][] = [
+      [5, 5, 4, 6, 7, 8, 9, 1, 2],
+      [6, 7, 2, 1, 9, 5, 3, 4, 8],
+      [1, 9, 8, 3, 4, 2, 5, 6, 7],
+      [8, 5, 9, 7, 6, 1, 4, 2, 3],
+      [4, 2, 6, 8, 5, 3, 7, 9, 1],
+      [7, 1, 3, 9, 2, 4, 8, 5, 6],
+      [9, 6, 1, 5, 3, 7, 2, 8, 4],
+      [2, 8, 7, 4, 1, 9, 6, 3, 5],
+      [3, 4, 5, 2, 8, 6, 1, 7, 9],
+    ];
+    const result = rateSudoku(conflicted);
+    expect(result.status).toBe('incomplete');
   });
 
   it('does not import solve for placement (source contract)', () => {
