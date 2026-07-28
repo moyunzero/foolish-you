@@ -51,6 +51,42 @@ function isValidGivens(givens: number[][]): boolean {
   return true;
 }
 
+/** True when any row, column, or 3×3 box has a duplicate nonzero digit. */
+function hasHouseConflicts(digits: number[][]): boolean {
+  for (let r = 0; r < 9; r += 1) {
+    const seen = new Set<number>();
+    for (let c = 0; c < 9; c += 1) {
+      const v = digits[r]![c]!;
+      if (v === 0) continue;
+      if (seen.has(v)) return true;
+      seen.add(v);
+    }
+  }
+  for (let c = 0; c < 9; c += 1) {
+    const seen = new Set<number>();
+    for (let r = 0; r < 9; r += 1) {
+      const v = digits[r]![c]!;
+      if (v === 0) continue;
+      if (seen.has(v)) return true;
+      seen.add(v);
+    }
+  }
+  for (let br = 0; br < 9; br += 3) {
+    for (let bc = 0; bc < 9; bc += 3) {
+      const seen = new Set<number>();
+      for (let r = br; r < br + 3; r += 1) {
+        for (let c = bc; c < bc + 3; c += 1) {
+          const v = digits[r]![c]!;
+          if (v === 0) continue;
+          if (seen.has(v)) return true;
+          seen.add(v);
+        }
+      }
+    }
+  }
+  return false;
+}
+
 /**
  * SE-style human-technique rater: scan easiest→hardest, apply first hit,
  * track peak, restart until solved / stuck / step budget.
@@ -86,6 +122,11 @@ export function rateSudoku(givens: number[][]): RateSudokuResult {
       return { status: 'budget_exhausted', peak };
     }
 
+    return { status: 'incomplete', peak };
+  }
+
+  // Full digit grid is solved only when conflict-free (validate-only; no solver).
+  if (hasHouseConflicts(board.digits)) {
     return { status: 'incomplete', peak };
   }
 
