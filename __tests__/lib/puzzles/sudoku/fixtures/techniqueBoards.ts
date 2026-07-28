@@ -1,5 +1,5 @@
-import type { DifficultyTier } from '../../../../lib/puzzles/difficulty/tiers';
-import type { SudokuTechnique } from '../../../../lib/puzzles/sudoku/techniqueIds';
+import type { DifficultyTier } from '../../../../../lib/puzzles/difficulty/tiers';
+import type { SudokuTechnique } from '../../../../../lib/puzzles/sudoku/techniqueIds';
 
 export type TechniqueBoardFixture = {
   id: string;
@@ -32,52 +32,43 @@ function makeEasyFullHouse(): number[][] {
   return g;
 }
 
-/**
- * Medium: classic locked-candidates / pairs style puzzle (32–35-ish givens).
- * Peak expected: pointing or naked_pair after SE-style rating.
- */
+/** Medium: generator seed 700022 — peak claiming (frozen). */
 const MEDIUM_GIVENS = [
-  [0, 0, 0, 0, 0, 0, 0, 1, 2],
-  [0, 0, 0, 0, 3, 5, 0, 0, 0],
-  [0, 0, 0, 6, 0, 0, 0, 7, 0],
-  [7, 0, 0, 0, 0, 0, 3, 0, 0],
-  [0, 0, 0, 4, 0, 0, 8, 0, 0],
-  [1, 0, 0, 0, 0, 0, 0, 0, 0],
-  [0, 0, 0, 1, 2, 0, 0, 0, 0],
-  [0, 8, 0, 0, 0, 0, 0, 4, 0],
-  [0, 5, 0, 0, 0, 0, 6, 0, 0],
+  [4, 0, 0, 0, 0, 3, 6, 0, 0],
+  [0, 2, 0, 0, 1, 0, 0, 0, 8],
+  [6, 9, 0, 0, 7, 0, 2, 0, 0],
+  [0, 6, 7, 0, 0, 2, 0, 1, 0],
+  [0, 0, 2, 1, 8, 0, 0, 0, 0],
+  [0, 0, 0, 0, 0, 0, 0, 0, 2],
+  [8, 0, 0, 7, 0, 0, 0, 2, 3],
+  [0, 3, 0, 0, 4, 0, 0, 0, 0],
+  [2, 0, 9, 0, 3, 6, 0, 4, 7],
 ];
 
-/**
- * Hard: X-Wing / fish band fixture (hand-frozen; peak x_wing or triple).
- * Source pattern: classic X-Wing demonstration layout on SOLUTION carve.
- */
+/** Hard: generator seed 700433 — peak x_wing (frozen). */
 const HARD_GIVENS = [
-  [1, 0, 0, 0, 0, 7, 0, 9, 0],
-  [0, 3, 0, 0, 2, 0, 0, 0, 8],
-  [0, 0, 9, 6, 0, 0, 5, 0, 0],
-  [0, 0, 5, 3, 0, 0, 9, 0, 0],
-  [0, 1, 0, 0, 8, 0, 0, 0, 2],
-  [6, 0, 0, 0, 0, 4, 0, 0, 0],
-  [3, 0, 0, 0, 0, 0, 0, 1, 0],
-  [0, 4, 0, 0, 0, 0, 0, 0, 7],
-  [0, 0, 7, 0, 0, 0, 3, 0, 0],
+  [6, 0, 0, 0, 1, 0, 4, 9, 0],
+  [4, 2, 0, 0, 0, 0, 0, 0, 3],
+  [0, 0, 9, 2, 0, 4, 5, 1, 0],
+  [9, 0, 6, 0, 2, 8, 0, 5, 0],
+  [0, 0, 7, 0, 0, 6, 0, 0, 0],
+  [0, 3, 8, 5, 0, 0, 0, 0, 6],
+  [0, 0, 0, 0, 3, 9, 7, 2, 0],
+  [0, 0, 0, 6, 0, 0, 0, 0, 0],
+  [8, 0, 0, 0, 0, 7, 0, 0, 0],
 ];
 
-/**
- * Expert stub — replaced/frozen in Task 2 once xy_wing / short_chain path is live.
- * Placeholder uses a sparse unique board; expectedPeak may be updated when rated.
- */
+/** Expert: generator seed 700012 — peak xy_wing (frozen). */
 const EXPERT_GIVENS = [
-  [0, 0, 0, 0, 0, 0, 0, 1, 2],
-  [0, 0, 0, 0, 3, 5, 0, 0, 0],
-  [0, 0, 0, 6, 0, 0, 0, 7, 0],
-  [7, 0, 0, 0, 0, 0, 3, 0, 0],
-  [0, 0, 0, 4, 0, 0, 8, 0, 0],
-  [1, 0, 0, 0, 0, 0, 0, 0, 3],
-  [0, 0, 0, 1, 2, 0, 0, 0, 0],
-  [0, 8, 0, 0, 0, 0, 0, 4, 0],
-  [0, 5, 0, 0, 0, 0, 6, 0, 0],
+  [0, 2, 0, 0, 0, 0, 0, 0, 5],
+  [0, 8, 0, 3, 1, 0, 0, 4, 2],
+  [0, 0, 0, 0, 7, 0, 0, 3, 0],
+  [0, 0, 0, 0, 0, 0, 0, 0, 8],
+  [8, 7, 0, 0, 0, 0, 5, 1, 4],
+  [0, 1, 4, 0, 0, 7, 0, 0, 9],
+  [7, 0, 0, 6, 0, 0, 9, 8, 3],
+  [4, 0, 2, 1, 8, 3, 0, 0, 0],
+  [0, 0, 0, 0, 0, 0, 0, 0, 1],
 ];
 
 export const EASY_FIXTURE: TechniqueBoardFixture = {
@@ -88,22 +79,21 @@ export const EASY_FIXTURE: TechniqueBoardFixture = {
 };
 
 export const MEDIUM_FIXTURE: TechniqueBoardFixture = {
-  id: 'medium-locked-or-pair',
+  id: 'medium-claiming-700022',
   givens: MEDIUM_GIVENS,
   expectedTier: 'medium',
-  expectedPeak: 'pointing',
+  expectedPeak: 'claiming',
 };
 
 export const HARD_FIXTURE: TechniqueBoardFixture = {
-  id: 'hard-fish-or-triple',
+  id: 'hard-x-wing-700433',
   givens: HARD_GIVENS,
   expectedTier: 'hard',
   expectedPeak: 'x_wing',
 };
 
-/** May be incomplete until Task 2 freezes an Expert peak board. */
 export const EXPERT_FIXTURE: TechniqueBoardFixture = {
-  id: 'expert-xy-or-chain-stub',
+  id: 'expert-xy-wing-700012',
   givens: EXPERT_GIVENS,
   expectedTier: 'expert',
   expectedPeak: 'xy_wing',
@@ -113,9 +103,7 @@ export const TIER_FIXTURES: TechniqueBoardFixture[] = [
   EASY_FIXTURE,
   MEDIUM_FIXTURE,
   HARD_FIXTURE,
-];
-
-export const ALL_FIXTURES: TechniqueBoardFixture[] = [
-  ...TIER_FIXTURES,
   EXPERT_FIXTURE,
 ];
+
+export const ALL_FIXTURES: TechniqueBoardFixture[] = [...TIER_FIXTURES];

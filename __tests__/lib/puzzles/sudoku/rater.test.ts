@@ -3,12 +3,23 @@ import {
   TECHNIQUE_ORDER,
   type SudokuTechnique,
 } from '../../../../lib/puzzles/sudoku/techniqueIds';
-import { initCandidates, initTechniqueBoard } from '../../../../lib/puzzles/sudoku/candidates';
-import { applyNextTechnique, isGridFull } from '../../../../lib/puzzles/sudoku/techniques';
-import { rateSudoku } from '../../../../lib/puzzles/sudoku/rater';
+import {
+  initCandidates,
+  initTechniqueBoard,
+} from '../../../../lib/puzzles/sudoku/candidates';
+import {
+  applyNextTechnique,
+  isGridFull,
+} from '../../../../lib/puzzles/sudoku/techniques';
+import {
+  EXPERT_CHAIN_MAX_NODES,
+  EXPERT_MAX_TECHNIQUE_STEPS,
+  rateSudoku,
+} from '../../../../lib/puzzles/sudoku/rater';
 import {
   ALL_FIXTURES,
   EASY_FIXTURE,
+  EXPERT_FIXTURE,
   HARD_FIXTURE,
   MEDIUM_FIXTURE,
   TIER_FIXTURES,
@@ -61,7 +72,7 @@ describe('candidates + singles path', () => {
   });
 });
 
-describe('rateSudoku fixtures (TDD)', () => {
+describe('rateSudoku fixtures', () => {
   it.each(TIER_FIXTURES)(
     '$id rates to expectedTier $expectedTier',
     (fixture) => {
@@ -74,9 +85,16 @@ describe('rateSudoku fixtures (TDD)', () => {
     },
   );
 
+  it('covers all four expected tiers', () => {
+    const tiers = new Set(ALL_FIXTURES.map((f) => f.expectedTier));
+    expect(tiers.has('easy')).toBe(true);
+    expect(tiers.has('medium')).toBe(true);
+    expect(tiers.has('hard')).toBe(true);
+    expect(tiers.has('expert')).toBe(true);
+  });
+
   it('Easy fixture is solved easy', () => {
-    const result = rateSudoku(EASY_FIXTURE.givens);
-    expect(result).toMatchObject({
+    expect(rateSudoku(EASY_FIXTURE.givens)).toMatchObject({
       status: 'solved',
       tier: 'easy',
     });
@@ -98,11 +116,45 @@ describe('rateSudoku fixtures (TDD)', () => {
     }
   });
 
-  it('covers easy/medium/hard expectedTier in fixture module', () => {
-    const tiers = new Set(TIER_FIXTURES.map((f) => f.expectedTier));
-    expect(tiers.has('easy')).toBe(true);
-    expect(tiers.has('medium')).toBe(true);
-    expect(tiers.has('hard')).toBe(true);
-    expect(ALL_FIXTURES.some((f) => f.expectedTier === 'expert')).toBe(true);
+  it('Expert fixture is solved expert', () => {
+    const result = rateSudoku(EXPERT_FIXTURE.givens);
+    expect(result.status).toBe('solved');
+    if (result.status === 'solved') {
+      expect(result.tier).toBe('expert');
+    }
+  });
+});
+
+describe('rateSudoku determinism + budgets', () => {
+  it('same givens → identical RateSudokuResult', () => {
+    const a = rateSudoku(HARD_FIXTURE.givens);
+    const b = rateSudoku(HARD_FIXTURE.givens);
+    expect(a).toEqual(b);
+  });
+
+  it('exports named Expert step/node caps', () => {
+    expect(EXPERT_MAX_TECHNIQUE_STEPS).toBe(500);
+    expect(EXPERT_CHAIN_MAX_NODES).toBe(2000);
+  });
+
+  it('rejects malformed grids as incomplete', () => {
+    expect(rateSudoku([[1]] as unknown as number[][])).toEqual({
+      status: 'incomplete',
+      peak: null,
+    });
+  });
+
+  it('does not import solve for placement (source contract)', () => {
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
+    const fs = require('fs') as typeof import('fs');
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
+    const path = require('path') as typeof import('path');
+    const src = fs.readFileSync(
+      path.join(__dirname, '../../../../lib/puzzles/sudoku/rater.ts'),
+      'utf8',
+    );
+    expect(src).not.toMatch(/from ['"]\.\/solver['"]/);
+    expect(src).not.toMatch(/[^a-zA-Z]solve\s*\(/);
+    expect(src).not.toMatch(/Date\.now/);
   });
 });
