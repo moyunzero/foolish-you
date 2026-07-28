@@ -94,4 +94,29 @@ describe('generateSudokuPuzzleForTier', () => {
       expect(rated.tier).toBe(result.ratedTier);
     }
   });
+
+  it('completes Expert target within budget without hang', () => {
+    // Fixed seed known to accept Expert (xy_wing) quickly under attempt caps (D-04 / SC-3).
+    const result = generateSudokuPuzzleForTier(800_001, 'expert');
+    expect(countSolutionsUpTo(result.puzzle.givens, 2)).toBe(1);
+    expect(tierIndex(result.ratedTier)).toBeLessThanOrEqual(tierIndex('expert'));
+    const rated = rateSudoku(result.puzzle.givens);
+    expect(rated.status).toBe('solved');
+    if (!result.softened) {
+      expect(result.ratedTier).toBe('expert');
+    }
+  });
+
+  it('sets softened=true and easier ratedTier when soft path taken', () => {
+    // Seed 1 + hard exhausts exact Hard accepts and softens toward easier (pitfall 5).
+    const result = generateSudokuPuzzleForTier(1, 'hard');
+    expect(result.softened).toBe(true);
+    expect(tierIndex(result.ratedTier)).toBeLessThan(tierIndex('hard'));
+    expect(countSolutionsUpTo(result.puzzle.givens, 2)).toBe(1);
+    const rated = rateSudoku(result.puzzle.givens);
+    expect(rated.status).toBe('solved');
+    if (rated.status === 'solved') {
+      expect(rated.tier).toBe(result.ratedTier);
+    }
+  });
 });
