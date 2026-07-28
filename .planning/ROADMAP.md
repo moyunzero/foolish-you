@@ -396,7 +396,11 @@ Plans:
   3. `npm run typecheck && npm test && npm run test:migration && npm run lint` 全绿
   4. 手测覆盖四题型各至少一天（含周一松 / 周日紧抽样）+ 进行中存档重开不丢盘
 
-**Plans:** TBD via `/gsd-plan-phase v2.4.2-03`
+**Plans:** 2 plans
+
+Plans:
+- [ ] v2.4.2-03-01-PLAN.md — Marketing `2.4.2` + What's New disclosure + NONO-01 exact wording
+- [ ] v2.4.2-03-02-PLAN.md — Maestro four-type smoke + hand QA + CI + VERIFICATION sign-off
 
 ---
 
@@ -502,7 +506,7 @@ Plans:
 | **v2.5-01 Composition** | 2/2 | Complete | 2026-07-22 |
 | **v2.4.2-01 Band Retune** | 2/2 | Complete | 2026-07-27 |
 | **v2.4.2-02 Nonogram Expand** | 2/2 | Complete | 2026-07-27 |
-| **v2.4.2-03 Ship 2.4.2** | 0/? | Pending | — |
+| **v2.4.2-03 Ship 2.4.2** | 0/2 | Pending | — |
 | **v2.5-02 Feel + Mechanics** | 0/? | **Paused** | — |
 | **v2.5-03 Signature (DIFF-03)** | 0/? | **Paused** (DIFF-01/02 → v2.4.2) | — |
 | 第五玩法（TYPE-01） | — | Deferred（需 ASC 证据） | — |
