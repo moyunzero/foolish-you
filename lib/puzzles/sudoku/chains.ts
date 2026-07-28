@@ -85,8 +85,10 @@ export function tryShortChain(board: TechniqueBoard): ChainStepResult {
       strongPairs.has(`${a}-${b}`);
 
     for (const start of cells) {
+      // Seed depth-0 as not a completed strong arrival so the first hop
+      // must be a strong link (classic strong–weak–strong… open X-chain).
       const queue: ChainNode[] = [
-        { cell: start, digit, strong: true, depth: 0 },
+        { cell: start, digit, strong: false, depth: 0 },
       ];
       const seen = new Set<string>([`${start}:0`]);
 
@@ -102,7 +104,7 @@ export function tryShortChain(board: TechniqueBoard): ChainStepResult {
           if (next === node.cell) continue;
           if (!sameUnit(node.cell, next)) continue;
 
-          // Alternate: after strong, take weak (any unit share); after weak, need strong
+          // Alternate: after weak (or seed), take strong; after strong, take weak
           const nextStrong = !node.strong;
           if (nextStrong && !isStrong(node.cell, next)) continue;
           // Weak link: share a unit and both have the candidate (already sameUnit)
@@ -112,10 +114,9 @@ export function tryShortChain(board: TechniqueBoard): ChainStepResult {
           seen.add(key);
 
           const depth = node.depth + 1;
-          // Productive: odd-length chain ending on strong → eliminate digit from
-          // cells that see both endpoints (simple X-chain nice loop / continuous)
+          // Productive only when both endpoints are strong arrivals:
+          // depth >= 2 and arrival is strong (start was linked out via strong first hop).
           if (depth >= 2 && nextStrong) {
-            // Continuous nice loop style: eliminate digit from cells seeing both ends
             let changed = false;
             for (let i = 0; i < 81; i += 1) {
               if (i === start || i === next) continue;
@@ -126,7 +127,6 @@ export function tryShortChain(board: TechniqueBoard): ChainStepResult {
                 changed = true;
               }
             }
-            // Also: if chain proves start false → place is not used; stick to eliminations
             if (changed) {
               return { applied: true, technique: 'short_chain' };
             }
@@ -143,7 +143,8 @@ export function tryShortChain(board: TechniqueBoard): ChainStepResult {
     }
   }
 
-  // XY-chain lite: bivalue cells with strong inference on digits
+  // XY-chain lite: intentionally non-productive until a documented AIC rule lands
+  // (IN-02 / discretion lock). Still walk under the shared node budget so caps apply.
   const bivalue: number[] = [];
   for (let i = 0; i < 81; i += 1) {
     if (board.digits[idxRow(i)][idxCol(i)] !== 0) continue;
@@ -179,25 +180,7 @@ export function tryShortChain(board: TechniqueBoard): ChainStepResult {
           if ((board.candidates[next] & digitBit(exitDigit)) === 0) continue;
           const depth = node.depth + 1;
           const path = [...node.path, next];
-          if (depth >= 2) {
-            const startOther =
-              startDigits[0] === entry ? startDigits[1]! : startDigits[0]!;
-            if (exitDigit === startOther || exitDigit === entry) {
-              const endDigit = startOther;
-              let changed = false;
-              for (let i = 0; i < 81; i += 1) {
-                if (i === start || i === next) continue;
-                if (board.digits[idxRow(i)][idxCol(i)] !== 0) continue;
-                if (!sameUnit(i, start) || !sameUnit(i, next)) continue;
-                if (eliminateCandidate(board, idxRow(i), idxCol(i), endDigit)) {
-                  changed = true;
-                }
-              }
-              if (changed) {
-                return { applied: true, technique: 'short_chain' };
-              }
-            }
-          }
+          // No eliminateCandidate / applied:true from XY-lite (discretion lock).
           queue.push({
             cell: next,
             entryDigit: exitDigit,
