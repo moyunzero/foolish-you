@@ -2,18 +2,18 @@
 gsd_state_version: 1.0
 milestone: v2.4.2
 milestone_name: Content Depth
-current_phase: 4.2
-status: in_progress
+current_phase: v2.4.2-03
+status: milestone_ship_ready
 stopped_at: Phase v2.4.2-03 ship complete — repo ready (VERIFICATION signed)
 last_updated: "2026-07-28T09:45:03.070Z"
 last_activity: 2026-07-28
-last_activity_desc: Executed v2.4.2-03-01 (marketing 2.4.2 + What's New + NONO-01 wording)
+last_activity_desc: Completed v2.4.2-03 Ship 2.4.2 — repo ready for EAS/ASC
 progress:
   total_phases: 19
-  completed_phases: 2
-  total_plans: 6
-  completed_plans: 9
-  percent: 11
+  completed_phases: 5
+  total_plans: 8
+  completed_plans: 11
+  percent: 26
 current_phase_name: ship-2-4-2
 ---
 
@@ -24,14 +24,14 @@ current_phase_name: ship-2-4-2
 See: .planning/PROJECT.md（v2.4.2 Content Depth · started 2026-07-26）
 
 **Core value:** 用户每天打开就能玩到唯一、确定的今日谜题，结束时获得情绪化反馈。  
-**Current focus:** Phase v2.4.2-03 — Ship 2.4.2
+**Current focus:** v2.4.2 milestone — **repo ready** for marketing `2.4.2` (EAS/ASC human next)
 
 ## Current Position
 
-Phase: v2.4.2-03 Ship 2.4.2（发版签核）
+Phase: v2.4.2-03 Ship 2.4.2（发版签核） — **Complete**
 Plan: 02 / 02
-Status: Plan 01 complete — ready for plan 02 (Maestro + hand QA + CI + VERIFICATION)
-Last activity: 2026-07-28 — Executed v2.4.2-03-01 (marketing 2.4.2 + What's New + NONO-01 wording)
+Status: VERIFICATION signed · Maestro M1–M4 green · marketing `2.4.2` · What's New drift disclosure
+Last activity: 2026-07-28 — Ship phase closed under auto-complete; post-phase = EAS production + ASC Submit
 
 ## Accumulated Context
 
