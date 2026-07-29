@@ -15,6 +15,7 @@ import {
   loadMasteryState,
   saveMasteryState,
 } from '../../../lib/storage/masteryStorage';
+import { appendPlayedHash } from '../../../lib/storage/playedHashStorage';
 
 /** Fixed dateKey — freeze assertion must not depend on wall clock. */
 const DATE_KEY = '2026-07-15';
@@ -46,6 +47,19 @@ describe('freezeMastery (MAST-04)', () => {
     expect(mutated.lastOutcome).toBe('abandoned');
     expect(mutated.lastPracticedAtMs).not.toBeNull();
     expect(mutated.stabilityDays).not.toBe(defaultGameTypeMastery().stabilityDays);
+
+    const rehydrated = await hydrateDailyGame({ today: DATE_KEY });
+    expect(rehydrated.dateKey).toBe(DATE_KEY);
+    expect(rehydrated.puzzleHash).toBe(hashH);
+  });
+
+  it('keeps puzzleHash after appendPlayedHash of unrelated hash + same-day rehydrate', async () => {
+    const created = await hydrateDailyGame({ today: DATE_KEY });
+    const hashH = created.puzzleHash;
+    const { gameType } = created;
+    expect(hashH.length).toBeGreaterThan(0);
+
+    expect(await appendPlayedHash(gameType, 'fake-other-hash')).toBe(true);
 
     const rehydrated = await hydrateDailyGame({ today: DATE_KEY });
     expect(rehydrated.dateKey).toBe(DATE_KEY);
