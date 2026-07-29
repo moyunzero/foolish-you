@@ -1,7 +1,7 @@
 import { STORAGE_VERSION } from '../../constants/config';
-import { selectDailyGame } from '../puzzles/dailySelector';
 import { createEmptyGrid as createEmptyBinaryGrid } from '../puzzles/binary/grid';
 import { createEmptyGrid as createEmptyNonogramGrid } from '../puzzles/nonogram/grid';
+import { selectDailyGameSafe } from '../puzzles/dailySelectorSafe';
 import { createEmptyPlayState as createEmptySlitherlinkPlayState } from '../puzzles/slitherlink/edges';
 import { createEmptyGrid as createEmptySudokuGrid } from '../puzzles/sudoku/grid';
 import type { DailySnapshot, GameType } from '../puzzles/types';
@@ -29,15 +29,17 @@ function emptyPlayStateForGameType(gameType: GameType) {
 
 /**
  * Disaster-repair reconstruction: seed + gameType + DEFAULT mastery / empty avoid.
- * Does NOT replay adaptive create (mastery / avoid attempt). Callers that regenerate
- * MUST clear playState — fills must not sit on a different board (CR-01).
+ * Uses Safe so forTier avoid exhaustion cannot throw into hydrate (create path
+ * already uses Safe). Does NOT replay adaptive create (mastery / avoid attempt).
+ * Callers that regenerate MUST clear playState — fills must not sit on a
+ * different board (CR-01). Fallback puzzles are not dateKey-deterministic.
  */
 function canonicalDailyPuzzle(
   dateKey: string,
   seed: number,
   gameType: GameType,
 ): Pick<DailySnapshot, 'puzzle' | 'puzzleHash'> {
-  const selected = selectDailyGame({
+  const selected = selectDailyGameSafe({
     dateKey,
     seed,
     forceGameType: gameType,
