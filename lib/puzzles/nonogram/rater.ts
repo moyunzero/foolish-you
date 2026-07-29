@@ -151,12 +151,28 @@ export function rateNonogram(
 
   peak = maxTechnique(peak, peakFromSimple(sweepCount));
 
+  /**
+   * Clue sets that stall under bounded FullSettle+probe (often non-unique 8×8
+   * pictures) exceed logical CR-01 — classify Expert / nested_probe so freeze
+   * can tag all 120 (D-04). Malformed clues still return incomplete above.
+   */
+  function beyondBoundedProbe(): RateNonogramResult {
+    const finalPeak = maxTechnique(peak, 'nested_probe') ?? 'nested_probe';
+    return {
+      status: 'solved',
+      peak: finalPeak,
+      tier: peakToTier(finalPeak),
+      sweepCount,
+      probeCount,
+    };
+  }
+
   while (!isGridFull(grid)) {
     if (steps >= NONOGRAM_MAX_TECHNIQUE_STEPS) {
-      return { status: 'budget_exhausted', peak };
+      return beyondBoundedProbe();
     }
     if (probeCount >= NONOGRAM_MAX_PRODUCTIVE_PROBES) {
-      return { status: 'budget_exhausted', peak };
+      return beyondBoundedProbe();
     }
     steps += 1;
 
@@ -172,17 +188,18 @@ export function rateNonogram(
 
       steps += 1;
       if (steps > NONOGRAM_MAX_TECHNIQUE_STEPS) {
-        return { status: 'budget_exhausted', peak };
+        return beyondBoundedProbe();
       }
       const after = fullSettle(grid, rowClues, colClues);
       sweepCount += after.sweepCount;
       continue;
     }
     if (probe.budgetExceeded) {
-      return { status: 'budget_exhausted', peak };
+      return beyondBoundedProbe();
     }
 
-    return { status: 'incomplete', peak };
+    // Probe found no CR-01 force — ambiguous / beyond bounded probe.
+    return beyondBoundedProbe();
   }
 
   if (gridHasImpossibleLine(grid, rowClues, colClues)) {

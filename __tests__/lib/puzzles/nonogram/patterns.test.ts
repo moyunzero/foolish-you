@@ -1,8 +1,11 @@
+import { DIFFICULTY_TIERS } from '../../../../lib/puzzles/difficulty/tiers';
 import { computeClues } from '../../../../lib/puzzles/nonogram/clues';
 import {
   NONOGRAM_PATTERNS,
   patternSolution,
+  patternsForDifficultyTier,
 } from '../../../../lib/puzzles/nonogram/patterns';
+import { rateNonogram } from '../../../../lib/puzzles/nonogram/rater';
 import { NONOGRAM_COLS, NONOGRAM_FILL, NONOGRAM_ROWS } from '../../../../lib/puzzles/nonogram/spec';
 import { applyTransform } from '../../../../lib/puzzles/nonogram/transform';
 import { isCompleteAndValid } from '../../../../lib/puzzles/nonogram/validate';
@@ -126,10 +129,48 @@ describe('NONOGRAM_PATTERNS', () => {
     expect(NONOGRAM_PATTERNS.slice(0, 90).map((p) => p.id)).toEqual([...PREFIX_IDS]);
   });
 
-  it('balances tiers 0–6 to exact hist [17,17,17,17,17,17,18] (D-02/D-03)', () => {
+  it('balances weekday tiers 0–6 to exact hist [17,17,17,17,17,17,18] (D-02/D-03/D-10)', () => {
     const expected = [17, 17, 17, 17, 17, 17, 18];
     for (let tier = 0; tier <= 6; tier += 1) {
       expect(NONOGRAM_PATTERNS.filter((p) => p.tier === tier)).toHaveLength(expected[tier]!);
+    }
+  });
+
+  it('first pattern id remains silly-face (append-only order)', () => {
+    expect(NONOGRAM_PATTERNS[0]!.id).toBe('silly-face');
+  });
+
+  it.each(NONOGRAM_PATTERNS.map((p) => [p.id, p] as const))(
+    'D-04: %s frozen difficultyTier matches rateNonogram(canonical)',
+    (_id, pattern) => {
+      expect(DIFFICULTY_TIERS).toContain(pattern.difficultyTier);
+      const { rowClues, colClues } = computeClues(patternSolution(pattern));
+      const rated = rateNonogram(rowClues, colClues);
+      expect(rated.status).toBe('solved');
+      if (rated.status === 'solved') {
+        expect(pattern.difficultyTier).toBe(rated.tier);
+      }
+    },
+  );
+
+  it('SC-1: difficultyTier audit hist sums to 120 with easy > 0', () => {
+    const hist = { easy: 0, medium: 0, hard: 0, expert: 0 };
+    for (const pattern of NONOGRAM_PATTERNS) {
+      hist[pattern.difficultyTier] += 1;
+    }
+    const sum = hist.easy + hist.medium + hist.hard + hist.expert;
+    expect(sum).toBe(120);
+    expect(hist.easy).toBeGreaterThan(0);
+    // Uneven OK — do not assert equal counts (D-03).
+  });
+
+  it('patternsForDifficultyTier filters by difficultyTier only', () => {
+    for (const tier of DIFFICULTY_TIERS) {
+      const pool = patternsForDifficultyTier(tier);
+      expect(pool.every((p) => p.difficultyTier === tier)).toBe(true);
+      expect(pool).toHaveLength(
+        NONOGRAM_PATTERNS.filter((p) => p.difficultyTier === tier).length,
+      );
     }
   });
 
