@@ -9,7 +9,7 @@ import {
 import { edgesAtPoint, pointDegree } from './edges';
 
 type TechniqueResult =
-  | { applied: true; technique: 'vertex_degree' | 'local_loop' }
+  | { applied: true; technique: 'vertex_degree' | 'local_loop' | 'zero_elim' }
   | { applied: false };
 
 const MISS: TechniqueResult = { applied: false };
@@ -30,7 +30,33 @@ function edgeState(play: SlitherlinkPlayState, edge: EdgeCoord): number {
 }
 
 /**
- * Hard: vertex degree 0/2 forcing — one edge per hit (D-24).
+ * Easy-band helper: degree 0 with one unknown left → blank.
+ * Reported as zero_elim (impossible-edge elim) — not Medium edge_count.
+ */
+export function tryDegreeZeroBlank(play: SlitherlinkPlayState): TechniqueResult {
+  for (let pr = 0; pr <= SLITHERLINK_SIZE; pr += 1) {
+    for (let pc = 0; pc <= SLITHERLINK_SIZE; pc += 1) {
+      const incident = edgesAtPoint(play, pr, pc);
+      let lineCount = 0;
+      const unknownEdges: EdgeCoord[] = [];
+
+      for (const edge of incident) {
+        const state = edgeState(play, edge);
+        if (state === EDGE_LINE) lineCount += 1;
+        else if (state === EDGE_UNKNOWN) unknownEdges.push(edge);
+      }
+
+      if (lineCount === 0 && unknownEdges.length === 1) {
+        setEdge(play, unknownEdges[0]!, EDGE_BLANK);
+        return { applied: true, technique: 'zero_elim' };
+      }
+    }
+  }
+  return MISS;
+}
+
+/**
+ * Hard: vertex degree 1/2 forcing — one edge per hit (D-24).
  * degree 2 LINE → remaining UNKNOWN become BLANK;
  * degree 1 LINE + exactly 1 UNKNOWN → that UNKNOWN becomes LINE.
  */
@@ -55,12 +81,6 @@ export function tryVertexDegree(play: SlitherlinkPlayState): TechniqueResult {
       if (lineCount === 1 && unknownEdges.length === 1) {
         setEdge(play, unknownEdges[0]!, EDGE_LINE);
         return { applied: true, technique: 'vertex_degree' };
-      }
-
-      // Isolated vertex: all remaining edges blank when no lines can leave.
-      if (lineCount === 0 && unknownEdges.length === 0) continue;
-      if (lineCount === 0 && incident.length === unknownEdges.length) {
-        // No force yet — need more structure.
       }
     }
   }

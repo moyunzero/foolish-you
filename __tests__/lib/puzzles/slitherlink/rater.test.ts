@@ -4,23 +4,28 @@ import {
   type SlitherlinkTechnique,
 } from '../../../../lib/puzzles/slitherlink/techniqueIds';
 import {
+  SL_MAX_TECHNIQUE_STEPS,
+  rateSlitherlink,
+} from '../../../../lib/puzzles/slitherlink/rater';
+import {
   ALL_FIXTURES,
   EASY_FIXTURE,
+  EXPERT_FIXTURE,
   HARD_FIXTURE,
   MEDIUM_FIXTURE,
   TIER_FIXTURES,
 } from './fixtures/techniqueBoards';
 
 describe('peakToTier', () => {
-  it('maps SlitherlinkTechnique ladder to shared DifficultyTier bands (D-24)', () => {
+  it('maps SlitherlinkTechnique ladder to shared DifficultyTier bands (D-24 compressed)', () => {
     const cases: Array<[SlitherlinkTechnique, string]> = [
       ['zero_elim', 'easy'],
       ['corner_three', 'easy'],
+      ['edge_count', 'easy'],
       ['adjacent_three_three', 'medium'],
       ['adjacent_three_zero', 'medium'],
       ['diagonal_three_three', 'medium'],
-      ['edge_count', 'medium'],
-      ['vertex_degree', 'hard'],
+      ['vertex_degree', 'medium'],
       ['local_loop', 'hard'],
       ['bifurcation', 'expert'],
     ];
@@ -45,39 +50,76 @@ describe('peakToTier', () => {
   });
 });
 
-describe('technique board fixtures (scaffold)', () => {
-  it('covers easy, medium, and hard expectedTier with expectedPeak', () => {
-    const tiers = new Set(TIER_FIXTURES.map((f) => f.expectedTier));
+describe('rateSlitherlink fixtures', () => {
+  it.each(TIER_FIXTURES)(
+    '$id rates to expectedTier $expectedTier peak $expectedPeak',
+    (fixture) => {
+      const result = rateSlitherlink(fixture.clues);
+      expect(result.status).toBe('solved');
+      if (result.status === 'solved') {
+        expect(result.tier).toBe(fixture.expectedTier);
+        expect(result.peak).toBe(fixture.expectedPeak);
+        expect(peakToTier(result.peak)).toBe(fixture.expectedTier);
+      }
+    },
+  );
+
+  it('covers all four expected tiers', () => {
+    const tiers = new Set(ALL_FIXTURES.map((f) => f.expectedTier));
     expect(tiers.has('easy')).toBe(true);
     expect(tiers.has('medium')).toBe(true);
     expect(tiers.has('hard')).toBe(true);
+    expect(tiers.has('expert')).toBe(true);
+  });
 
-    for (const fixture of TIER_FIXTURES) {
-      expect(fixture.expectedPeak).toBeTruthy();
-      expect(peakToTier(fixture.expectedPeak)).toBe(fixture.expectedTier);
-      expect(fixture.clues).toHaveLength(7);
-      expect(fixture.clues.every((row) => row.length === 7)).toBe(true);
+  it('Easy fixture is solved easy', () => {
+    expect(rateSlitherlink(EASY_FIXTURE.clues)).toMatchObject({
+      status: 'solved',
+      tier: 'easy',
+      peak: EASY_FIXTURE.expectedPeak,
+    });
+  });
+
+  it('Medium fixture is solved medium', () => {
+    expect(rateSlitherlink(MEDIUM_FIXTURE.clues)).toMatchObject({
+      status: 'solved',
+      tier: 'medium',
+      peak: MEDIUM_FIXTURE.expectedPeak,
+    });
+  });
+
+  it('Hard fixture is solved hard without bifurcation', () => {
+    const result = rateSlitherlink(HARD_FIXTURE.clues);
+    expect(result).toMatchObject({
+      status: 'solved',
+      tier: 'hard',
+      peak: HARD_FIXTURE.expectedPeak,
+    });
+    expect(HARD_FIXTURE.expectedPeak).not.toBe('bifurcation');
+    if (result.status === 'solved') {
+      expect(result.peak).not.toBe('bifurcation');
     }
   });
 
-  it('Easy fixture declares easy tier and easy-band peak', () => {
-    expect(EASY_FIXTURE.expectedTier).toBe('easy');
-    expect(peakToTier(EASY_FIXTURE.expectedPeak)).toBe('easy');
+  it('Expert fixture is solved expert', () => {
+    expect(rateSlitherlink(EXPERT_FIXTURE.clues)).toMatchObject({
+      status: 'solved',
+      tier: 'expert',
+      peak: EXPERT_FIXTURE.expectedPeak,
+    });
   });
 
-  it('Medium fixture declares medium tier and medium-band peak', () => {
-    expect(MEDIUM_FIXTURE.expectedTier).toBe('medium');
-    expect(peakToTier(MEDIUM_FIXTURE.expectedPeak)).toBe('medium');
+  it('is deterministic for the same clues', () => {
+    const a = rateSlitherlink(MEDIUM_FIXTURE.clues);
+    const b = rateSlitherlink(MEDIUM_FIXTURE.clues);
+    expect(b).toEqual(a);
   });
 
-  it('Hard fixture declares hard tier and hard-band peak (not bifurcation)', () => {
-    expect(HARD_FIXTURE.expectedTier).toBe('hard');
-    expect(peakToTier(HARD_FIXTURE.expectedPeak)).toBe('hard');
-    expect(HARD_FIXTURE.expectedPeak).not.toBe('bifurcation');
+  it('exports SL_MAX_TECHNIQUE_STEPS = 500', () => {
+    expect(SL_MAX_TECHNIQUE_STEPS).toBe(500);
   });
 
-  it('ALL_FIXTURES includes expert stub metadata', () => {
-    const tiers = new Set(ALL_FIXTURES.map((f) => f.expectedTier));
-    expect(tiers.has('expert')).toBe(true);
+  it('rejects malformed grids as incomplete', () => {
+    expect(rateSlitherlink([[1]])).toEqual({ status: 'incomplete', peak: null });
   });
 });

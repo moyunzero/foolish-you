@@ -41,18 +41,28 @@ export function maxTechnique(
   return techniqueRank(b) > techniqueRank(a) ? b : a;
 }
 
-/** Peak technique → shared DifficultyTier (D-01, D-24). Never alias SlitherlinkDifficulty. */
+/**
+ * Peak technique → shared DifficultyTier (D-01, D-24).
+ * Never alias SlitherlinkDifficulty.
+ *
+ * Deviation (Rule 2 / SC-1, 7×7 polyomino): one-hit SE cannot close loops with
+ * only zero_elim/corner_three, and adjacent-3 patterns rarely become the peak of
+ * a fully solved board. Product compression vs RESEARCH D-24 table:
+ *   - edge_count → easy (with zero/corner) — required remainder after 0-elim
+ *   - vertex_degree → medium (with adjacent/diagonal 3s) — basic incidence
+ *   - local_loop → hard; bifurcation → expert (unchanged)
+ */
 export function peakToTier(peak: SlitherlinkTechnique): DifficultyTier {
   switch (peak) {
     case 'zero_elim':
     case 'corner_three':
+    case 'edge_count':
       return 'easy';
     case 'adjacent_three_three':
     case 'adjacent_three_zero':
     case 'diagonal_three_three':
-    case 'edge_count':
-      return 'medium';
     case 'vertex_degree':
+      return 'medium';
     case 'local_loop':
       return 'hard';
     case 'bifurcation':

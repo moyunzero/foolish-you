@@ -12,7 +12,7 @@ import {
   setEdgeAt,
   unknownCountAroundCell,
 } from './edges';
-import { tryLocalLoop, tryVertexDegree } from './loops';
+import { tryDegreeZeroBlank, tryLocalLoop, tryVertexDegree } from './loops';
 import type { SlitherlinkTechnique } from './techniqueIds';
 
 export type TechniqueHit = {
@@ -65,7 +65,7 @@ function tryZeroElim(
   return MISS;
 }
 
-/** Easy: corner 3 forces the two border edges to LINE. */
+/** Easy: corner 3 forces the two border edges to LINE (+ cell remainder). */
 function tryCornerThree(
   play: SlitherlinkPlayState,
   clues: (number | null)[][],
@@ -112,12 +112,35 @@ function tryCornerThree(
 
   for (const corner of corners) {
     if (clues[corner.row]![corner.col] !== 3) continue;
+    // Outer border edges first.
     for (const edge of corner.edges) {
       if (edgeAt(play, edge.orientation, edge.row, edge.col) !== EDGE_UNKNOWN) {
         continue;
       }
       setOne(play, edge, EDGE_LINE);
       return { applied: true, technique: 'corner_three' };
+    }
+    // Remainder on the corner cell (still corner_three — Easy band).
+    const lines = lineCountAroundCell(play, corner.row, corner.col);
+    const unknowns = unknownCountAroundCell(play, corner.row, corner.col);
+    if (unknowns === 0) continue;
+    if (lines + unknowns === 3) {
+      for (const edge of cellEdges(corner.row, corner.col)) {
+        if (edgeAt(play, edge.orientation, edge.row, edge.col) !== EDGE_UNKNOWN) {
+          continue;
+        }
+        setOne(play, edge, EDGE_LINE);
+        return { applied: true, technique: 'corner_three' };
+      }
+    }
+    if (lines === 3) {
+      for (const edge of cellEdges(corner.row, corner.col)) {
+        if (edgeAt(play, edge.orientation, edge.row, edge.col) !== EDGE_UNKNOWN) {
+          continue;
+        }
+        setOne(play, edge, EDGE_BLANK);
+        return { applied: true, technique: 'corner_three' };
+      }
     }
   }
   return MISS;
@@ -359,6 +382,7 @@ type Detector = (
 /** Easy–Hard detectors in TECHNIQUE_ORDER excluding bifurcation. */
 const DETECTORS: Detector[] = [
   tryZeroElim,
+  (play) => tryDegreeZeroBlank(play),
   tryCornerThree,
   tryAdjacentThreeThree,
   tryAdjacentThreeZero,
