@@ -29,7 +29,7 @@
 - [x] **Phase v2.4.2-03: Ship 2.4.2（发版签核）** — 营销版本 bump + 变盘披露文案 + QA (completed 2026-07-28)
 - [x] **Phase v2.5-01: Mastery Foundation** — FSRS-lite 存储 + 日历轻调 + 当日冻结 (completed 2026-07-28)
 - [x] **Phase v2.5-02: Sudoku Technique Rater** — 四档技巧门控 + 生成接受环 (completed 2026-07-28)
-- [ ] **Phase v2.5-03: Binary + Slitherlink Raters** — 技巧梯映射四档
+- [x] **Phase v2.5-03: Binary + Slitherlink Raters** — 技巧梯映射四档 (completed 2026-07-29; GAP-D24 closed via D-24 7×7 re-lock)
 - [ ] **Phase v2.5-04: Nonogram Tiering** — 库内分档 + 按档选取
 - [ ] **Phase v2.5-05: Dedupe + Diversity + Wire** — hash 环 + 选题接入 mastery
 - [ ] **Phase v2.5-06: Ship 2.5.0** — 披露 + 测试 + VERIFICATION
@@ -381,12 +381,12 @@ Plans:
   1. 各档至少一组 fixture 分类正确
   2. 生成/参数路径能稳定命中目标档（含 fallback）
 
-**Plans:** 2 plans
+**Plans:** 2/2 plans complete — VERIFICATION **passed** (GAP-D24 closed)
 
 Plans:
 
-- [ ] v2.5-03-01-PLAN.md — Binary full depth: technique ladder + rateBinary + generateBinaryPuzzleForTier (TIER-03)
-- [ ] v2.5-03-02-PLAN.md — Slitherlink full depth: technique ladder + rateSlitherlink + generateForTier no-builtin + demote 3-way guides (TIER-05)
+- [x] v2.5-03-01-PLAN.md — Binary full depth: technique ladder + rateBinary + generateBinaryPuzzleForTier (TIER-03)
+- [x] v2.5-03-02-PLAN.md — Slitherlink full depth: technique ladder + rateSlitherlink + generateForTier no-builtin + demote 3-way guides (TIER-05)
 
 ---
 
@@ -400,7 +400,12 @@ Plans:
   1. 每档可用图案数量可审计（避免空档）
   2. 目标档选取失败时有相邻档 fallback 且可测
 
-Plans: TBD via `/gsd-plan-phase v2.5-04`
+**Plans:** 2 plans
+
+Plans:
+
+- [ ] v2.5-04-01-PLAN.md — Nonogram rater: FullSettle + bounded probe + four peak fixtures (TIER-04)
+- [ ] v2.5-04-02-PLAN.md — Freeze difficultyTier on 120 + generateNonogramPuzzleForTier soften (TIER-04)
 
 ---
 
@@ -616,8 +621,8 @@ Plans:
 | **v2.4.2-03 Ship 2.4.2** | 2/2 | Complete | 2026-07-28 |
 | **v2.5-01 Mastery Foundation** | 2/2 | Complete | 2026-07-28 |
 | **v2.5-02 Sudoku Rater** | 3/3 | Complete | 2026-07-28 |
-| **v2.5-03 Binary + SL Raters** | 0/2 | Planned | — |
-| **v2.5-04 Nonogram Tiering** | 0/? | Pending | — |
+| **v2.5-03 Binary + SL Raters** | 2/2 | Complete | 2026-07-29 |
+| **v2.5-04 Nonogram Tiering** | 0/2 | Planned | — |
 | **v2.5-05 Dedupe + Wire** | 0/? | Pending | — |
 | **v2.5-06 Ship 2.5.0** | 0/? | Pending | — |
 | **v2.6-02 Feel + Mechanics** | 0/? | **Paused** | — |

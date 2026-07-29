@@ -2,19 +2,20 @@
 gsd_state_version: 1.0
 milestone: v2.5
 milestone_name: Adaptive Mastery
-current_phase: v2.5-03
-status: ready_to_execute
-stopped_at: Planned v2.5-03 (2 plans)
-last_updated: "2026-07-29T04:40:00.000Z"
+current_phase: v2.5-04
+current_phase_name: nonogram-tiering
+current_plan: v2.5-04-01
+status: planning_complete
+stopped_at: Planned v2.5-04 — 2 PLAN.md written
+last_updated: "2026-07-29T07:15:00.000Z"
 last_activity: 2026-07-29
-last_activity_desc: Created v2.5-03-01/02 PLAN.md (Binary then Slitherlink full depth)
+last_activity_desc: Planned v2.5-04 Nonogram Tiering — 2 plans ready
 progress:
   total_phases: 25
-  completed_phases: 3
+  completed_phases: 4
   total_plans: 8
-  completed_plans: 9
-  percent: 8
-current_phase_name: binary-slitherlink-raters
+  completed_plans: 11
+  percent: 12
 ---
 
 # Project State
@@ -24,16 +25,35 @@ current_phase_name: binary-slitherlink-raters
 See: .planning/PROJECT.md（**v2.5 Adaptive Mastery** · started 2026-07-28）
 
 **Core value:** 用户每天打开就能玩到唯一、确定的今日谜题，结束时获得情绪化反馈。  
-**Current focus:** Phase v2.5-03 — Binary + Slitherlink Raters
+**Current focus:** Phase v2.5-04 — Nonogram Tiering (plans ready)
 
 ## Current Position
 
-Phase: v2.5-03 (Binary + Slitherlink Raters)
-Plan: v2.5-03-01 (next)
-Status: Plans ready — execute next
-Last activity: 2026-07-29 — Planned v2.5-03 (Binary Wave 1 → Slitherlink Wave 2)
+Phase: v2.5-04 (Nonogram Tiering)
+Plan: v2.5-04-01
+Status: Planning complete — execute next
+Last activity: 2026-07-29 — Planned v2.5-04 (rater Wave 1 + freeze/forTier Wave 2)
 
 ## Accumulated Context
+
+### Decisions（v2.5-04 Nonogram Tiering — planned）
+
+- Peak IDs: `simple_few` | `simple_many` | `probe` | `nested_probe` → Easy/Med/Hard/Expert
+- Constants locked: EASY_MAX_SWEEPS=3; probe depth 2 / nodes 800 / steps 500 / max productive probes 8; softens 3
+- Dual-track: retain weekday `tier` 0..6; freeze separate `difficultyTier`
+- forTier = library filter + soften (not carve); no hydrate/selector wire this phase
+
+### Decisions（v2.5-03-02 Slitherlink rater）
+
+- SL 7×7 peakToTier compression: edge_count→easy, vertex_degree→medium, local_loop→hard (SC-1)
+- **GAP-D24 closed:** CONTEXT D-24 re-locked to that compression (user option A, 2026-07-29)
+- SL forTier Easy–Hard empirical insides; Expert keeps RESEARCH 10/8–18; never builtin
+
+### Decisions（v2.5-03-01 Binary rater）
+
+- Binary Easy carve guide **56** (RESEARCH 30 unreachable for peak Easy)
+- Binary uniqueness requires completed-line duplicate filter (not bare line_mask)
+- Binary full-board null peak → `adjacent_pair` / easy
 
 ### Decisions（v2.5 Adaptive locked, 2026-07-28）
 
@@ -92,12 +112,14 @@ Last activity: 2026-07-29 — Planned v2.5-03 (Binary Wave 1 → Slitherlink Wav
 | v2.5-02-01 | 1 | **done** | Candidates + technique ladder + rateSudoku fixtures |
 | v2.5-02-02 | 2 | **done** | generateSudokuPuzzleForTier accept/soften loop |
 | v2.5-02-03 | 3 | **done** | Gap closure: sound short_chain + conflict-checked solved |
-| v2.5-03-01 | 1 | pending | Binary full depth rater + generateForTier (TIER-03) |
-| v2.5-03-02 | 2 | pending | Slitherlink full depth rater + generateForTier no-builtin (TIER-05) |
+| v2.5-03-01 | 1 | **done** | Binary full depth rater + generateForTier (TIER-03) |
+| v2.5-03-02 | 2 | **done** | Slitherlink full depth rater + generateForTier no-builtin (TIER-05) |
+| v2.5-04-01 | 1 | pending | Nonogram FullSettle+probe rater + fixtures (TIER-04) |
+| v2.5-04-02 | 2 | pending | Freeze difficultyTier on 120 + generateForTier soften (TIER-04) |
 
 ### Pending Todos
 
-- `/gsd-verify-work` — Phase v2.5-02 Sudoku Technique Rater
+- `/gsd-execute-phase v2.5-04` — Nonogram Tiering (2 plans ready)
 - EAS production + ASC Submit for marketing `2.4.2`（可与 Adaptive 并行）
 - App Store ASO / ASC 留存观察（并行）
 - Google Play（可选）
@@ -109,11 +131,11 @@ Last activity: 2026-07-29 — Planned v2.5-03 (Binary Wave 1 → Slitherlink Wav
 
 **Resume file:** None
 
-**Stopped at:** Planned v2.5-03 (v2.5-03-01-PLAN.md + v2.5-03-02-PLAN.md)
+**Stopped at:** Planned v2.5-04 — 2 PLAN.md written
 
-**Resume:** `/gsd-execute-phase v2.5-03` or `/gsd-progress`
+**Resume:** `/gsd-execute-phase v2.5-04`
 
-Last session: 2026-07-28T12:03:18.475Z
+Last session: 2026-07-29T07:15:00.000Z
 
 ## Performance Metrics
 
@@ -127,9 +149,11 @@ Last session: 2026-07-28T12:03:18.475Z
 | Phase v2.5-02 P01 | 8min | 2 tasks | 7 files |
 | Phase v2.5-02 P02 | 3min | 2 tasks | 3 files |
 | Phase v2.5-02 P03 | 3min | 3 tasks | 4 files |
+| Phase v2.5-03 P02 | 37min | 3 tasks | 11 files |
 
 ## Decisions
 
+- [Phase v2.5-04 plan]: Peak IDs simple_few|simple_many|probe|nested_probe; EASY_MAX_SWEEPS=3; probe depth 2 / nodes 800 / steps 500 / max probes 8; softens 3; dual-track weekday tier + difficultyTier; forTier=filter not carve
 - [Phase v2.5-01 P02]: Mastery load-on-demand inside persistStatus only — no Context mastery field
 - [Phase v2.5-01 P02]: Mastery save failures warn-only; never roll back daily snapshot
 - [Phase v2.4.2-03 P01]: Marketing 2.4.2 only; buildNumber 30 / versionCode 3 unchanged (D-01/D-02); Live 2.4.1 · shipping 2.4.2 (D-03); What's New 3 features then D-05 drift; NONO-01 exact 120 + hist 17×6+18 (D-16)
@@ -152,3 +176,5 @@ Last session: 2026-07-28T12:03:18.475Z
 - [Phase v2.5-02-03]: CR-01: sound open X-chain fix (not disable short_chain entirely)
 - [Phase v2.5-02-03]: IN-02: XY-chain lite non-productive until documented AIC
 - [Phase v2.5-02-03]: WR-01: private hasHouseConflicts in rater.ts (no solver placement)
+- [Phase v2.5-03-02]: SL 7×7 peakToTier compression: edge_count→easy, vertex_degree→medium, local_loop→hard
+- [Phase v2.5-03-02]: SL forTier Easy–Hard empirical insides; Expert keeps RESEARCH 10/8–18; never builtin
