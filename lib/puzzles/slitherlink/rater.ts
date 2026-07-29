@@ -47,7 +47,7 @@ function isValidClues(clues: (number | null)[][]): boolean {
     for (let c = 0; c < SLITHERLINK_SIZE; c += 1) {
       const v = row[c];
       if (v == null) continue;
-      if (typeof v !== 'number' || !Number.isInteger(v) || v < 0 || v > 4) {
+      if (typeof v !== 'number' || !Number.isInteger(v) || v < 0 || v > 3) {
         return false;
       }
     }

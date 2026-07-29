@@ -1,7 +1,5 @@
 import {
-  countBits,
   digitBit,
-  digitsFromMask,
   eliminateCandidate,
   type TechniqueBoard,
 } from './candidates';
@@ -143,54 +141,7 @@ export function tryShortChain(board: TechniqueBoard): ChainStepResult {
     }
   }
 
-  // XY-chain lite: intentionally non-productive until a documented AIC rule lands
-  // (IN-02 / discretion lock). Still walk under the shared node budget so caps apply.
-  const bivalue: number[] = [];
-  for (let i = 0; i < 81; i += 1) {
-    if (board.digits[idxRow(i)][idxCol(i)] !== 0) continue;
-    if (countBits(board.candidates[i]) === 2) bivalue.push(i);
-  }
-
-  for (const start of bivalue) {
-    const startDigits = digitsFromMask(board.candidates[start]);
-    type XYNode = {
-      cell: number;
-      entryDigit: number;
-      depth: number;
-      path: number[];
-    };
-    for (const entry of startDigits) {
-      const queue: XYNode[] = [
-        { cell: start, entryDigit: entry, depth: 0, path: [start] },
-      ];
-      while (queue.length > 0) {
-        const node = queue.shift()!;
-        nodesExpanded += 1;
-        if (nodesExpanded > EXPERT_CHAIN_MAX_NODES) {
-          return { applied: false, budgetExceeded: true };
-        }
-        if (node.depth >= EXPERT_CHAIN_MAX_LENGTH) continue;
-        const mask = board.candidates[node.cell];
-        const digits = digitsFromMask(mask);
-        if (digits.length !== 2) continue;
-        const exitDigit = digits[0] === node.entryDigit ? digits[1]! : digits[0]!;
-        for (const next of bivalue) {
-          if (node.path.includes(next)) continue;
-          if (!sameUnit(node.cell, next)) continue;
-          if ((board.candidates[next] & digitBit(exitDigit)) === 0) continue;
-          const depth = node.depth + 1;
-          const path = [...node.path, next];
-          // No eliminateCandidate / applied:true from XY-lite (discretion lock).
-          queue.push({
-            cell: next,
-            entryDigit: exitDigit,
-            depth,
-            path,
-          });
-        }
-      }
-    }
-  }
-
+  // XY-chain / AIC: deferred (IN-02) — do not burn shared node budget on a
+  // non-productive walk until a documented elimination rule lands.
   return { applied: false, budgetExceeded: false };
 }

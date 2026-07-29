@@ -56,10 +56,17 @@ describe('SHIP-02 prepareTodaySnapshot keep contract', () => {
       });
       expect(canonical.puzzleHash).not.toBe(snap.puzzleHash);
 
+      const beforeHash = snap.puzzleHash;
+      const beforePlayState = structuredClone(snap.playState);
+      const beforePuzzle = structuredClone(snap.puzzle);
+
       const next = prepareTodaySnapshot(snap);
-      expect(next.puzzleHash).toBe(snap.puzzleHash);
-      expect(next.playState).toEqual(snap.playState);
-      expect(next.puzzle).toEqual(snap.puzzle);
+      expect(next.puzzleHash).toBe(beforeHash);
+      expect(next.playState).toEqual(beforePlayState);
+      expect(next.puzzle).toEqual(beforePuzzle);
+      expect(snap.puzzleHash).toBe(beforeHash);
+      expect(snap.playState).toEqual(beforePlayState);
+      expect(snap.puzzle).toEqual(beforePuzzle);
     },
   );
 });

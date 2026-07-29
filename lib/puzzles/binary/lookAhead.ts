@@ -6,8 +6,11 @@ import { BINARY_SIZE } from './spec';
 /** Nested hypothesis depth for Expert look_ahead (D-18). */
 export const BINARY_LOOKAHEAD_MAX_DEPTH = 2;
 
-/** Hypothesis expansions per rate call (D-18). */
-export const BINARY_LOOKAHEAD_MAX_NODES = 800;
+/** Hypothesis expansions per rate call (D-18).
+ * Nested look_ahead (depth+1) needs a higher shared budget than shallow-only;
+ * Expert freeze fixture requires ~32.5k under MAX_DEPTH=2.
+ */
+export const BINARY_LOOKAHEAD_MAX_NODES = 36000;
 
 export type LookAheadResult =
   | { applied: true; technique: 'look_ahead' }
@@ -18,9 +21,13 @@ type PropOutcome =
   | { kind: 'contradiction' }
   | { kind: 'budget' };
 
+/**
+ * Propagate Easy–Hard; when stuck, nest look_ahead at depth+1 until max depth.
+ */
 function propagateEasyHard(
   start: number[][],
   nodes: { count: number },
+  depth: number,
 ): PropOutcome {
   const grid = clonePlayGrid(start);
   // Bound Easy–Hard prop steps by remaining node budget.
@@ -35,6 +42,14 @@ function propagateEasyHard(
     const hit = applyNextTechnique(grid);
     if (!hit.applied) {
       if (getViolationCells(grid).length > 0) return { kind: 'contradiction' };
+      // Stuck: nest look_ahead while under depth cap (depth+1 enters tryLookAhead).
+      if (depth + 1 < BINARY_LOOKAHEAD_MAX_DEPTH) {
+        const nested = tryLookAhead(grid, depth + 1, nodes);
+        if (!nested.applied && nested.budgetExceeded) {
+          return { kind: 'budget' };
+        }
+        if (nested.applied) continue;
+      }
       return { kind: 'ok', grid };
     }
   }
@@ -43,7 +58,8 @@ function propagateEasyHard(
 }
 
 /**
- * Bounded Expert look_ahead: hypothesize a cell value, propagate Easy–Hard.
+ * Bounded Expert look_ahead: hypothesize a cell value, propagate Easy–Hard
+ * (with nested look_ahead up to BINARY_LOOKAHEAD_MAX_DEPTH).
  * Force only when exactly one branch contradicts (CR-01 / D-27).
  * Caps: depth + nodes only — never wall-clock.
  */
@@ -74,7 +90,7 @@ export function tryLookAhead(
           outcomes.push('contradiction');
           continue;
         }
-        const prop = propagateEasyHard(trial, nodes);
+        const prop = propagateEasyHard(trial, nodes, depth);
         if (prop.kind === 'budget') {
           return { applied: false, budgetExceeded: true };
         }

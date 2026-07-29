@@ -1,5 +1,8 @@
 import { clonePlayGrid } from '../../../../lib/puzzles/binary/techniques';
-import { tryLookAhead } from '../../../../lib/puzzles/binary/lookAhead';
+import {
+  BINARY_LOOKAHEAD_MAX_DEPTH,
+  tryLookAhead,
+} from '../../../../lib/puzzles/binary/lookAhead';
 import {
   BINARY_EMPTY,
   BINARY_ONE,
@@ -59,5 +62,17 @@ describe('tryLookAhead soundness (CR-01)', () => {
       // If missed, victim must still be empty (never illegal ZERO force).
       expect(play[0]![2]).not.toBe(BINARY_ZERO);
     }
+  });
+
+  it('respects max depth without applying at the depth guard', () => {
+    const grid = Array.from({ length: 8 }, () =>
+      Array.from({ length: 8 }, () => BINARY_EMPTY),
+    );
+    grid[0]![0] = BINARY_ZERO;
+    grid[0]![1] = BINARY_ZERO;
+    const play = clonePlayGrid(grid);
+    const result = tryLookAhead(play, BINARY_LOOKAHEAD_MAX_DEPTH);
+    expect(result).toEqual({ applied: false, budgetExceeded: false });
+    expect(play[0]![2]).toBe(BINARY_EMPTY);
   });
 });

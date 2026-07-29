@@ -37,7 +37,7 @@ for flow in "${FLOWS[@]}"; do
   xcrun simctl terminate "$UDID" com.moyunzero.foolish-you 2>/dev/null || true
   sleep 3
   set +e
-  maestro test ".maestro/flows/v25/${flow}.yaml" --test-output-dir "$EVIDENCE" 2>&1 | tee -a "$log"
+  maestro --udid "$UDID" test ".maestro/flows/v25/${flow}.yaml" --test-output-dir "$EVIDENCE" 2>&1 | tee -a "$log"
   code=${PIPESTATUS[0]}
   set -e
   if (( code != 0 )); then
