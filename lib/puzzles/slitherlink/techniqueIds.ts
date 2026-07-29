@@ -42,15 +42,13 @@ export function maxTechnique(
 }
 
 /**
- * Peak technique → shared DifficultyTier (D-01, D-24).
+ * Peak technique → shared DifficultyTier (D-01, D-24 7×7 product compression).
  * Never alias SlitherlinkDifficulty.
  *
- * Deviation (Rule 2 / SC-1, 7×7 polyomino): one-hit SE cannot close loops with
- * only zero_elim/corner_three, and adjacent-3 patterns rarely become the peak of
- * a fully solved board. Product compression vs RESEARCH D-24 table:
+ * Locked bands (CONTEXT D-24, GAP-D24 closed 2026-07-29):
  *   - edge_count → easy (with zero/corner) — required remainder after 0-elim
  *   - vertex_degree → medium (with adjacent/diagonal 3s) — basic incidence
- *   - local_loop → hard; bifurcation → expert (unchanged)
+ *   - local_loop → hard; bifurcation → expert
  */
 export function peakToTier(peak: SlitherlinkTechnique): DifficultyTier {
   switch (peak) {
