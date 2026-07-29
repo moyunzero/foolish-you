@@ -11,7 +11,6 @@ import {
   snapshotNeedsV2Upgrade,
 } from './snapshotLegacy';
 import {
-  isPlayStateConsistent,
   isSnapshotPuzzleConsistent,
 } from './snapshotValidate';
 
@@ -28,7 +27,11 @@ function emptyPlayStateForGameType(gameType: GameType) {
   }
 }
 
-/** Same puzzle path as fresh daily selection for dateKey + seed + gameType. */
+/**
+ * Disaster-repair reconstruction: seed + gameType + DEFAULT mastery / empty avoid.
+ * Does NOT replay adaptive create (mastery / avoid attempt). Callers that regenerate
+ * MUST clear playState — fills must not sit on a different board (CR-01).
+ */
 function canonicalDailyPuzzle(
   dateKey: string,
   seed: number,
@@ -71,8 +74,8 @@ function upgradePlaceholderFields(
     ...persistedToDailyBase(persisted),
     puzzle,
     puzzleHash,
-    playState:
-      persisted.playState ?? emptyPlayStateForGameType(persisted.gameType),
+    // Regenerated board may differ from any prior adaptive create — wipe fills.
+    playState: emptyPlayStateForGameType(persisted.gameType),
   };
 }
 
@@ -109,9 +112,9 @@ export function repairSnapshotPuzzle(record: DailySnapshot): DailySnapshot {
     version: STORAGE_VERSION,
     puzzle,
     puzzleHash,
-    playState: isPlayStateConsistent(record)
-      ? record.playState
-      : emptyPlayStateForGameType(record.gameType),
+    // Always clear fills when regenerating — shape-consistent playState can still
+    // belong to a different adaptive board than DEFAULT-mastery reconstruction.
+    playState: emptyPlayStateForGameType(record.gameType),
   };
 }
 

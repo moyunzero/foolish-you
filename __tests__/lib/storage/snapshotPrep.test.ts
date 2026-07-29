@@ -1,5 +1,6 @@
 import { STORAGE_VERSION } from '../../../constants/config';
 import { selectDailyGame } from '../../../lib/puzzles/dailySelector';
+import { createEmptyGrid as createEmptyBinaryGrid } from '../../../lib/puzzles/binary/grid';
 import { createEmptyGrid as createEmptySudokuGrid } from '../../../lib/puzzles/sudoku/grid';
 import type { DailySnapshot } from '../../../lib/puzzles/types';
 import type { PersistedSnapshot } from '../../../lib/storage/snapshotLegacy';
@@ -68,6 +69,30 @@ describe('snapshotPrep', () => {
 
     const next = repairSnapshotPuzzle(broken);
     expect(next.puzzleHash).toBe(canonical.puzzleHash);
+  });
+
+  it('repairSnapshotPuzzle clears playState when regenerating puzzle', () => {
+    const filled = createEmptyBinaryGrid().map((row, r) =>
+      row.map((_, c) => (r === 0 && c === 0 ? 1 : 0)),
+    );
+    const broken: DailySnapshot = {
+      version: STORAGE_VERSION,
+      dateKey: '2026-06-01',
+      gameType: 'binary',
+      seed: 12345,
+      status: 'playing',
+      puzzle: {
+        kind: 'sudoku',
+        givens: createEmptySudokuGrid(),
+        puzzleHash: 'wrong',
+      },
+      puzzleHash: 'wrong',
+      playState: filled,
+    };
+
+    const next = repairSnapshotPuzzle(broken);
+    expect(isSnapshotPuzzleConsistent(next)).toBe(true);
+    expect(next.playState).toEqual(createEmptyBinaryGrid());
   });
 
   it('repairs inconsistent puzzle via prepareTodaySnapshot', () => {
