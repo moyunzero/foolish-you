@@ -94,7 +94,8 @@ function carvePuzzle(
   return givens;
 }
 
-function generateOnce(seed: number, targetGivens: number): SudokuPuzzle | null {
+/** Shared carve used by legacy generateSudokuPuzzle and generateSudokuPuzzleForTier. */
+export function generateOnce(seed: number, targetGivens: number): SudokuPuzzle | null {
   const rng = mulberry32(seed);
   const complete = fillCompleteGrid(rng);
   const givens = carvePuzzle(complete, rng, targetGivens);

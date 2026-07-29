@@ -1,0 +1,26 @@
+appId: com.moyunzero.foolish-you
+ios:
+  snapshotKeyHonorModalViews: true
+---
+# D-11 — Sudoku enter-game smoke via Dev force type.
+# Tap below DEV bar so we never hit the header rules button (a11y contains type name).
+- launchApp:
+    clearState: true
+- extendedWaitUntil:
+    visible: '完成今日'
+    timeout: 60000
+- runFlow: ../v22/subflows/dev-open-panel.yaml
+- tapOn:
+    text: '数独'
+    below: 'DEV 调试'
+- extendedWaitUntil:
+    visible: '完成今日'
+    timeout: 45000
+- runFlow:
+    when:
+      visible: '知道了'
+    commands:
+      - tapOn: '知道了'
+- runFlow: ../v22/subflows/dev-hide-bar.yaml
+- assertVisible: '数独'
+- takeScreenshot: 01-sudoku-game

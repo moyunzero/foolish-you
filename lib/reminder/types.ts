@@ -11,6 +11,8 @@ export type ReminderState = {
   firstOpenHour: number | null;
   /** dateKey when firstOpenHour was recorded (one sample per day max). */
   firstOpenSampledForDateKey: string | null;
+  /** Evening miss-risk banner dismissed for this dateKey (same-day only). */
+  eveningBannerDismissedForDateKey: string | null;
 };
 
 export const DEFAULT_REMINDER_STATE: ReminderState = {
@@ -21,4 +23,5 @@ export const DEFAULT_REMINDER_STATE: ReminderState = {
   permissionDenied: false,
   firstOpenHour: null,
   firstOpenSampledForDateKey: null,
+  eveningBannerDismissedForDateKey: null,
 };

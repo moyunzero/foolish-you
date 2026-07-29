@@ -43,7 +43,11 @@ function carvePuzzle(
   return givens;
 }
 
-function generateOnce(seed: number, targetGivens: number): BinaryPuzzle | null {
+/** Carve one unique puzzle for `targetGivens`, or null. Exported for forTier. */
+export function generateOnce(
+  seed: number,
+  targetGivens: number,
+): BinaryPuzzle | null {
   const rng = mulberry32(seed);
   const complete = fillCompleteGrid(rng);
   if (complete == null) return null;

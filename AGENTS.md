@@ -64,9 +64,43 @@ Full directory tree, mermaid flows → [docs/ARCHITECTURE.md](./docs/ARCHITECTUR
 
 ---
 
+## Code intelligence (required)
+
+Agents must use the local knowledge graphs — do not skip for “small” edits.
+
+### Before editing — `.codegraph` (MCP `user-codegraph`)
+
+**Consult codegraph before writing or editing code**, not after. Prefer graph tools over Grep/Glob/Read loops for exploration.
+
+| Intent | Tool |
+|--------|------|
+| How/where/what is X, architecture, survey an area | `codegraph_explore` (call first; usually enough) |
+| Symbol location only | `codegraph_search` |
+| Callers / callees / blast radius | `codegraph_callers` / `codegraph_callees` / `codegraph_impact` |
+| One symbol’s full source (or overloads) | `codegraph_node` (`includeCode`) |
+| Index health | `codegraph_status` |
+
+Fall back to Read/Grep only to confirm a detail the graph missed. Trust AST results; do not re-verify with Grep.
+
+### Before commit / PR — `.code-review-graph` (MCP `user-code-review-graph`)
+
+**Run a graph-backed CR before every commit and before opening/updating a PR.** Resolve urgent findings before claiming done.
+
+| Step | Tool |
+|------|------|
+| Primary CR (risk-scored diff review) | `detect_changes_tool` |
+| Focused snippets + review guidance | `get_review_context_tool` |
+| Blast radius / affected flows | `get_impact_radius_tool` / `get_affected_flows_tool` |
+| Refresh index after large edits | `build_or_update_graph_tool` |
+
+This is **in addition to** the verification commands and frontend-code-review below — not a substitute.
+
+---
+
 ## Verify before done
 
-All four must pass (same as CI):
+1. **Graph CR** via `.code-review-graph` (see above).
+2. All four must pass (same as CI):
 
 ```bash
 npm run typecheck && npm test && npm run test:migration && npm run lint

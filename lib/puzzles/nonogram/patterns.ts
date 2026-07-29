@@ -1,11 +1,17 @@
+import type { DifficultyTier } from '../difficulty/tiers';
 import { parsePatternRows } from './grid';
 
 export type NonogramPatternTier = 0 | 1 | 2 | 3 | 4 | 5 | 6;
 
 export type NonogramPattern = {
   id: string;
-  /** Mon=0 (easy) .. Sun=6 (hard) weekday difficulty bucket */
+  /**
+   * Weekday bucket Mon=0 .. Sun=6 (hist 17×6+18).
+   * Not mastery DifficultyTier — do not confuse with difficultyTier.
+   */
   tier: NonogramPatternTier;
+  /** Frozen mastery band from rateNonogram(canonical clues) (D-02/D-11). */
+  difficultyTier: DifficultyTier;
   /** @deprecated Display via resolvePictureTitle(id, locale) */
   title: string;
   titleKey: string;
@@ -17,6 +23,7 @@ export const NONOGRAM_PATTERNS: NonogramPattern[] = [
   {
     id: 'silly-face',
     tier: 1,
+    difficultyTier: 'medium',
     titleKey: 'silly-face',
     title: '傻笑脸',
     rows: [
@@ -33,6 +40,7 @@ export const NONOGRAM_PATTERNS: NonogramPattern[] = [
   {
     id: 'silly-cat',
     tier: 4,
+    difficultyTier: 'easy',
     titleKey: 'silly-cat',
     title: '蠢猫头',
     rows: [
@@ -49,6 +57,7 @@ export const NONOGRAM_PATTERNS: NonogramPattern[] = [
   {
     id: 'ghost',
     tier: 3,
+    difficultyTier: 'easy',
     titleKey: 'ghost',
     title: '小傻鬼',
     rows: [
@@ -65,6 +74,7 @@ export const NONOGRAM_PATTERNS: NonogramPattern[] = [
   {
     id: 'heart',
     tier: 1,
+    difficultyTier: 'medium',
     titleKey: 'heart',
     title: '蠢蠢心',
     rows: [
@@ -81,6 +91,7 @@ export const NONOGRAM_PATTERNS: NonogramPattern[] = [
   {
     id: 'star',
     tier: 0,
+    difficultyTier: 'medium',
     titleKey: 'star',
     title: '傻星星',
     rows: [
@@ -97,6 +108,7 @@ export const NONOGRAM_PATTERNS: NonogramPattern[] = [
   {
     id: 'rocket',
     tier: 3,
+    difficultyTier: 'medium',
     titleKey: 'rocket',
     title: '脑残火箭',
     rows: [
@@ -113,6 +125,7 @@ export const NONOGRAM_PATTERNS: NonogramPattern[] = [
   {
     id: 'mushroom',
     tier: 2,
+    difficultyTier: 'medium',
     titleKey: 'mushroom',
     title: '毒蘑菇',
     rows: [
@@ -129,6 +142,7 @@ export const NONOGRAM_PATTERNS: NonogramPattern[] = [
   {
     id: 'duck',
     tier: 0,
+    difficultyTier: 'easy',
     titleKey: 'duck',
     title: '傻黄鸭',
     rows: [
@@ -145,6 +159,7 @@ export const NONOGRAM_PATTERNS: NonogramPattern[] = [
   {
     id: 'apple',
     tier: 2,
+    difficultyTier: 'medium',
     titleKey: 'apple',
     title: '傻苹果',
     rows: [
@@ -161,6 +176,7 @@ export const NONOGRAM_PATTERNS: NonogramPattern[] = [
   {
     id: 'cherry',
     tier: 1,
+    difficultyTier: 'expert',
     titleKey: 'cherry',
     title: '双樱桃',
     rows: [
@@ -177,6 +193,7 @@ export const NONOGRAM_PATTERNS: NonogramPattern[] = [
   {
     id: 'fish',
     tier: 2,
+    difficultyTier: 'medium',
     titleKey: 'fish',
     title: '摸鱼怪',
     rows: [
@@ -193,6 +210,7 @@ export const NONOGRAM_PATTERNS: NonogramPattern[] = [
   {
     id: 'tree',
     tier: 0,
+    difficultyTier: 'easy',
     titleKey: 'tree',
     title: '笨树杈',
     rows: [
@@ -209,6 +227,7 @@ export const NONOGRAM_PATTERNS: NonogramPattern[] = [
   {
     id: 'house',
     tier: 3,
+    difficultyTier: 'easy',
     titleKey: 'house',
     title: '茅草屋',
     rows: [
@@ -225,6 +244,7 @@ export const NONOGRAM_PATTERNS: NonogramPattern[] = [
   {
     id: 'moon',
     tier: 1,
+    difficultyTier: 'hard',
     titleKey: 'moon',
     title: '呆月亮',
     rows: [
@@ -241,6 +261,7 @@ export const NONOGRAM_PATTERNS: NonogramPattern[] = [
   {
     id: 'sun',
     tier: 3,
+    difficultyTier: 'easy',
     titleKey: 'sun',
     title: '傻太阳',
     rows: [
@@ -257,6 +278,7 @@ export const NONOGRAM_PATTERNS: NonogramPattern[] = [
   {
     id: 'cloud',
     tier: 1,
+    difficultyTier: 'easy',
     titleKey: 'cloud',
     title: '笨云朵',
     rows: [
@@ -273,6 +295,7 @@ export const NONOGRAM_PATTERNS: NonogramPattern[] = [
   {
     id: 'cup',
     tier: 1,
+    difficultyTier: 'medium',
     titleKey: 'cup',
     title: '蠢杯子',
     rows: [
@@ -289,6 +312,7 @@ export const NONOGRAM_PATTERNS: NonogramPattern[] = [
   {
     id: 'bell',
     tier: 2,
+    difficultyTier: 'medium',
     titleKey: 'bell',
     title: '小铃铛',
     rows: [
@@ -305,6 +329,7 @@ export const NONOGRAM_PATTERNS: NonogramPattern[] = [
   {
     id: 'bow',
     tier: 6,
+    difficultyTier: 'easy',
     titleKey: 'bow',
     title: '蝴蝶结',
     rows: [
@@ -321,6 +346,7 @@ export const NONOGRAM_PATTERNS: NonogramPattern[] = [
   {
     id: 'crown',
     tier: 5,
+    difficultyTier: 'easy',
     titleKey: 'crown',
     title: '小皇冠',
     rows: [
@@ -337,6 +363,7 @@ export const NONOGRAM_PATTERNS: NonogramPattern[] = [
   {
     id: 'skull',
     tier: 5,
+    difficultyTier: 'easy',
     titleKey: 'skull',
     title: '憨骷髅',
     rows: [
@@ -353,6 +380,7 @@ export const NONOGRAM_PATTERNS: NonogramPattern[] = [
   {
     id: 'balloon',
     tier: 3,
+    difficultyTier: 'medium',
     titleKey: 'balloon',
     title: '大气球',
     rows: [
@@ -369,6 +397,7 @@ export const NONOGRAM_PATTERNS: NonogramPattern[] = [
   {
     id: 'pizza',
     tier: 2,
+    difficultyTier: 'medium',
     titleKey: 'pizza',
     title: '披萨片',
     rows: [
@@ -385,6 +414,7 @@ export const NONOGRAM_PATTERNS: NonogramPattern[] = [
   {
     id: 'ice-cream',
     tier: 2,
+    difficultyTier: 'medium',
     titleKey: 'ice-cream',
     title: '冰激凌',
     rows: [
@@ -401,6 +431,7 @@ export const NONOGRAM_PATTERNS: NonogramPattern[] = [
   {
     id: 'carrot',
     tier: 0,
+    difficultyTier: 'medium',
     titleKey: 'carrot',
     title: '胡萝卜',
     rows: [
@@ -417,6 +448,7 @@ export const NONOGRAM_PATTERNS: NonogramPattern[] = [
   {
     id: 'paw',
     tier: 0,
+    difficultyTier: 'hard',
     titleKey: 'paw',
     title: '猫爪印',
     rows: [
@@ -433,6 +465,7 @@ export const NONOGRAM_PATTERNS: NonogramPattern[] = [
   {
     id: 'note',
     tier: 6,
+    difficultyTier: 'medium',
     titleKey: 'note',
     title: '小音符',
     rows: [
@@ -449,6 +482,7 @@ export const NONOGRAM_PATTERNS: NonogramPattern[] = [
   {
     id: 'bolt',
     tier: 0,
+    difficultyTier: 'medium',
     titleKey: 'bolt',
     title: '傻闪电',
     rows: [
@@ -465,6 +499,7 @@ export const NONOGRAM_PATTERNS: NonogramPattern[] = [
   {
     id: 'anchor',
     tier: 4,
+    difficultyTier: 'medium',
     titleKey: 'anchor',
     title: '小铁锚',
     rows: [
@@ -481,6 +516,7 @@ export const NONOGRAM_PATTERNS: NonogramPattern[] = [
   {
     id: 'gem',
     tier: 4,
+    difficultyTier: 'medium',
     titleKey: 'gem',
     title: '亮晶晶',
     rows: [
@@ -497,6 +533,7 @@ export const NONOGRAM_PATTERNS: NonogramPattern[] = [
   {
     id: 'bagel',
     tier: 0,
+    difficultyTier: 'hard',
     titleKey: 'bagel',
     title: '傻贝果',
     rows: [
@@ -513,6 +550,7 @@ export const NONOGRAM_PATTERNS: NonogramPattern[] = [
   {
     id: 'snail',
     tier: 0,
+    difficultyTier: 'expert',
     titleKey: 'snail',
     title: '慢蜗牛',
     rows: [
@@ -529,6 +567,7 @@ export const NONOGRAM_PATTERNS: NonogramPattern[] = [
   {
     id: 'pear',
     tier: 0,
+    difficultyTier: 'medium',
     titleKey: 'pear',
     title: '歪梨子',
     rows: [
@@ -545,6 +584,7 @@ export const NONOGRAM_PATTERNS: NonogramPattern[] = [
   {
     id: 'leaf',
     tier: 0,
+    difficultyTier: 'medium',
     titleKey: 'leaf',
     title: '一片叶',
     rows: [
@@ -561,6 +601,7 @@ export const NONOGRAM_PATTERNS: NonogramPattern[] = [
   {
     id: 'egg',
     tier: 0,
+    difficultyTier: 'easy',
     titleKey: 'egg',
     title: '荷包蛋',
     rows: [
@@ -577,6 +618,7 @@ export const NONOGRAM_PATTERNS: NonogramPattern[] = [
   {
     id: 'key',
     tier: 0,
+    difficultyTier: 'medium',
     titleKey: 'key',
     title: '小钥匙',
     rows: [
@@ -593,6 +635,7 @@ export const NONOGRAM_PATTERNS: NonogramPattern[] = [
   {
     id: 'worm',
     tier: 0,
+    difficultyTier: 'easy',
     titleKey: 'worm',
     title: '肉虫子',
     rows: [
@@ -609,6 +652,7 @@ export const NONOGRAM_PATTERNS: NonogramPattern[] = [
   {
     id: 'taco',
     tier: 1,
+    difficultyTier: 'medium',
     titleKey: 'taco',
     title: '卷卷饼',
     rows: [
@@ -625,6 +669,7 @@ export const NONOGRAM_PATTERNS: NonogramPattern[] = [
   {
     id: 'cookie',
     tier: 1,
+    difficultyTier: 'easy',
     titleKey: 'cookie',
     title: '咬饼干',
     rows: [
@@ -641,6 +686,7 @@ export const NONOGRAM_PATTERNS: NonogramPattern[] = [
   {
     id: 'lamp',
     tier: 1,
+    difficultyTier: 'medium',
     titleKey: 'lamp',
     title: '台灯光',
     rows: [
@@ -657,6 +703,7 @@ export const NONOGRAM_PATTERNS: NonogramPattern[] = [
   {
     id: 'sock',
     tier: 1,
+    difficultyTier: 'medium',
     titleKey: 'sock',
     title: '单只袜',
     rows: [
@@ -673,6 +720,7 @@ export const NONOGRAM_PATTERNS: NonogramPattern[] = [
   {
     id: 'hat',
     tier: 1,
+    difficultyTier: 'medium',
     titleKey: 'hat',
     title: '礼帽怪',
     rows: [
@@ -689,6 +737,7 @@ export const NONOGRAM_PATTERNS: NonogramPattern[] = [
   {
     id: 'bunny',
     tier: 1,
+    difficultyTier: 'easy',
     titleKey: 'bunny',
     title: '长耳兔',
     rows: [
@@ -705,6 +754,7 @@ export const NONOGRAM_PATTERNS: NonogramPattern[] = [
   {
     id: 'toast',
     tier: 1,
+    difficultyTier: 'easy',
     titleKey: 'toast',
     title: '黄油吐司',
     rows: [
@@ -721,6 +771,7 @@ export const NONOGRAM_PATTERNS: NonogramPattern[] = [
   {
     id: 'cactus',
     tier: 2,
+    difficultyTier: 'medium',
     titleKey: 'cactus',
     title: '仙人掌',
     rows: [
@@ -737,6 +788,7 @@ export const NONOGRAM_PATTERNS: NonogramPattern[] = [
   {
     id: 'donut',
     tier: 2,
+    difficultyTier: 'medium',
     titleKey: 'donut',
     title: '甜甜圈',
     rows: [
@@ -753,6 +805,7 @@ export const NONOGRAM_PATTERNS: NonogramPattern[] = [
   {
     id: 'umbrella',
     tier: 2,
+    difficultyTier: 'easy',
     titleKey: 'umbrella',
     title: '破雨伞',
     rows: [
@@ -769,6 +822,7 @@ export const NONOGRAM_PATTERNS: NonogramPattern[] = [
   {
     id: 'spider',
     tier: 2,
+    difficultyTier: 'expert',
     titleKey: 'spider',
     title: '八脚蛛',
     rows: [
@@ -785,6 +839,7 @@ export const NONOGRAM_PATTERNS: NonogramPattern[] = [
   {
     id: 'frog',
     tier: 2,
+    difficultyTier: 'easy',
     titleKey: 'frog',
     title: '蛤蟆蹲',
     rows: [
@@ -801,6 +856,7 @@ export const NONOGRAM_PATTERNS: NonogramPattern[] = [
   {
     id: 'kiwi',
     tier: 2,
+    difficultyTier: 'medium',
     titleKey: 'kiwi',
     title: '奇异果',
     rows: [
@@ -817,6 +873,7 @@ export const NONOGRAM_PATTERNS: NonogramPattern[] = [
   {
     id: 'whale',
     tier: 2,
+    difficultyTier: 'medium',
     titleKey: 'whale',
     title: '喷水鲸',
     rows: [
@@ -833,6 +890,7 @@ export const NONOGRAM_PATTERNS: NonogramPattern[] = [
   {
     id: 'cake',
     tier: 3,
+    difficultyTier: 'easy',
     titleKey: 'cake',
     title: '生日蛋糕',
     rows: [
@@ -849,6 +907,7 @@ export const NONOGRAM_PATTERNS: NonogramPattern[] = [
   {
     id: 'guitar',
     tier: 3,
+    difficultyTier: 'medium',
     titleKey: 'guitar',
     title: '空气吉他',
     rows: [
@@ -865,6 +924,7 @@ export const NONOGRAM_PATTERNS: NonogramPattern[] = [
   {
     id: 'boot',
     tier: 3,
+    difficultyTier: 'easy',
     titleKey: 'boot',
     title: '雨靴一只',
     rows: [
@@ -881,6 +941,7 @@ export const NONOGRAM_PATTERNS: NonogramPattern[] = [
   {
     id: 'bottle',
     tier: 3,
+    difficultyTier: 'medium',
     titleKey: 'bottle',
     title: '汽水瓶',
     rows: [
@@ -897,6 +958,7 @@ export const NONOGRAM_PATTERNS: NonogramPattern[] = [
   {
     id: 'laptop',
     tier: 3,
+    difficultyTier: 'easy',
     titleKey: 'laptop',
     title: '折叠电脑',
     rows: [
@@ -913,6 +975,7 @@ export const NONOGRAM_PATTERNS: NonogramPattern[] = [
   {
     id: 'crab',
     tier: 3,
+    difficultyTier: 'medium',
     titleKey: 'crab',
     title: '横行蟹',
     rows: [
@@ -929,6 +992,7 @@ export const NONOGRAM_PATTERNS: NonogramPattern[] = [
   {
     id: 'penguin',
     tier: 3,
+    difficultyTier: 'easy',
     titleKey: 'penguin',
     title: '企鹅站岗',
     rows: [
@@ -945,6 +1009,7 @@ export const NONOGRAM_PATTERNS: NonogramPattern[] = [
   {
     id: 'train',
     tier: 3,
+    difficultyTier: 'easy',
     titleKey: 'train',
     title: '玩具火车',
     rows: [
@@ -961,6 +1026,7 @@ export const NONOGRAM_PATTERNS: NonogramPattern[] = [
   {
     id: 'octopus',
     tier: 4,
+    difficultyTier: 'medium',
     titleKey: 'octopus',
     title: '八爪鱼',
     rows: [
@@ -977,6 +1043,7 @@ export const NONOGRAM_PATTERNS: NonogramPattern[] = [
   {
     id: 'spaceship',
     tier: 4,
+    difficultyTier: 'expert',
     titleKey: 'spaceship',
     title: '飞碟来了',
     rows: [
@@ -993,6 +1060,7 @@ export const NONOGRAM_PATTERNS: NonogramPattern[] = [
   {
     id: 'castle',
     tier: 4,
+    difficultyTier: 'medium',
     titleKey: 'castle',
     title: '沙堡王',
     rows: [
@@ -1009,6 +1077,7 @@ export const NONOGRAM_PATTERNS: NonogramPattern[] = [
   {
     id: 'robot',
     tier: 4,
+    difficultyTier: 'expert',
     titleKey: 'robot',
     title: '短路机器人',
     rows: [
@@ -1025,6 +1094,7 @@ export const NONOGRAM_PATTERNS: NonogramPattern[] = [
   {
     id: 'dragon',
     tier: 4,
+    difficultyTier: 'expert',
     titleKey: 'dragon',
     title: '小火龙',
     rows: [
@@ -1041,6 +1111,7 @@ export const NONOGRAM_PATTERNS: NonogramPattern[] = [
   {
     id: 'trophy',
     tier: 4,
+    difficultyTier: 'easy',
     titleKey: 'trophy',
     title: '塑料奖杯',
     rows: [
@@ -1057,6 +1128,7 @@ export const NONOGRAM_PATTERNS: NonogramPattern[] = [
   {
     id: 'sandwich',
     tier: 4,
+    difficultyTier: 'easy',
     titleKey: 'sandwich',
     title: '夹心三明治',
     rows: [
@@ -1073,6 +1145,7 @@ export const NONOGRAM_PATTERNS: NonogramPattern[] = [
   {
     id: 'teapot',
     tier: 4,
+    difficultyTier: 'medium',
     titleKey: 'teapot',
     title: '冒烟茶壶',
     rows: [
@@ -1089,6 +1162,7 @@ export const NONOGRAM_PATTERNS: NonogramPattern[] = [
   {
     id: 'goblin',
     tier: 4,
+    difficultyTier: 'easy',
     titleKey: 'goblin',
     title: '绿皮怪',
     rows: [
@@ -1105,6 +1179,7 @@ export const NONOGRAM_PATTERNS: NonogramPattern[] = [
   {
     id: 'rainbow',
     tier: 4,
+    difficultyTier: 'expert',
     titleKey: 'rainbow',
     title: '半彩虹',
     rows: [
@@ -1121,6 +1196,7 @@ export const NONOGRAM_PATTERNS: NonogramPattern[] = [
   {
     id: 'monkey',
     tier: 5,
+    difficultyTier: 'expert',
     titleKey: 'monkey',
     title: '偷香蕉猴',
     rows: [
@@ -1137,6 +1213,7 @@ export const NONOGRAM_PATTERNS: NonogramPattern[] = [
   {
     id: 'piano',
     tier: 5,
+    difficultyTier: 'easy',
     titleKey: 'piano',
     title: '立式钢琴',
     rows: [
@@ -1153,6 +1230,7 @@ export const NONOGRAM_PATTERNS: NonogramPattern[] = [
   {
     id: 'submarine',
     tier: 5,
+    difficultyTier: 'medium',
     titleKey: 'submarine',
     title: '潜水艇',
     rows: [
@@ -1169,6 +1247,7 @@ export const NONOGRAM_PATTERNS: NonogramPattern[] = [
   {
     id: 'helicopter',
     tier: 5,
+    difficultyTier: 'easy',
     titleKey: 'helicopter',
     title: '嗡嗡直升机',
     rows: [
@@ -1185,6 +1264,7 @@ export const NONOGRAM_PATTERNS: NonogramPattern[] = [
   {
     id: 'volcano',
     tier: 5,
+    difficultyTier: 'easy',
     titleKey: 'volcano',
     title: '喷发火山',
     rows: [
@@ -1201,6 +1281,7 @@ export const NONOGRAM_PATTERNS: NonogramPattern[] = [
   {
     id: 'turtle',
     tier: 5,
+    difficultyTier: 'medium',
     titleKey: 'turtle',
     title: '忍者龟壳',
     rows: [
@@ -1217,6 +1298,7 @@ export const NONOGRAM_PATTERNS: NonogramPattern[] = [
   {
     id: 'camera',
     tier: 5,
+    difficultyTier: 'easy',
     titleKey: 'camera',
     title: '傻瓜相机',
     rows: [
@@ -1233,6 +1315,7 @@ export const NONOGRAM_PATTERNS: NonogramPattern[] = [
   {
     id: 'fridge',
     tier: 5,
+    difficultyTier: 'expert',
     titleKey: 'fridge',
     title: '冰箱门',
     rows: [
@@ -1249,6 +1332,7 @@ export const NONOGRAM_PATTERNS: NonogramPattern[] = [
   {
     id: 'bicycle',
     tier: 5,
+    difficultyTier: 'expert',
     titleKey: 'bicycle',
     title: '倒车自行车',
     rows: [
@@ -1265,6 +1349,7 @@ export const NONOGRAM_PATTERNS: NonogramPattern[] = [
   {
     id: 'mask',
     tier: 5,
+    difficultyTier: 'easy',
     titleKey: 'mask',
     title: '派对面具',
     rows: [
@@ -1281,6 +1366,7 @@ export const NONOGRAM_PATTERNS: NonogramPattern[] = [
   {
     id: 'lighthouse',
     tier: 5,
+    difficultyTier: 'easy',
     titleKey: 'lighthouse',
     title: '歪灯塔',
     rows: [
@@ -1297,6 +1383,7 @@ export const NONOGRAM_PATTERNS: NonogramPattern[] = [
   {
     id: 'dragonfly',
     tier: 6,
+    difficultyTier: 'expert',
     titleKey: 'dragonfly',
     title: '蜻蜓停',
     rows: [
@@ -1313,6 +1400,7 @@ export const NONOGRAM_PATTERNS: NonogramPattern[] = [
   {
     id: 'crystal',
     tier: 6,
+    difficultyTier: 'medium',
     titleKey: 'crystal',
     title: '魔法水晶',
     rows: [
@@ -1329,6 +1417,7 @@ export const NONOGRAM_PATTERNS: NonogramPattern[] = [
   {
     id: 'spacesuit',
     tier: 6,
+    difficultyTier: 'easy',
     titleKey: 'spacesuit',
     title: '宇航服',
     rows: [
@@ -1345,6 +1434,7 @@ export const NONOGRAM_PATTERNS: NonogramPattern[] = [
   {
     id: 'fireworks',
     tier: 6,
+    difficultyTier: 'expert',
     titleKey: 'fireworks',
     title: '烟花炸',
     rows: [
@@ -1361,6 +1451,7 @@ export const NONOGRAM_PATTERNS: NonogramPattern[] = [
   {
     id: 'hammer',
     tier: 6,
+    difficultyTier: 'easy',
     titleKey: 'hammer',
     title: '敲敲锤',
     rows: [
@@ -1377,6 +1468,7 @@ export const NONOGRAM_PATTERNS: NonogramPattern[] = [
   {
     id: 'snorkel',
     tier: 6,
+    difficultyTier: 'medium',
     titleKey: 'snorkel',
     title: '浮潜装',
     rows: [
@@ -1393,6 +1485,7 @@ export const NONOGRAM_PATTERNS: NonogramPattern[] = [
   {
     id: 'satellite',
     tier: 6,
+    difficultyTier: 'expert',
     titleKey: 'satellite',
     title: '废卫星',
     rows: [
@@ -1409,6 +1502,7 @@ export const NONOGRAM_PATTERNS: NonogramPattern[] = [
   {
     id: 'treasure',
     tier: 6,
+    difficultyTier: 'easy',
     titleKey: 'treasure',
     title: '藏宝箱',
     rows: [
@@ -1425,6 +1519,7 @@ export const NONOGRAM_PATTERNS: NonogramPattern[] = [
   {
     id: 'phoenix',
     tier: 6,
+    difficultyTier: 'hard',
     titleKey: 'phoenix',
     title: '火凤凰',
     rows: [
@@ -1441,6 +1536,7 @@ export const NONOGRAM_PATTERNS: NonogramPattern[] = [
   {
     id: 'compass',
     tier: 6,
+    difficultyTier: 'easy',
     titleKey: 'compass',
     title: '迷路指南针',
     rows: [
@@ -1454,6 +1550,517 @@ export const NONOGRAM_PATTERNS: NonogramPattern[] = [
       '00000000',
     ],
   },
+  // --- v2.4.2-02 append: +6 tier6, then +4 each tiers 0–5 ---
+  {
+    id: 'popcorn',
+    tier: 6,
+    difficultyTier: 'hard',
+    titleKey: 'popcorn',
+    title: '爆米花脑',
+    rows: [
+      '00100100',
+      '01111110',
+      '11111111',
+      '01111110',
+      '00111100',
+      '00011000',
+      '00000000',
+      '00000000',
+    ],
+  },
+  {
+    id: 'jellyfish',
+    tier: 6,
+    difficultyTier: 'expert',
+    titleKey: 'jellyfish',
+    title: '水母飘',
+    rows: [
+      '00111100',
+      '01111110',
+      '10111101',
+      '01111110',
+      '00111100',
+      '01011010',
+      '10011001',
+      '00000000',
+    ],
+  },
+  {
+    id: 'toaster',
+    tier: 6,
+    difficultyTier: 'expert',
+    titleKey: 'toaster',
+    title: '烤糊机',
+    rows: [
+      '01111110',
+      '10000001',
+      '10111101',
+      '10111101',
+      '10000001',
+      '01111110',
+      '00100100',
+      '00111100',
+    ],
+  },
+  {
+    id: 'snowman',
+    tier: 6,
+    difficultyTier: 'easy',
+    titleKey: 'snowman',
+    title: '化雪人',
+    rows: [
+      '00111100',
+      '01111110',
+      '00111100',
+      '01111110',
+      '11111111',
+      '01111110',
+      '00100100',
+      '00000000',
+    ],
+  },
+  {
+    id: 'pickle',
+    tier: 6,
+    difficultyTier: 'medium',
+    titleKey: 'pickle',
+    title: '酸黄瓜',
+    rows: [
+      '00011000',
+      '00111100',
+      '01111110',
+      '01111110',
+      '01111110',
+      '00111100',
+      '00011000',
+      '00000000',
+    ],
+  },
+  {
+    id: 'accordion',
+    tier: 6,
+    difficultyTier: 'easy',
+    titleKey: 'accordion',
+    title: '手风琴怪',
+    rows: [
+      '11111111',
+      '10101011',
+      '11111111',
+      '10101011',
+      '11111111',
+      '10101011',
+      '11111111',
+      '00000000',
+    ],
+  },
+  {
+    id: 'chili',
+    tier: 0,
+    difficultyTier: 'expert',
+    titleKey: 'chili',
+    title: '辣辣椒',
+    rows: [
+      '00000100',
+      '00001100',
+      '00011110',
+      '00111110',
+      '01111100',
+      '00111000',
+      '00010000',
+      '00000000',
+    ],
+  },
+  {
+    id: 'grape',
+    tier: 0,
+    difficultyTier: 'medium',
+    titleKey: 'grape',
+    title: '酸葡萄串',
+    rows: [
+      '00100100',
+      '01111110',
+      '01111110',
+      '00111100',
+      '00011000',
+      '00011000',
+      '00000000',
+      '00000000',
+    ],
+  },
+  {
+    id: 'spoon',
+    tier: 0,
+    difficultyTier: 'medium',
+    titleKey: 'spoon',
+    title: '歪勺子',
+    rows: [
+      '00111100',
+      '01111110',
+      '00111100',
+      '00011000',
+      '00011000',
+      '00011000',
+      '00011000',
+      '00000000',
+    ],
+  },
+  {
+    id: 'coin',
+    tier: 0,
+    difficultyTier: 'easy',
+    titleKey: 'coin',
+    title: '假硬币',
+    rows: [
+      '00111100',
+      '01100110',
+      '11011011',
+      '11000011',
+      '11011011',
+      '01100110',
+      '00111100',
+      '00000000',
+    ],
+  },
+  {
+    id: 'waffle',
+    tier: 1,
+    difficultyTier: 'easy',
+    titleKey: 'waffle',
+    title: '格子华夫',
+    rows: [
+      '01111110',
+      '10101011',
+      '11111111',
+      '10101011',
+      '11111111',
+      '10101011',
+      '01111110',
+      '00000000',
+    ],
+  },
+  {
+    id: 'owl',
+    tier: 1,
+    difficultyTier: 'medium',
+    titleKey: 'owl',
+    title: '夜猫子',
+    rows: [
+      '01100110',
+      '11111111',
+      '10111101',
+      '11111111',
+      '01111110',
+      '00111100',
+      '00011000',
+      '00000000',
+    ],
+  },
+  {
+    id: 'broom',
+    tier: 1,
+    difficultyTier: 'easy',
+    titleKey: 'broom',
+    title: '飞天扫把',
+    rows: [
+      '01111110',
+      '00111100',
+      '00011000',
+      '00011000',
+      '00011000',
+      '00011000',
+      '00011000',
+      '00000000',
+    ],
+  },
+  {
+    id: 'lemon',
+    tier: 1,
+    difficultyTier: 'medium',
+    titleKey: 'lemon',
+    title: '酸柠檬',
+    rows: [
+      '00111100',
+      '01111110',
+      '11111111',
+      '01111110',
+      '00111100',
+      '00011000',
+      '00000000',
+      '00000000',
+    ],
+  },
+  {
+    id: 'avocado',
+    tier: 2,
+    difficultyTier: 'medium',
+    titleKey: 'avocado',
+    title: '牛油果脸',
+    rows: [
+      '00011000',
+      '00111100',
+      '01111110',
+      '11100111',
+      '11011011',
+      '01111110',
+      '00111100',
+      '00011000',
+    ],
+  },
+  {
+    id: 'raccoon',
+    tier: 2,
+    difficultyTier: 'easy',
+    titleKey: 'raccoon',
+    title: '偷垃圾狸',
+    rows: [
+      '01100110',
+      '11111111',
+      '10100101',
+      '11111111',
+      '01111110',
+      '00111100',
+      '01000010',
+      '00000000',
+    ],
+  },
+  {
+    id: 'kettle',
+    tier: 2,
+    difficultyTier: 'medium',
+    titleKey: 'kettle',
+    title: '烧水壶',
+    rows: [
+      '00100000',
+      '01010000',
+      '01111110',
+      '11111111',
+      '11000011',
+      '01111110',
+      '00111100',
+      '00000000',
+    ],
+  },
+  {
+    id: 'corn',
+    tier: 2,
+    difficultyTier: 'medium',
+    titleKey: 'corn',
+    title: '玉米棒',
+    rows: [
+      '00011000',
+      '00111100',
+      '01111110',
+      '01111110',
+      '01111110',
+      '00111100',
+      '00011000',
+      '00100100',
+    ],
+  },
+  {
+    id: 'burrito',
+    tier: 3,
+    difficultyTier: 'easy',
+    titleKey: 'burrito',
+    title: '卷到糊',
+    rows: [
+      '00000000',
+      '01111110',
+      '11111111',
+      '11011011',
+      '11111111',
+      '01111110',
+      '00111100',
+      '00000000',
+    ],
+  },
+  {
+    id: 'hedgehog',
+    tier: 3,
+    difficultyTier: 'easy',
+    titleKey: 'hedgehog',
+    title: '刺刺球',
+    rows: [
+      '10101010',
+      '01111110',
+      '11111111',
+      '10111101',
+      '11111111',
+      '01111110',
+      '00111100',
+      '00000000',
+    ],
+  },
+  {
+    id: 'suitcase',
+    tier: 3,
+    difficultyTier: 'easy',
+    titleKey: 'suitcase',
+    title: '塞满箱',
+    rows: [
+      '00111100',
+      '01111110',
+      '11111111',
+      '10011001',
+      '11111111',
+      '01111110',
+      '00111100',
+      '00000000',
+    ],
+  },
+  {
+    id: 'candle',
+    tier: 3,
+    difficultyTier: 'easy',
+    titleKey: 'candle',
+    title: '歪蜡烛',
+    rows: [
+      '00010000',
+      '00010000',
+      '00111000',
+      '00111000',
+      '00111000',
+      '00111000',
+      '01111110',
+      '00000000',
+    ],
+  },
+  {
+    id: 'sushi',
+    tier: 4,
+    difficultyTier: 'medium',
+    titleKey: 'sushi',
+    title: '歪寿司',
+    rows: [
+      '00111100',
+      '01111110',
+      '11100111',
+      '11111111',
+      '11100111',
+      '01111110',
+      '00111100',
+      '00000000',
+    ],
+  },
+  {
+    id: 'fox',
+    tier: 4,
+    difficultyTier: 'easy',
+    titleKey: 'fox',
+    title: '狡猾狐',
+    rows: [
+      '11000011',
+      '01100110',
+      '11111111',
+      '10111101',
+      '11111111',
+      '01111110',
+      '00111100',
+      '00000000',
+    ],
+  },
+  {
+    id: 'scissors',
+    tier: 4,
+    difficultyTier: 'expert',
+    titleKey: 'scissors',
+    title: '钝剪刀',
+    rows: [
+      '10000001',
+      '01000010',
+      '00100100',
+      '00011000',
+      '00100100',
+      '01000010',
+      '10000001',
+      '00000000',
+    ],
+  },
+  {
+    id: 'onion',
+    tier: 4,
+    difficultyTier: 'medium',
+    titleKey: 'onion',
+    title: '催泪洋葱',
+    rows: [
+      '00011000',
+      '00111100',
+      '01111110',
+      '11111111',
+      '01111110',
+      '00111100',
+      '00011000',
+      '00000000',
+    ],
+  },
+  {
+    id: 'flamingo',
+    tier: 5,
+    difficultyTier: 'medium',
+    titleKey: 'flamingo',
+    title: '独脚鸟',
+    rows: [
+      '00000110',
+      '00001100',
+      '00111100',
+      '01111100',
+      '00111100',
+      '00011000',
+      '00111000',
+      '01100000',
+    ],
+  },
+  {
+    id: 'blender',
+    tier: 5,
+    difficultyTier: 'easy',
+    titleKey: 'blender',
+    title: '搅拌机',
+    rows: [
+      '00111100',
+      '01111110',
+      '00111100',
+      '01111110',
+      '11111111',
+      '01111110',
+      '00111100',
+      '00000000',
+    ],
+  },
+  {
+    id: 'croissant',
+    tier: 5,
+    difficultyTier: 'medium',
+    titleKey: 'croissant',
+    title: '弯羊角',
+    rows: [
+      '00000000',
+      '00111100',
+      '01111110',
+      '11100111',
+      '01111110',
+      '00111100',
+      '00011000',
+      '00000000',
+    ],
+  },
+  {
+    id: 'dumpling',
+    tier: 5,
+    difficultyTier: 'easy',
+    titleKey: 'dumpling',
+    title: '漏馅饺',
+    rows: [
+      '00111100',
+      '01111110',
+      '11111111',
+      '11111111',
+      '01111110',
+      '00111100',
+      '00000000',
+      '00000000',
+    ],
+  },
 ];
 
 export function patternsForTier(tier: number): NonogramPattern[] {
@@ -1461,6 +2068,14 @@ export function patternsForTier(tier: number): NonogramPattern[] {
   const matches = NONOGRAM_PATTERNS.filter((p) => p.tier === clamped);
   if (matches.length > 0) return matches;
   return NONOGRAM_PATTERNS.filter((p) => p.tier === 3);
+}
+
+/** Mastery pool filter by frozen difficultyTier — never weekday tier 0..6. */
+export function patternsForDifficultyTier(
+  tier: DifficultyTier,
+  patterns: readonly NonogramPattern[] = NONOGRAM_PATTERNS,
+): NonogramPattern[] {
+  return patterns.filter((p) => p.difficultyTier === tier);
 }
 
 export function patternSolution(pattern: NonogramPattern): boolean[][] {

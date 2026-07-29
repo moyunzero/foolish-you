@@ -256,6 +256,47 @@ Maestro（推荐自动化门禁）：
 
 证据与签核见 [docs/qa/v2.4-sunday-special/README.md](./qa/v2.4-sunday-special/README.md)。
 
+### v2.4.2 Ship（Content Depth）manual QA
+
+验收矩阵：[v2.4.2-03-VERIFICATION.md](../.planning/phases/v2.4.2-03-ship-2-4-2/v2.4.2-03-VERIFICATION.md)。完整步骤与 Maestro 证据目录：[docs/qa/v2.4.2-ship/README.md](./qa/v2.4.2-ship/README.md)。
+
+**前置：** `__DEV__` 开发包 + Metro `:8081`。周一抽样用 Simulator Date & Time（或已知周一 dateKey）；周日抽样用 Dev **假日期·周日**。进行中 keep **勿**中途点 Dev force 题型（会清今日存档）。
+
+| # | 区域 | 步骤 | 预期 |
+|---|------|------|------|
+| 1 | 四题型 | Dev force 数独 / 二进制 / 数绘 / 数回，各至少一天可玩 | 棋盘可用；标题与题型一致 |
+| 2 | 周一松 | Simulator 设已知周一（如 `2026-07-06` / `2026-07-13`）→ 杀 App 重开 | 周一难度抽样明显比周日松 |
+| 3 | 周日紧 | Dev **假日期·周日**（或周日 dateKey） | 周日更紧 / 特辑路径仍一天一局 |
+| 4 | 进行中 keep | 填几格 → 杀进程 / 重开（**不** force 题型） | 同盘同进度保留 |
+
+Maestro（本 phase **必须** 证据，D-09）：
+
+```bash
+./scripts/maestro-v242-ship.sh
+```
+
+证据与签核见 [docs/qa/v2.4.2-ship/README.md](./qa/v2.4.2-ship/README.md)。
+
+### v2.5 Ship（Adaptive Mastery）manual QA
+
+验收矩阵：[v2.5-06-VERIFICATION.md](../.planning/phases/v2.5-06-ship-2-5-0/v2.5-06-VERIFICATION.md)。完整步骤与 Maestro 证据目录：[docs/qa/v2.5-ship/README.md](./qa/v2.5-ship/README.md)。SHIP-02 自动化覆盖：[SHIP-02-COVERAGE.md](./qa/v2.5-ship/SHIP-02-COVERAGE.md)。
+
+**前置：** `__DEV__` 开发包 + Metro `:8081`。进行中 keep **勿**中途点 Dev force 题型（会清今日存档）。周一/周日抽样**非**本 phase 手测门禁。
+
+| # | 区域 | 步骤 | 预期 |
+|---|------|------|------|
+| 1 | 四题型 | Dev force 数独 / 二进制 / 数绘 / 数回，各至少一天可玩 | 棋盘可用；标题与题型一致 |
+| 2 | 进行中 keep | 填几格 → 杀进程 / 重开（**不** force 题型） | 同盘同进度保留 |
+| 3 | 新鲜日期 create | 打开或强制一个尚未游玩的日期 | 更新后仍能成功创建谜题 |
+
+Maestro（本 phase **必须** 证据，D-11）：
+
+```bash
+./scripts/maestro-v25-ship.sh
+```
+
+证据与签核见 [docs/qa/v2.5-ship/README.md](./qa/v2.5-ship/README.md)。
+
 ### v2.5-01 Composition manual QA
 
 整页构图手测（LAYOUT-01..04 / EXP-01 / EXP-02）。建议 iPhone SE 或同等小屏各跑一遍数独 / 二进制 / 数绘 / 数回。

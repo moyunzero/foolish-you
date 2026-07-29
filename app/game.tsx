@@ -26,7 +26,10 @@ import { pickAbandonConfirmBody } from '../lib/copy/abandonConfirm';
 import { resolveGameStreakSubline } from '../lib/copy/sundaySpecial';
 import { useI18n } from '../lib/i18n';
 import { shouldShowEveningReminderBanner } from '../lib/reminder/eveningBanner';
-import { loadReminderState } from '../lib/storage/reminderStorage';
+import {
+  loadReminderState,
+  markEveningBannerDismissed,
+} from '../lib/storage/reminderStorage';
 
 const HORIZONTAL_PADDING = 24;
 
@@ -63,6 +66,8 @@ export default function GameScreen() {
   const [reminderOpen, setReminderOpen] = useState(false);
   const [reminderEnabled, setReminderEnabled] = useState(false);
   const [localHour, setLocalHour] = useState(() => new Date().getHours());
+  const [eveningBannerDismissedForDateKey, setEveningBannerDismissedForDateKey] =
+    useState<string | null>(null);
 
   const session = useGameBoardSession({
     gameType,
@@ -108,7 +113,12 @@ export default function GameScreen() {
   }, [status]);
 
   useEffect(() => {
-    void loadReminderState().then((state) => setReminderEnabled(state.enabled));
+    void loadReminderState().then((state) => {
+      setReminderEnabled(state.enabled);
+      setEveningBannerDismissedForDateKey(
+        state.eveningBannerDismissedForDateKey,
+      );
+    });
   }, [reminderOpen]);
 
   const showPlayChrome = session.showBoardChrome;
@@ -129,8 +139,26 @@ export default function GameScreen() {
       localHour,
       freezeConsumedToday,
       showMissedYesterday: missedYesterdayLine != null,
+      eveningBannerDismissedForDateKey,
     });
-  }, [dateKey, status, localHour, freezeConsumedToday, missedYesterdayLine]);
+  }, [
+    dateKey,
+    status,
+    localHour,
+    freezeConsumedToday,
+    missedYesterdayLine,
+    eveningBannerDismissedForDateKey,
+  ]);
+
+  const handleDismissEveningBanner = () => {
+    if (dateKey == null) return;
+    setEveningBannerDismissedForDateKey(dateKey);
+    void markEveningBannerDismissed(dateKey).then((state) => {
+      setEveningBannerDismissedForDateKey(
+        state.eveningBannerDismissedForDateKey,
+      );
+    });
+  };
 
   return (
     <SafeAreaView className="flex-1 bg-canvas" edges={['top']}>
@@ -168,6 +196,7 @@ export default function GameScreen() {
           reminderEnabled={reminderEnabled}
           horizontalPadding={HORIZONTAL_PADDING}
           onOpenReminder={() => setReminderOpen(true)}
+          onDismiss={handleDismissEveningBanner}
         />
       ) : null}
 

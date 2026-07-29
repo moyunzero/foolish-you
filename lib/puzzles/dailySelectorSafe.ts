@@ -16,19 +16,26 @@ export function selectDailyGameSafe(
   for (let attempt = 0; attempt < 2; attempt += 1) {
     const attemptSeed =
       attempt === 0 ? baseSeed : deriveSubSeed(baseSeed, 'solvable-retry');
-    const candidate = selectDailyGame({ ...params, seed: attemptSeed });
-    lastCandidate = candidate;
-    if (isPuzzleSolvable(candidate.gameType, candidate.puzzle)) {
-      return candidate;
-    }
-    if (__DEV__) {
-      console.warn(
-        '[dailySelectorSafe] unsolvable candidate',
-        params.dateKey,
-        candidate.gameType,
-        'attempt',
-        attempt,
-      );
+    try {
+      const candidate = selectDailyGame({ ...params, seed: attemptSeed });
+      lastCandidate = candidate;
+      if (isPuzzleSolvable(candidate.gameType, candidate.puzzle)) {
+        return candidate;
+      }
+      if (__DEV__) {
+        console.warn(
+          '[dailySelectorSafe] unsolvable candidate',
+          params.dateKey,
+          candidate.gameType,
+          'attempt',
+          attempt,
+        );
+      }
+    } catch (error) {
+      // forTier may throw after avoid+relax+recover (rare); keep Safe disaster path.
+      if (__DEV__) {
+        console.warn('[dailySelectorSafe] selectDailyGame threw', error);
+      }
     }
   }
 

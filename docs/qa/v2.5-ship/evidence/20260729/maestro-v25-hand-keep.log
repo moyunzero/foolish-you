@@ -1,0 +1,37 @@
+WARNING: A restricted method in java.lang.System has been called
+WARNING: java.lang.System::load has been called by org.fusesource.jansi.internal.JansiLoader in an unnamed module (file:/Users/moyun/.maestro/lib/jansi-2.4.1.jar)
+WARNING: Use --enable-native-access=ALL-UNNAMED to avoid a warning for callers in this module
+WARNING: Restricted methods will be blocked in a future release unless native access is enabled
+
+Running on iPhone 17 Pro - iOS 26.4 - 846693AF-C5EA-4B48-B869-F70D88BFEC90
+ > Flow v25-hand-keep-sudoku
+Launch app "com.moyunzero.foolish-you" with clear state... COMPLETED
+Assert that "完成今日" is visible... COMPLETED
+Run ../v22/subflows/dev-open-panel.yaml...
+  Run flow when "一键通关" is not visible...
+    Tap on "DEV 调试"... COMPLETED
+  Run flow when "一键通关" is not visible... COMPLETED
+  Assert that "一键通关" is visible... COMPLETED
+Run ../v22/subflows/dev-open-panel.yaml... COMPLETED
+Tap on "数独", Below "DEV 调试"... COMPLETED
+Assert that "完成今日" is visible... COMPLETED
+Run flow when "知道了" is visible...
+Run flow when "知道了" is visible... SKIPPED
+Run ../v22/subflows/dev-hide-bar.yaml...
+  Run flow when "DEV 调试" is visible...
+    Tap on "隐藏调试条，便于截图"... COMPLETED
+    Assert that "DEV 调试" is not visible... COMPLETED
+  Run flow when "DEV 调试" is visible... COMPLETED
+Run ../v22/subflows/dev-hide-bar.yaml... COMPLETED
+Assert that "数独" is visible... COMPLETED
+Tap on "第 1 行第 1 列，空"... COMPLETED
+Tap on "填入 7"... COMPLETED
+Assert that "第 1 行第 1 列，已填 7" is visible... COMPLETED
+Take screenshot 05-keep-before-kill... COMPLETED
+Stop com.moyunzero.foolish-you... COMPLETED
+Launch app "com.moyunzero.foolish-you"... COMPLETED
+Assert that "完成今日" is visible... COMPLETED
+Assert that "数独" is visible... COMPLETED
+Assert that "第 1 行第 1 列，已填 7" is visible... COMPLETED
+Take screenshot 06-keep-after-relaunch... COMPLETED
+KEEP_EXIT=

@@ -32,9 +32,9 @@ export function bandLerp(band: number, easy: number, hard: number): number {
 }
 
 export function sudokuGivensForDate(dateKey: string): number {
-  return bandLerp(weekdayBand(dateKey), 33, 27);
+  return bandLerp(weekdayBand(dateKey), 35, 24);
 }
 
 export function binaryGivensForDate(dateKey: string): number {
-  return bandLerp(weekdayBand(dateKey), 26, 20);
+  return bandLerp(weekdayBand(dateKey), 28, 18);
 }

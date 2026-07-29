@@ -2,7 +2,7 @@ import {
   SLITHERLINK_MAX_GEN_ATTEMPTS,
   SLITHERLINK_MIN_CLUES,
 } from '../../../constants/config';
-import { weekdayBand } from '../difficulty/weekdayBand';
+import { slitherlinkParamsForDate } from '../difficulty/slitherlinkBand';
 import { deriveSubSeed, mulberry32 } from '../rng';
 import type { SlitherlinkPuzzle, SlitherlinkSolutionEdges } from './spec';
 import { EDGE_BLANK, EDGE_LINE, SLITHERLINK_SIZE } from './spec';
@@ -19,17 +19,29 @@ import { computePuzzleHash } from './hash';
 import { countSolutionsUpTo, solve } from './solver';
 import { isSingleLoopComplete } from './validate';
 
+/** Quiet dig soften: try minClues, then +2/+4/+6 (D-09). */
+const SOFTEN_STEP = 2;
+const SOFTEN_MAX = 3;
+
+/**
+ * Legacy 3-way generation-guide labels (not public DifficultyTier / peak claims).
+ * Used by weekday `slitherlinkParamsForDate` path and no-dateKey `generateSlitherlinkPuzzle`.
+ */
 export type SlitherlinkDifficulty = 'easy' | 'medium' | 'hard';
 
 const CELL_COUNT = SLITHERLINK_SIZE * SLITHERLINK_SIZE;
 
+/** Generation guides only — peak technique gates difficulty (D-08). */
 const DIFFICULTY_MIN_CLUES: Record<SlitherlinkDifficulty, number> = {
   easy: Math.max(SLITHERLINK_MIN_CLUES + 6, 24),
   medium: SLITHERLINK_MIN_CLUES + 2,
   hard: Math.max(SLITHERLINK_MIN_CLUES - 4, 14),
 };
 
-/** 「环内」格子数量：大区更易、小区更绕，形状由随机 polyomino 决定 */
+/**
+ * Generation guides for「环内」cell count (large region easier, small more twisty).
+ * Not a public difficulty claim (D-08).
+ */
 const DIFFICULTY_INSIDE_RANGE: Record<
   SlitherlinkDifficulty,
   { min: number; max: number }
@@ -37,6 +49,12 @@ const DIFFICULTY_INSIDE_RANGE: Record<
   easy: { min: 30, max: 44 },
   medium: { min: 20, max: 36 },
   hard: { min: 12, max: 28 },
+};
+
+/** Four-tier / forTier carve params — no dateKey band, no builtin. */
+export type SlitherlinkGuideParams = {
+  minClues: number;
+  inside: { min: number; max: number };
 };
 
 type CellCoord = { row: number; col: number };
@@ -297,16 +315,19 @@ export function bandToDifficulty(band: number): SlitherlinkDifficulty {
 
 /**
  * 从随机 polyomino（有机 / 虫形 / 双种子）生成回路，接近商业 Slitherlink 的不规则形状。
+ * Optional `insideOverride` is used by the dateKey band path (D-05).
  */
 export function generateLoop(
   seed: number,
   difficulty: SlitherlinkDifficulty,
+  insideOverride?: { min: number; max: number },
 ): SlitherlinkSolutionEdges | null {
-  const { min, max } = DIFFICULTY_INSIDE_RANGE[difficulty];
+  const { min, max } = insideOverride ?? DIFFICULTY_INSIDE_RANGE[difficulty];
+  const loopLabel = insideOverride != null ? 'band' : difficulty;
 
   for (let attempt = 0; attempt < 48; attempt += 1) {
     const attemptRng = mulberry32(
-      deriveSubSeed(seed, `sl-loop-${difficulty}-${attempt}`),
+      deriveSubSeed(seed, `sl-loop-${loopLabel}-${attempt}`),
     );
     const target = min + Math.floor(attemptRng() * (max - min + 1));
     let strategy =
@@ -356,19 +377,70 @@ export function carveClues(
   return clues;
 }
 
+function carveWithSoften(
+  solution: SlitherlinkSolutionEdges,
+  rng: () => number,
+  minClues: number,
+): (number | null)[][] | null {
+  for (let soften = 0; soften <= SOFTEN_MAX; soften += 1) {
+    const target = minClues + soften * SOFTEN_STEP;
+    const clues = carveClues(solution, rng, target);
+    if (clues != null) return clues;
+  }
+  return null;
+}
+
+/**
+ * Polyomino + carve using explicit guide params.
+ * No dateKey band lerp; no builtin fallback (forTier only).
+ * Falls back to full clues when dig-carve cannot meet minClues.
+ */
+export function generateOnceForGuides(
+  seed: number,
+  guides: SlitherlinkGuideParams,
+): SlitherlinkPuzzle | null {
+  const rng = mulberry32(seed);
+  const solution = generateLoop(seed, 'medium', guides.inside);
+  if (solution == null) return null;
+  const carved = carveWithSoften(solution, rng, guides.minClues);
+  const clues = carved ?? cluesFromSolutionEdges(solution);
+  if (countSolutionsUpTo(clues, createEmptyPlayState(), 2) !== 1) {
+    return null;
+  }
+
+  return {
+    kind: 'slitherlink',
+    size: SLITHERLINK_SIZE,
+    clues,
+    puzzleHash: computePuzzleHash(clues),
+    solution: cloneSolutionEdges(solution),
+  };
+}
+
 function generateOnce(seed: number, dateKey?: string): SlitherlinkPuzzle | null {
   const rng = mulberry32(seed);
-  const difficulty =
-    dateKey != null
-      ? bandToDifficulty(weekdayBand(dateKey))
-      : pickSlitherlinkDifficulty(rng);
+
+  if (dateKey != null) {
+    const params = slitherlinkParamsForDate(dateKey);
+    // difficulty label unused when insideOverride is set; keep medium as stub
+    const solution = generateLoop(seed, 'medium', params.inside);
+    if (solution == null) return null;
+    const clues = carveWithSoften(solution, rng, params.minClues);
+    if (clues == null) return null;
+
+    return {
+      kind: 'slitherlink',
+      size: SLITHERLINK_SIZE,
+      clues,
+      puzzleHash: computePuzzleHash(clues),
+      solution: cloneSolutionEdges(solution),
+    };
+  }
+
+  const difficulty = pickSlitherlinkDifficulty(rng);
   const solution = generateLoop(seed, difficulty);
   if (solution == null) return null;
-  const clues = carveClues(
-    solution,
-    rng,
-    DIFFICULTY_MIN_CLUES[difficulty],
-  );
+  const clues = carveClues(solution, rng, DIFFICULTY_MIN_CLUES[difficulty]);
   if (clues == null) return null;
 
   return {

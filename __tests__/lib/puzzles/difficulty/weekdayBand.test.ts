@@ -27,12 +27,12 @@ describe('weekdayBand', () => {
 
 describe('bandLerp', () => {
   it('returns easy value at band 0 and hard value at band 6', () => {
-    expect(bandLerp(0, 33, 27)).toBe(33);
-    expect(bandLerp(6, 33, 27)).toBe(27);
+    expect(bandLerp(0, 35, 24)).toBe(35);
+    expect(bandLerp(6, 35, 24)).toBe(24);
   });
 
   it('interpolates mid-band values', () => {
-    expect(bandLerp(3, 33, 27)).toBe(30);
+    expect(bandLerp(3, 35, 24)).toBe(30);
   });
 });
 
@@ -41,15 +41,15 @@ describe('per-game givens helpers', () => {
     expect(sudokuGivensForDate('2026-06-01')).toBeGreaterThan(
       sudokuGivensForDate('2026-06-07'),
     );
-    expect(sudokuGivensForDate('2026-06-01')).toBe(33);
-    expect(sudokuGivensForDate('2026-06-07')).toBe(27);
+    expect(sudokuGivensForDate('2026-06-01')).toBe(35);
+    expect(sudokuGivensForDate('2026-06-07')).toBe(24);
   });
 
   it('binary givens decrease Mon → Sun', () => {
     expect(binaryGivensForDate('2026-06-01')).toBeGreaterThan(
       binaryGivensForDate('2026-06-07'),
     );
-    expect(binaryGivensForDate('2026-06-01')).toBe(26);
-    expect(binaryGivensForDate('2026-06-07')).toBe(20);
+    expect(binaryGivensForDate('2026-06-01')).toBe(28);
+    expect(binaryGivensForDate('2026-06-07')).toBe(18);
   });
 });

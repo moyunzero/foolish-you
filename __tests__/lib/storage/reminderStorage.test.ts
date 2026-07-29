@@ -7,6 +7,7 @@ import {
 import {
   clearReminderState,
   loadReminderState,
+  markEveningBannerDismissed,
   markSoftAskDismissed,
   recordFirstOpenSample,
   saveReminderState,
@@ -56,6 +57,32 @@ describe('reminderStorage', () => {
     expect(once.softAskDismissed).toBe(true);
     const twice = await markSoftAskDismissed();
     expect(twice.softAskDismissed).toBe(true);
+  });
+
+  it('markEveningBannerDismissed is per dateKey and idempotent', async () => {
+    const once = await markEveningBannerDismissed('2026-07-29');
+    expect(once.eveningBannerDismissedForDateKey).toBe('2026-07-29');
+    const twice = await markEveningBannerDismissed('2026-07-29');
+    expect(twice.eveningBannerDismissedForDateKey).toBe('2026-07-29');
+    const nextDay = await markEveningBannerDismissed('2026-07-30');
+    expect(nextDay.eveningBannerDismissedForDateKey).toBe('2026-07-30');
+  });
+
+  it('loads legacy reminder payloads missing evening dismiss field', async () => {
+    await AsyncStorage.setItem(
+      REMINDER_STORAGE_KEY,
+      JSON.stringify({
+        version: REMINDER_STORAGE_VERSION,
+        enabled: false,
+        hour: 9,
+        minute: 0,
+        softAskDismissed: false,
+        permissionDenied: false,
+        firstOpenHour: null,
+        firstOpenSampledForDateKey: null,
+      }),
+    );
+    await expect(loadReminderState()).resolves.toEqual(DEFAULT_REMINDER_STATE);
   });
 
   it('rejects invalid time on save', async () => {

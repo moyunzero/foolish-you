@@ -59,8 +59,14 @@ import {
   isSlitherlinkPuzzle,
   isSudokuPuzzle,
 } from '../lib/puzzles/types';
+import { applyMasteryOutcome } from '../lib/mastery';
 import { recordCompletion, recordAbandon, loadCompletionHistory } from '../lib/storage/completionHistoryStorage';
 import type { CompletionEntry } from '../lib/storage/completionHistoryStorage';
+import {
+  loadMasteryState,
+  saveMasteryState,
+} from '../lib/storage/masteryStorage';
+import { appendPlayedHash } from '../lib/storage/playedHashStorage';
 import { incrementRatingCompletedCount } from '../lib/storage/ratingStorage';
 import { runReminderSync } from '../lib/notifications/runReminderSync';
 import { clearDailySnapshot } from '../lib/storage/dailyStorage';
@@ -394,13 +400,47 @@ function useDailyGameProviderValue(): DailyGameState {
           if (nextStatus === 'completed') {
             const startedAt = updated.startedAt ?? Date.now();
             const finishedAt = updated.finishedAt ?? Date.now();
-            await recordCompletion(updated.dateKey, finishedAt - startedAt, updated.gameType);
+            const elapsedMs = finishedAt - startedAt;
+            await recordCompletion(updated.dateKey, elapsedMs, updated.gameType);
             await recordStreakCheckIn(updated.dateKey);
             await incrementRatingCompletedCount();
+            try {
+              await saveMasteryState(
+                applyMasteryOutcome(await loadMasteryState(), {
+                  gameType: updated.gameType,
+                  outcome: 'completed',
+                  elapsedMs,
+                  nowMs: finishedAt,
+                }),
+              );
+            } catch (error) {
+              console.warn('[DailyGameContext] mastery update failed', error);
+            }
+            try {
+              await appendPlayedHash(updated.gameType, updated.puzzleHash);
+            } catch (error) {
+              console.warn(
+                '[DailyGameContext] played-hash append failed',
+                error,
+              );
+            }
           } else if (nextStatus === 'abandoned') {
             const startedAt = updated.startedAt ?? Date.now();
             const finishedAt = updated.finishedAt ?? Date.now();
-            await recordAbandon(updated.dateKey, finishedAt - startedAt, updated.gameType);
+            const elapsedMs = finishedAt - startedAt;
+            await recordAbandon(updated.dateKey, elapsedMs, updated.gameType);
+            try {
+              await saveMasteryState(
+                applyMasteryOutcome(await loadMasteryState(), {
+                  gameType: updated.gameType,
+                  outcome: 'abandoned',
+                  elapsedMs,
+                  nowMs: finishedAt,
+                }),
+              );
+            } catch (error) {
+              console.warn('[DailyGameContext] mastery update failed', error);
+            }
           }
           await runReminderSync({
             todayKey: updated.dateKey,

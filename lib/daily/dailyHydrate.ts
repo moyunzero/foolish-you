@@ -19,6 +19,8 @@ import {
   loadDailySnapshot,
   saveDailySnapshot,
 } from '../storage/dailyStorage';
+import { loadMasteryState } from '../storage/masteryStorage';
+import { loadPlayedHashes } from '../storage/playedHashStorage';
 import { prepareTodaySnapshot } from '../storage/snapshotPrep';
 
 export type BuildNewDailyParams = {
@@ -111,10 +113,17 @@ export async function buildNewDailySnapshot(
     params.devKeepGameType && params.previous
       ? params.previous.gameType
       : resolveForceGameType(params.forceGameType);
+  const [mastery, played] = await Promise.all([
+    loadMasteryState(),
+    loadPlayedHashes(),
+  ]);
   const selected = selectDailyGameSafe({
     dateKey: params.today,
     previous: buildSelectPrevious(params, forced),
     forceGameType: forced,
+    mastery,
+    avoidByType: played.byType,
+    nowMs: Date.now(),
   });
 
   const now = Date.now();

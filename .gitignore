@@ -75,6 +75,8 @@ coverage/
 # Maestro run logs / failure screenshots (keep docs/qa/**/screenshots/)
 docs/qa/**/commands-*
 docs/qa/**/screenshot-*
+# Intermediate visual-audit runs (not ship evidence; superseded by v2.6-01 Composition)
+docs/qa/v2.5-01-composition/
 
 # --- Lockfile: this repo uses npm (package-lock.json) ---
 yarn.lock
@@ -87,3 +89,4 @@ CLAUDE.md
 .understand-anything
 
 .codegraph
+.code-review-graph/

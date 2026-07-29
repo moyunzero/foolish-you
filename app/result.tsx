@@ -372,6 +372,7 @@ export default function ResultScreen() {
                 dateKey={dateKey}
                 seed={seed ?? snapshot?.seed}
                 onOpenReminder={() => setReminderOpen(true)}
+                onDismiss={() => setSoftAskVisible(false)}
               />
             ) : null}
             <MonthCalendarLink onPress={() => setCalendarOpen(true)} />

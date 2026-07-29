@@ -72,6 +72,7 @@ export const ui = {
       ] as const,
       cta: '明天叫我',
       ctaA11y: '打开提醒设置，明天到点通知你',
+      dismissA11y: '关闭提醒提示，稍后再说',
     },
     sheet: {
       title: '每日提醒',
@@ -87,6 +88,7 @@ export const ui = {
       bodyHasPush: '快八点了，今日还没完 — 记得收工。',
       ctaEnable: '开启提醒',
       ctaEdit: '改提醒',
+      dismissA11y: '关闭提醒提示，稍后再说',
     },
     errorPermissionDenied: '系统不让喊你了 — 只能 App 里见',
   },

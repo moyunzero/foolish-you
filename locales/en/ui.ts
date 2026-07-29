@@ -72,6 +72,7 @@ export const ui = {
       ] as const,
       cta: 'Remind me tomorrow',
       ctaA11y: 'Open reminder settings for a daily nudge',
+      dismissA11y: 'Dismiss reminder tip for now',
     },
     sheet: {
       title: 'Daily reminder',
@@ -87,6 +88,7 @@ export const ui = {
       bodyHasPush: 'Almost 8 PM — don’t leave today hanging.',
       ctaEnable: 'Turn on reminders',
       ctaEdit: 'Change reminder',
+      dismissA11y: 'Dismiss reminder tip for now',
     },
     errorPermissionDenied: 'Notifications blocked — catch you in the app',
   },
