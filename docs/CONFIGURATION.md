@@ -26,7 +26,7 @@ Primary Expo configuration (static JSON, no `app.config.js`).
 |------|-------|-------|
 | Display name | 傻了么 | User-facing app name |
 | Slug / scheme | `foolish-you` | Deep links and Expo project slug |
-| Version | `2.4.2` | Marketing version (aligned with `package.json`) |
+| Version | `2.5.0` | Marketing version (aligned with `package.json`) |
 | UI style | `dark` | System appearance default |
 | New architecture | `true` | React Native new arch enabled |
 | Entry | `expo-router/entry` | Set in `package.json` `main` |
@@ -61,7 +61,7 @@ Submit profile `production` is defined but empty in-repo; store credentials are 
 
 | Channel | Status | Notes |
 |---------|--------|-------|
-| **iOS App Store** | **Live `2.4.1`** · shipping **`2.4.2`** | [App Store](https://apps.apple.com/app/id6770218110) · Bundle `com.moyunzero.foolish-you` · CN「傻了么」/ US「Brainfool」 |
+| **iOS App Store** | **Live `2.4.1`** · shipping **`2.5.0`** | [App Store](https://apps.apple.com/app/id6770218110) · Bundle `com.moyunzero.foolish-you` · CN「傻了么」/ US「Brainfool」 |
 | **Google Play** | Not published | Package `com.moyunzero.foolishyou` configured in `app.json` only |
 
 ### iOS build number vs App Store Connect
@@ -76,16 +76,19 @@ If upload fails with **「捆绑包版本必须高于之前上传的版本 "N"�
 
 Previously `appVersionSource` was `remote`; EAS remote counter (`eas build:version:get`) can drift from App Store Connect if builds were uploaded outside EAS or counters were reset. Local source avoids that mismatch for store releases.
 
-### App Store · 更新说明（`2.4.2` What's New · 待提交）
+### App Store · 更新说明（`2.5.0` What's New · 待提交）
 
-粘贴到 App Store Connect → 版本 **2.4.2** → **更新说明**（中/英各一份）。隐私政策与权限无变更。
+粘贴到 App Store Connect → 版本 **2.5.0** → **更新说明**（中/英各一份）。隐私政策与权限无变更。
+
+> Content Depth（原单独规划的 `2.4.2`）与 Adaptive Mastery **一并**随本版提交；不单独提交 `2.4.2`。
 
 **中文（傻了么 · 中国区）**
 
 ```
 · 数独、二进制的一周难度节奏更清楚：周一更轻松，周日更有挑战
-· 数回难度梯度拉宽，一周里松紧更好分辨
-· 数绘图案库扩充到 120，更多小图轮着来
+· 数回难度梯度拉宽；数绘图案库扩充到 120
+· 四种玩法会按你的掌握度悄悄调整难度，仍是一天一局
+· 本机记录已玩过的盘面，减少短期内重复撞题
 · 更新后，尚未游玩的日期盘面可能变化；进行中的进度会保留
 ```
 
@@ -93,8 +96,9 @@ Previously `appVersionSource` was `remote`; EAS remote counter (`eas build:versi
 
 ```
 · Clearer week rhythm for Sudoku and Binary—easier Mondays, tougher Sundays
-· Wider Slitherlink difficulty stretch across the week
-· Nonogram picture library expanded to 120
+· Wider Slitherlink stretch; Nonogram library expanded to 120
+· All four puzzles quietly adapt to your mastery—still one game a day
+· Local history avoids recent boards so repeats feel rarer
 · After updating, boards for dates you have not opened yet may change; in-progress progress is kept
 ```
 
