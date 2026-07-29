@@ -31,7 +31,7 @@
 - [x] **Phase v2.5-02: Sudoku Technique Rater** — 四档技巧门控 + 生成接受环 (completed 2026-07-28)
 - [x] **Phase v2.5-03: Binary + Slitherlink Raters** — 技巧梯映射四档 (completed 2026-07-29; GAP-D24 closed via D-24 7×7 re-lock)
 - [x] **Phase v2.5-04: Nonogram Tiering** — 库内分档 + 按档选取 (completed 2026-07-29)
-- [ ] **Phase v2.5-05: Dedupe + Diversity + Wire** — hash 环 + 选题接入 mastery
+- [x] **Phase v2.5-05: Dedupe + Diversity + Wire** — hash 环 + 选题接入 mastery (completed 2026-07-29)
 - [ ] **Phase v2.5-06: Ship 2.5.0** — 披露 + 测试 + VERIFICATION
 
 > **Paused（v2.6 Host-Crafted 剩余，Adaptive 之后恢复）：**  
@@ -420,12 +420,13 @@ Plans:
   2. 完成一局后 mastery 与 hash ring 一并持久化
   3. hydrate 路径使用 mastery 解析目标档
 
-**Plans:** 3 plans
+**Plans:** 3/3 plans complete
 
 Plans:
-- [ ] v2.5-05-01-PLAN.md — Played-hash ring storage (200 FIFO/type) + CONFIGURATION
-- [ ] v2.5-05-02-PLAN.md — Selector forTier + avoid loop + hydrate mastery wire
-- [ ] v2.5-05-03-PLAN.md — Complete dual-write append + MAST-04 freeze regression
+
+- [x] v2.5-05-01-PLAN.md — Played-hash ring storage (200 FIFO/type) + CONFIGURATION
+- [x] v2.5-05-02-PLAN.md — Selector forTier + avoid loop + hydrate mastery wire
+- [x] v2.5-05-03-PLAN.md — Complete dual-write append + MAST-04 freeze regression
 
 ---
 
@@ -440,7 +441,11 @@ Plans:
   2. CI：typecheck + test + migration + lint 绿
   3. VERIFICATION 签核
 
-Plans: TBD via `/gsd-plan-phase v2.5-06`
+**Plans:** 2 plans
+
+Plans:
+- [ ] v2.5-06-01-PLAN.md — Marketing `2.5.0` + What's New (Content Depth → Adaptive → drift) + retire 2.4.2 pending
+- [ ] v2.5-06-02-PLAN.md — SHIP-02 coverage matrix + D-09 hydrate→complete + Maestro/hand QA + CI + VERIFICATION
 
 ---
 
@@ -628,8 +633,8 @@ Plans:
 | **v2.5-02 Sudoku Rater** | 3/3 | Complete | 2026-07-28 |
 | **v2.5-03 Binary + SL Raters** | 2/2 | Complete | 2026-07-29 |
 | **v2.5-04 Nonogram Tiering** | 2/2 | Complete | 2026-07-29 |
-| **v2.5-05 Dedupe + Wire** | 0/3 | Planned | — |
-| **v2.5-06 Ship 2.5.0** | 0/? | Pending | — |
+| **v2.5-05 Dedupe + Wire** | 3/3 | Complete | 2026-07-29 |
+| **v2.5-06 Ship 2.5.0** | 0/2 | Planned | — |
 | **v2.6-02 Feel + Mechanics** | 0/? | **Paused** | — |
 | **v2.6-03 Signature (DIFF-03)** | 0/? | **Paused** | — |
 | 第五玩法（TYPE-01） | — | Deferred（需 ASC 证据） | — |

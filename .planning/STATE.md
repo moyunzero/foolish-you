@@ -2,20 +2,20 @@
 gsd_state_version: 1.0
 milestone: v2.5
 milestone_name: Adaptive Mastery
-current_phase: v2.5-05
-current_phase_name: dedupe-diversity-wire
-current_plan: v2.5-05-01
-status: ready_to_execute
-stopped_at: Phase v2.5-05 plans written — ready for execute-phase
-last_updated: "2026-07-29T16:45:00.000Z"
+current_phase: v2.5-06
+status: planning_complete
+stopped_at: Phase v2.5-06 plans written — ready for execute-phase
+last_updated: "2026-07-29T10:35:00.000Z"
 last_activity: 2026-07-29
-last_activity_desc: Phase v2.5-05 planned — 3 plans / 3 waves
+last_activity_desc: Phase v2.5-06 plans created (01 version/What's New, 02 SHIP-02/QA)
 progress:
   total_phases: 25
-  completed_phases: 5
-  total_plans: 13
-  completed_plans: 14
-  percent: 16
+  completed_phases: 6
+  total_plans: 12
+  completed_plans: 17
+  percent: 20
+current_phase_name: ship-2-5-0
+current_plan: v2.5-06-01
 ---
 
 # Project State
@@ -25,14 +25,15 @@ progress:
 See: .planning/PROJECT.md（**v2.5 Adaptive Mastery** · started 2026-07-28）
 
 **Core value:** 用户每天打开就能玩到唯一、确定的今日谜题，结束时获得情绪化反馈。  
-**Current focus:** Phase v2.5-05 — Dedupe + Diversity + Wire (plans ready → execute)
+**Current focus:** Phase v2.5-06 — Ship 2.5.0 (plans ready → execute)
 
 ## Current Position
 
-Phase: v2.5-05 (Dedupe + Diversity + Wire) — **ready to execute**
-Plan: v2.5-05-01 (wave 1 of 3)
-Status: planned — 01 storage → 02 selector/hydrate → 03 complete+freeze
-Last activity: 2026-07-29 — Phase v2.5-05 PLAN.md ×3 written
+Phase: v2.5-06 (Ship 2.5.0) — **planning complete**  
+Plan: v2.5-06-01 (next)  
+Status: 2 plans written (wave 1 version/What's New → wave 2 SHIP-02/QA)  
+Last activity: 2026-07-29 — Phase v2.5-06 PLAN.md created  
+Next: `/gsd-execute-phase v2.5-06`
 
 ## Accumulated Context
 
@@ -134,11 +135,11 @@ Last activity: 2026-07-29 — Phase v2.5-05 PLAN.md ×3 written
 
 **Resume file:** None
 
-**Stopped at:** Phase v2.5-04 VERIFICATION passed
+**Stopped at:** Completed v2.5-05-03-PLAN.md
 
-**Resume:** `/gsd-discuss-phase v2.5-05` or `/gsd-plan-phase v2.5-05`
+**Resume:** Phase plans complete — run `/gsd-verify-work` or verifier for v2.5-05
 
-Last session: 2026-07-29T07:54:30.000Z
+Last session: 2026-07-29T09:34:04.598Z
 
 ## Performance Metrics
 
@@ -155,6 +156,9 @@ Last session: 2026-07-29T07:54:30.000Z
 | Phase v2.5-02 P02 | 3min | 2 tasks | 3 files |
 | Phase v2.5-02 P03 | 3min | 3 tasks | 4 files |
 | Phase v2.5-03 P02 | 37min | 3 tasks | 11 files |
+| Phase v2.5-05 P01 | 2min | 2 tasks | 4 files |
+| Phase v2.5-05 P02 | 6min | 2 tasks | 3 files |
+| Phase v2.5-05 P03 | 8min | 2 tasks | 3 files |
 
 ## Decisions
 
@@ -187,3 +191,10 @@ Last session: 2026-07-29T07:54:30.000Z
 - [Phase v2.5-04]: Nonogram peaks: simple_few|simple_many|probe|nested_probe → easy/medium/hard/expert
 - [Phase v2.5-04]: Nonogram rater caps: EASY_MAX_SWEEPS=3; probe depth=2 nodes=800 steps=500 productive=8
 - [Phase v2.5-04]: Hard/Expert fixtures: moon (probe×1), bicycle (nested_probe via probeCount≥2)
+- [Phase v2.5-05 P01]: PLAYED_HASH_STORAGE_KEY=@foolish-you/played-hash-v1; VERSION=1; RING_CAPACITY=200; AVOID_HASH_MAX_ATTEMPTS=40
+- [Phase v2.5-05 P01]: Played-hash ring separate module; must not bump STORAGE_VERSION or MASTERY_STORAGE_VERSION (D-12)
+- [Phase v2.5-05 P02]: Adaptive create path uses forTier only — no dateKey into legacy weekday generate (D-09)
+- [Phase v2.5-05 P02]: Avoid exhaust still forTier with daily-avoid-*-relax; never SL builtin (D-06)
+- [Phase v2.5-05 P02]: forTier throws treated as failed attempts; recover sub-seeds if relax also fails
+- [Phase v2.5-05 P03]: appendPlayedHash only on complete after mastery; independent try/catch warn (D-02, D-13)
+- [Phase v2.5-05 P03]: Complete-path tests at storage layer; Context call-site source acceptance
