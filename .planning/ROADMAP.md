@@ -4,8 +4,8 @@
 
 从空仓库到可玩的每日益智 MVP：先搭建 Expo 骨架与「今日游戏」管道，再分别交付数独与二进制谜题，最后补上结果页幽默反馈与动效，形成「打开 → 玩 → 嘲讽/鼓励 → 明天见」的完整闭环。
 
-**v1.0 已交付（2026-05-16）** · **Nonogram（2026-05-25）** · **v1.1 / v1.2 已发布** · **v2.1 App Store 已上架（`2.1.0`，2026-06-09）** · **v2.2 `2.2.0`** · **v2.3 `2.3.0`** · **v2.4 `2.4.0` 已上架（2026-07-15）** · **v2.4.2 repo ready** · **Composition 已合入（现标 v2.6-01）**。  
-**当前执行里程碑：v2.5 Adaptive Mastery**（适应性掌握度）。原 Host-Crafted FEEL/DIFF-03 改标 **v2.6** 并暂停。留存 KPI 待 **App Store Connect Analytics** 采集（应用内无 analytics SDK）。
+**v1.0 已交付（2026-05-16）** · **Nonogram（2026-05-25）** · **v1.1 / v1.2 已发布** · **v2.1 App Store 已上架（`2.1.0`，2026-06-09）** · **v2.2 `2.2.0`** · **v2.3 `2.3.0`** · **v2.4 `2.4.0` 已上架（2026-07-15）** · **v2.4.2 Content Depth（随 2.5.0）** · **Composition 已合入（现标 v2.6-01）** · **✅ v2.5 Adaptive Mastery shipped 2026-07-29（营销 `2.5.0`）**。  
+**下一里程碑候选：v2.6 Host-Crafted Play**（FEEL + DIFF-03；Composition 已交付）。留存 KPI 待 **App Store Connect Analytics** 采集（应用内无 analytics SDK）。
 
 ## Phases
 
@@ -27,14 +27,9 @@
 - [x] **Phase v2.4.2-01: Band Retune（难度带）** — 数独/二进制/数回周节奏拉宽 + 变盘修复路径测试 (completed 2026-07-27)
 - [x] **Phase v2.4.2-02: Nonogram Expand（数绘扩库）** — 90→exactly 120 append-only + zh/en 标题 + SHIP-02 silly-face fixture (completed 2026-07-27)
 - [x] **Phase v2.4.2-03: Ship 2.4.2（发版签核）** — 营销版本 bump + 变盘披露文案 + QA (completed 2026-07-28)
-- [x] **Phase v2.5-01: Mastery Foundation** — FSRS-lite 存储 + 日历轻调 + 当日冻结 (completed 2026-07-28)
-- [x] **Phase v2.5-02: Sudoku Technique Rater** — 四档技巧门控 + 生成接受环 (completed 2026-07-28)
-- [x] **Phase v2.5-03: Binary + Slitherlink Raters** — 技巧梯映射四档 (completed 2026-07-29; GAP-D24 closed via D-24 7×7 re-lock)
-- [x] **Phase v2.5-04: Nonogram Tiering** — 库内分档 + 按档选取 (completed 2026-07-29)
-- [x] **Phase v2.5-05: Dedupe + Diversity + Wire** — hash 环 + 选题接入 mastery (completed 2026-07-29)
-- [ ] **Phase v2.5-06: Ship 2.5.0** — 披露 + 测试 + VERIFICATION
+- [x] **✅ v2.5 Adaptive Mastery** — Phases 01–06（FSRS-lite + 四题型技巧档 + hash 去重 + Ship `2.5.0`）— SHIPPED 2026-07-29 · [archive](./milestones/v2.5-ROADMAP.md)
 
-> **Paused（v2.6 Host-Crafted 剩余，Adaptive 之后恢复）：**  
+> **Next / Paused（v2.6 Host-Crafted 剩余）：**  
 > - Phase v2.6-02 Feel + Mechanics（FEEL-01..06）  
 > - Phase v2.6-03 Signature **DIFF-03 only**
 
@@ -328,126 +323,16 @@ Plans:
 
 ---
 
-### Phase v2.5-01: Mastery Foundation
+## Milestone v2.5 Adaptive Mastery — ✅ SHIPPED 2026-07-29
 
-**Goal**: 分题型掌握度可持久化；遗忘曲线更新；日历仅轻调；当日盘面冻结。  
-**Depends on**: v2.4.2-03 complete  
-**Requirements**: MAST-01, MAST-02, MAST-03, MAST-04  
-**UI hint**: no  
-**Success Criteria**:
+Full phase details archived: [`.planning/milestones/v2.5-ROADMAP.md`](./milestones/v2.5-ROADMAP.md) · requirements: [v2.5-REQUIREMENTS.md](./milestones/v2.5-REQUIREMENTS.md) · audit: [v2.5-MILESTONE-AUDIT.md](./milestones/v2.5-MILESTONE-AUDIT.md)
 
-  1. 新装用户四种题型均有默认 Easy 向掌握度，可读写且经 migration 校验
-  2. 完成/放弃后该题型掌握度按遗忘曲线规则变化（可用单元测试固定时钟验证）
-  3. 同一 `dateKey` 首次创建后改 mastery 不改变已写入 snapshot 的 puzzleHash
-  4. 日历 band 对目标档的偏移不超过 ±1（或仅档内参数轻推）
-
-**Plans:** 2/3 complete (1 gap-closure pending)
-
-Plans:
-
-- [x] v2.5-01-01-PLAN.md — DifficultyTier + FSRS-lite + resolveTargetTier + masteryStorage (MAST-01..03)
-- [x] v2.5-01-02-PLAN.md — persistStatus wire + same-day freeze regression (MAST-02, MAST-04)
+- [x] v2.5-01 Mastery Foundation (2/2) · v2.5-02 Sudoku Rater (3/3) · v2.5-03 Binary+SL (2/2)
+- [x] v2.5-04 Nonogram Tiering (2/2) · v2.5-05 Dedupe+Wire (3/3) · v2.5-06 Ship 2.5.0 (2/2)
 
 ---
 
-### Phase v2.5-02: Sudoku Technique Rater
-
-**Goal**: 数独按四档技巧峰值接受/拒绝生成盘，线索数为引导非唯一标准。  
-**Depends on**: v2.5-01  
-**Requirements**: TIER-01, TIER-02  
-**Success Criteria**:
-
-  1. Fixture 盘面被 rater 分到与标注一致的档位
-  2. 生成循环在合理次数内产出目标档唯一解盘
-  3. Expert 档有 CPU/步数预算，超时则降级重试而非卡死
-
-**Plans:** 3/3 plans complete
-
-Plans:
-
-- [x] v2.5-02-01-PLAN.md — Candidates + technique ladder + rateSudoku fixtures (TIER-01/02 rater)
-- [x] v2.5-02-02-PLAN.md — generateSudokuPuzzleForTier accept/soften loop (TIER-02 gen)
-- [x] v2.5-02-03-PLAN.md — Gap closure: sound short_chain + conflict-checked solved + expectedPeak (CR-01/WR-01/WR-02)
-
----
-
-### Phase v2.5-03: Binary + Slitherlink Raters
-
-**Goal**: 二进制与数回具备与四档对齐的技巧门控。  
-**Depends on**: v2.5-02（复用门控模式）  
-**Requirements**: TIER-03, TIER-05  
-**Success Criteria**:
-
-  1. 各档至少一组 fixture 分类正确
-  2. 生成/参数路径能稳定命中目标档（含 fallback）
-
-**Plans:** 2/2 plans complete — VERIFICATION **passed** (GAP-D24 closed)
-
-Plans:
-
-- [x] v2.5-03-01-PLAN.md — Binary full depth: technique ladder + rateBinary + generateBinaryPuzzleForTier (TIER-03)
-- [x] v2.5-03-02-PLAN.md — Slitherlink full depth: technique ladder + rateSlitherlink + generateForTier no-builtin + demote 3-way guides (TIER-05)
-
----
-
-### Phase v2.5-04: Nonogram Tiering
-
-**Goal**: 120 图案库按四档标记/评级，选题按目标档过滤。  
-**Depends on**: v2.5-01  
-**Requirements**: TIER-04  
-**Success Criteria**:
-
-  1. 每档可用图案数量可审计（避免空档）
-  2. 目标档选取失败时有相邻档 fallback 且可测
-
-**Plans:** 2/2 plans complete
-
-Plans:
-
-- [x] v2.5-04-01-PLAN.md — Nonogram rater: FullSettle + bounded probe + four peak fixtures (TIER-04)
-- [x] v2.5-04-02-PLAN.md — Freeze difficultyTier on 120 + generateNonogramPuzzleForTier soften (TIER-04)
-
----
-
-### Phase v2.5-05: Dedupe + Diversity + Wire
-
-**Goal**: 历史 hash 去重 + 同档多样性；selector/Context 全链路接入 mastery。  
-**Depends on**: v2.5-02..04  
-**Requirements**: DIV-01, DIV-02, TIER-01（接线）  
-**Success Criteria**:
-
-  1. 近期玩过的 hash 在重试上限内被避开
-  2. 完成一局后 mastery 与 hash ring 一并持久化
-  3. hydrate 路径使用 mastery 解析目标档
-
-**Plans:** 3/3 plans complete
-
-Plans:
-
-- [x] v2.5-05-01-PLAN.md — Played-hash ring storage (200 FIFO/type) + CONFIGURATION
-- [x] v2.5-05-02-PLAN.md — Selector forTier + avoid loop + hydrate mastery wire
-- [x] v2.5-05-03-PLAN.md — Complete dual-write append + MAST-04 freeze regression
-
----
-
-### Phase v2.5-06: Ship 2.5.0
-
-**Goal**: 营销版本 `2.5.0` + 变盘披露 + 验证签核。  
-**Depends on**: v2.5-05  
-**Requirements**: SHIP-01, SHIP-02  
-**Success Criteria**:
-
-  1. What's New / CONFIGURATION 披露未玩过日期可能变盘
-  2. CI：typecheck + test + migration + lint 绿
-  3. VERIFICATION 签核
-
-**Plans:** 2 plans
-
-Plans:
-- [ ] v2.5-06-01-PLAN.md — Marketing `2.5.0` + What's New (Content Depth → Adaptive → drift) + retire 2.4.2 pending
-- [ ] v2.5-06-02-PLAN.md — SHIP-02 coverage matrix + D-09 hydrate→complete + Maestro/hand QA + CI + VERIFICATION
-
----
+## v2.4.2 Content Depth (shipped)
 
 ### Phase v2.4.2-01: Band Retune（难度带）
 
@@ -607,7 +492,7 @@ Plans:
 
 ## Progress
 
-**Execution Order:** 1 → 2 → 3 → 4 → Nonogram → v1.1 → v1.2 → v2.0 ∥ v2.0-slitherlink → v2.1 → v2.2 → v2.3 → v2.4 → **v2.6-01 Composition** → **v2.4.2** → **v2.5 Adaptive (01→06)** → (resume) **v2.6-02 Feel** → **v2.6-03 DIFF-03** → (第五玩法 deferred) → v3.0 → v4.0
+**Execution Order:** 1 → 2 → 3 → 4 → Nonogram → v1.1 → v1.2 → v2.0 ∥ v2.0-slitherlink → v2.1 → v2.2 → v2.3 → v2.4 → **v2.6-01 Composition** → **v2.4.2** → **✅ v2.5 Adaptive** → (resume) **v2.6-02 Feel** → **v2.6-03 DIFF-03** → (第五玩法 deferred) → v3.0 → v4.0
 
 | Phase | Plans | Status | Completed |
 |-------|-------|--------|-----------|
@@ -629,12 +514,7 @@ Plans:
 | **v2.4.2-01 Band Retune** | 2/2 | Complete | 2026-07-27 |
 | **v2.4.2-02 Nonogram Expand** | 2/2 | Complete | 2026-07-27 |
 | **v2.4.2-03 Ship 2.4.2** | 2/2 | Complete | 2026-07-28 |
-| **v2.5-01 Mastery Foundation** | 2/2 | Complete | 2026-07-28 |
-| **v2.5-02 Sudoku Rater** | 3/3 | Complete | 2026-07-28 |
-| **v2.5-03 Binary + SL Raters** | 2/2 | Complete | 2026-07-29 |
-| **v2.5-04 Nonogram Tiering** | 2/2 | Complete | 2026-07-29 |
-| **v2.5-05 Dedupe + Wire** | 3/3 | Complete | 2026-07-29 |
-| **v2.5-06 Ship 2.5.0** | 0/2 | Planned | — |
+| **✅ v2.5 Adaptive Mastery** | 14/14 | **Shipped** marketing `2.5.0` | 2026-07-29 |
 | **v2.6-02 Feel + Mechanics** | 0/? | **Paused** | — |
 | **v2.6-03 Signature (DIFF-03)** | 0/? | **Paused** | — |
 | 第五玩法（TYPE-01） | — | Deferred（需 ASC 证据） | — |

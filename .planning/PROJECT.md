@@ -4,39 +4,42 @@
 
 一款极简的每日益智 App：用户每天打开后，系统自动在 **数独（Sudoku）**、**二进制谜题（Binary Puzzle / Takuzu / Binairo）**、**数绘（Nonogram / Picross）** 与 **数回（Slitherlink）** 中随机分配一局，玩完或放弃后看到搞笑鼓励/嘲讽文案，并可拷贝 emoji 战报；第二天自动换新题。无社交、无排行榜，专注「今天这一局」的体验。品牌人格是**毒舌主持人**：开场有旁白、结局有金句，认怂是节目高潮而非羞于出口。
 
-**当前版本：** 营销 `2.5.0`（repo shipping；**iOS App Store 线上** `2.4.1`；Android Google Play 未发布）。Content Depth（ex-2.4.2）与 Adaptive Mastery 一并随 `2.5.0` 提交。
+**当前版本：** 营销 `2.5.0`（repo ready；**iOS App Store 线上** `2.4.1`；Android Google Play 未发布）。Content Depth（ex-2.4.2）与 Adaptive Mastery 一并随 `2.5.0` 提交。
 
 ## Core Value
 
 用户每天只需打开 App，就能玩到**唯一、确定、不重复**的今日谜题，并在结束时获得情绪化的结果反馈——简单、有仪式感、明天再来。
 
-## Current Milestone: v2.5 Adaptive Mastery（适应性掌握度）
+## Current State
+
+**Shipped:** ✅ **v2.5 Adaptive Mastery**（2026-07-29）— 分题型 FSRS-lite 掌握度、四题型技巧四档、hash 去重、营销 `2.5.0` + 变盘披露。Archive: `.planning/milestones/v2.5-*.md` · [MILESTONES.md](./MILESTONES.md)
+
+**Live:** App Store `2.4.1` · shipping candidate `2.5.0`（EAS/ASC 仍为人工步骤）
+
+## Next Milestone Goals
+
+**v2.6 Host-Crafted Play（候选）** — Composition 已交付（`phases/v2.6-01-composition/`）；待恢复：
+
+- FEEL-01..06：Undo、数独笔记、拖填、数回命中半径、首遇 demo、haptics
+- DIFF-03：招牌 ~200ms 微交互
+
+定义需求请跑 `/gsd-new-milestone`（会生成新的 `REQUIREMENTS.md`）。
+
+<details>
+<summary>Archived: Current Milestone section during v2.5 (2026-07-28 → 2026-07-29)</summary>
 
 **Goal:** 四种题型按个人掌握度（遗忘曲线）自适应四档难度；日历仅轻调；历史去重 + 生成多样性；技巧评级完整版。
 
-**Target features:**
-- **掌握度**：分题型 FSRS-lite；完成/用时/放弃 + 间隔衰减驱动升降档
-- **难度合成**：个人为主；周一→周日 band ≤ ±1 档轻推
-- **四题型技巧档**：Easy / Medium / Hard / Expert（数独线索+技巧表；二进制/数绘/数回调研对齐）
-- **多样性**：本机 `puzzleHash` 历史去重 + 同档生成抖动
-- **发版**：营销 `2.5.0`；披露未玩过日期可能变盘；进行中存档保护
+**Locked:** A 个人为主 · B 遗忘曲线 · C 完整版 · 四题型同一套 · 不改 `APP_SALT` · 无难度 UI · Feel → v2.6
 
-**Locked decisions (2026-07-28):**
-- A 个人为主 · B 遗忘曲线 · C 完整版 · 四题型同一套
-- **版本重排**：本里程碑占用 **v2.5**；原 Host-Crafted Play（Composition/FEEL/DIFF-03）改为 **v2.6**
-- 不改题型随机 / `APP_SALT`；不做难度 UI 标签；不做 Feel
-- Composition 已交付目录：`phases/v2.6-01-composition/`
-
-**Paused (after Adaptive ships):**
-- **v2.6** Host-Crafted：FEEL-01..06、DIFF-03
+</details>
 
 ## Requirements
 
-- See `.planning/REQUIREMENTS.md`（v2.5 MAST / TIER / DIV / SHIP）
+- v2.5 已归档：`.planning/milestones/v2.5-REQUIREMENTS.md`
+- 下一里程碑需求：待 `/gsd-new-milestone` 新建 `.planning/REQUIREMENTS.md`
 
 ### Validated
-
-- TIER-01 / TIER-02 (Sudoku technique rater + generate-for-tier) — Validated in Phase v2.5-02: sudoku-technique-rater
 
 - [x] 每日自动随机选择 Sudoku / Binary / Nonogram / Slitherlink（用户不可自选类型）
 - [x] 同一天内谜题内容固定；跨日自动切换新游戏
@@ -56,10 +59,10 @@
 - [x] **v2.4** 周日特辑（仪式感问候 + 周日结果文案）+ 数绘图案库扩充；App Store `2.4.0` 2026-07-15
 - [x] **v2.4.2** Content Depth：周节奏拉宽 + 数绘 120 + 变盘披露（随 `2.5.0` 一并提交；不单独发 `2.4.2`）
 - [x] **v2.6-01** Composition（原 v2.5-01）：游戏页/结果页舞台化
+- [x] **v2.5 Adaptive Mastery** — FSRS-lite 掌握度 + 四题型技巧档 + hash 去重多样性 + Ship `2.5.0`（2026-07-29）
 
 ### Active
 
-- [ ] **v2.5 Adaptive Mastery** — 掌握度 + 四题型技巧档 + 去重多样性；见 Current Milestone
 - [ ] **v2.6 Host-Crafted Play（剩余）** — FEEL + DIFF-03
 - [ ] **第五玩法** — 挂起至 ASC 证明新鲜感衰减
 - [ ] **v3.0** 跨端 / QR — 挂起；无丢档头部反馈前不做完整同步
@@ -74,19 +77,18 @@
 - 填格提示（hint）— 与「认怂」机制冲突
 - 正式版应用内语言设置 — v1.2 仅跟随设备 locale；Dev 可预览
 - IAP / 广告 — 品牌与体验约束
-- Undo / 数独笔记 / 拖填 / 首遇引导 / 招牌微交互 — 本里程碑不做（属 **v2.6**）
+- Undo / 数独笔记 / 拖填 / 首遇引导 / 招牌微交互 — 属 **v2.6** Active（非永久砍掉）
 - 难度徽章 / 技能仪表盘 — 保持隐藏难度
-- 第五玩法 — 非本里程碑范围
-- Google Play 首发 / ASO 大改 — 非本里程碑主线
+- 第五玩法 — 挂起至 ASC 证据
+- Google Play 首发 / ASO 大改 — 非当前主线
 
 ## Context
 
 - **目标用户**：喜欢轻量每日挑战、不需要重度游戏系统的休闲玩家
 - **产品调性**：极简 + **毒舌主持人**人格（开场旁白、结果金句、认怂喜剧）
 - **技术方向**：Expo + React Native + expo-router + NativeWind + AsyncStorage + 纯 TS 谜题引擎
-- **目录**：`app/` 路由、`components/grid/`、`lib/puzzles/`、`contexts/DailyGameContext.tsx`
-- **状态**：营销 `2.5.0` shipping（线上 `2.4.1`）；Content Depth 随 `2.5.0` 提交；当前里程碑 **v2.5 Adaptive Mastery**；原 Host-Crafted 改标 **v2.6**
-
+- **目录**：`app/` 路由、`components/grid/`、`lib/puzzles/`、`lib/mastery/`、`contexts/DailyGameContext.tsx`
+- **状态**：✅ v2.5 Adaptive Mastery archived；营销 `2.5.0` repo ready（线上仍 `2.4.1`）；下一候选 **v2.6** Feel/DIFF-03
 ## Constraints
 
 - **Tech stack**: Expo SDK 54 + TypeScript + expo-router + NativeWind
@@ -115,9 +117,10 @@
 | 绝对个人盘面 | 用户锁定；不做全球同题 | **Active** |
 | 品牌 = 毒舌主持人 | 人格进布局与节奏 | **Active** |
 | v2.4.2 Content Depth 已签核 | 周节奏 + 数绘 120 | **Done** |
-| **v2.5 = Adaptive Mastery**；原 Host-Crafted → **v2.6** | 用户指定版本重排 | **Active** |
-| 难度 = 个人掌握度为主 + 日历轻调 | 遗忘曲线 + 四档技巧评级 | **Active** |
-| 调难度 = 披露跨版本变盘 | 同锁定 C | **Active** |
+| **v2.5 = Adaptive Mastery**；原 Host-Crafted → **v2.6** | 用户指定版本重排 | ✓ Good — shipped |
+| 难度 = 个人掌握度为主 + 日历轻调 | 遗忘曲线 + 四档技巧评级 | ✓ Good — shipped |
+| 调难度 = 披露跨版本变盘 | 同锁定 C | ✓ Good — What's New |
+| Ship = repo ready；EAS/ASC 人工 | D-13 不在 phase 内 | ✓ Good — deferred ops |
 
 ## Evolution
 
@@ -137,4 +140,4 @@
 4. Context 更新现状（反馈、指标）
 
 ---
-*Last updated: 2026-07-28
+*Last updated: 2026-07-29 after v2.5 milestone*
