@@ -1,16 +1,14 @@
+import { AVOID_HASH_MAX_ATTEMPTS } from '../../constants/config';
+import { DEFAULT_MASTERY_STATE } from '../mastery/defaults';
+import { resolveTargetTier } from '../mastery/resolveTargetTier';
 import type { MasteryState } from '../mastery/types';
-import { generateBinaryPuzzle } from './binary/generator';
-import { generateNonogramPuzzle } from './nonogram/generator';
-import { getSlitherlinkBuiltinPuzzle } from './slitherlink/builtinPuzzle';
-import { generateSlitherlinkPuzzle } from './slitherlink/generator';
-import { generateSudokuPuzzle } from './sudoku/generator';
-import type {
-  BinaryPuzzle,
-  GameType,
-  PuzzlePayload,
-  SlitherlinkPuzzle,
-} from './types';
+import { generateBinaryPuzzleForTier } from './binary/generateForTier';
+import type { DifficultyTier } from './difficulty/tiers';
+import { generateNonogramPuzzleForTier } from './nonogram/generateForTier';
 import { deriveSeed, deriveSubSeed, mulberry32 } from './rng';
+import { generateSlitherlinkPuzzleForTier } from './slitherlink/generateForTier';
+import { generateSudokuPuzzleForTier } from './sudoku/generateForTier';
+import type { GameType, PuzzlePayload } from './types';
 
 const GAME_TYPES: GameType[] = ['sudoku', 'binary', 'nonogram', 'slitherlink'];
 
@@ -21,7 +19,7 @@ export type SelectDailyGameParams = {
   previous?: { gameType?: GameType; puzzleHash?: string };
   /** 开发/调试：跳过日期随机，强制题型 */
   forceGameType?: GameType;
-  /** Personal mastery; omitted → DEFAULT_MASTERY_STATE at wire time (plan 02). */
+  /** Personal mastery; omitted → DEFAULT_MASTERY_STATE (gallery-compatible). */
   mastery?: MasteryState;
   /** Per-type played-hash ring to skip within avoid budget. */
   avoidByType?: Partial<Record<GameType, readonly string[]>>;
@@ -48,25 +46,99 @@ function pickGameType(
   return pool[index] ?? 'sudoku';
 }
 
-function buildSudokuPuzzle(
-  seed: number,
-  dateKey: string,
-  avoidHash?: string,
+function buildAvoidSet(
+  gameType: GameType,
+  avoidByType: SelectDailyGameParams['avoidByType'],
+  previousHash?: string,
+): ReadonlySet<string> {
+  const avoid = new Set<string>(avoidByType?.[gameType] ?? []);
+  if (previousHash != null) {
+    avoid.add(previousHash);
+  }
+  return avoid;
+}
+
+function generatePuzzleForTier(
+  gameType: GameType,
+  attemptSeed: number,
+  targetTier: DifficultyTier,
 ): { puzzle: PuzzlePayload; puzzleHash: string } {
-  for (let attempt = 0; attempt < 50; attempt += 1) {
-    const puzzle = generateSudokuPuzzle(
-      deriveSubSeed(seed, `daily-sudo-${attempt}`),
-      dateKey,
+  if (gameType === 'sudoku') {
+    const { puzzle } = generateSudokuPuzzleForTier(attemptSeed, targetTier);
+    return { puzzle, puzzleHash: puzzle.puzzleHash };
+  }
+  if (gameType === 'binary') {
+    const { puzzle } = generateBinaryPuzzleForTier(attemptSeed, targetTier);
+    return { puzzle, puzzleHash: puzzle.puzzleHash };
+  }
+  if (gameType === 'nonogram') {
+    const { puzzle } = generateNonogramPuzzleForTier(attemptSeed, targetTier);
+    return { puzzle, puzzleHash: puzzle.puzzleHash };
+  }
+  const { puzzle } = generateSlitherlinkPuzzleForTier(attemptSeed, targetTier);
+  return { puzzle, puzzleHash: puzzle.puzzleHash };
+}
+
+function tryGeneratePuzzleForTier(
+  gameType: GameType,
+  attemptSeed: number,
+  targetTier: DifficultyTier,
+): { puzzle: PuzzlePayload; puzzleHash: string } | null {
+  try {
+    return generatePuzzleForTier(gameType, attemptSeed, targetTier);
+  } catch {
+    // forTier may throw when a seed cannot meet the tier (e.g. SL Easy);
+    // treat as a failed attempt and continue the outer avoid budget.
+    return null;
+  }
+}
+
+/**
+ * Outer avoid loop over played-hash ring ∪ previous.puzzleHash.
+ * Exhaustion relaxes avoid but still uses generate*ForTier (D-05/D-06).
+ */
+function buildPuzzleWithAvoid(
+  gameType: GameType,
+  seed: number,
+  targetTier: DifficultyTier,
+  avoid: ReadonlySet<string>,
+): { puzzle: PuzzlePayload; puzzleHash: string } {
+  for (let attempt = 0; attempt < AVOID_HASH_MAX_ATTEMPTS; attempt += 1) {
+    const attemptSeed = deriveSubSeed(
+      seed,
+      `daily-avoid-${gameType}-${attempt}`,
     );
-    if (avoidHash == null || puzzle.puzzleHash !== avoidHash) {
-      return { puzzle, puzzleHash: puzzle.puzzleHash };
+    const built = tryGeneratePuzzleForTier(gameType, attemptSeed, targetTier);
+    if (built != null && !avoid.has(built.puzzleHash)) {
+      return built;
     }
   }
-  const puzzle = generateSudokuPuzzle(
-    deriveSubSeed(seed, 'daily-sudo-fallback'),
-    dateKey,
+
+  const relaxed = tryGeneratePuzzleForTier(
+    gameType,
+    deriveSubSeed(seed, `daily-avoid-${gameType}-relax`),
+    targetTier,
   );
-  return { puzzle, puzzleHash: puzzle.puzzleHash };
+  if (relaxed != null) {
+    return relaxed;
+  }
+
+  // Rare: forTier threw across avoid budget + relax — keep seeking a forTier
+  // puzzle (still never builtin / never getFallbackDailySelection).
+  for (let attempt = 0; attempt < AVOID_HASH_MAX_ATTEMPTS; attempt += 1) {
+    const built = tryGeneratePuzzleForTier(
+      gameType,
+      deriveSubSeed(seed, `daily-avoid-${gameType}-recover-${attempt}`),
+      targetTier,
+    );
+    if (built != null) {
+      return built;
+    }
+  }
+
+  throw new Error(
+    `Failed to generate ${gameType} for tier ${targetTier} after avoid retries`,
+  );
 }
 
 export function selectDailyGame(
@@ -78,76 +150,25 @@ export function selectDailyGame(
   const gameType =
     params.forceGameType ?? pickGameType(typeRng, avoidType);
 
-  if (gameType === 'sudoku') {
-    const { puzzle, puzzleHash } = buildSudokuPuzzle(
-      seed,
-      params.dateKey,
-      params.previous?.puzzleHash,
-    );
-    return { gameType, seed, puzzle, puzzleHash };
-  }
+  const mastery = params.mastery ?? DEFAULT_MASTERY_STATE;
+  const targetTier = resolveTargetTier({
+    gameType,
+    mastery,
+    dateKey: params.dateKey,
+    nowMs: params.nowMs,
+  });
 
-  if (gameType === 'binary') {
-    const puzzle = buildBinaryPuzzle(seed, params.dateKey, params.previous?.puzzleHash);
-    return { gameType, seed, puzzle, puzzleHash: puzzle.puzzleHash };
-  }
-
-  if (gameType === 'nonogram') {
-    const puzzle = buildNonogramPuzzle(seed, params.dateKey, params.previous?.puzzleHash);
-    return { gameType, seed, puzzle, puzzleHash: puzzle.puzzleHash };
-  }
-
-  const puzzle = buildSlitherlinkPuzzle(seed, params.dateKey, params.previous?.puzzleHash);
-  return { gameType, seed, puzzle, puzzleHash: puzzle.puzzleHash };
-}
-
-function buildNonogramPuzzle(seed: number, dateKey: string, avoidHash?: string) {
-  for (let attempt = 0; attempt < 50; attempt += 1) {
-    const puzzle = generateNonogramPuzzle(
-      deriveSubSeed(seed, `daily-nono-${attempt}`),
-      dateKey,
-    );
-    if (avoidHash == null || puzzle.puzzleHash !== avoidHash) {
-      return puzzle;
-    }
-  }
-  return generateNonogramPuzzle(deriveSubSeed(seed, 'daily-nono-fallback'), dateKey);
-}
-
-function buildBinaryPuzzle(
-  seed: number,
-  dateKey: string,
-  avoidHash?: string,
-): BinaryPuzzle {
-  for (let attempt = 0; attempt < 50; attempt += 1) {
-    const puzzle = generateBinaryPuzzle(
-      deriveSubSeed(seed, `daily-bin-${attempt}`),
-      dateKey,
-    );
-    if (avoidHash == null || puzzle.puzzleHash !== avoidHash) {
-      return puzzle;
-    }
-  }
-  const puzzle = generateBinaryPuzzle(
-    deriveSubSeed(seed, 'daily-bin-fallback'),
-    dateKey,
+  const avoid = buildAvoidSet(
+    gameType,
+    params.avoidByType,
+    params.previous?.puzzleHash,
   );
-  return puzzle;
-}
+  const { puzzle, puzzleHash } = buildPuzzleWithAvoid(
+    gameType,
+    seed,
+    targetTier,
+    avoid,
+  );
 
-function buildSlitherlinkPuzzle(
-  seed: number,
-  dateKey: string,
-  avoidHash?: string,
-): SlitherlinkPuzzle {
-  for (let attempt = 0; attempt < 50; attempt += 1) {
-    const puzzle = generateSlitherlinkPuzzle(
-      deriveSubSeed(seed, `daily-sl-${attempt}`),
-      dateKey,
-    );
-    if (avoidHash == null || puzzle.puzzleHash !== avoidHash) {
-      return puzzle;
-    }
-  }
-  return getSlitherlinkBuiltinPuzzle();
+  return { gameType, seed, puzzle, puzzleHash };
 }
