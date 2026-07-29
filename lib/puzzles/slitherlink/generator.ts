@@ -23,17 +23,25 @@ import { isSingleLoopComplete } from './validate';
 const SOFTEN_STEP = 2;
 const SOFTEN_MAX = 3;
 
+/**
+ * Legacy 3-way generation-guide labels (not public DifficultyTier / peak claims).
+ * Used by weekday `slitherlinkParamsForDate` path and no-dateKey `generateSlitherlinkPuzzle`.
+ */
 export type SlitherlinkDifficulty = 'easy' | 'medium' | 'hard';
 
 const CELL_COUNT = SLITHERLINK_SIZE * SLITHERLINK_SIZE;
 
+/** Generation guides only — peak technique gates difficulty (D-08). */
 const DIFFICULTY_MIN_CLUES: Record<SlitherlinkDifficulty, number> = {
   easy: Math.max(SLITHERLINK_MIN_CLUES + 6, 24),
   medium: SLITHERLINK_MIN_CLUES + 2,
   hard: Math.max(SLITHERLINK_MIN_CLUES - 4, 14),
 };
 
-/** 「环内」格子数量：大区更易、小区更绕，形状由随机 polyomino 决定 */
+/**
+ * Generation guides for「环内」cell count (large region easier, small more twisty).
+ * Not a public difficulty claim (D-08).
+ */
 const DIFFICULTY_INSIDE_RANGE: Record<
   SlitherlinkDifficulty,
   { min: number; max: number }
@@ -41,6 +49,12 @@ const DIFFICULTY_INSIDE_RANGE: Record<
   easy: { min: 30, max: 44 },
   medium: { min: 20, max: 36 },
   hard: { min: 12, max: 28 },
+};
+
+/** Four-tier / forTier carve params — no dateKey band, no builtin. */
+export type SlitherlinkGuideParams = {
+  minClues: number;
+  inside: { min: number; max: number };
 };
 
 type CellCoord = { row: number; col: number };
@@ -374,6 +388,33 @@ function carveWithSoften(
     if (clues != null) return clues;
   }
   return null;
+}
+
+/**
+ * Polyomino + carve using explicit guide params.
+ * No dateKey band lerp; no builtin fallback (forTier only).
+ * Falls back to full clues when dig-carve cannot meet minClues.
+ */
+export function generateOnceForGuides(
+  seed: number,
+  guides: SlitherlinkGuideParams,
+): SlitherlinkPuzzle | null {
+  const rng = mulberry32(seed);
+  const solution = generateLoop(seed, 'medium', guides.inside);
+  if (solution == null) return null;
+  const carved = carveWithSoften(solution, rng, guides.minClues);
+  const clues = carved ?? cluesFromSolutionEdges(solution);
+  if (countSolutionsUpTo(clues, createEmptyPlayState(), 2) !== 1) {
+    return null;
+  }
+
+  return {
+    kind: 'slitherlink',
+    size: SLITHERLINK_SIZE,
+    clues,
+    puzzleHash: computePuzzleHash(clues),
+    solution: cloneSolutionEdges(solution),
+  };
 }
 
 function generateOnce(seed: number, dateKey?: string): SlitherlinkPuzzle | null {
