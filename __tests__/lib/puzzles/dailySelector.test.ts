@@ -1,5 +1,9 @@
+import { AVOID_HASH_MAX_ATTEMPTS } from '../../../constants/config';
 import { selectDailyGame } from '../../../lib/puzzles/dailySelector';
+import * as nonogramForTier from '../../../lib/puzzles/nonogram/generateForTier';
 import { deriveSeed } from '../../../lib/puzzles/rng';
+import * as sudokuForTier from '../../../lib/puzzles/sudoku/generateForTier';
+import * as sudokuGenerator from '../../../lib/puzzles/sudoku/generator';
 import { countGivens } from '../../../lib/puzzles/sudoku/grid';
 import {
   isBinaryPuzzle,
@@ -7,7 +11,10 @@ import {
   isSlitherlinkPuzzle,
   isSudokuPuzzle,
 } from '../../../lib/puzzles/types';
-import type { GameType } from '../../../lib/puzzles/types';
+import type { GameType, NonogramPuzzle } from '../../../lib/puzzles/types';
+
+/** Fixed clock so R-soften in resolveTargetTier stays deterministic. */
+const FIXED_NOW_MS = Date.parse('2026-06-15T12:00:00.000Z');
 
 /** Pre-v2.1 gameType golden vectors (seed chain unchanged; puzzleHash may differ). */
 const WEEKDAY_GAME_TYPE_GOLDEN: ReadonlyArray<{ dateKey: string; gameType: GameType }> = [
@@ -152,5 +159,73 @@ describe('selectDailyGame', () => {
       }
     }
     expect(found).toBe(true);
+  });
+
+  it('skips avoidByType hashes within the retry budget (DIV-02)', () => {
+    const first = selectDailyGame({
+      dateKey: '2026-05-16',
+      forceGameType: 'nonogram',
+      nowMs: FIXED_NOW_MS,
+    });
+    const second = selectDailyGame({
+      dateKey: '2026-05-16',
+      forceGameType: 'nonogram',
+      avoidByType: { nonogram: [first.puzzleHash] },
+      nowMs: FIXED_NOW_MS,
+    });
+    expect(second.gameType).toBe('nonogram');
+    expect(second.puzzleHash).not.toBe(first.puzzleHash);
+  });
+
+  it('on avoid exhaustion still returns a forTier puzzle (D-06)', () => {
+    const blocked = 'nono-avoid-blocked';
+    const stubPuzzle: NonogramPuzzle = {
+      kind: 'nonogram',
+      rows: 8,
+      cols: 8,
+      rowClues: [[1], [1], [1], [1], [1], [1], [1], [1]],
+      colClues: [[1], [1], [1], [1], [1], [1], [1], [1]],
+      solution: Array.from({ length: 8 }, () => Array(8).fill(0)),
+      pictureTitle: 'stub',
+      puzzleHash: blocked,
+    };
+    const forTier = jest
+      .spyOn(nonogramForTier, 'generateNonogramPuzzleForTier')
+      .mockImplementation((seed, targetTier) => ({
+        puzzle: { ...stubPuzzle, pictureTitle: String(seed) },
+        ratedTier: targetTier,
+        peakTechnique: 'simple_few',
+        softened: false,
+      }));
+
+    const result = selectDailyGame({
+      dateKey: '2026-05-16',
+      forceGameType: 'nonogram',
+      avoidByType: { nonogram: [blocked] },
+      nowMs: FIXED_NOW_MS,
+    });
+
+    expect(result.gameType).toBe('nonogram');
+    expect(result.puzzleHash).toBe(blocked);
+    expect(forTier).toHaveBeenCalledTimes(AVOID_HASH_MAX_ATTEMPTS + 1);
+    forTier.mockRestore();
+  });
+
+  it('uses generate*ForTier instead of legacy weekday generate on adaptive path', () => {
+    const forTier = jest.spyOn(sudokuForTier, 'generateSudokuPuzzleForTier');
+    const legacy = jest.spyOn(sudokuGenerator, 'generateSudokuPuzzle');
+
+    const result = selectDailyGame({
+      dateKey: '2026-06-01',
+      forceGameType: 'sudoku',
+      nowMs: FIXED_NOW_MS,
+    });
+
+    expect(result.gameType).toBe('sudoku');
+    expect(forTier).toHaveBeenCalled();
+    expect(forTier.mock.calls[0]?.length).toBe(2);
+    expect(legacy).not.toHaveBeenCalled();
+    forTier.mockRestore();
+    legacy.mockRestore();
   });
 });

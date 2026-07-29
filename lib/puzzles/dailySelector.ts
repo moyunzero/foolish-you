@@ -1,3 +1,4 @@
+import type { MasteryState } from '../mastery/types';
 import { generateBinaryPuzzle } from './binary/generator';
 import { generateNonogramPuzzle } from './nonogram/generator';
 import { getSlitherlinkBuiltinPuzzle } from './slitherlink/builtinPuzzle';
@@ -20,6 +21,12 @@ export type SelectDailyGameParams = {
   previous?: { gameType?: GameType; puzzleHash?: string };
   /** 开发/调试：跳过日期随机，强制题型 */
   forceGameType?: GameType;
+  /** Personal mastery; omitted → DEFAULT_MASTERY_STATE at wire time (plan 02). */
+  mastery?: MasteryState;
+  /** Per-type played-hash ring to skip within avoid budget. */
+  avoidByType?: Partial<Record<GameType, readonly string[]>>;
+  /** Clock for FSRS retrievability soften in resolveTargetTier. */
+  nowMs?: number;
 };
 
 export type SelectDailyGameResult = {
