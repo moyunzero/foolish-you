@@ -43,6 +43,10 @@
 | `v25-smoke-binary.yaml` | Dev force 二进制 → 标题「二进制」可见 | 已写 · **必跑** |
 | `v25-smoke-nonogram.yaml` | Dev force 数绘 → 标题「数绘」可见 | 已写 · **必跑** |
 | `v25-smoke-slitherlink.yaml` | Dev force 数回 → 标题「数回」可见 | 已写 · **必跑** |
+| `v25-hand-keep-sudoku.yaml` | 填一格 → kill → relaunch 同盘同进度 | 已写 · **建议跑**（D-12 H2） |
+| `v25-hand-fresh-date.yaml` | `假日期·周日` + 数独进局 | 已写 · **建议跑**（D-12 H3） |
+
+`./scripts/maestro-v25-ship.sh` 默认包含上述 hand flows；`INCLUDE_HAND=0` 可只跑四题型 smoke。
 
 ## 证据目录（必填归档 — D-11）
 

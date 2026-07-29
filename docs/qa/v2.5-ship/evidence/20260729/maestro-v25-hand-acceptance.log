@@ -1,0 +1,47 @@
+=== v25-hand-keep-sudoku ===
+WARNING: A restricted method in java.lang.System has been called
+WARNING: java.lang.System::load has been called by org.fusesource.jansi.internal.JansiLoader in an unnamed module (file:/Users/moyun/.maestro/lib/jansi-2.4.1.jar)
+WARNING: Use --enable-native-access=ALL-UNNAMED to avoid a warning for callers in this module
+WARNING: Restricted methods will be blocked in a future release unless native access is enabled
+
+
+Parsing Failed at /Users/moyun/code/foolish-you/.maestro/flows/v25/v25-hand-keep-sudoku.yaml:24:2
+=== v25-hand-fresh-date ===
+WARNING: A restricted method in java.lang.System has been called
+WARNING: java.lang.System::load has been called by org.fusesource.jansi.internal.JansiLoader in an unnamed module (file:/Users/moyun/.maestro/lib/jansi-2.4.1.jar)
+WARNING: Use --enable-native-access=ALL-UNNAMED to avoid a warning for callers in this module
+WARNING: Restricted methods will be blocked in a future release unless native access is enabled
+
+Running on iPhone 17 Pro - iOS 26.4 - 846693AF-C5EA-4B48-B869-F70D88BFEC90
+ > Flow v25-hand-fresh-date
+Launch app "com.moyunzero.foolish-you" with clear state... COMPLETED
+Assert that "完成今日" is visible... COMPLETED
+Run ../v24/subflows/dev-force-sunday.yaml...
+  Run ../../v22/subflows/dev-open-panel.yaml...
+    Run flow when "一键通关" is not visible...
+      Tap on "DEV 调试"... COMPLETED
+    Run flow when "一键通关" is not visible... COMPLETED
+    Assert that "一键通关" is visible... COMPLETED
+  Run ../../v22/subflows/dev-open-panel.yaml... COMPLETED
+  Tap on "假日期·周日"... COMPLETED
+  Assert that "完成今日" is visible... COMPLETED
+  Wait for animation to end within 5000 ms... COMPLETED
+Run ../v24/subflows/dev-force-sunday.yaml... COMPLETED
+Run ../v22/subflows/dev-open-panel.yaml...
+  Run flow when "一键通关" is not visible...
+  Run flow when "一键通关" is not visible... SKIPPED
+  Assert that "一键通关" is visible... COMPLETED
+Run ../v22/subflows/dev-open-panel.yaml... COMPLETED
+Tap on "数独", Below "DEV 调试"... COMPLETED
+Assert that "完成今日" is visible... COMPLETED
+Run flow when "知道了" is visible...
+Run flow when "知道了" is visible... SKIPPED
+Run ../v22/subflows/dev-hide-bar.yaml...
+  Run flow when "DEV 调试" is visible...
+    Tap on "隐藏调试条，便于截图"... COMPLETED
+    Assert that "DEV 调试" is not visible... COMPLETED
+  Run flow when "DEV 调试" is visible... COMPLETED
+Run ../v22/subflows/dev-hide-bar.yaml... COMPLETED
+Assert that "数独" is visible... COMPLETED
+Take screenshot 07-fresh-date-sunday-sudoku... COMPLETED
+HAND_MAESTRO_EXIT=0

@@ -16,6 +16,14 @@ FLOWS=(
   v25-smoke-slitherlink
 )
 
+# Optional hand-QA flows (D-12 keep + fresh-date). Set INCLUDE_HAND=0 to skip.
+if [[ "${INCLUDE_HAND:-1}" != "0" ]]; then
+  FLOWS+=(
+    v25-hand-keep-sudoku
+    v25-hand-fresh-date
+  )
+fi
+
 if ! lsof -i :8081 -sTCP:LISTEN >/dev/null 2>&1; then
   echo "Metro not listening on :8081 — start dev client first (npx expo start)." >&2
   exit 1
