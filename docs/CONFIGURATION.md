@@ -207,6 +207,10 @@ Central runtime constants for puzzles, persistence, and debouncing.
 | `RATING_STORAGE_VERSION` | `1` | Rating state schema |
 | `MASTERY_STORAGE_KEY` | `@foolish-you/mastery-v1` | Per-gameType FSRS-lite mastery blob (v2.5) |
 | `MASTERY_STORAGE_VERSION` | `1` | Mastery state schema (`byType` rows) |
+| `PLAYED_HASH_STORAGE_KEY` | `@foolish-you/played-hash-v1` | Per-gameType FIFO ring of recent completed puzzle hashes (v2.5 DIV-01) |
+| `PLAYED_HASH_STORAGE_VERSION` | `1` | Played-hash ring schema (`version` + `byType` string arrays) |
+| `PLAYED_HASH_RING_CAPACITY` | `200` | Max hashes retained per `gameType` (FIFO drop oldest) |
+| `AVOID_HASH_MAX_ATTEMPTS` | `40` | Generate/select retries while hash is in the avoid set (DIV-02) |
 | `RECOVERY_LOG_STORAGE_KEY` | `@foolish-you/snapshot-recovery-log-v1` | Ring buffer of snapshot recovery events |
 | `RECOVERY_LOG_MAX_ENTRIES` | `10` | Max recovery log entries retained |
 | `STORAGE_VERSION` | `2` | Persisted snapshot schema version (v2 drops legacy `puzzleStub`) |
@@ -268,6 +272,7 @@ See `DESIGN.md` for product-level design rules.
 | `@foolish-you/completion-history-v1` | `COMPLETION_HISTORY_STORAGE_KEY` | Completion records for weekly stats / backfill | `lib/storage/completionHistoryStorage.ts` |
 | `@foolish-you/rating-v1` | `RATING_STORAGE_KEY` | Rating prompt state | `lib/storage/ratingStorage.ts` |
 | `@foolish-you/mastery-v1` | `MASTERY_STORAGE_KEY` | Per-gameType mastery (`version` + `byType`) | `lib/storage/masteryStorage.ts` |
+| `@foolish-you/played-hash-v1` | `PLAYED_HASH_STORAGE_KEY` | Per-gameType played-hash rings (`version` + `byType`) | `lib/storage/playedHashStorage.ts` |
 | `@foolish-you/snapshot-recovery-log-v1` | `RECOVERY_LOG_STORAGE_KEY` | Recovery event log (dev-visible) | `lib/storage/recoveryLog.ts` |
 | `@foolish-you/dev-tools-bar-visible` | `contexts/DevToolsUiContext.tsx` (local constant) | `'1'` / `'0'` for dev bar visibility | Dev builds only |
 
@@ -288,10 +293,13 @@ When changing persisted JSON shape, bump the version constant in `constants/conf
 | Completion history | `COMPLETION_HISTORY_STORAGE_VERSION` | `lib/storage/completionHistoryStorage.ts`, `lib/storage/backfillCompletionHistory.ts`, related tests |
 | Rating prompt state | `RATING_STORAGE_VERSION` | `lib/storage/ratingStorage.ts`, related tests |
 | Mastery (per gameType) | `MASTERY_STORAGE_VERSION` | `lib/storage/masteryStorage.ts`, `__tests__/lib/storage/masteryStorage.test.ts` |
+| Played-hash ring (per gameType) | `PLAYED_HASH_STORAGE_VERSION` | `lib/storage/playedHashStorage.ts`, `__tests__/lib/storage/playedHashStorage.test.ts` |
 
 Recovery log (`RECOVERY_LOG_*`) and dev-only keys do not use schema version constants — append-only / dev scope only.
 
 Mastery lives under its own key — do **not** bump daily `STORAGE_VERSION` solely for mastery fields.
+
+Played-hash ring lives under its own key (`playedHashStorage`) — introducing or bumping it must **not** bump daily `STORAGE_VERSION` or `MASTERY_STORAGE_VERSION` (D-12).
 
 ## Bundler and styling toolchain
 
