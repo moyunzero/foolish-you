@@ -174,8 +174,10 @@ describe('English locale smoke', () => {
     const cjk = /[\u4e00-\u9fff]/;
 
     expect(ui.reminder.softAsk.cta).not.toMatch(cjk);
+    expect(ui.reminder.softAsk.dismissA11y).not.toMatch(cjk);
     expect(ui.reminder.sheet.title).not.toMatch(cjk);
     expect(ui.reminder.banner.bodyNoPush).not.toMatch(cjk);
+    expect(ui.reminder.banner.dismissA11y).not.toMatch(cjk);
     expect(ui.reminder.errorPermissionDenied).not.toMatch(cjk);
     expect(ui.sheet.dismissReminderA11y).not.toMatch(cjk);
   });

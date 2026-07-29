@@ -38,6 +38,16 @@ function isReminderState(value: unknown): value is ReminderState {
     return false;
   }
 
+  const eveningDismissed = row.eveningBannerDismissedForDateKey;
+  if (
+    eveningDismissed !== undefined &&
+    eveningDismissed !== null &&
+    (typeof eveningDismissed !== 'string' ||
+      !/^\d{4}-\d{2}-\d{2}$/.test(eveningDismissed))
+  ) {
+    return false;
+  }
+
   return (
     typeof row.enabled === 'boolean' &&
     typeof row.softAskDismissed === 'boolean' &&
@@ -69,6 +79,13 @@ function normalizePersistedReminder(raw: unknown): ReminderState {
   }
 
   const time = normalizeHourMinute(row.hour, row.minute)!;
+  const eveningDismissedRaw = row.eveningBannerDismissedForDateKey;
+  const eveningBannerDismissedForDateKey =
+    typeof eveningDismissedRaw === 'string' &&
+    /^\d{4}-\d{2}-\d{2}$/.test(eveningDismissedRaw)
+      ? eveningDismissedRaw
+      : null;
+
   return {
     enabled: row.enabled,
     hour: time.hour,
@@ -77,6 +94,7 @@ function normalizePersistedReminder(raw: unknown): ReminderState {
     permissionDenied: row.permissionDenied,
     firstOpenHour: row.firstOpenHour,
     firstOpenSampledForDateKey: row.firstOpenSampledForDateKey,
+    eveningBannerDismissedForDateKey,
   };
 }
 
@@ -154,6 +172,23 @@ export async function markSoftAskDismissed(): Promise<ReminderState> {
   const current = await loadReminderState();
   if (current.softAskDismissed) return current;
   const next: ReminderState = { ...current, softAskDismissed: true };
+  await saveReminderState(next);
+  return next;
+}
+
+/** Hide evening miss-risk banner for this dateKey only (survives remount). */
+export async function markEveningBannerDismissed(
+  dateKey: string,
+): Promise<ReminderState> {
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(dateKey)) {
+    return loadReminderState();
+  }
+  const current = await loadReminderState();
+  if (current.eveningBannerDismissedForDateKey === dateKey) return current;
+  const next: ReminderState = {
+    ...current,
+    eveningBannerDismissedForDateKey: dateKey,
+  };
   await saveReminderState(next);
   return next;
 }

@@ -36,4 +36,22 @@ describe('shouldShowEveningReminderBanner', () => {
       shouldShowEveningReminderBanner({ ...BASE, showMissedYesterday: true }),
     ).toBe(false);
   });
+
+  it('hides when dismissed for today', () => {
+    expect(
+      shouldShowEveningReminderBanner({
+        ...BASE,
+        eveningBannerDismissedForDateKey: '2026-06-08',
+      }),
+    ).toBe(false);
+  });
+
+  it('still shows when dismissed for a different day', () => {
+    expect(
+      shouldShowEveningReminderBanner({
+        ...BASE,
+        eveningBannerDismissedForDateKey: '2026-06-07',
+      }),
+    ).toBe(true);
+  });
 });

@@ -1,4 +1,4 @@
-import { Text, View } from 'react-native';
+import { Pressable, Text, View } from 'react-native';
 import Animated, { FadeIn } from 'react-native-reanimated';
 
 import { colors } from '../../constants/design';
@@ -9,6 +9,7 @@ type EveningMissRiskBannerProps = {
   reminderEnabled: boolean;
   horizontalPadding?: number;
   onOpenReminder: () => void;
+  onDismiss: () => void;
 };
 
 /** D-path banner — 20:00+ playing, independent row below header (D-13). */
@@ -16,9 +17,11 @@ export default function EveningMissRiskBanner({
   reminderEnabled,
   horizontalPadding = 24,
   onOpenReminder,
+  onDismiss,
 }: EveningMissRiskBannerProps) {
   const { strings } = useI18n();
   const bannerUi = strings.ui.reminder.banner;
+  const later = strings.ui.common.later;
 
   const body = reminderEnabled ? bannerUi.bodyHasPush : bannerUi.bodyNoPush;
   const cta = reminderEnabled ? bannerUi.ctaEdit : bannerUi.ctaEnable;
@@ -46,7 +49,22 @@ export default function EveningMissRiskBanner({
         >
           {body}
         </Text>
-        <OutlinePillButton label={cta} onPress={onOpenReminder} className="w-full" />
+        <View style={{ flexDirection: 'row', gap: 8 }}>
+          <Pressable
+            accessibilityRole="button"
+            accessibilityLabel={bannerUi.dismissA11y}
+            onPress={onDismiss}
+            className="min-h-[44px] flex-1 items-center justify-center rounded-full border border-hairline px-4 py-3 active:opacity-85"
+          >
+            <Text className="text-base font-normal text-ink">{later}</Text>
+          </Pressable>
+          <OutlinePillButton
+            label={cta}
+            onPress={onOpenReminder}
+            accessibilityLabel={cta}
+            className="flex-1"
+          />
+        </View>
       </View>
     </Animated.View>
   );
