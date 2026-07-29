@@ -193,8 +193,8 @@ function legalLineCompletions(
 
 /**
  * Hard: near-duplicate / line-uniqueness forces a digit.
- * When all legal non-duplicate completions of a near-full line agree on a cell, place it.
- * (One-empty near-dup is usually stolen by balance; multi-empty agreement is the Hard peak.)
+ * Only when at least one completed line exists and excluding duplicate
+ * completions removes options (true uniqueness — not bare line_mask).
  */
 function tryUniqueness(grid: number[][]): TechniqueResult {
   for (const orient of ['row', 'col'] as const) {
@@ -207,13 +207,17 @@ function tryUniqueness(grid: number[][]): TechniqueResult {
     for (let i = 0; i < BINARY_SIZE; i += 1) {
       const line = lines[i]!;
       if (line.every(isFilled)) continue;
-      const completions = legalLineCompletions(line, completed);
-      if (completions.length === 0) continue;
+
+      const unrestricted = legalLineCompletions(line, []);
+      const restricted = legalLineCompletions(line, completed);
+      if (restricted.length === 0) continue;
+      // Require uniqueness filter to eliminate at least one completion.
+      if (unrestricted.length <= restricted.length) continue;
 
       for (let p = 0; p < BINARY_SIZE; p += 1) {
         if (line[p] !== BINARY_EMPTY) continue;
-        const first = completions[0]![p]!;
-        if (completions.every((c) => c[p] === first)) {
+        const first = restricted[0]![p]!;
+        if (restricted.every((c) => c[p] === first)) {
           setLineCell(grid, orient, i, p, first);
           return { applied: true, technique: 'uniqueness' };
         }
