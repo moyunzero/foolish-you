@@ -66,6 +66,7 @@ import {
   loadMasteryState,
   saveMasteryState,
 } from '../lib/storage/masteryStorage';
+import { appendPlayedHash } from '../lib/storage/playedHashStorage';
 import { incrementRatingCompletedCount } from '../lib/storage/ratingStorage';
 import { runReminderSync } from '../lib/notifications/runReminderSync';
 import { clearDailySnapshot } from '../lib/storage/dailyStorage';
@@ -414,6 +415,14 @@ function useDailyGameProviderValue(): DailyGameState {
               );
             } catch (error) {
               console.warn('[DailyGameContext] mastery update failed', error);
+            }
+            try {
+              await appendPlayedHash(updated.gameType, updated.puzzleHash);
+            } catch (error) {
+              console.warn(
+                '[DailyGameContext] played-hash append failed',
+                error,
+              );
             }
           } else if (nextStatus === 'abandoned') {
             const startedAt = updated.startedAt ?? Date.now();
