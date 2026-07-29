@@ -2,15 +2,19 @@
 gsd_state_version: 1.0
 milestone: v2.5
 milestone_name: Adaptive Mastery
-status: in_progress
-last_updated: "2026-07-28T11:10:00.000Z"
-last_activity: 2026-07-28
+current_phase: v2.5-03
+status: ready_to_execute
+stopped_at: Planned v2.5-03 (2 plans)
+last_updated: "2026-07-29T04:40:00.000Z"
+last_activity: 2026-07-29
+last_activity_desc: Created v2.5-03-01/02 PLAN.md (Binary then Slitherlink full depth)
 progress:
-  total_phases: 6
-  completed_phases: 1
-  total_plans: 4
-  completed_plans: 2
-  percent: 50
+  total_phases: 25
+  completed_phases: 3
+  total_plans: 8
+  completed_plans: 9
+  percent: 8
+current_phase_name: binary-slitherlink-raters
 ---
 
 # Project State
@@ -20,14 +24,14 @@ progress:
 See: .planning/PROJECT.md（**v2.5 Adaptive Mastery** · started 2026-07-28）
 
 **Core value:** 用户每天打开就能玩到唯一、确定的今日谜题，结束时获得情绪化反馈。  
-**Current focus:** v2.5-02 Sudoku Technique Rater — PLAN.md ready; next `/gsd-execute-phase v2.5-02`
+**Current focus:** Phase v2.5-03 — Binary + Slitherlink Raters
 
 ## Current Position
 
-Phase: v2.5-02 Sudoku Technique Rater — **planned** (2 plans, waves 1→2)  
-Prior: v2.5-01 Mastery Foundation — **complete** (VERIFICATION passed)  
-Status: `v2.5-02-01-PLAN.md` + `v2.5-02-02-PLAN.md` written; ready for execute  
-Last activity: 2026-07-28 — Phase plans for TIER-01/02 Sudoku peak rater + gen-for-tier
+Phase: v2.5-03 (Binary + Slitherlink Raters)
+Plan: v2.5-03-01 (next)
+Status: Plans ready — execute next
+Last activity: 2026-07-29 — Planned v2.5-03 (Binary Wave 1 → Slitherlink Wave 2)
 
 ## Accumulated Context
 
@@ -85,12 +89,15 @@ Last activity: 2026-07-28 — Phase plans for TIER-01/02 Sudoku peak rater + gen
 | v2.4.2-03-02 | 2 | **done** | Maestro + hand QA + CI + VERIFICATION sign-off |
 | v2.5-01-01 | 1 | **done** | DifficultyTier + FSRS-lite + masteryStorage |
 | v2.5-01-02 | 2 | **done** | persistStatus mastery wire + freezeMastery |
-| v2.5-02-01 | 1 | pending | Candidates + technique ladder + rateSudoku fixtures |
-| v2.5-02-02 | 2 | pending | generateSudokuPuzzleForTier accept/soften loop |
+| v2.5-02-01 | 1 | **done** | Candidates + technique ladder + rateSudoku fixtures |
+| v2.5-02-02 | 2 | **done** | generateSudokuPuzzleForTier accept/soften loop |
+| v2.5-02-03 | 3 | **done** | Gap closure: sound short_chain + conflict-checked solved |
+| v2.5-03-01 | 1 | pending | Binary full depth rater + generateForTier (TIER-03) |
+| v2.5-03-02 | 2 | pending | Slitherlink full depth rater + generateForTier no-builtin (TIER-05) |
 
 ### Pending Todos
 
-- `/gsd-execute-phase v2.5-02` — Sudoku Technique Rater (2 plans)
+- `/gsd-verify-work` — Phase v2.5-02 Sudoku Technique Rater
 - EAS production + ASC Submit for marketing `2.4.2`（可与 Adaptive 并行）
 - App Store ASO / ASC 留存观察（并行）
 - Google Play（可选）
@@ -100,13 +107,13 @@ Last activity: 2026-07-28 — Phase plans for TIER-01/02 Sudoku peak rater + gen
 
 ## Session Continuity
 
-**Resume file:** None (v2.5-01 complete)
+**Resume file:** None
 
-**Stopped at:** Completed v2.5-01-02-PLAN.md
+**Stopped at:** Planned v2.5-03 (v2.5-03-01-PLAN.md + v2.5-03-02-PLAN.md)
 
-**Resume:** `/gsd-execute-phase v2.5-02` or `/gsd-progress`
+**Resume:** `/gsd-execute-phase v2.5-03` or `/gsd-progress`
 
-Last session: 2026-07-28T10:50:00.000Z
+Last session: 2026-07-28T12:03:18.475Z
 
 ## Performance Metrics
 
@@ -117,6 +124,9 @@ Last session: 2026-07-28T10:50:00.000Z
 | Phase v2.4.2-02 P01 | 3min | 2 tasks | 4 files |
 | Phase v2.4.2-02 P02 | 1min | 1 task | 1 file |
 | Phase v2.4.2-03 P01 | 5min | 2 tasks | 9 files |
+| Phase v2.5-02 P01 | 8min | 2 tasks | 7 files |
+| Phase v2.5-02 P02 | 3min | 2 tasks | 3 files |
+| Phase v2.5-02 P03 | 3min | 3 tasks | 4 files |
 
 ## Decisions
 
@@ -131,3 +141,14 @@ Last session: 2026-07-28T10:50:00.000Z
 - [Phase v2.5-01 P01]: MasteryState is { byType }; version only on persist (D-09)
 - [Phase v2.5-01 P01]: Consecutive-N=2 for stored tier; R&lt;0.5 softens resolve only
 - [Phase v2.5-01 P01]: MASTERY_STORAGE_KEY=@foolish-you/mastery-v1; STORAGE_VERSION stays 2
+- [Phase v2.5-02-01]: File split: candidates + techniqueIds + techniques.ts + chains.ts + rater.ts (no techniques/ dir)
+- [Phase v2.5-02-01]: peakToTier maps singles→easy … xy_wing/short_chain→expert per D-02/A4
+- [Phase v2.5-02-01]: Frozen fixtures from generator seeds 700022/700433/700012 (+ easy full-house)
+- [Phase v2.5-02-01]: Expert caps: LENGTH=6, NODES=2000, STEPS=500 — step/node only
+- [Phase v2.5-02 P02]: Public API returns {puzzle, ratedTier, peakTechnique, softened}
+- [Phase v2.5-02 P02]: SUDOKU_TIER_MAX_ATTEMPTS=40; SUDOKU_TIER_MAX_SOFTENS=3
+- [Phase v2.5-02 P02]: Export generateOnce; legacy generateSudokuPuzzle unchanged
+- [Phase v2.5-02 P02]: No dailySelector / mastery hydrate wire (D-06)
+- [Phase v2.5-02-03]: CR-01: sound open X-chain fix (not disable short_chain entirely)
+- [Phase v2.5-02-03]: IN-02: XY-chain lite non-productive until documented AIC
+- [Phase v2.5-02-03]: WR-01: private hasHouseConflicts in rater.ts (no solver placement)
