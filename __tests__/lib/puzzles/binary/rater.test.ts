@@ -3,9 +3,14 @@ import {
   TECHNIQUE_ORDER,
   type BinaryTechnique,
 } from '../../../../lib/puzzles/binary/techniqueIds';
-import { rateBinary } from '../../../../lib/puzzles/binary/rater';
 import {
+  BINARY_MAX_TECHNIQUE_STEPS,
+  rateBinary,
+} from '../../../../lib/puzzles/binary/rater';
+import {
+  ALL_FIXTURES,
   EASY_FIXTURE,
+  EXPERT_FIXTURE,
   HARD_FIXTURE,
   MEDIUM_FIXTURE,
   TIER_FIXTURES,
@@ -51,11 +56,12 @@ describe('rateBinary fixtures', () => {
     },
   );
 
-  it('covers easy, medium, and hard expectedTier', () => {
-    const tiers = new Set(TIER_FIXTURES.map((f) => f.expectedTier));
+  it('covers all four expected tiers', () => {
+    const tiers = new Set(ALL_FIXTURES.map((f) => f.expectedTier));
     expect(tiers.has('easy')).toBe(true);
     expect(tiers.has('medium')).toBe(true);
     expect(tiers.has('hard')).toBe(true);
+    expect(tiers.has('expert')).toBe(true);
   });
 
   it('Easy fixture is solved easy', () => {
@@ -80,5 +86,27 @@ describe('rateBinary fixtures', () => {
       tier: 'hard',
       peak: HARD_FIXTURE.expectedPeak,
     });
+  });
+
+  it('Expert fixture is solved expert', () => {
+    expect(rateBinary(EXPERT_FIXTURE.givens)).toMatchObject({
+      status: 'solved',
+      tier: 'expert',
+      peak: EXPERT_FIXTURE.expectedPeak,
+    });
+  });
+
+  it('is deterministic for the same givens', () => {
+    const a = rateBinary(MEDIUM_FIXTURE.givens);
+    const b = rateBinary(MEDIUM_FIXTURE.givens);
+    expect(b).toEqual(a);
+  });
+
+  it('exports BINARY_MAX_TECHNIQUE_STEPS = 500', () => {
+    expect(BINARY_MAX_TECHNIQUE_STEPS).toBe(500);
+  });
+
+  it('rejects malformed grids as incomplete', () => {
+    expect(rateBinary([[1]])).toEqual({ status: 'incomplete', peak: null });
   });
 });

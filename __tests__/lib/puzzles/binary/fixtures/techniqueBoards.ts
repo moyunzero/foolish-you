@@ -47,19 +47,16 @@ const HARD_GIVENS = [
   [1, 2, 0, 0, 0, 0, 1, 0],
 ];
 
-/**
- * Expert stub — replaced in Task 2 with a frozen look_ahead board.
- * Placeholder keeps the export shape; rater tests for Expert land in Task 2.
- */
-const EXPERT_GIVENS_STUB = [
-  [0, 0, 0, 0, 0, 0, 0, 0],
-  [0, 0, 0, 0, 0, 0, 0, 0],
-  [0, 0, 0, 0, 0, 0, 0, 0],
-  [0, 0, 0, 0, 0, 0, 0, 0],
-  [0, 0, 0, 0, 0, 0, 0, 0],
-  [0, 0, 0, 0, 0, 0, 0, 0],
-  [0, 0, 0, 0, 0, 0, 0, 0],
-  [0, 0, 0, 0, 0, 0, 0, 0],
+/** Expert: carve seed 1 guide 22 (subseed 1*97+22) — peak look_ahead. */
+const EXPERT_GIVENS = [
+  [0, 0, 2, 2, 0, 0, 0, 0],
+  [0, 2, 0, 0, 0, 0, 2, 0],
+  [0, 1, 2, 2, 0, 0, 1, 0],
+  [2, 0, 1, 0, 0, 2, 0, 0],
+  [2, 0, 0, 1, 0, 0, 2, 0],
+  [1, 0, 0, 0, 0, 0, 2, 0],
+  [0, 0, 1, 2, 0, 0, 1, 0],
+  [0, 2, 0, 1, 0, 0, 0, 2],
 ];
 
 export const EASY_FIXTURE: TechniqueBoardFixture = {
@@ -83,22 +80,19 @@ export const HARD_FIXTURE: TechniqueBoardFixture = {
   expectedPeak: 'uniqueness',
 };
 
-/** Stub until Task 2 freezes a look_ahead board. */
+/** Expert: frozen look_ahead board (seed 1 guide 22). */
 export const EXPERT_FIXTURE: TechniqueBoardFixture = {
-  id: 'expert-look-ahead-stub',
-  givens: EXPERT_GIVENS_STUB,
+  id: 'expert-look-ahead',
+  givens: EXPERT_GIVENS,
   expectedTier: 'expert',
   expectedPeak: 'look_ahead',
 };
 
-/** Task 1 scaffold: Easy/Medium/Hard only (Expert stub excluded from rate cases). */
 export const TIER_FIXTURES: TechniqueBoardFixture[] = [
   EASY_FIXTURE,
   MEDIUM_FIXTURE,
   HARD_FIXTURE,
-];
-
-export const ALL_FIXTURES: TechniqueBoardFixture[] = [
-  ...TIER_FIXTURES,
   EXPERT_FIXTURE,
 ];
+
+export const ALL_FIXTURES: TechniqueBoardFixture[] = [...TIER_FIXTURES];
