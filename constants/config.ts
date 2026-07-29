@@ -21,6 +21,13 @@ export const REMINDER_STORAGE_VERSION = 1;
 export const MASTERY_STORAGE_KEY = '@foolish-you/mastery-v1';
 /** Bump when persisted mastery JSON shape changes (see docs/CONFIGURATION.md § Storage version bumps). */
 export const MASTERY_STORAGE_VERSION = 1;
+export const PLAYED_HASH_STORAGE_KEY = '@foolish-you/played-hash-v1';
+/** Bump when persisted played-hash ring shape changes (see docs/CONFIGURATION.md § Storage version bumps). */
+export const PLAYED_HASH_STORAGE_VERSION = 1;
+/** Per-gameType FIFO capacity for recent completed puzzle hashes (DIV-01 / D-01). */
+export const PLAYED_HASH_RING_CAPACITY = 200;
+/** Max generate/select retries while puzzleHash is in the avoid set (DIV-02 / D-05). */
+export const AVOID_HASH_MAX_ATTEMPTS = 40;
 /** Bump when persisted snapshot shape changes; v2 drops puzzleStub / placeholders. */
 export const STORAGE_VERSION = 2;
 
