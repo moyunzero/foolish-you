@@ -30,7 +30,7 @@
 - [x] **Phase v2.5-01: Mastery Foundation** — FSRS-lite 存储 + 日历轻调 + 当日冻结 (completed 2026-07-28)
 - [x] **Phase v2.5-02: Sudoku Technique Rater** — 四档技巧门控 + 生成接受环 (completed 2026-07-28)
 - [x] **Phase v2.5-03: Binary + Slitherlink Raters** — 技巧梯映射四档 (completed 2026-07-29; GAP-D24 closed via D-24 7×7 re-lock)
-- [ ] **Phase v2.5-04: Nonogram Tiering** — 库内分档 + 按档选取
+- [x] **Phase v2.5-04: Nonogram Tiering** — 库内分档 + 按档选取 (completed 2026-07-29)
 - [ ] **Phase v2.5-05: Dedupe + Diversity + Wire** — hash 环 + 选题接入 mastery
 - [ ] **Phase v2.5-06: Ship 2.5.0** — 披露 + 测试 + VERIFICATION
 
@@ -400,12 +400,12 @@ Plans:
   1. 每档可用图案数量可审计（避免空档）
   2. 目标档选取失败时有相邻档 fallback 且可测
 
-**Plans:** 2 plans
+**Plans:** 2/2 plans complete
 
 Plans:
 
-- [ ] v2.5-04-01-PLAN.md — Nonogram rater: FullSettle + bounded probe + four peak fixtures (TIER-04)
-- [ ] v2.5-04-02-PLAN.md — Freeze difficultyTier on 120 + generateNonogramPuzzleForTier soften (TIER-04)
+- [x] v2.5-04-01-PLAN.md — Nonogram rater: FullSettle + bounded probe + four peak fixtures (TIER-04)
+- [x] v2.5-04-02-PLAN.md — Freeze difficultyTier on 120 + generateNonogramPuzzleForTier soften (TIER-04)
 
 ---
 
@@ -420,7 +420,12 @@ Plans:
   2. 完成一局后 mastery 与 hash ring 一并持久化
   3. hydrate 路径使用 mastery 解析目标档
 
-Plans: TBD via `/gsd-plan-phase v2.5-05`
+**Plans:** 3 plans
+
+Plans:
+- [ ] v2.5-05-01-PLAN.md — Played-hash ring storage (200 FIFO/type) + CONFIGURATION
+- [ ] v2.5-05-02-PLAN.md — Selector forTier + avoid loop + hydrate mastery wire
+- [ ] v2.5-05-03-PLAN.md — Complete dual-write append + MAST-04 freeze regression
 
 ---
 
@@ -622,8 +627,8 @@ Plans:
 | **v2.5-01 Mastery Foundation** | 2/2 | Complete | 2026-07-28 |
 | **v2.5-02 Sudoku Rater** | 3/3 | Complete | 2026-07-28 |
 | **v2.5-03 Binary + SL Raters** | 2/2 | Complete | 2026-07-29 |
-| **v2.5-04 Nonogram Tiering** | 0/2 | Planned | — |
-| **v2.5-05 Dedupe + Wire** | 0/? | Pending | — |
+| **v2.5-04 Nonogram Tiering** | 2/2 | Complete | 2026-07-29 |
+| **v2.5-05 Dedupe + Wire** | 0/3 | Planned | — |
 | **v2.5-06 Ship 2.5.0** | 0/? | Pending | — |
 | **v2.6-02 Feel + Mechanics** | 0/? | **Paused** | — |
 | **v2.6-03 Signature (DIFF-03)** | 0/? | **Paused** | — |

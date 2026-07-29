@@ -2,20 +2,20 @@
 gsd_state_version: 1.0
 milestone: v2.5
 milestone_name: Adaptive Mastery
-current_phase: v2.5-04
-current_phase_name: nonogram-tiering
-current_plan: v2.5-04-01
-status: planning_complete
-stopped_at: Planned v2.5-04 — 2 PLAN.md written
-last_updated: "2026-07-29T07:15:00.000Z"
+current_phase: v2.5-05
+current_phase_name: dedupe-diversity-wire
+current_plan: v2.5-05-01
+status: ready_to_execute
+stopped_at: Phase v2.5-05 plans written — ready for execute-phase
+last_updated: "2026-07-29T16:45:00.000Z"
 last_activity: 2026-07-29
-last_activity_desc: Planned v2.5-04 Nonogram Tiering — 2 plans ready
+last_activity_desc: Phase v2.5-05 planned — 3 plans / 3 waves
 progress:
   total_phases: 25
-  completed_phases: 4
-  total_plans: 8
-  completed_plans: 11
-  percent: 12
+  completed_phases: 5
+  total_plans: 13
+  completed_plans: 14
+  percent: 16
 ---
 
 # Project State
@@ -25,23 +25,26 @@ progress:
 See: .planning/PROJECT.md（**v2.5 Adaptive Mastery** · started 2026-07-28）
 
 **Core value:** 用户每天打开就能玩到唯一、确定的今日谜题，结束时获得情绪化反馈。  
-**Current focus:** Phase v2.5-04 — Nonogram Tiering (plans ready)
+**Current focus:** Phase v2.5-05 — Dedupe + Diversity + Wire (plans ready → execute)
 
 ## Current Position
 
-Phase: v2.5-04 (Nonogram Tiering)
-Plan: v2.5-04-01
-Status: Planning complete — execute next
-Last activity: 2026-07-29 — Planned v2.5-04 (rater Wave 1 + freeze/forTier Wave 2)
+Phase: v2.5-05 (Dedupe + Diversity + Wire) — **ready to execute**
+Plan: v2.5-05-01 (wave 1 of 3)
+Status: planned — 01 storage → 02 selector/hydrate → 03 complete+freeze
+Last activity: 2026-07-29 — Phase v2.5-05 PLAN.md ×3 written
 
 ## Accumulated Context
 
-### Decisions（v2.5-04 Nonogram Tiering — planned）
+### Decisions（v2.5-04 Nonogram Tiering — executed）
 
 - Peak IDs: `simple_few` | `simple_many` | `probe` | `nested_probe` → Easy/Med/Hard/Expert
 - Constants locked: EASY_MAX_SWEEPS=3; probe depth 2 / nodes 800 / steps 500 / max productive probes 8; softens 3
 - Dual-track: retain weekday `tier` 0..6; freeze separate `difficultyTier`
 - forTier = library filter + soften (not carve); no hydrate/selector wire this phase
+- Freeze audit hist: easy=48 medium=50 hard=5 expert=17 (D-03 uneven OK)
+- Non-unique clue stalls after bounded probe → nested_probe/expert
+- `generateNonogramPuzzleForTier` ratedTier from frozen tag; peakTechnique from rateNonogram(canonical)
 
 ### Decisions（v2.5-03-02 Slitherlink rater）
 
@@ -114,12 +117,12 @@ Last activity: 2026-07-29 — Planned v2.5-04 (rater Wave 1 + freeze/forTier Wav
 | v2.5-02-03 | 3 | **done** | Gap closure: sound short_chain + conflict-checked solved |
 | v2.5-03-01 | 1 | **done** | Binary full depth rater + generateForTier (TIER-03) |
 | v2.5-03-02 | 2 | **done** | Slitherlink full depth rater + generateForTier no-builtin (TIER-05) |
-| v2.5-04-01 | 1 | pending | Nonogram FullSettle+probe rater + fixtures (TIER-04) |
-| v2.5-04-02 | 2 | pending | Freeze difficultyTier on 120 + generateForTier soften (TIER-04) |
+| v2.5-04-01 | 1 | **done** | Nonogram FullSettle+probe rater + fixtures (TIER-04) |
+| v2.5-04-02 | 2 | **done** | Freeze difficultyTier on 120 + generateForTier soften (TIER-04) |
 
 ### Pending Todos
 
-- `/gsd-execute-phase v2.5-04` — Nonogram Tiering (2 plans ready)
+- `/gsd-discuss-phase v2.5-05` or `/gsd-plan-phase v2.5-05` — Dedupe + Wire next
 - EAS production + ASC Submit for marketing `2.4.2`（可与 Adaptive 并行）
 - App Store ASO / ASC 留存观察（并行）
 - Google Play（可选）
@@ -131,16 +134,18 @@ Last activity: 2026-07-29 — Planned v2.5-04 (rater Wave 1 + freeze/forTier Wav
 
 **Resume file:** None
 
-**Stopped at:** Planned v2.5-04 — 2 PLAN.md written
+**Stopped at:** Phase v2.5-04 VERIFICATION passed
 
-**Resume:** `/gsd-execute-phase v2.5-04`
+**Resume:** `/gsd-discuss-phase v2.5-05` or `/gsd-plan-phase v2.5-05`
 
-Last session: 2026-07-29T07:15:00.000Z
+Last session: 2026-07-29T07:54:30.000Z
 
 ## Performance Metrics
 
 | Phase | Plan | Duration | Notes |
 |-------|------|----------|-------|
+| Phase v2.5-04 P02 | 12min | 2 tasks | 6 files |
+| Phase v2.5-04 P01 | 8min | 2 tasks | 8 files |
 | Phase v2.5-01 P02 | 4min | 2 tasks | 2 files |
 | Phase v2.5-01 P01 | 3min | 2 tasks | 16 files |
 | Phase v2.4.2-02 P01 | 3min | 2 tasks | 4 files |
@@ -153,6 +158,7 @@ Last session: 2026-07-29T07:15:00.000Z
 
 ## Decisions
 
+- [Phase v2.5-04 P02]: Freeze hist easy=48 medium=50 hard=5 expert=17; non-unique stalls → nested_probe/expert; forTier filter+soften≤3
 - [Phase v2.5-04 plan]: Peak IDs simple_few|simple_many|probe|nested_probe; EASY_MAX_SWEEPS=3; probe depth 2 / nodes 800 / steps 500 / max probes 8; softens 3; dual-track weekday tier + difficultyTier; forTier=filter not carve
 - [Phase v2.5-01 P02]: Mastery load-on-demand inside persistStatus only — no Context mastery field
 - [Phase v2.5-01 P02]: Mastery save failures warn-only; never roll back daily snapshot
@@ -178,3 +184,6 @@ Last session: 2026-07-29T07:15:00.000Z
 - [Phase v2.5-02-03]: WR-01: private hasHouseConflicts in rater.ts (no solver placement)
 - [Phase v2.5-03-02]: SL 7×7 peakToTier compression: edge_count→easy, vertex_degree→medium, local_loop→hard
 - [Phase v2.5-03-02]: SL forTier Easy–Hard empirical insides; Expert keeps RESEARCH 10/8–18; never builtin
+- [Phase v2.5-04]: Nonogram peaks: simple_few|simple_many|probe|nested_probe → easy/medium/hard/expert
+- [Phase v2.5-04]: Nonogram rater caps: EASY_MAX_SWEEPS=3; probe depth=2 nodes=800 steps=500 productive=8
+- [Phase v2.5-04]: Hard/Expert fixtures: moon (probe×1), bicycle (nested_probe via probeCount≥2)
