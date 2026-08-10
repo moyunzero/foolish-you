@@ -1,6 +1,6 @@
 import { useCallback, useMemo, useRef, useState } from 'react';
-import { Vibration } from 'react-native';
 
+import { feelConflict, feelLight, feelUndo } from '../lib/feel/haptics';
 import {
   BINARY_EMPTY,
   cloneGrid as cloneBinaryGrid,
@@ -82,6 +82,7 @@ export function useBinaryBoard({
   const undo = useCallback(() => {
     const prev = undoStackRef.current.pop();
     if (prev === undefined) return;
+    feelUndo();
     updatePlayState(prev);
     setUndoEpoch((n) => n + 1);
   }, [updatePlayState]);
@@ -99,7 +100,11 @@ export function useBinaryBoard({
       const cellConflict = getBinaryConflictCells(next, givens).some(
         (c) => c.row === row && c.col === col,
       );
-      if (cellConflict) Vibration.vibrate(12);
+      if (cellConflict) {
+        feelConflict();
+      } else {
+        feelLight();
+      }
     },
     [givens, playState, commitPlayState],
   );
@@ -113,6 +118,7 @@ export function useBinaryBoard({
       const next = cloneBinaryGrid(playState);
       next[row][col] = BINARY_EMPTY;
       commitPlayState(next);
+      feelLight();
     },
     [givens, playState, commitPlayState],
   );

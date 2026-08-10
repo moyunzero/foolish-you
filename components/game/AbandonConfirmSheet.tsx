@@ -1,9 +1,11 @@
 import { Pressable, Text, View } from 'react-native';
 
 import { colors } from '../../constants/design';
+import { feelConfirm } from '../../lib/feel/haptics';
 import { useI18n } from '../../lib/i18n';
 import BottomSheetShell from '../ui/BottomSheetShell';
 import OutlinePillButton from '../ui/OutlinePillButton';
+
 
 type AbandonConfirmSheetProps = {
   visible: boolean;
@@ -46,7 +48,10 @@ export default function AbandonConfirmSheet({
           <Pressable
             accessibilityRole="button"
             accessibilityLabel={sheetUi.bail}
-            onPress={onConfirm}
+            onPress={() => {
+              feelConfirm();
+              onConfirm();
+            }}
             className="min-h-[44px] items-center justify-center px-4"
           >
             <Text

@@ -1,6 +1,6 @@
 import { useCallback, useMemo, useRef, useState } from 'react';
-import { Vibration } from 'react-native';
 
+import { feelConflict, feelLight, feelUndo } from '../lib/feel/haptics';
 import type { CellCoord } from '../lib/puzzles/sudoku/grid';
 import { cloneGrid } from '../lib/puzzles/sudoku/grid';
 import { getDigitsUsedInUnit } from '../lib/puzzles/sudoku/display';
@@ -76,6 +76,7 @@ export function useSudokuBoard({
   const undo = useCallback(() => {
     const prev = undoStackRef.current.pop();
     if (prev === undefined) return;
+    feelUndo();
     updatePlayState(prev);
     setUndoEpoch((n) => n + 1);
   }, [updatePlayState]);
@@ -97,7 +98,11 @@ export function useSudokuBoard({
       const cellConflict = getConflictCells(next, givens).some(
         (c) => c.row === selected.row && c.col === selected.col,
       );
-      if (cellConflict) Vibration.vibrate(12);
+      if (cellConflict) {
+        feelConflict();
+      } else {
+        feelLight();
+      }
     },
     [selected, givens, playState, commitPlayState],
   );
@@ -110,6 +115,7 @@ export function useSudokuBoard({
       const next = cloneGrid(playState);
       next[row][col] = 0;
       commitPlayState(next);
+      feelLight();
     },
     [givens, playState, commitPlayState],
   );

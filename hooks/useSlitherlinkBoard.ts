@@ -1,6 +1,6 @@
 import { useCallback, useMemo, useRef, useState } from 'react';
-import { Vibration } from 'react-native';
 
+import { feelConflict, feelLight, feelUndo } from '../lib/feel/haptics';
 import { useI18n } from '../lib/i18n';
 import {
   clonePlayState,
@@ -78,6 +78,7 @@ export function useSlitherlinkBoard({
   const undo = useCallback(() => {
     const prev = undoStackRef.current.pop();
     if (prev === undefined) return;
+    feelUndo();
     updatePlayState(prev);
     setUndoEpoch((n) => n + 1);
   }, [updatePlayState]);
@@ -100,7 +101,9 @@ export function useSlitherlinkBoard({
       setUndoEpoch((n) => n + 1);
       const nextConflicts = getConflictEdges(nextState, puzzle);
       if (edgeInConflict(nextConflicts, orientation, row, col)) {
-        Vibration.vibrate(12);
+        feelConflict();
+      } else {
+        feelLight();
       }
     },
     [puzzle, playState, updatePlayState],

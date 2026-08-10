@@ -1,5 +1,6 @@
 import { useCallback, useMemo, useRef, useState } from 'react';
 
+import { feelLight, feelUndo } from '../lib/feel/haptics';
 import { cloneGrid, type CellCoord } from '../lib/puzzles/nonogram/grid';
 import { NONOGRAM_EMPTY } from '../lib/puzzles/nonogram/spec';
 import { cycleCellValue, isCompleteAndValid } from '../lib/puzzles/nonogram/validate';
@@ -49,6 +50,7 @@ export function useNonogramBoard({
   const undo = useCallback(() => {
     const prev = undoStackRef.current.pop();
     if (prev === undefined) return;
+    feelUndo();
     updatePlayState(prev);
     setUndoEpoch((n) => n + 1);
   }, [updatePlayState]);
@@ -59,6 +61,7 @@ export function useNonogramBoard({
       const next = cloneGrid(playState);
       next[row]![col] = cycleCellValue(next[row]![col]!);
       commitPlayState(next);
+      feelLight();
     },
     [playState, commitPlayState],
   );
@@ -71,6 +74,7 @@ export function useNonogramBoard({
       const next = cloneGrid(playState);
       next[row]![col] = NONOGRAM_EMPTY;
       commitPlayState(next);
+      feelLight();
     },
     [playState, commitPlayState],
   );
