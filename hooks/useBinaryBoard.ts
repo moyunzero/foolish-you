@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 import {
   createDragHapticCoalesce,
@@ -40,6 +40,8 @@ function binaryCellValue(
 }
 
 type UseBinaryBoardParams = {
+  /** Clears ephemeral undo when puzzle identity changes (D-05). */
+  boardKey: string;
   givens: BinaryGivens;
   playState: BinaryPlayState;
   updatePlayState: (next: BinaryPlayState) => void;
@@ -53,6 +55,7 @@ type DragStroke = {
 };
 
 export function useBinaryBoard({
+  boardKey,
   givens,
   playState,
   updatePlayState,
@@ -64,6 +67,13 @@ export function useBinaryBoard({
   const [undoEpoch, setUndoEpoch] = useState(0);
   const strokeRef = useRef<DragStroke | null>(null);
   const dragHapticsRef = useRef(createDragHapticCoalesce());
+
+  useEffect(() => {
+    undoStackRef.current.clear();
+    strokeRef.current = null;
+    setUndoEpoch((n) => n + 1);
+    setSelected(null);
+  }, [boardKey]);
 
   const conflicts = useMemo(
     () => getBinaryConflictCells(playState, givens),

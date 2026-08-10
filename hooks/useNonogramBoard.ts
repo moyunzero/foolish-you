@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 import {
   createDragHapticCoalesce,
@@ -17,6 +17,8 @@ import type {
 import { createUndoStack } from '../lib/undo/createUndoStack';
 
 type UseNonogramBoardParams = {
+  /** Clears ephemeral undo when puzzle identity changes (D-05). */
+  boardKey: string;
   puzzle: NonogramPuzzle;
   playState: NonogramPlayState;
   updatePlayState: (next: NonogramPlayState) => void;
@@ -30,6 +32,7 @@ type DragStroke = {
 };
 
 export function useNonogramBoard({
+  boardKey,
   puzzle,
   playState,
   updatePlayState,
@@ -41,6 +44,13 @@ export function useNonogramBoard({
   const [undoEpoch, setUndoEpoch] = useState(0);
   const strokeRef = useRef<DragStroke | null>(null);
   const dragHapticsRef = useRef(createDragHapticCoalesce());
+
+  useEffect(() => {
+    undoStackRef.current.clear();
+    strokeRef.current = null;
+    setUndoEpoch((n) => n + 1);
+    setSelected(null);
+  }, [boardKey]);
 
   const canComplete = useMemo(
     () => isCompleteAndValid(playState, puzzle.solution),

@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 import { feelConflict, feelLight, feelUndo } from '../lib/feel/haptics';
 import type { CellCoord } from '../lib/puzzles/sudoku/grid';
@@ -26,6 +26,8 @@ function isSudokuEditable(givens: SudokuGivens, row: number, col: number): boole
 }
 
 type UseSudokuBoardParams = {
+  /** Clears ephemeral undo when puzzle identity changes (D-05). */
+  boardKey: string;
   givens: SudokuGivens;
   playState: SudokuPlayState;
   updatePlayState: (next: SudokuPlayState) => void;
@@ -34,6 +36,7 @@ type UseSudokuBoardParams = {
 };
 
 export function useSudokuBoard({
+  boardKey,
   givens,
   playState,
   updatePlayState,
@@ -46,6 +49,12 @@ export function useSudokuBoard({
   const [notesMode, setNotesMode] = useState(false);
   const undoStackRef = useRef(createUndoStack<SudokuPlayState>());
   const [undoEpoch, setUndoEpoch] = useState(0);
+
+  useEffect(() => {
+    undoStackRef.current.clear();
+    setUndoEpoch((n) => n + 1);
+    setSelected(null);
+  }, [boardKey]);
 
   const notes = sudokuNotes ?? createEmptySudokuNotes();
 

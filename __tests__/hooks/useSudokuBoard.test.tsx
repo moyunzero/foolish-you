@@ -37,6 +37,7 @@ describe('useSudokuBoard', () => {
 
     const { result } = renderHook(() =>
       useSudokuBoard({
+        boardKey: 'test',
         givens: puzzle.givens,
         playState: createEmptyGrid(),
         updatePlayState,
@@ -65,6 +66,7 @@ describe('useSudokuBoard', () => {
 
     const { result } = renderHook(() =>
       useSudokuBoard({
+        boardKey: 'test',
         givens: puzzle.givens,
         playState: createEmptyGrid(),
         updatePlayState,
@@ -90,6 +92,7 @@ describe('useSudokuBoard', () => {
 
     const { result } = renderHook(() =>
       useSudokuBoard({
+        boardKey: 'test',
         givens: puzzle.givens,
         playState,
         updatePlayState,
@@ -118,6 +121,7 @@ describe('useSudokuBoard', () => {
 
     const { result } = renderHook(() =>
       useSudokuBoard({
+        boardKey: 'test',
         givens: puzzle.givens,
         playState,
         updatePlayState,

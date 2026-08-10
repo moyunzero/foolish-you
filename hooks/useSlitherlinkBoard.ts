@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 import { feelConflict, feelLight, feelUndo } from '../lib/feel/haptics';
 import { useI18n } from '../lib/i18n';
@@ -22,6 +22,8 @@ import {
 import { createUndoStack } from '../lib/undo/createUndoStack';
 
 type UseSlitherlinkBoardParams = {
+  /** Clears ephemeral undo when puzzle identity changes (D-05). */
+  boardKey: string;
   puzzle: SlitherlinkPuzzle;
   playState: SlitherlinkPlayState;
   updatePlayState: (next: SlitherlinkPlayState) => void;
@@ -46,6 +48,7 @@ function edgeInConflict(
 }
 
 export function useSlitherlinkBoard({
+  boardKey,
   puzzle,
   playState,
   updatePlayState,
@@ -55,6 +58,12 @@ export function useSlitherlinkBoard({
   const [selectedEdge, setSelectedEdge] = useState<EdgeCoord | null>(null);
   const undoStackRef = useRef(createUndoStack<SlitherlinkPlayState>());
   const [undoEpoch, setUndoEpoch] = useState(0);
+
+  useEffect(() => {
+    undoStackRef.current.clear();
+    setUndoEpoch((n) => n + 1);
+    setSelectedEdge(null);
+  }, [boardKey]);
 
   const conflicts = useMemo(
     () => getConflictEdges(playState, puzzle),

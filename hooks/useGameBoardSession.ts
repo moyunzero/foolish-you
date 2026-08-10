@@ -102,6 +102,7 @@ export function useGameBoardSession({
       : createEmptySlitherlinkPlayState();
 
   const sudokuBoard = useSudokuBoard({
+    boardKey: isSudoku && puzzle != null ? puzzle.puzzleHash : 'sudoku-idle',
     givens: sudokuGivens ?? createEmptySudokuGrid(),
     playState: sudokuPlay,
     updatePlayState: (next) => updatePlayState(next),
@@ -110,18 +111,23 @@ export function useGameBoardSession({
   });
 
   const binaryBoard = useBinaryBoard({
+    boardKey: isBinary && puzzle != null ? puzzle.puzzleHash : 'binary-idle',
     givens: binaryGivens ?? createEmptyBinaryGrid(),
     playState: binaryPlay,
     updatePlayState: (next) => updatePlayState(next),
   });
 
   const nonogramBoard = useNonogramBoard({
+    boardKey: isNonogram ? nonogramPuzzle.puzzleHash : 'nonogram-idle',
     puzzle: nonogramPuzzle,
     playState: nonogramPlay,
     updatePlayState: (next) => updatePlayState(next),
   });
 
   const slitherlinkBoard = useSlitherlinkBoard({
+    boardKey: isSlitherlink
+      ? slitherlinkPuzzle.puzzleHash
+      : 'slitherlink-idle',
     puzzle: slitherlinkPuzzle,
     playState: slitherlinkPlay,
     updatePlayState: (next) => updatePlayState(next),
