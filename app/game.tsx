@@ -14,6 +14,7 @@ import GameScreenHeader from '../components/game/GameScreenHeader';
 import NonogramGameSection from '../components/game/NonogramGameSection';
 import SlitherlinkGameSection from '../components/game/SlitherlinkGameSection';
 import SudokuGameSection from '../components/game/SudokuGameSection';
+import FirstTypeIntroSheet from '../components/onboarding/FirstTypeIntroSheet';
 import EveningMissRiskBanner from '../components/reminder/EveningMissRiskBanner';
 import ReminderSheet from '../components/reminder/ReminderSheet';
 import OutlinePillButton from '../components/ui/OutlinePillButton';
@@ -26,6 +27,10 @@ import { pickAbandonConfirmBody } from '../lib/copy/abandonConfirm';
 import { resolveGameStreakSubline } from '../lib/copy/sundaySpecial';
 import { useI18n } from '../lib/i18n';
 import { shouldShowEveningReminderBanner } from '../lib/reminder/eveningBanner';
+import {
+  loadFirstIntroState,
+  markFirstIntroSeen,
+} from '../lib/storage/firstIntroStorage';
 import {
   loadReminderState,
   markEveningBannerDismissed,
@@ -53,6 +58,7 @@ export default function GameScreen() {
     freezeConsumedLine,
     missedYesterdayLine,
     updatePlayState,
+    updateSudokuNotes,
     markCompleted,
     markAbandoned,
     refresh,
@@ -68,6 +74,7 @@ export default function GameScreen() {
   const [localHour, setLocalHour] = useState(() => new Date().getHours());
   const [eveningBannerDismissedForDateKey, setEveningBannerDismissedForDateKey] =
     useState<string | null>(null);
+  const [firstIntroVisible, setFirstIntroVisible] = useState(false);
 
   const session = useGameBoardSession({
     gameType,
@@ -75,6 +82,8 @@ export default function GameScreen() {
     playState,
     status,
     updatePlayState,
+    sudokuNotes: snapshot?.sudokuNotes,
+    updateSudokuNotes,
   });
 
   const {
@@ -113,6 +122,21 @@ export default function GameScreen() {
   }, [status]);
 
   useEffect(() => {
+    if (status !== 'playing' || gameType == null) {
+      setFirstIntroVisible(false);
+      return;
+    }
+    let cancelled = false;
+    void loadFirstIntroState().then((state) => {
+      if (cancelled) return;
+      setFirstIntroVisible(!state.seenByType[gameType]);
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [status, gameType]);
+
+  useEffect(() => {
     void loadReminderState().then((state) => {
       setReminderEnabled(state.enabled);
       setEveningBannerDismissedForDateKey(
@@ -120,6 +144,13 @@ export default function GameScreen() {
       );
     });
   }, [reminderOpen]);
+
+  const dismissFirstIntro = () => {
+    setFirstIntroVisible(false);
+    if (gameType != null) {
+      void markFirstIntroSeen(gameType);
+    }
+  };
 
   const showPlayChrome = session.showBoardChrome;
   const streakSubline = resolveGameStreakSubline({
@@ -215,6 +246,14 @@ export default function GameScreen() {
         onConfirm={performAbandon}
         body={abandonConfirmBody}
       />
+
+      {gameType != null ? (
+        <FirstTypeIntroSheet
+          visible={firstIntroVisible && showPlayChrome}
+          gameType={gameType}
+          onDismiss={dismissFirstIntro}
+        />
+      ) : null}
 
       {session.showReload ? (
         <View className="flex-1 items-center justify-center gap-3 px-8">

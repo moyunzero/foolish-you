@@ -10,6 +10,8 @@ type SudokuNumpadProps = {
   disabled: boolean;
   /** 选中格所在行/列/宫内已出现的数字，按键置灰 */
   dimmedDigits?: Set<number>;
+  notesMode: boolean;
+  onToggleNotesMode: () => void;
 };
 
 const DIGITS = [1, 2, 3, 4, 5, 6, 7, 8, 9] as const;
@@ -80,6 +82,8 @@ export default function SudokuNumpad({
   onClear,
   disabled,
   dimmedDigits,
+  notesMode,
+  onToggleNotesMode,
 }: SudokuNumpadProps) {
   const { strings } = useI18n();
   const grid = strings.ui.grid;
@@ -107,7 +111,7 @@ export default function SudokuNumpad({
           ))}
         </View>
       ))}
-      <View className="flex-row">
+      <View className="flex-row gap-2">
         <DigitKey
           label={grid.clear}
           padDisabled={disabled}
@@ -115,6 +119,35 @@ export default function SudokuNumpad({
           isClear
           onPress={onClear}
         />
+        <Pressable
+          accessibilityRole="button"
+          accessibilityLabel={grid.notesModeA11y}
+          accessibilityState={{ selected: notesMode }}
+          onPress={onToggleNotesMode}
+          style={{
+            flex: 1,
+            height: 44,
+            alignItems: 'center',
+            justifyContent: 'center',
+            borderRadius: 999,
+            borderWidth: 1,
+            borderColor: notesMode ? colors.accentSunset : colors.hairline,
+            backgroundColor: notesMode
+              ? 'rgba(255, 122, 23, 0.16)'
+              : 'transparent',
+          }}
+        >
+          <Text
+            style={{
+              fontFamily: 'Inter_400Regular',
+              fontSize: 15,
+              fontWeight: '600',
+              color: notesMode ? colors.accentSunset : colors.ink,
+            }}
+          >
+            {grid.notesMode}
+          </Text>
+        </Pressable>
       </View>
     </View>
   );

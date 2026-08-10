@@ -20,6 +20,7 @@ import type {
   PuzzlePayload,
   SlitherlinkPlayState,
   SlitherlinkPuzzle,
+  SudokuNotes,
 } from '../lib/puzzles/types';
 import {
   isBinaryPuzzle,
@@ -55,6 +56,8 @@ type UseGameBoardSessionParams = {
   playState: PlayState | null;
   status: HydrateStatus;
   updatePlayState: (next: PlayState) => void;
+  sudokuNotes?: SudokuNotes | null;
+  updateSudokuNotes?: (next: SudokuNotes | null) => void;
 };
 
 export function useGameBoardSession({
@@ -63,6 +66,8 @@ export function useGameBoardSession({
   playState,
   status,
   updatePlayState,
+  sudokuNotes,
+  updateSudokuNotes,
 }: UseGameBoardSessionParams) {
   const { locale } = useI18n();
   const isSudoku =
@@ -100,6 +105,8 @@ export function useGameBoardSession({
     givens: sudokuGivens ?? createEmptySudokuGrid(),
     playState: sudokuPlay,
     updatePlayState: (next) => updatePlayState(next),
+    sudokuNotes: isSudoku ? sudokuNotes : null,
+    updateSudokuNotes: isSudoku ? updateSudokuNotes : undefined,
   });
 
   const binaryBoard = useBinaryBoard({

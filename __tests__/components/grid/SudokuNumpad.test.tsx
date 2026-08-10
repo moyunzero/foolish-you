@@ -14,6 +14,8 @@ describe('SudokuNumpad', () => {
         onClear={onClear}
         disabled={false}
         dimmedDigits={new Set([5])}
+        notesMode={false}
+        onToggleNotesMode={jest.fn()}
       />,
     );
 
@@ -30,6 +32,8 @@ describe('SudokuNumpad', () => {
         onDigit={onDigit}
         onClear={jest.fn()}
         disabled
+        notesMode={false}
+        onToggleNotesMode={jest.fn()}
       />,
     );
 

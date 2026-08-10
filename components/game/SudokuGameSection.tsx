@@ -33,6 +33,7 @@ export default function SudokuGameSection({
           <SudokuGrid
             givens={givens}
             playState={playState}
+            sudokuNotes={board.sudokuNotes}
             selected={board.selected}
             conflictCells={board.conflicts}
             onSelectCell={board.handleSelect}
@@ -47,6 +48,8 @@ export default function SudokuGameSection({
           onClear={board.handleClear}
           disabled={board.numpadDisabled}
           dimmedDigits={board.dimmedDigits}
+          notesMode={board.notesMode}
+          onToggleNotesMode={board.toggleNotesMode}
         />
       </View>
     </View>

@@ -24,6 +24,9 @@ export const MASTERY_STORAGE_VERSION = 1;
 export const PLAYED_HASH_STORAGE_KEY = '@foolish-you/played-hash-v1';
 /** Bump when persisted played-hash ring shape changes (see docs/CONFIGURATION.md § Storage version bumps). */
 export const PLAYED_HASH_STORAGE_VERSION = 1;
+export const FIRST_INTRO_STORAGE_KEY = '@foolish-you/first-intro-v1';
+/** Own store for first-type intro seen flags — do not bump daily STORAGE_VERSION (D-16). */
+export const FIRST_INTRO_STORAGE_VERSION = 1;
 /** Per-gameType FIFO capacity for recent completed puzzle hashes (DIV-01 / D-01). */
 export const PLAYED_HASH_RING_CAPACITY = 200;
 /** Max generate/select retries while puzzleHash is in the avoid set (DIV-02 / D-05). */

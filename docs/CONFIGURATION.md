@@ -262,6 +262,8 @@ Central runtime constants for puzzles, persistence, and debouncing.
 | `MASTERY_STORAGE_VERSION` | `1` | Mastery state schema (`byType` rows) |
 | `PLAYED_HASH_STORAGE_KEY` | `@foolish-you/played-hash-v1` | Per-gameType FIFO ring of recent completed puzzle hashes (v2.5 DIV-01) |
 | `PLAYED_HASH_STORAGE_VERSION` | `1` | Played-hash ring schema (`version` + `byType` string arrays) |
+| `FIRST_INTRO_STORAGE_KEY` | `@foolish-you/first-intro-v1` | First-type intro seen flags (own key; FEEL-05) |
+| `FIRST_INTRO_STORAGE_VERSION` | `1` | First-intro schema (`version` + `seenByType`) |
 | `PLAYED_HASH_RING_CAPACITY` | `200` | Max hashes retained per `gameType` (FIFO drop oldest) |
 | `AVOID_HASH_MAX_ATTEMPTS` | `40` | Generate/select retries while hash is in the avoid set (DIV-02) |
 | `RECOVERY_LOG_STORAGE_KEY` | `@foolish-you/snapshot-recovery-log-v1` | Ring buffer of snapshot recovery events |
@@ -327,6 +329,7 @@ See `DESIGN.md` for product-level design rules.
 | `@foolish-you/rating-v1` | `RATING_STORAGE_KEY` | Rating prompt state | `lib/storage/ratingStorage.ts` |
 | `@foolish-you/mastery-v1` | `MASTERY_STORAGE_KEY` | Per-gameType mastery (`version` + `byType`) | `lib/storage/masteryStorage.ts` |
 | `@foolish-you/played-hash-v1` | `PLAYED_HASH_STORAGE_KEY` | Per-gameType played-hash rings (`version` + `byType`) | `lib/storage/playedHashStorage.ts` |
+| `@foolish-you/first-intro-v1` | `FIRST_INTRO_STORAGE_KEY` | Per-gameType first-intro seen flags | `lib/storage/firstIntroStorage.ts` |
 | `@foolish-you/snapshot-recovery-log-v1` | `RECOVERY_LOG_STORAGE_KEY` | Recovery event log (dev-visible) | `lib/storage/recoveryLog.ts` |
 | `@foolish-you/dev-tools-bar-visible` | `contexts/DevToolsUiContext.tsx` (local constant) | `'1'` / `'0'` for dev bar visibility | Dev builds only |
 
