@@ -29,6 +29,8 @@ import {
 import { useI18n } from '../../lib/i18n';
 import type { Strings } from '../../lib/i18n/types';
 
+// Signature envelope: withTiming via useSignatureProgress (SIG_WIN_MS / SIG_ABANDON_MS).
+
 type SlitherlinkBoardProps = {
   puzzle: SlitherlinkPuzzle;
   playState: SlitherlinkPlayState;
