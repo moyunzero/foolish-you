@@ -24,6 +24,7 @@ export default function BinaryGameSection({
   maxWidth,
   board,
   cardStyle,
+  signature = 'idle',
 }: BinaryGameSectionProps) {
   return (
     <View className="flex-1">
@@ -42,6 +43,7 @@ export default function BinaryGameSection({
             onDragStrokeBegin={board.beginDragStroke}
             onDragStrokeMove={board.moveDragStroke}
             onDragStrokeEnd={board.endDragStroke}
+            signature={signature}
           />
         </HairlineCard>
       </View>

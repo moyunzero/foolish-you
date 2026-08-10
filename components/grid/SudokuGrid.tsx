@@ -1,6 +1,18 @@
+import type { ReactNode } from 'react';
 import { Pressable, Text, View } from 'react-native';
+import Animated, {
+  interpolate,
+  useAnimatedStyle,
+  type SharedValue,
+} from 'react-native-reanimated';
 
 import { colors } from '../../constants/design';
+import { useSignatureProgress } from '../../hooks/useSignatureProgress';
+import type { SignatureMoment } from '../../lib/feel/signatureTokens';
+import {
+  SIG_SCALE_PEAK_ABANDON,
+  SIG_SCALE_PEAK_WIN,
+} from '../../lib/feel/signatureTokens';
 import type { CellCoord } from '../../lib/puzzles/sudoku/grid';
 import { getCellHighlightKind } from '../../lib/puzzles/sudoku/highlights';
 import { getDisplayValue } from '../../lib/puzzles/sudoku/display';
@@ -12,6 +24,8 @@ import type {
   SudokuNotes,
   SudokuPlayState,
 } from '../../lib/puzzles/types';
+
+// Signature envelope: withTiming via useSignatureProgress (SIG_WIN_MS / SIG_ABANDON_MS).
 
 const SUDOKU_CELL_LINE = 1;
 const SUDOKU_BOX_LINE = 2;
@@ -26,6 +40,7 @@ type SudokuGridProps = {
   conflictCells: CellCoord[];
   onSelectCell: (row: number, col: number) => void;
   onLongPressCell: (row: number, col: number) => void;
+  signature?: SignatureMoment;
 };
 
 function isConflict(
@@ -137,6 +152,78 @@ function NotesGlyph({ mask }: { mask: number }) {
   );
 }
 
+/** sudoku-win / sudoku-abandon cell medium — one shared progress (Pitfall 5). */
+function SudokuSignatureShell({
+  mode,
+  progress,
+  children,
+}: {
+  mode: SignatureMoment;
+  progress: SharedValue<number>;
+  children: ReactNode;
+}) {
+  const shellStyle = useAnimatedStyle(() => {
+    if (mode === 'idle') {
+      return { transform: [{ scale: 1 }], opacity: 1 };
+    }
+    if (mode === 'win') {
+      const scale = interpolate(
+        progress.value,
+        [0, 0.4, 1],
+        [1, SIG_SCALE_PEAK_WIN, 1],
+      );
+      return { transform: [{ scale }], opacity: 1 };
+    }
+    const scale = interpolate(
+      progress.value,
+      [0, 1],
+      [1, SIG_SCALE_PEAK_ABANDON],
+    );
+    const opacity = interpolate(progress.value, [0, 1], [1, 0.5]);
+    return { transform: [{ scale }], opacity };
+  });
+
+  const glowStyle = useAnimatedStyle(() => {
+    if (mode !== 'win') return { opacity: 0 };
+    return {
+      opacity: interpolate(progress.value, [0, 0.4, 1], [0, 0.18, 0]),
+    };
+  });
+
+  return (
+    <Animated.View
+      style={[
+        {
+          flex: 1,
+          width: '100%',
+          height: '100%',
+          alignItems: 'center',
+          justifyContent: 'center',
+        },
+        shellStyle,
+      ]}
+    >
+      <Animated.View
+        accessible={false}
+        importantForAccessibility="no-hide-descendants"
+        pointerEvents="none"
+        style={[
+          {
+            position: 'absolute',
+            left: 0,
+            right: 0,
+            top: 0,
+            bottom: 0,
+            backgroundColor: colors.accentSunset,
+          },
+          glowStyle,
+        ]}
+      />
+      {children}
+    </Animated.View>
+  );
+}
+
 export default function SudokuGrid({
   givens,
   playState,
@@ -145,9 +232,11 @@ export default function SudokuGrid({
   conflictCells,
   onSelectCell,
   onLongPressCell,
+  signature = 'idle',
 }: SudokuGridProps) {
   const { strings } = useI18n();
   const grid = strings.ui.grid;
+  const progress = useSignatureProgress(signature);
 
   return (
     <View
@@ -174,6 +263,26 @@ export default function SudokuGrid({
             );
             const isSelectedCell = highlight === 'selected';
             const bg = highlightBackground(highlight, conflict);
+            const userFilled = !given && playState[row][col] !== 0;
+
+            const body =
+              value !== 0 ? (
+                <Text
+                  style={{
+                    fontFamily: 'SpaceMono_400Regular',
+                    fontSize: given ? 17 : 20,
+                    color: conflict
+                      ? colors.sudokuError
+                      : given
+                        ? colors.sudokuGiven
+                        : colors.ink,
+                  }}
+                >
+                  {String(value)}
+                </Text>
+              ) : notesMask !== 0 ? (
+                <NotesGlyph mask={notesMask} />
+              ) : null;
 
             return (
               <Pressable
@@ -219,23 +328,13 @@ export default function SudokuGrid({
                     : null,
                 ]}
               >
-                {value !== 0 ? (
-                  <Text
-                    style={{
-                      fontFamily: 'SpaceMono_400Regular',
-                      fontSize: given ? 17 : 20,
-                      color: conflict
-                        ? colors.sudokuError
-                        : given
-                          ? colors.sudokuGiven
-                          : colors.ink,
-                    }}
-                  >
-                    {String(value)}
-                  </Text>
-                ) : notesMask !== 0 ? (
-                  <NotesGlyph mask={notesMask} />
-                ) : null}
+                {userFilled ? (
+                  <SudokuSignatureShell mode={signature} progress={progress}>
+                    {body}
+                  </SudokuSignatureShell>
+                ) : (
+                  body
+                )}
               </Pressable>
             );
           })}

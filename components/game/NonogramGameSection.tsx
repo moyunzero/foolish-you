@@ -24,6 +24,7 @@ export default function NonogramGameSection({
   maxWidth,
   board,
   cardStyle,
+  signature = 'idle',
 }: NonogramGameSectionProps) {
   return (
     <View className="flex-1">
@@ -45,6 +46,7 @@ export default function NonogramGameSection({
             onDragStrokeBegin={board.beginDragStroke}
             onDragStrokeMove={board.moveDragStroke}
             onDragStrokeEnd={board.endDragStroke}
+            signature={signature}
           />
         </HairlineCard>
       </View>

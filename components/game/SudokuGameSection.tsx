@@ -25,6 +25,7 @@ export default function SudokuGameSection({
   maxWidth,
   board,
   cardStyle,
+  signature = 'idle',
 }: SudokuGameSectionProps) {
   return (
     <View className="flex-1 items-center justify-center">
@@ -40,6 +41,7 @@ export default function SudokuGameSection({
           conflictCells={board.conflicts}
           onSelectCell={board.handleSelect}
           onLongPressCell={board.handleLongPress}
+          signature={signature}
         />
       </HairlineCard>
     </View>

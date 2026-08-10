@@ -27,6 +27,7 @@ export default function SlitherlinkGameSection({
   maxWidth,
   board,
   cardStyle,
+  signature = 'idle',
 }: SlitherlinkGameSectionProps) {
   return (
     <View className="flex-1">
@@ -43,6 +44,7 @@ export default function SlitherlinkGameSection({
             onPressEdge={board.handlePressEdge}
             onLongPressEdge={board.handleLongPressEdge}
             maxWidth={maxWidth}
+            signature={signature}
           />
         </HairlineCard>
       </View>

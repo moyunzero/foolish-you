@@ -1,8 +1,15 @@
-import { useMemo, useRef } from 'react';
+import { useMemo, useRef, type ReactNode } from 'react';
 import { Pressable, Text, View } from 'react-native';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
+import Animated, {
+  interpolate,
+  useAnimatedStyle,
+  type SharedValue,
+} from 'react-native-reanimated';
 
 import { colors } from '../../constants/design';
+import { useSignatureProgress } from '../../hooks/useSignatureProgress';
+import type { SignatureMoment } from '../../lib/feel/signatureTokens';
 import {
   BINARY_EMPTY,
   BINARY_ZERO,
@@ -15,6 +22,8 @@ import { useI18n } from '../../lib/i18n';
 import type { Strings } from '../../lib/i18n/types';
 import type { BinaryGivens, BinaryPlayState } from '../../lib/puzzles/types';
 
+// Signature envelope: withTiming via useSignatureProgress (SIG_WIN_MS / SIG_ABANDON_MS).
+
 type BinaryGridProps = {
   givens: BinaryGivens;
   playState: BinaryPlayState;
@@ -25,6 +34,7 @@ type BinaryGridProps = {
   onDragStrokeBegin: (row: number, col: number) => void;
   onDragStrokeMove: (row: number, col: number) => void;
   onDragStrokeEnd: () => void;
+  signature?: SignatureMoment;
 };
 
 function isConflict(
@@ -79,6 +89,97 @@ function cellA11yLabel(
   return `${pos}，${prefix} ${label}${hint}`;
 }
 
+/** binary-win / binary-abandon — filled cell lift / settle. */
+function BinarySignatureShell({
+  mode,
+  progress,
+  children,
+}: {
+  mode: SignatureMoment;
+  progress: SharedValue<number>;
+  children: ReactNode;
+}) {
+  const shellStyle = useAnimatedStyle(() => {
+    if (mode === 'idle') return { opacity: 1 };
+    if (mode === 'win') return { opacity: 1 };
+    return { opacity: interpolate(progress.value, [0, 1], [1, 0.45]) };
+  });
+
+  const liftStyle = useAnimatedStyle(() => {
+    if (mode !== 'win') return { opacity: 0 };
+    return {
+      opacity: interpolate(progress.value, [0, 0.4, 1], [0, 0.16, 0]),
+    };
+  });
+
+  return (
+    <Animated.View
+      style={[
+        {
+          flex: 1,
+          width: '100%',
+          height: '100%',
+          alignItems: 'center',
+          justifyContent: 'center',
+        },
+        shellStyle,
+      ]}
+    >
+      <Animated.View
+        accessible={false}
+        importantForAccessibility="no-hide-descendants"
+        pointerEvents="none"
+        style={[
+          {
+            position: 'absolute',
+            left: 0,
+            right: 0,
+            top: 0,
+            bottom: 0,
+            backgroundColor: colors.ink,
+          },
+          liftStyle,
+        ]}
+      />
+      {children}
+    </Animated.View>
+  );
+}
+
+function BinaryRowAccent({
+  mode,
+  progress,
+}: {
+  mode: SignatureMoment;
+  progress: SharedValue<number>;
+}) {
+  const style = useAnimatedStyle(() => {
+    if (mode !== 'win') return { opacity: 0 };
+    return {
+      opacity: interpolate(progress.value, [0, 0.4, 1], [0, 0.5, 0]),
+    };
+  });
+
+  return (
+    <Animated.View
+      accessible={false}
+      importantForAccessibility="no-hide-descendants"
+      pointerEvents="none"
+      style={[
+        {
+          position: 'absolute',
+          left: 0,
+          right: 0,
+          bottom: 0,
+          height: 1,
+          backgroundColor: colors.accentSunsetSoft,
+        },
+        style,
+      ]}
+    />
+  );
+}
+
 export default function BinaryGrid({
   givens,
   playState,
@@ -89,12 +190,14 @@ export default function BinaryGrid({
   onDragStrokeBegin,
   onDragStrokeMove,
   onDragStrokeEnd,
+  signature = 'idle',
 }: BinaryGridProps) {
   const { strings } = useI18n();
   const grid = strings.ui.grid;
   const merged = mergePlayAndGivens(givens, playState);
   const layoutRef = useRef({ width: 0, height: 0 });
   const suppressPressRef = useRef(false);
+  const progress = useSignatureProgress(signature);
 
   const cellFromXY = (x: number, y: number): CellCoord | null => {
     const { width, height } = layoutRef.current;
@@ -146,7 +249,11 @@ export default function BinaryGrid({
         }}
       >
         {Array.from({ length: BINARY_SIZE }, (_, row) => (
-          <View key={`row-${row}`} className="flex-1 flex-row">
+          <View
+            key={`row-${row}`}
+            className="flex-1 flex-row"
+            style={{ position: 'relative' }}
+          >
             {Array.from({ length: BINARY_SIZE }, (_, col) => {
               const given = isGiven(givens, row, col);
               const value = merged[row][col];
@@ -159,6 +266,21 @@ export default function BinaryGrid({
                 row,
                 col,
                 conflict,
+              );
+              const filled = value !== BINARY_EMPTY;
+
+              const body = (
+                <Text
+                  style={{
+                    fontFamily: given
+                      ? 'SpaceMono_400Regular'
+                      : 'SpaceMono_700Bold',
+                    fontSize: given ? 17 : 20,
+                    color: given ? colors.sudokuGiven : colors.ink,
+                  }}
+                >
+                  {displayChar(value)}
+                </Text>
               );
 
               return (
@@ -199,20 +321,17 @@ export default function BinaryGrid({
                       : null),
                   }}
                 >
-                  <Text
-                    style={{
-                      fontFamily: given
-                        ? 'SpaceMono_400Regular'
-                        : 'SpaceMono_700Bold',
-                      fontSize: given ? 17 : 20,
-                      color: given ? colors.sudokuGiven : colors.ink,
-                    }}
-                  >
-                    {displayChar(value)}
-                  </Text>
+                  {filled ? (
+                    <BinarySignatureShell mode={signature} progress={progress}>
+                      {body}
+                    </BinarySignatureShell>
+                  ) : (
+                    body
+                  )}
                 </Pressable>
               );
             })}
+            <BinaryRowAccent mode={signature} progress={progress} />
           </View>
         ))}
       </View>

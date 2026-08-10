@@ -1,7 +1,15 @@
 import { Pressable, Text, View } from 'react-native';
 import type { GestureResponderEvent } from 'react-native';
+import Animated, {
+  interpolate,
+  interpolateColor,
+  useAnimatedStyle,
+  type SharedValue,
+} from 'react-native-reanimated';
 
 import { colors } from '../../constants/design';
+import { useSignatureProgress } from '../../hooks/useSignatureProgress';
+import type { SignatureMoment } from '../../lib/feel/signatureTokens';
 import {
   lineCountAroundCell,
   unknownCountAroundCell,
@@ -33,6 +41,7 @@ type SlitherlinkBoardProps = {
     col: number,
   ) => void;
   maxWidth: number;
+  signature?: SignatureMoment;
 };
 
 export const SLITHERLINK_BOARD_INSET = 20;
@@ -119,6 +128,8 @@ function EdgeSegment({
   conflict,
   inset,
   cellStep,
+  mode,
+  progress,
 }: {
   orientation: EdgeOrientation;
   row: number;
@@ -127,6 +138,8 @@ function EdgeSegment({
   conflict: boolean;
   inset: number;
   cellStep: number;
+  mode: SignatureMoment;
+  progress: SharedValue<number>;
 }) {
   const { x0, y0, x1, y1 } = segmentEndpoints(
     orientation,
@@ -139,6 +152,50 @@ function EdgeSegment({
   const midY = (y0 + y1) / 2;
   const isH = orientation === 'h';
   const segLen = isH ? x1 - x0 : y1 - y0;
+  const thickPeak = LINE_THICK * (2.6 / 1.5);
+
+  const lineStyle = useAnimatedStyle(() => {
+    if (mode === 'idle') {
+      return {
+        opacity: 1,
+        width: isH ? segLen : LINE_THICK,
+        height: isH ? LINE_THICK : segLen,
+        left: midX - (isH ? segLen / 2 : LINE_THICK / 2),
+        top: midY - (isH ? LINE_THICK / 2 : segLen / 2),
+        backgroundColor: conflict ? colors.sudokuError : colors.accentSunset,
+      };
+    }
+    if (mode === 'win') {
+      const thick = interpolate(
+        progress.value,
+        [0, 0.4, 1],
+        [LINE_THICK, thickPeak, LINE_THICK],
+      );
+      const color = conflict
+        ? colors.sudokuError
+        : interpolateColor(
+            progress.value,
+            [0, 0.4, 1],
+            [colors.ink, colors.accentSunsetSoft, colors.ink],
+          );
+      return {
+        opacity: 1,
+        width: isH ? segLen : thick,
+        height: isH ? thick : segLen,
+        left: midX - (isH ? segLen / 2 : thick / 2),
+        top: midY - (isH ? thick / 2 : segLen / 2),
+        backgroundColor: color,
+      };
+    }
+    return {
+      opacity: interpolate(progress.value, [0, 1], [1, 0.4]),
+      width: isH ? segLen : LINE_THICK,
+      height: isH ? LINE_THICK : segLen,
+      left: midX - (isH ? segLen / 2 : LINE_THICK / 2),
+      top: midY - (isH ? LINE_THICK / 2 : segLen / 2),
+      backgroundColor: conflict ? colors.sudokuError : colors.accentSunset,
+    };
+  });
 
   if (state === EDGE_UNKNOWN) {
     return null;
@@ -174,17 +231,17 @@ function EdgeSegment({
   }
 
   return (
-    <View
+    <Animated.View
       pointerEvents="none"
-      style={{
-        position: 'absolute',
-        left: midX - (isH ? segLen / 2 : LINE_THICK / 2),
-        top: midY - (isH ? LINE_THICK / 2 : segLen / 2),
-        width: isH ? segLen : LINE_THICK,
-        height: isH ? LINE_THICK : segLen,
-        backgroundColor: conflict ? colors.sudokuError : colors.accentSunset,
-        borderRadius: 2,
-      }}
+      accessible={false}
+      importantForAccessibility="no-hide-descendants"
+      style={[
+        {
+          position: 'absolute',
+          borderRadius: 2,
+        },
+        lineStyle,
+      ]}
     />
   );
 }
@@ -197,9 +254,11 @@ export default function SlitherlinkBoard({
   onPressEdge,
   onLongPressEdge,
   maxWidth,
+  signature = 'idle',
 }: SlitherlinkBoardProps) {
   const { strings } = useI18n();
   const grid = strings.ui.grid;
+  const progress = useSignatureProgress(signature);
   const innerMax = Math.max(1, maxWidth - SLITHERLINK_BOARD_INSET * 2);
   const cellStep = Math.max(32, Math.floor(innerMax / SLITHERLINK_SIZE));
   const gridSize = cellStep * SLITHERLINK_SIZE;
@@ -329,6 +388,8 @@ export default function SlitherlinkBoard({
               conflict={conflicts.h[row][col]}
               inset={SLITHERLINK_BOARD_INSET}
               cellStep={cellStep}
+              mode={signature}
+              progress={progress}
             />
           )),
         )}
@@ -344,6 +405,8 @@ export default function SlitherlinkBoard({
               conflict={conflicts.v[row][col]}
               inset={SLITHERLINK_BOARD_INSET}
               cellStep={cellStep}
+              mode={signature}
+              progress={progress}
             />
           )),
         )}

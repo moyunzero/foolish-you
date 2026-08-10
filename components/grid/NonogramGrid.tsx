@@ -1,8 +1,15 @@
 import { useMemo, useRef } from 'react';
 import { Pressable, Text, View } from 'react-native';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
+import Animated, {
+  interpolate,
+  useAnimatedStyle,
+  type SharedValue,
+} from 'react-native-reanimated';
 
 import { colors } from '../../constants/design';
+import { useSignatureProgress } from '../../hooks/useSignatureProgress';
+import type { SignatureMoment } from '../../lib/feel/signatureTokens';
 import type { CellCoord } from '../../lib/puzzles/nonogram/grid';
 import {
   NONOGRAM_CROSS,
@@ -13,6 +20,8 @@ import {
 import { useI18n } from '../../lib/i18n';
 import type { Strings } from '../../lib/i18n/types';
 import type { NonogramPlayState } from '../../lib/puzzles/types';
+
+// Signature envelope: withTiming via useSignatureProgress (SIG_WIN_MS / SIG_ABANDON_MS).
 
 type NonogramGridProps = {
   rows: number;
@@ -27,6 +36,7 @@ type NonogramGridProps = {
   onDragStrokeBegin: (row: number, col: number) => void;
   onDragStrokeMove: (row: number, col: number) => void;
   onDragStrokeEnd: () => void;
+  signature?: SignatureMoment;
 };
 
 function maxClueCount(clues: number[][]): number {
@@ -83,6 +93,47 @@ function ClueText({
   );
 }
 
+/** nonogram-win / nonogram-abandon paint flash on FILL only. */
+function NonogramPaintFlash({
+  mode,
+  progress,
+}: {
+  mode: SignatureMoment;
+  progress: SharedValue<number>;
+}) {
+  const style = useAnimatedStyle(() => {
+    if (mode === 'idle') return { opacity: 0 };
+    if (mode === 'win') {
+      return {
+        opacity: interpolate(progress.value, [0, 0.4, 1], [0, 0.22, 0]),
+        backgroundColor: colors.ink,
+      };
+    }
+    return {
+      opacity: interpolate(progress.value, [0, 1], [0, 0.55]),
+      backgroundColor: colors.muted,
+    };
+  });
+
+  return (
+    <Animated.View
+      accessible={false}
+      importantForAccessibility="no-hide-descendants"
+      pointerEvents="none"
+      style={[
+        {
+          position: 'absolute',
+          left: 0,
+          right: 0,
+          top: 0,
+          bottom: 0,
+        },
+        style,
+      ]}
+    />
+  );
+}
+
 export default function NonogramGrid({
   rows,
   cols,
@@ -96,9 +147,11 @@ export default function NonogramGrid({
   onDragStrokeBegin,
   onDragStrokeMove,
   onDragStrokeEnd,
+  signature = 'idle',
 }: NonogramGridProps) {
   const { strings } = useI18n();
   const grid = strings.ui.grid;
+  const progress = useSignatureProgress(signature);
   const maxRowClues = maxClueCount(rowClues);
   const maxColClues = maxClueCount(colClues);
   const clueBand = Math.max(maxRowClues, maxColClues, 1);
@@ -244,8 +297,15 @@ export default function NonogramGrid({
                         backgroundColor,
                         alignItems: 'center',
                         justifyContent: 'center',
+                        overflow: 'hidden',
                       }}
                     >
+                      {value === NONOGRAM_FILL ? (
+                        <NonogramPaintFlash
+                          mode={signature}
+                          progress={progress}
+                        />
+                      ) : null}
                       {value === NONOGRAM_CROSS ? (
                         <Text
                           style={{
