@@ -1,40 +1,74 @@
-import { useCallback, useMemo, useState } from 'react';
-import { Vibration } from 'react-native';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
+import { feelConflict, feelLight, feelUndo } from '../lib/feel/haptics';
 import type { CellCoord } from '../lib/puzzles/sudoku/grid';
 import { cloneGrid } from '../lib/puzzles/sudoku/grid';
 import { getDigitsUsedInUnit } from '../lib/puzzles/sudoku/display';
+import {
+  cloneSudokuNotes,
+  createEmptySudokuNotes,
+  toggleNoteDigit,
+} from '../lib/puzzles/sudoku/notes';
 import {
   getConflictCells,
   isCompleteAndValid,
 } from '../lib/puzzles/sudoku/validate';
 import { useI18n } from '../lib/i18n';
-import type { SudokuGivens, SudokuPlayState } from '../lib/puzzles/types';
+import type {
+  SudokuGivens,
+  SudokuNotes,
+  SudokuPlayState,
+} from '../lib/puzzles/types';
+import { createUndoStack } from '../lib/undo/createUndoStack';
 
 function isSudokuEditable(givens: SudokuGivens, row: number, col: number): boolean {
   return givens[row][col] === 0;
 }
 
 type UseSudokuBoardParams = {
+  /** Clears ephemeral undo when puzzle identity changes (D-05). */
+  boardKey: string;
   givens: SudokuGivens;
   playState: SudokuPlayState;
   updatePlayState: (next: SudokuPlayState) => void;
+  sudokuNotes?: SudokuNotes | null;
+  updateSudokuNotes?: (next: SudokuNotes | null) => void;
+};
+
+type SudokuUndoSnapshot = {
+  playState: SudokuPlayState;
+  notes: SudokuNotes;
 };
 
 export function useSudokuBoard({
+  boardKey,
   givens,
   playState,
   updatePlayState,
+  sudokuNotes,
+  updateSudokuNotes,
 }: UseSudokuBoardParams) {
   const { strings } = useI18n();
   const hints = strings.ui.hooks.sudoku;
   const [selected, setSelected] = useState<CellCoord | null>(null);
+  const [notesMode, setNotesMode] = useState(false);
+  const undoStackRef = useRef(createUndoStack<SudokuUndoSnapshot>());
+  const [undoEpoch, setUndoEpoch] = useState(0);
+
+  useEffect(() => {
+    undoStackRef.current.clear();
+    setUndoEpoch((n) => n + 1);
+    setSelected(null);
+  }, [boardKey]);
+
+  const notes = sudokuNotes ?? createEmptySudokuNotes();
 
   const conflicts = useMemo(
     () => getConflictCells(playState, givens),
     [playState, givens],
   );
 
+  // D-09: completion ignores notes — only bare playState digits.
   const canComplete = useMemo(
     () => isCompleteAndValid(playState, givens),
     [playState, givens],
@@ -52,13 +86,36 @@ export function useSudokuBoard({
   const statusHint = useMemo(() => {
     if (canComplete) return hints.complete;
     if (conflicts.length > 0) return hints.conflict;
-    // 未选格：引导点空格；已选格（含题目格同数高亮）：盘面反馈足够，不重复提示
     if (selected == null) return hints.selectCell;
     return null;
   }, [canComplete, conflicts.length, selected, hints]);
 
+  const canUndo = undoStackRef.current.canUndo();
+  void undoEpoch;
+
+  const pushUndoSnapshot = useCallback(() => {
+    undoStackRef.current.push({
+      playState: cloneGrid(playState),
+      notes: cloneSudokuNotes(notes),
+    });
+    setUndoEpoch((n) => n + 1);
+  }, [playState, notes]);
+
+  const undo = useCallback(() => {
+    const prev = undoStackRef.current.pop();
+    if (prev === undefined) return;
+    feelUndo();
+    updatePlayState(prev.playState);
+    updateSudokuNotes?.(prev.notes);
+    setUndoEpoch((n) => n + 1);
+  }, [updatePlayState, updateSudokuNotes]);
+
   const handleSelect = useCallback((row: number, col: number) => {
     setSelected({ row, col });
+  }, []);
+
+  const toggleNotesMode = useCallback(() => {
+    setNotesMode((prev) => !prev);
   }, []);
 
   const handleDigit = useCallback(
@@ -66,28 +123,82 @@ export function useSudokuBoard({
       if (selected == null) return;
       if (!isSudokuEditable(givens, selected.row, selected.col)) return;
 
+      if (notesMode) {
+        // Notes mode: toggle candidate bitmask only — never write playState (D-10).
+        const next = cloneSudokuNotes(notes);
+        const cell = next[selected.row]![selected.col]!;
+        next[selected.row]![selected.col] = toggleNoteDigit(cell, digit);
+        pushUndoSnapshot();
+        updateSudokuNotes?.(next);
+        feelLight();
+        return;
+      }
+
+      if (playState[selected.row][selected.col] === digit) return;
+
       const next = cloneGrid(playState);
       next[selected.row][selected.col] = digit;
+      // One undo frame restores both digit and any notes cleared under it.
+      pushUndoSnapshot();
+      if (notes[selected.row]![selected.col] !== 0) {
+        const nextNotes = cloneSudokuNotes(notes);
+        nextNotes[selected.row]![selected.col] = 0;
+        updateSudokuNotes?.(nextNotes);
+      }
       updatePlayState(next);
 
       const cellConflict = getConflictCells(next, givens).some(
         (c) => c.row === selected.row && c.col === selected.col,
       );
-      if (cellConflict) Vibration.vibrate(12);
+      if (cellConflict) {
+        feelConflict();
+      } else {
+        feelLight();
+      }
     },
-    [selected, givens, playState, updatePlayState],
+    [
+      selected,
+      givens,
+      playState,
+      notesMode,
+      notes,
+      pushUndoSnapshot,
+      updatePlayState,
+      updateSudokuNotes,
+    ],
   );
 
   const clearCell = useCallback(
     (row: number, col: number) => {
       if (!isSudokuEditable(givens, row, col)) return;
+
+      if (notesMode) {
+        if (notes[row]![col] === 0) return;
+        const nextNotes = cloneSudokuNotes(notes);
+        nextNotes[row]![col] = 0;
+        pushUndoSnapshot();
+        updateSudokuNotes?.(nextNotes);
+        feelLight();
+        return;
+      }
+
       if (playState[row][col] === 0) return;
 
       const next = cloneGrid(playState);
       next[row][col] = 0;
+      pushUndoSnapshot();
       updatePlayState(next);
+      feelLight();
     },
-    [givens, playState, updatePlayState],
+    [
+      givens,
+      playState,
+      notesMode,
+      notes,
+      pushUndoSnapshot,
+      updatePlayState,
+      updateSudokuNotes,
+    ],
   );
 
   const handleClear = useCallback(() => {
@@ -110,6 +221,11 @@ export function useSudokuBoard({
     dimmedDigits,
     numpadDisabled,
     statusHint,
+    canUndo,
+    undo,
+    notesMode,
+    toggleNotesMode,
+    sudokuNotes: notes,
     handleSelect,
     handleDigit,
     handleClear,

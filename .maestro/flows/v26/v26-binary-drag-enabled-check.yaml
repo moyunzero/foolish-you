@@ -1,0 +1,57 @@
+appId: com.moyunzero.foolish-you
+ios:
+  snapshotKeyHonorModalViews: true
+---
+# Assert Undo becomes enabled after Binary horizontal drag (D-04 stroke).
+# Prerequisite: device/simulator system language Chinese (zh) — flows assert zh UI/a11y copy.
+# Intro buttons use a11y labels (skipA11y / gotItA11y), not visible copy.
+# Swipe starts FROM an empty cell (no discrete tap/cycle) so RNGH Pan receives the gesture.
+- launchApp:
+    clearState: true
+- extendedWaitUntil:
+    visible: '跳过题型介绍，进入棋盘'
+    timeout: 90000
+- tapOn: '跳过题型介绍，进入棋盘'
+- extendedWaitUntil:
+    visible: '完成今日'
+    timeout: 60000
+- runFlow: ../v22/subflows/dev-open-panel.yaml
+- tapOn:
+    text: '二进制'
+    below: 'DEV 调试'
+- extendedWaitUntil:
+    visible: '跳过题型介绍，进入棋盘'
+    timeout: 60000
+- waitForAnimationToEnd
+- tapOn: '跳过题型介绍，进入棋盘'
+- waitForAnimationToEnd
+- extendedWaitUntil:
+    visible: '完成今日'
+    timeout: 60000
+- tapOn: 'DEV 调试'
+- waitForAnimationToEnd
+- runFlow:
+    when:
+      visible: '稍后'
+    commands:
+      - tapOn: '稍后'
+      - waitForAnimationToEnd
+- assertVisible:
+    text: '撤销上一步编辑'
+    enabled: false
+# Drag begins on an empty cell — not a prior tapOn that would push undo alone (D-04).
+- swipe:
+    from:
+      text: '.*，空$'
+    direction: RIGHT
+    duration: 1200
+- waitForAnimationToEnd
+- takeScreenshot: v26-binary-drag-enabled
+- assertVisible:
+    text: '撤销上一步编辑'
+    enabled: true
+- tapOn: '撤销上一步编辑'
+- waitForAnimationToEnd
+- assertVisible:
+    text: '撤销上一步编辑'
+    enabled: false

@@ -37,6 +37,7 @@ describe('useBinaryBoard', () => {
 
     const { result } = renderHook(() =>
       useBinaryBoard({
+        boardKey: 'test',
         givens: puzzle.givens,
         playState,
         updatePlayState,
@@ -60,6 +61,7 @@ describe('useBinaryBoard', () => {
 
     const { result } = renderHook(() =>
       useBinaryBoard({
+        boardKey: 'test',
         givens: puzzle.givens,
         playState: createEmptyGrid(),
         updatePlayState,
@@ -79,6 +81,7 @@ describe('useBinaryBoard', () => {
     const puzzle = generateBinaryPuzzle(404);
     const { result } = renderHook(() =>
       useBinaryBoard({
+        boardKey: 'test',
         givens: puzzle.givens,
         playState: createEmptyGrid(),
         updatePlayState: jest.fn(),
@@ -99,6 +102,7 @@ describe('useBinaryBoard', () => {
 
     const { result } = renderHook(() =>
       useBinaryBoard({
+        boardKey: 'test',
         givens: puzzle.givens,
         playState,
         updatePlayState,
@@ -114,4 +118,31 @@ describe('useBinaryBoard', () => {
     const cleared = updatePlayState.mock.calls.at(-1)?.[0] as number[][];
     expect(cleared[row][col]).toBe(BINARY_EMPTY);
   });
+
+  it('clears undo when boardKey changes (D-05)', () => {
+    const puzzle = generateBinaryPuzzle(505);
+    const updatePlayState = jest.fn();
+    const playState = createEmptyGrid();
+    const { row, col } = firstEditableCell(puzzle.givens);
+
+    const { result, rerender } = renderHook(
+      ({ boardKey }: { boardKey: string }) =>
+        useBinaryBoard({
+          boardKey,
+          givens: puzzle.givens,
+          playState,
+          updatePlayState,
+        }),
+      { initialProps: { boardKey: 'a' }, wrapper: i18nWrapper },
+    );
+
+    act(() => {
+      result.current.handlePress(row, col);
+    });
+    expect(result.current.canUndo).toBe(true);
+
+    rerender({ boardKey: 'b' });
+    expect(result.current.canUndo).toBe(false);
+  });
 });
+

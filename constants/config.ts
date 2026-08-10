@@ -24,12 +24,15 @@ export const MASTERY_STORAGE_VERSION = 1;
 export const PLAYED_HASH_STORAGE_KEY = '@foolish-you/played-hash-v1';
 /** Bump when persisted played-hash ring shape changes (see docs/CONFIGURATION.md § Storage version bumps). */
 export const PLAYED_HASH_STORAGE_VERSION = 1;
+export const FIRST_INTRO_STORAGE_KEY = '@foolish-you/first-intro-v1';
+/** Own store for first-type intro seen flags — do not bump daily STORAGE_VERSION (D-16). */
+export const FIRST_INTRO_STORAGE_VERSION = 1;
 /** Per-gameType FIFO capacity for recent completed puzzle hashes (DIV-01 / D-01). */
 export const PLAYED_HASH_RING_CAPACITY = 200;
 /** Max generate/select retries while puzzleHash is in the avoid set (DIV-02 / D-05). */
 export const AVOID_HASH_MAX_ATTEMPTS = 40;
-/** Bump when persisted snapshot shape changes; v2 drops puzzleStub / placeholders. */
-export const STORAGE_VERSION = 2;
+/** Bump when persisted snapshot shape changes; v2 drops puzzleStub; v3 adds optional sudokuNotes sibling. */
+export const STORAGE_VERSION = 3;
 
 export const SUDOKU_GIVEN_COUNT = 30;
 export const SUDOKU_MAX_GEN_ATTEMPTS = 50;

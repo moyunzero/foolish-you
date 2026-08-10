@@ -5,6 +5,12 @@ export type DailyStatus = 'playing' | 'completed' | 'abandoned';
 export type SudokuGivens = number[][];
 export type SudokuPlayState = number[][];
 
+/**
+ * 9×9 candidate bitmasks for sudoku notes (snapshot sibling only).
+ * Bit N (1–9) set ⇒ digit N is a candidate; bit 0 unused.
+ */
+export type SudokuNotes = number[][];
+
 export type SudokuPuzzle = {
   kind: 'sudoku';
   givens: SudokuGivens;
@@ -91,6 +97,11 @@ export type DailySnapshot = {
   puzzle: PuzzlePayload;
   puzzleHash: string;
   playState?: PlayState;
+  /**
+   * Sudoku pencil marks — sibling field only (never inside playState).
+   * Same-day persist; omitted on new dateKey (D-06, D-07).
+   */
+  sudokuNotes?: SudokuNotes;
   /** 本局开始时间（用于结果页用时文案） */
   startedAt?: number;
   /** 完成或放弃时间 */

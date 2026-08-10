@@ -26,7 +26,7 @@ Primary Expo configuration (static JSON, no `app.config.js`).
 |------|-------|-------|
 | Display name | 傻了么 | User-facing app name |
 | Slug / scheme | `foolish-you` | Deep links and Expo project slug |
-| Version | `2.5.0` | Marketing version (aligned with `package.json`) |
+| Version | `2.6.0` | Marketing version (aligned with `package.json`) |
 | UI style | `dark` | System appearance default |
 | New architecture | `true` | React Native new arch enabled |
 | Entry | `expo-router/entry` | Set in `package.json` `main` |
@@ -75,6 +75,35 @@ If upload fails with **「捆绑包版本必须高于之前上传的版本 "N"�
 3. Submit the **new** `.ipa` from that build. Re-submitting an old artifact with the same build number always fails.
 
 Previously `appVersionSource` was `remote`; EAS remote counter (`eas build:version:get`) can drift from App Store Connect if builds were uploaded outside EAS or counters were reset. Local source avoids that mismatch for store releases.
+
+### App Store · 更新说明（`2.6.0` What's New · 待粘贴）
+
+粘贴到 App Store Connect → 版本 **2.6.0** → **更新说明**（中/英各一份）。隐私政策与权限无变更。
+
+> Host-Crafted Feel：Undo / 笔记 / 拖填 / 热区 / 首遇 demo / 触感为主；招牌微交互一笔带过。  
+> **本版无变盘（no board-drift）**：未改 `APP_SALT`、生成器或日题选题；未开的日期盘面与 `2.5.0` 一致。
+
+**中文（傻了么 · 中国区）**
+
+```
+· 撤销上一步编辑，填错不用重来
+· 数独支持候选笔记，当日进度会保留
+· 二进制与数绘可拖填；数回边线更好点
+· 第一次碰到新题型，有可跳过的短演示
+· 填格、冲突、通关与认怂多了轻触感
+· 通关或认怂时，棋盘会有一小下招牌反馈
+```
+
+**English（Brainfool · United States）**
+
+```
+· Undo the last edit when you mis-tap
+· Sudoku pencil notes, kept for the same day
+· Drag-fill on Binary and Nonogram; easier Slitherlink edges
+· First time on a new puzzle type: a short, skippable demo
+· Light haptics on fill, conflict, clear, and bail
+· A brief board signature moment when you clear or bail
+```
 
 ### App Store · 更新说明（`2.5.0` What's New · 已上架）
 
@@ -262,17 +291,20 @@ Central runtime constants for puzzles, persistence, and debouncing.
 | `MASTERY_STORAGE_VERSION` | `1` | Mastery state schema (`byType` rows) |
 | `PLAYED_HASH_STORAGE_KEY` | `@foolish-you/played-hash-v1` | Per-gameType FIFO ring of recent completed puzzle hashes (v2.5 DIV-01) |
 | `PLAYED_HASH_STORAGE_VERSION` | `1` | Played-hash ring schema (`version` + `byType` string arrays) |
+| `FIRST_INTRO_STORAGE_KEY` | `@foolish-you/first-intro-v1` | First-type intro seen flags (own key; FEEL-05) |
+| `FIRST_INTRO_STORAGE_VERSION` | `1` | First-intro schema (`version` + `seenByType`) |
 | `PLAYED_HASH_RING_CAPACITY` | `200` | Max hashes retained per `gameType` (FIFO drop oldest) |
 | `AVOID_HASH_MAX_ATTEMPTS` | `40` | Generate/select retries while hash is in the avoid set (DIV-02) |
 | `RECOVERY_LOG_STORAGE_KEY` | `@foolish-you/snapshot-recovery-log-v1` | Ring buffer of snapshot recovery events |
 | `RECOVERY_LOG_MAX_ENTRIES` | `10` | Max recovery log entries retained |
-| `STORAGE_VERSION` | `2` | Persisted snapshot schema version (v2 drops legacy `puzzleStub`) |
+| `STORAGE_VERSION` | `3` | Persisted snapshot schema version (v2 drops legacy `puzzleStub`; v3 optional `sudokuNotes` sibling) |
 | `SUDOKU_GIVEN_COUNT` | `30` | Given cells for 9×9 Sudoku |
 | `SUDOKU_MAX_GEN_ATTEMPTS` | `50` | Generator retry cap |
 | `BINARY_GIVEN_COUNT` | `24` | Given cells for 8×8 Takuzu (~38%) |
 | `BINARY_MAX_GEN_ATTEMPTS` | `40` | Generator retry cap |
 | `SLITHERLINK_MIN_CLUES` | `18` | Minimum clue cells for 7×7 Slitherlink dailies |
 | `SLITHERLINK_MAX_GEN_ATTEMPTS` | `50` | Slitherlink generator retry cap |
+| `SLITHERLINK_EDGE_HIT_RADIUS` | `20` | Preferred edge tap radius (px) in `lib/puzzles/slitherlink/hitTest.ts`; effective = `min(radius, cellStep/2)` so cell-center stays null on small boards (min step 32); larger preferred radius eases mid-edge taps, widens corner H/V ambiguity |
 | `PLAY_STATE_DEBOUNCE_MS` | `300` | Debounce before writing play state to disk |
 | `GROWTH_SMOOTHER_MIN_SAMPLES` | `3` | Same-type smoother: min prior completions (same `gameType` + `weekdayBand`) |
 | `GROWTH_SMOOTHER_MEDIAN_RATIO` | `0.75` | Smoother triggers when today `elapsedMs` **<** median × ratio (strict) |
@@ -326,10 +358,13 @@ See `DESIGN.md` for product-level design rules.
 | `@foolish-you/rating-v1` | `RATING_STORAGE_KEY` | Rating prompt state | `lib/storage/ratingStorage.ts` |
 | `@foolish-you/mastery-v1` | `MASTERY_STORAGE_KEY` | Per-gameType mastery (`version` + `byType`) | `lib/storage/masteryStorage.ts` |
 | `@foolish-you/played-hash-v1` | `PLAYED_HASH_STORAGE_KEY` | Per-gameType played-hash rings (`version` + `byType`) | `lib/storage/playedHashStorage.ts` |
+| `@foolish-you/first-intro-v1` | `FIRST_INTRO_STORAGE_KEY` | Per-gameType first-intro seen flags | `lib/storage/firstIntroStorage.ts` |
 | `@foolish-you/snapshot-recovery-log-v1` | `RECOVERY_LOG_STORAGE_KEY` | Recovery event log (dev-visible) | `lib/storage/recoveryLog.ts` |
 | `@foolish-you/dev-tools-bar-visible` | `contexts/DevToolsUiContext.tsx` (local constant) | `'1'` / `'0'` for dev bar visibility | Dev builds only |
 
-**Daily snapshot migration:** On load, `migrateSnapshot()` in `lib/storage/snapshotMigration.ts` normalizes v0/v1 data to `STORAGE_VERSION` (2). Snapshots with `version > STORAGE_VERSION` are rejected with a warning. **`recoverSnapshot()`** may repair puzzle data or strip invalid `playState` when `status: 'completed'` but the board is incomplete.
+**Daily snapshot migration:** On load, `migrateSnapshot()` in `lib/storage/snapshotMigration.ts` normalizes v0/v1/v2 data to `STORAGE_VERSION` (3). Snapshots with `version > STORAGE_VERSION` are rejected with a warning. Optional `sudokuNotes` (9×9 bitmasks, bits 1–9) is whitelist-copied only for `gameType === 'sudoku'`; invalid notes are stripped without dropping `playState`. **`recoverSnapshot()`** may repair puzzle data or strip invalid `playState` when `status: 'completed'` but the board is incomplete.
+
+**v2.6.0 ship storage disclose (Feel / SHIP-03):** Marketing `2.6.0` ships with daily `STORAGE_VERSION` **3** — optional `sudokuNotes` sibling on the daily snapshot (same-day notes persist; never inside `playState`) — plus `FIRST_INTRO_STORAGE_KEY` / `FIRST_INTRO_STORAGE_VERSION` **1** (`seenByType` flags for FEEL-05). **No board-drift in 2.6.0:** no `APP_SALT`, generator, or daily-selection change; unopened date boards stay identical to `2.5.0`. This is disclosure only — do not invent a second schema bump for ship.
 
 **Native modules (v1.1):** `expo-clipboard` (share card), `expo-store-review` (rating prompt) — bundled with Expo SDK 54; no extra env config.
 
@@ -353,6 +388,13 @@ Recovery log (`RECOVERY_LOG_*`) and dev-only keys do not use schema version cons
 Mastery lives under its own key — do **not** bump daily `STORAGE_VERSION` solely for mastery fields.
 
 Played-hash ring lives under its own key (`playedHashStorage`) — introducing or bumping it must **not** bump daily `STORAGE_VERSION` or `MASTERY_STORAGE_VERSION` (D-12).
+
+### Daily snapshot bump history
+
+| Version | Change |
+|---------|--------|
+| 2 | Drop legacy `puzzleStub` / placeholder puzzles; full givens on disk |
+| 3 | Optional `sudokuNotes` sibling on `DailySnapshot` (FEEL-02); never inside `playState` |
 
 ## Bundler and styling toolchain
 

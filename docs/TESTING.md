@@ -314,6 +314,50 @@ Maestro（本 phase **必须** 证据，D-11）：
 | 9 | 首遇题型 scaffold | （本 phase 仅 checklist） | **占位 → v2.5-02 FEEL-05**：首遇题型可跳过操作演示；本 phase **不**实现 first-type demo |
 | 10 | 月历周六列 | 结果页「查看本月」 | 周六列有日期且与表头「六」对齐（非空列） |
 
+### v2.6-02 Feel + Mechanics manual QA（SHIP-02）
+
+**前置：** `__DEV__` 开发包。自动化：`maestro test .maestro/flows/v26/v26-feel-smoke.yaml`（smoke）与 `v26-feel-device-qa.yaml`（拖填/热区）。**不含** DIFF-03 / SHIP-03。
+
+**Maestro 语言前置（必读）：** `.maestro/flows/v26/` 断言中文可见文案 / a11y（如 `完成今日`、`跳过题型介绍，进入棋盘`、`二进制`）。跑 flow 前请将**模拟器/真机系统语言设为中文**，或确认 App 解析为 `zh`；English 系统下上述选择器会失败。
+
+| # | 区域 | 步骤 | 预期 |
+|---|------|------|------|
+| 1 | 四题型 | Dev force 数独 / 二进制 / 数绘 / 数回 | 各题型可开盘；顶栏题型名一致 |
+| 2 | FEEL-01 Undo | 填一格 → 撤销；空栈时点撤销 | 撤销恢复；空栈控件 disabled（`撤销上一步编辑`） |
+| 3 | FEEL-02 Notes | 数独开「笔记」→ 填候选 → 关笔记再填数字 → 完成/认怂 | 笔记不计入完成；完成校验只看数字 |
+| 4 | FEEL-02 Persist | 同日笔记后杀进程重开 | `sudokuNotes` 保留；Undo 栈清空（ephemeral） |
+| 5 | FEEL-03 Drag | 二进制/数绘一笔拖填 → 撤销一次 | 一笔 = 一次 Undo；竖滑仍可滚页 |
+| 6 | FEEL-04 Hit | 数回：点边中段应落边；点线索格心不应误落边；小屏（窄宽）再验一次格心 | 中段可点；格心不误触；角落 H/V 消歧有上限（preferred 20，有效 ≤ cellStep/2） |
+| 7 | FEEL-05 Intro | 清 `@foolish-you/first-intro-v1` 后开新题型 | 首遇 BottomSheet；**跳过**立刻进盘；无 Hint / 不自动填答案 |
+| 8 | FEEL-06 Haptics | 填格 / 冲突 / Undo / 认怂确认 | 有触感；无 Vibration+Haptics 双振 |
+| 9 | D-24 | 全路径扫 UI | **无** Hint 入口、难度徽章、选题器 |
+| 10 | 数独 a11y | VoiceOver/TalkBack：选中格 → 已在本单元出现的数字键 | 标签仍为「填入 N」（可点）；视觉可置灰；**不应**读成已禁用却仍可点 |
+
+```bash
+maestro test .maestro/flows/v26/v26-feel-smoke.yaml \
+  --test-output-dir docs/qa/v2.6-02-feel-mechanics/evidence/$(date +%Y%m%d)
+```
+
+### v2.6-03 Signature manual QA（DIFF-03 / SHIP-02）
+
+**前置：** `__DEV__` 开发包；Feel 手测（上节）已绿。可选 Maestro：既有 `.maestro/flows/v26/` complete→result 流仍应通过——**不要**用 Maestro 断言毫秒级帧/招牌动效时长。
+
+| # | 区域 | 步骤 | 预期 |
+|---|------|------|------|
+| 1 | 8 变体·通关 | Dev force 四题型各一局 → 点「完成」 | 棋盘有题型物理解的通关招牌一刻（4 变体）；与导航并行；**footer 不当舞台** |
+| 2 | 8 变体·认怂 | 四题型各开 → 放弃 → 确认认怂 | 确认后有认怂变体（另 4）；与结果页导航并行 |
+| 3 | 峰值可读 | 通关 / 确认认怂瞬间 | 招牌峰值在导航首约 **100ms** 内可读；不抢戏结果页、无全屏闪白 |
+| 4 | Haptics | 通关一次 / 认怂确认一次 | **通关一次** haptic、**认怂确认一次** haptic（FEEL-06）；无双振 |
+| 5 | Reduce motion | 系统「减少动态效果」开 | 招牌仍可理解（降级可接受）；无卡死 |
+| 6 | 四题 smoke | Dev force 数独 / 二进制 / 数绘 / 数回 | 均可开盘；Feel 控件仍可用 |
+| 7 | 无 Hint | 全路径扫 UI（含首遇 sheet） | **无** Hint 入口、难度徽章、选题器 |
+
+```bash
+# Feel smoke（含 complete→result）；不断言招牌帧时序
+maestro test .maestro/flows/v26/v26-feel-smoke.yaml \
+  --test-output-dir docs/qa/v2.6-03-signature/evidence/$(date +%Y%m%d)
+```
+
 ## Maestro E2E（v2.2）
 
 **前提：** iOS Simulator 或 Android 模拟器已安装 **`com.moyunzero.foolish-you` 开发包**（非 Expo Go；与 `.maestro/flows/smoke-launch.yaml` 相同 `appId`）。Metro 可选（开发包已 bundle 时可离线跑 UI 流）。

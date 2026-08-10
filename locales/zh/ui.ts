@@ -19,8 +19,14 @@ export const ui = {
     giveUpToday: '放弃今日挑战',
     /** Softer abandon footer label (v2.5 D-11) */
     bailToday: '认怂今日',
+    undo: '撤销',
+    undoA11y: '撤销上一步编辑',
+    /** Host Desk Path B — session chrome mode caption */
+    sessionModeValue: '填数',
+    sessionModeBoard: '棋盘',
     loadFailed: '今日题目加载失败，可能是本地数据损坏。',
   },
+
   result: {
     loadingStatus: '今日状态加载中…',
     statusWin: '通关',
@@ -63,6 +69,14 @@ export const ui = {
     dismissA11y: '关闭月历',
     dismissReminderA11y: '关闭提醒设置',
     dismissAbandonA11y: '关闭认怂确认',
+    dismissFirstIntroA11y: '关闭题型介绍',
+  },
+  firstIntro: {
+    title: (rulesTitle: string) => `先看一眼：${rulesTitle}`,
+    skip: '跳过，直接开玩',
+    skipA11y: '跳过题型介绍，进入棋盘',
+    gotIt: '知道了',
+    gotItA11y: '关闭题型介绍，进入棋盘',
   },
   reminder: {
     softAsk: {
@@ -224,6 +238,9 @@ export const ui = {
     sudokuCellA11y: '点按选中，长按清空',
     clearCell: '清除当前格',
     clear: '清除',
+    notesMode: '笔记',
+    notesModeA11y: '切换笔记模式；开启时数字键填写候选笔记',
+    notesCell: (digits: string) => `，笔记 ${digits}`,
     digitDisabled: (n: number) => `数字 ${n} 在本行、列或宫内已有`,
     fillDigit: (n: number) => `填入 ${n}`,
     slitherlinkClueA11y: (row: number, col: number, clue: number) =>

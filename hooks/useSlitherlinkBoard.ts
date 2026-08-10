@@ -1,6 +1,6 @@
-import { useCallback, useMemo, useState } from 'react';
-import { Vibration } from 'react-native';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
+import { feelConflict, feelLight, feelUndo } from '../lib/feel/haptics';
 import { useI18n } from '../lib/i18n';
 import {
   clonePlayState,
@@ -19,8 +19,11 @@ import {
   getConflictEdges,
   isCompleteAndValid,
 } from '../lib/puzzles/slitherlink/validate';
+import { createUndoStack } from '../lib/undo/createUndoStack';
 
 type UseSlitherlinkBoardParams = {
+  /** Clears ephemeral undo when puzzle identity changes (D-05). */
+  boardKey: string;
   puzzle: SlitherlinkPuzzle;
   playState: SlitherlinkPlayState;
   updatePlayState: (next: SlitherlinkPlayState) => void;
@@ -45,6 +48,7 @@ function edgeInConflict(
 }
 
 export function useSlitherlinkBoard({
+  boardKey,
   puzzle,
   playState,
   updatePlayState,
@@ -52,6 +56,14 @@ export function useSlitherlinkBoard({
   const { strings } = useI18n();
   const hints = strings.ui.hooks.slitherlink;
   const [selectedEdge, setSelectedEdge] = useState<EdgeCoord | null>(null);
+  const undoStackRef = useRef(createUndoStack<SlitherlinkPlayState>());
+  const [undoEpoch, setUndoEpoch] = useState(0);
+
+  useEffect(() => {
+    undoStackRef.current.clear();
+    setUndoEpoch((n) => n + 1);
+    setSelectedEdge(null);
+  }, [boardKey]);
 
   const conflicts = useMemo(
     () => getConflictEdges(playState, puzzle),
@@ -69,6 +81,17 @@ export function useSlitherlinkBoard({
     return hints.tapHint;
   }, [canComplete, conflicts, hints]);
 
+  const canUndo = undoStackRef.current.canUndo();
+  void undoEpoch;
+
+  const undo = useCallback(() => {
+    const prev = undoStackRef.current.pop();
+    if (prev === undefined) return;
+    feelUndo();
+    updatePlayState(prev);
+    setUndoEpoch((n) => n + 1);
+  }, [updatePlayState]);
+
   const applyEdgeUpdate = useCallback(
     (
       orientation: EdgeOrientation,
@@ -76,6 +99,7 @@ export function useSlitherlinkBoard({
       col: number,
       nextState: SlitherlinkPlayState,
     ) => {
+      undoStackRef.current.push(clonePlayState(playState));
       const nextEdgeState = edgeAt(nextState, orientation, row, col);
       if (nextEdgeState === EDGE_UNKNOWN) {
         setSelectedEdge(null);
@@ -83,12 +107,15 @@ export function useSlitherlinkBoard({
         setSelectedEdge({ orientation, row, col });
       }
       updatePlayState(nextState);
+      setUndoEpoch((n) => n + 1);
       const nextConflicts = getConflictEdges(nextState, puzzle);
       if (edgeInConflict(nextConflicts, orientation, row, col)) {
-        Vibration.vibrate(12);
+        feelConflict();
+      } else {
+        feelLight();
       }
     },
-    [puzzle, updatePlayState],
+    [puzzle, playState, updatePlayState],
   );
 
   const handlePressEdge = useCallback(
@@ -118,6 +145,8 @@ export function useSlitherlinkBoard({
     conflicts,
     canComplete,
     statusHint,
+    canUndo,
+    undo,
     handlePressEdge,
     handleLongPressEdge,
   };

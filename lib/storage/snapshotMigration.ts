@@ -4,8 +4,9 @@ import { normalizeSnapshotToV2 } from './snapshotPrep';
 import { isPersistedSnapshotShape } from './snapshotValidate';
 
 /**
- * Parse persisted JSON and normalize to current STORAGE_VERSION (v2).
+ * Parse persisted JSON and normalize to current STORAGE_VERSION (v3).
  * v1 puzzleStub / placeholder puzzles are upgraded here, not in context.
+ * Optional sudokuNotes is validated; invalid notes are stripped (playState kept).
  */
 export function migrateSnapshot(raw: unknown): DailySnapshot | null {
   if (!isPersistedSnapshotShape(raw)) {

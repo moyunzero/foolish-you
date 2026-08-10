@@ -5,6 +5,11 @@ import { useSudokuBoard } from '../../hooks/useSudokuBoard';
 import { I18nTestProvider } from '../../lib/i18n/I18nContext';
 import { generateSudokuPuzzle } from '../../lib/puzzles/sudoku/generator';
 import { createEmptyGrid } from '../../lib/puzzles/sudoku/grid';
+import {
+  createEmptySudokuNotes,
+  toggleNoteDigit,
+} from '../../lib/puzzles/sudoku/notes';
+import type { SudokuNotes, SudokuPlayState } from '../../lib/puzzles/types';
 
 function i18nWrapper({ children }: { children: ReactNode }) {
   return <I18nTestProvider locale="zh">{children}</I18nTestProvider>;
@@ -37,6 +42,7 @@ describe('useSudokuBoard', () => {
 
     const { result } = renderHook(() =>
       useSudokuBoard({
+        boardKey: 'test',
         givens: puzzle.givens,
         playState: createEmptyGrid(),
         updatePlayState,
@@ -65,6 +71,7 @@ describe('useSudokuBoard', () => {
 
     const { result } = renderHook(() =>
       useSudokuBoard({
+        boardKey: 'test',
         givens: puzzle.givens,
         playState: createEmptyGrid(),
         updatePlayState,
@@ -90,6 +97,7 @@ describe('useSudokuBoard', () => {
 
     const { result } = renderHook(() =>
       useSudokuBoard({
+        boardKey: 'test',
         givens: puzzle.givens,
         playState,
         updatePlayState,
@@ -118,6 +126,7 @@ describe('useSudokuBoard', () => {
 
     const { result } = renderHook(() =>
       useSudokuBoard({
+        boardKey: 'test',
         givens: puzzle.givens,
         playState,
         updatePlayState,
@@ -132,5 +141,109 @@ describe('useSudokuBoard', () => {
     expect(updatePlayState).toHaveBeenCalled();
     const next = updatePlayState.mock.calls.at(-1)?.[0];
     expect(next[row][col]).toBe(0);
+  });
+
+  it('undo restores playState and notes together after digit clears notes', () => {
+    const puzzle = generateSudokuPuzzle(505);
+    const { row, col } = firstEmptyCell(puzzle.givens);
+    let playState: SudokuPlayState = createEmptyGrid();
+    let notes: SudokuNotes = createEmptySudokuNotes();
+    notes[row]![col] = toggleNoteDigit(0, 3);
+
+    const updatePlayState = jest.fn((next: SudokuPlayState) => {
+      playState = next;
+    });
+    const updateSudokuNotes = jest.fn((next: SudokuNotes | null) => {
+      notes = next ?? createEmptySudokuNotes();
+    });
+
+    const { result, rerender } = renderHook(
+      ({ play, noteGrid }: { play: SudokuPlayState; noteGrid: SudokuNotes }) =>
+        useSudokuBoard({
+          boardKey: 'notes-undo',
+          givens: puzzle.givens,
+          playState: play,
+          updatePlayState,
+          sudokuNotes: noteGrid,
+          updateSudokuNotes,
+        }),
+      {
+        wrapper: i18nWrapper,
+        initialProps: { play: playState, noteGrid: notes },
+      },
+    );
+
+    act(() => {
+      result.current.handleSelect(row, col);
+    });
+    act(() => {
+      result.current.handleDigit(7);
+    });
+
+    expect(updatePlayState).toHaveBeenCalledTimes(1);
+    expect(updateSudokuNotes).toHaveBeenCalledTimes(1);
+    expect(playState[row][col]).toBe(7);
+    expect(notes[row]![col]).toBe(0);
+    expect(result.current.canUndo).toBe(true);
+
+    rerender({ play: playState, noteGrid: notes });
+
+    act(() => {
+      result.current.undo();
+    });
+
+    expect(playState[row][col]).toBe(0);
+    expect(notes[row]![col]).toBe(toggleNoteDigit(0, 3));
+  });
+
+  it('undo restores notes-only edits', () => {
+    const puzzle = generateSudokuPuzzle(606);
+    const { row, col } = firstEmptyCell(puzzle.givens);
+    let playState: SudokuPlayState = createEmptyGrid();
+    let notes: SudokuNotes = createEmptySudokuNotes();
+
+    const updatePlayState = jest.fn((next: SudokuPlayState) => {
+      playState = next;
+    });
+    const updateSudokuNotes = jest.fn((next: SudokuNotes | null) => {
+      notes = next ?? createEmptySudokuNotes();
+    });
+
+    const { result, rerender } = renderHook(
+      ({ play, noteGrid }: { play: SudokuPlayState; noteGrid: SudokuNotes }) =>
+        useSudokuBoard({
+          boardKey: 'notes-only-undo',
+          givens: puzzle.givens,
+          playState: play,
+          updatePlayState,
+          sudokuNotes: noteGrid,
+          updateSudokuNotes,
+        }),
+      {
+        wrapper: i18nWrapper,
+        initialProps: { play: playState, noteGrid: notes },
+      },
+    );
+
+    act(() => {
+      result.current.handleSelect(row, col);
+      result.current.toggleNotesMode();
+    });
+    act(() => {
+      result.current.handleDigit(2);
+    });
+
+    expect(updatePlayState).not.toHaveBeenCalled();
+    expect(notes[row]![col]).toBe(toggleNoteDigit(0, 2));
+    expect(result.current.canUndo).toBe(true);
+
+    rerender({ play: playState, noteGrid: notes });
+
+    act(() => {
+      result.current.undo();
+    });
+
+    expect(notes[row]![col]).toBe(0);
+    expect(playState[row][col]).toBe(0);
   });
 });

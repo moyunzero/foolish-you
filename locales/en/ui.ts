@@ -19,8 +19,14 @@ export const ui = {
     giveUpToday: 'Give up on today’s puzzle',
     /** Softer abandon footer label (v2.5 D-11) */
     bailToday: 'Bail today',
+    undo: 'Undo',
+    undoA11y: 'Undo last edit',
+    /** Host Desk Path B — session chrome mode caption */
+    sessionModeValue: 'Value',
+    sessionModeBoard: 'Board',
     loadFailed: 'Couldn’t load today’s puzzle. Local data may be corrupted.',
   },
+
   result: {
     loadingStatus: 'Loading today’s result…',
     statusWin: 'Cleared',
@@ -63,6 +69,14 @@ export const ui = {
     dismissA11y: 'Dismiss month calendar',
     dismissReminderA11y: 'Dismiss reminder settings',
     dismissAbandonA11y: 'Dismiss bail confirmation',
+    dismissFirstIntroA11y: 'Dismiss first-type intro',
+  },
+  firstIntro: {
+    title: (rulesTitle: string) => `Quick look: ${rulesTitle}`,
+    skip: 'Skip — play now',
+    skipA11y: 'Skip intro and open the board',
+    gotIt: 'Got it',
+    gotItA11y: 'Close intro and open the board',
   },
   reminder: {
     softAsk: {
@@ -227,6 +241,9 @@ export const ui = {
     sudokuCellA11y: 'Tap to select, long-press to clear',
     clearCell: 'Clear this cell',
     clear: 'Clear',
+    notesMode: 'Notes',
+    notesModeA11y: 'Toggle notes mode; when on, digits set candidate notes',
+    notesCell: (digits: string) => `, notes ${digits}`,
     digitDisabled: (n: number) => `Digit ${n} already used in row, column, or box`,
     fillDigit: (n: number) => `Enter ${n}`,
     slitherlinkClueA11y: (row: number, col: number, clue: number) =>

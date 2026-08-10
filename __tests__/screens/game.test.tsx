@@ -11,6 +11,7 @@ import { PLAY_STATE_DEBOUNCE_MS } from '../../constants/config';
 import GameScreen from '../../app/game';
 import * as dailyStorage from '../../lib/storage/dailyStorage';
 import { saveDailySnapshot } from '../../lib/storage/dailyStorage';
+import { saveFirstIntroState } from '../../lib/storage/firstIntroStorage';
 import * as snapshotValidate from '../../lib/storage/snapshotValidate';
 import {
   mockRouterReplace,
@@ -35,6 +36,15 @@ describe('GameScreen', () => {
   beforeEach(async () => {
     resetRouterMocks();
     await AsyncStorage.clear();
+    // Skip first-type intro so Modal does not hide board chrome queries (FEEL-05).
+    await saveFirstIntroState({
+      seenByType: {
+        sudoku: true,
+        binary: true,
+        nonogram: true,
+        slitherlink: true,
+      },
+    });
   });
 
   afterEach(() => {

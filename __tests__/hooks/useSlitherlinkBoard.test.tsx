@@ -19,6 +19,7 @@ describe('useSlitherlinkBoard', () => {
 
     const { result } = renderHook(() =>
       useSlitherlinkBoard({
+        boardKey: 'test',
         puzzle,
         playState,
         updatePlayState,
@@ -42,6 +43,7 @@ describe('useSlitherlinkBoard', () => {
 
     const { result } = renderHook(() =>
       useSlitherlinkBoard({
+        boardKey: 'test',
         puzzle,
         playState,
         updatePlayState,
@@ -61,6 +63,7 @@ describe('useSlitherlinkBoard', () => {
     const puzzle = generateSlitherlinkPuzzle(909);
     const { result } = renderHook(() =>
       useSlitherlinkBoard({
+        boardKey: 'test',
         puzzle,
         playState: createEmptyPlayState(),
         updatePlayState: jest.fn(),

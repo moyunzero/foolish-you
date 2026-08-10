@@ -44,7 +44,7 @@ describe('snapshotPrep', () => {
       puzzleHash: 'stub',
     };
     const next = normalizeSnapshotToV2(legacy);
-    expect(next.version).toBe(2);
+    expect(next.version).toBe(STORAGE_VERSION);
     expect(isSnapshotPuzzleConsistent(next)).toBe(true);
   });
 

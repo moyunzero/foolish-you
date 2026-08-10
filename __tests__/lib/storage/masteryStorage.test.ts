@@ -100,7 +100,7 @@ describe('masteryStorage', () => {
   });
 
   it('does not change daily STORAGE_VERSION constant', () => {
-    expect(STORAGE_VERSION).toBe(2);
+    expect(STORAGE_VERSION).toBe(3);
     expect(MASTERY_STORAGE_KEY).toBe('@foolish-you/mastery-v1');
     expect(MASTERY_STORAGE_VERSION).toBe(1);
   });

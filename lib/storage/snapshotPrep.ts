@@ -12,6 +12,7 @@ import {
 } from './snapshotLegacy';
 import {
   isSnapshotPuzzleConsistent,
+  isValidSudokuNotes,
 } from './snapshotValidate';
 
 function emptyPlayStateForGameType(gameType: GameType) {
@@ -48,7 +49,7 @@ function canonicalDailyPuzzle(
 }
 
 function persistedToDailyBase(persisted: PersistedSnapshot): DailySnapshot {
-  return {
+  const base: DailySnapshot = {
     version: STORAGE_VERSION,
     dateKey: persisted.dateKey,
     gameType: persisted.gameType,
@@ -62,6 +63,15 @@ function persistedToDailyBase(persisted: PersistedSnapshot): DailySnapshot {
     lastGameType: persisted.lastGameType,
     lastPuzzleHash: persisted.lastPuzzleHash,
   };
+  const rawNotes = (persisted as Record<string, unknown>).sudokuNotes;
+  if (
+    persisted.gameType === 'sudoku' &&
+    rawNotes != null &&
+    isValidSudokuNotes(rawNotes)
+  ) {
+    base.sudokuNotes = rawNotes;
+  }
+  return base;
 }
 
 function upgradePlaceholderFields(
@@ -72,11 +82,13 @@ function upgradePlaceholderFields(
     persisted.seed,
     persisted.gameType,
   );
+  const base = persistedToDailyBase(persisted);
+  const { sudokuNotes: _omit, ...withoutNotes } = base;
   return {
-    ...persistedToDailyBase(persisted),
+    ...withoutNotes,
     puzzle,
     puzzleHash,
-    // Regenerated board may differ from any prior adaptive create — wipe fills.
+    // Regenerated board may differ from any prior adaptive create — wipe fills + notes.
     playState: emptyPlayStateForGameType(persisted.gameType),
   };
 }
@@ -109,8 +121,9 @@ export function repairSnapshotPuzzle(record: DailySnapshot): DailySnapshot {
     record.gameType,
   );
 
+  const { sudokuNotes: _omit, ...rest } = record;
   return {
-    ...record,
+    ...rest,
     version: STORAGE_VERSION,
     puzzle,
     puzzleHash,
@@ -120,7 +133,7 @@ export function repairSnapshotPuzzle(record: DailySnapshot): DailySnapshot {
   };
 }
 
-/** Load-time normalization: v1 → v2, repair inconsistent puzzles. */
+/** Load-time normalization: v0/v1/v2 → current STORAGE_VERSION, repair inconsistent puzzles. */
 export function normalizeSnapshotToV2(
   persisted: PersistedSnapshot,
 ): DailySnapshot {
@@ -130,6 +143,15 @@ export function normalizeSnapshotToV2(
 
   if (!isSnapshotPuzzleConsistent(next)) {
     next = repairSnapshotPuzzle(next);
+  }
+
+  // Invalid / non-sudoku notes never survive normalize (D-08); playState untouched.
+  if (
+    next.sudokuNotes != null &&
+    (next.gameType !== 'sudoku' || !isValidSudokuNotes(next.sudokuNotes))
+  ) {
+    const { sudokuNotes: _omit, ...rest } = next;
+    next = rest;
   }
 
   return { ...next, version: STORAGE_VERSION };

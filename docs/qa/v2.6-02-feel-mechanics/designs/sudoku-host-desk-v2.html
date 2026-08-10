@@ -1,0 +1,1006 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>傻了么 · 数独 Host Desk 设计稿 v2</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=IBM+Plex+Mono:wght@400;500&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --canvas: #0a0a0a;
+      --canvas-elev: #111214;
+      --canvas-soft: #1a1c20;
+      --canvas-card: #141518;
+      --hairline: #212327;
+      --hairline-strong: #2e3238;
+      --ink: #f5f5f4;
+      --body: #c8cad0;
+      --muted: #7d8187;
+      --accent: #ff7a17;
+      --accent-dim: rgba(255, 122, 23, 0.12);
+      --accent-line: rgba(255, 122, 23, 0.55);
+      --given: #aeb3bc;
+      --error: #f87171;
+      --cell: rgba(255,255,255,0.07);
+      --box: rgba(255,255,255,0.2);
+      --outer: rgba(255,255,255,0.32);
+      --phone-w: 402px;
+      --phone-h: 874px;
+    }
+
+    * { box-sizing: border-box; }
+    html, body {
+      margin: 0;
+      background: var(--canvas);
+      color: var(--ink);
+      font-family: Inter, system-ui, sans-serif;
+    }
+
+    body {
+      background:
+        radial-gradient(1200px 600px at 15% -5%, rgba(255,122,23,0.09), transparent 50%),
+        radial-gradient(900px 500px at 90% 10%, rgba(160,195,236,0.05), transparent 45%),
+        linear-gradient(180deg, #0c0c0e 0%, #080808 100%);
+      min-height: 100dvh;
+    }
+
+    .wrap {
+      max-width: 1240px;
+      margin: 0 auto;
+      padding: 48px 28px 96px;
+    }
+
+    /* —— Research —— */
+    .research {
+      display: grid;
+      grid-template-columns: 1.15fr 0.85fr;
+      gap: 40px;
+      margin-bottom: 56px;
+      align-items: start;
+    }
+    @media (max-width: 900px) {
+      .research { grid-template-columns: 1fr; }
+    }
+
+    .kicker {
+      font-family: "IBM Plex Mono", monospace;
+      font-size: 11px;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 14px;
+    }
+
+    h1 {
+      font-family: "Instrument Serif", Georgia, serif;
+      font-weight: 400;
+      font-size: clamp(36px, 5vw, 52px);
+      line-height: 1.05;
+      letter-spacing: -0.02em;
+      margin: 0 0 16px;
+      text-wrap: balance;
+    }
+
+    h1 em {
+      font-style: italic;
+      color: #fff;
+      opacity: 0.92;
+    }
+
+    .lede {
+      font-size: 16px;
+      line-height: 1.65;
+      color: var(--body);
+      max-width: 36em;
+      text-wrap: pretty;
+      margin: 0 0 22px;
+    }
+
+    .thesis {
+      border-left: 2px solid var(--accent);
+      padding: 10px 0 10px 16px;
+      margin: 0 0 28px;
+      font-size: 15px;
+      line-height: 1.55;
+      color: var(--ink);
+    }
+
+    .thesis strong { color: var(--accent); font-weight: 600; }
+
+    .dfii {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 8px;
+      margin-bottom: 8px;
+    }
+    @media (max-width: 700px) {
+      .dfii { grid-template-columns: repeat(2, 1fr); }
+    }
+
+    .dfii div {
+      border: 1px solid var(--hairline);
+      border-radius: 10px;
+      padding: 10px 12px;
+      background: rgba(255,255,255,0.02);
+    }
+    .dfii b {
+      display: block;
+      font-family: "IBM Plex Mono", monospace;
+      font-size: 18px;
+      font-variant-numeric: tabular-nums;
+      margin-bottom: 2px;
+    }
+    .dfii span {
+      font-size: 11px;
+      color: var(--muted);
+      line-height: 1.3;
+    }
+
+    .panel {
+      border: 1px solid var(--hairline);
+      border-radius: 18px;
+      background: linear-gradient(165deg, rgba(255,255,255,0.03), transparent 40%), var(--canvas-elev);
+      padding: 22px 22px 18px;
+    }
+
+    .panel h2 {
+      margin: 0 0 14px;
+      font-size: 13px;
+      font-family: "IBM Plex Mono", monospace;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--muted);
+      font-weight: 500;
+    }
+
+    .comp {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .comp article {
+      display: grid;
+      grid-template-columns: 92px 1fr;
+      gap: 12px;
+      padding-bottom: 12px;
+      border-bottom: 1px solid var(--hairline);
+    }
+    .comp article:last-child { border-bottom: 0; padding-bottom: 0; }
+
+    .comp .name {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--ink);
+    }
+    .comp .take {
+      font-size: 13px;
+      line-height: 1.5;
+      color: var(--body);
+      grid-column: 2;
+    }
+    .comp .tag {
+      font-family: "IBM Plex Mono", monospace;
+      font-size: 10px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-top: 4px;
+    }
+
+    /* —— Gallery —— */
+    .gallery-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: end;
+      gap: 16px;
+      margin-bottom: 22px;
+      flex-wrap: wrap;
+    }
+
+    .gallery-head h2 {
+      margin: 0;
+      font-family: "Instrument Serif", Georgia, serif;
+      font-size: 32px;
+      font-weight: 400;
+      letter-spacing: -0.02em;
+    }
+
+    .tabs {
+      display: flex;
+      gap: 6px;
+      background: rgba(255,255,255,0.03);
+      border: 1px solid var(--hairline);
+      border-radius: 999px;
+      padding: 4px;
+    }
+
+    .tab {
+      appearance: none;
+      border: 0;
+      background: transparent;
+      color: var(--muted);
+      font: 500 12px/1 Inter, sans-serif;
+      padding: 10px 14px;
+      border-radius: 999px;
+      cursor: pointer;
+    }
+    .tab.active {
+      background: var(--ink);
+      color: var(--canvas);
+    }
+
+    .stage {
+      display: none;
+      gap: 36px;
+      align-items: start;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+    .stage.on { display: flex; }
+
+    .phone-col {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .phone-label {
+      font-family: "IBM Plex Mono", monospace;
+      font-size: 10px;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+
+    /* Phone */
+    .phone {
+      width: var(--phone-w);
+      height: var(--phone-h);
+      border-radius: 48px;
+      background: #050505;
+      border: 1px solid #2a2c30;
+      box-shadow:
+        inset 0 0 0 1px rgba(255,255,255,0.04),
+        0 50px 100px rgba(0,0,0,0.65),
+        0 0 0 8px #0e0e10;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+    }
+
+    .phone::before {
+      content: "";
+      position: absolute;
+      top: 10px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 118px;
+      height: 28px;
+      background: #000;
+      border-radius: 20px;
+      z-index: 5;
+    }
+
+    .status {
+      height: 54px;
+      padding: 16px 26px 0;
+      display: flex;
+      justify-content: space-between;
+      font-size: 13px;
+      font-weight: 600;
+      flex-shrink: 0;
+    }
+
+    .body {
+      flex: 1;
+      min-height: 0;
+      display: flex;
+      flex-direction: column;
+      padding: 4px 18px 18px;
+    }
+
+    .topmeta {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 6px;
+    }
+    .topmeta .left {
+      font-size: 11px;
+      color: var(--muted);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .timer {
+      font-family: "IBM Plex Mono", monospace;
+      font-size: 11px;
+      font-variant-numeric: tabular-nums;
+      border: 1px solid var(--hairline);
+      border-radius: 999px;
+      padding: 5px 10px;
+      color: var(--body);
+    }
+
+    .title-row {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      margin-bottom: 12px;
+    }
+    .title-row h3 {
+      margin: 0;
+      font-family: "Instrument Serif", Georgia, serif;
+      font-size: 34px;
+      font-weight: 400;
+      letter-spacing: -0.03em;
+    }
+    .help {
+      width: 34px;
+      height: 34px;
+      border-radius: 999px;
+      border: 1px solid var(--hairline);
+      display: grid;
+      place-items: center;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    /* Board as object */
+    .board-shell {
+      position: relative;
+      flex: 1 1 auto;
+      min-height: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 14px;
+    }
+
+    .board-shell.notes-live::after {
+      content: "";
+      position: absolute;
+      inset: -1px;
+      border-radius: 14px;
+      pointer-events: none;
+      box-shadow: 0 0 0 1px var(--accent-line);
+      opacity: 0.55;
+    }
+
+    .board {
+      width: 100%;
+      max-width: 366px;
+      aspect-ratio: 1;
+      background: var(--canvas-soft);
+      border-radius: 12px;
+      padding: 8px;
+      border: 1px solid rgba(255,255,255,0.05);
+      box-shadow: 0 18px 40px rgba(0,0,0,0.35);
+    }
+
+    .grid {
+      width: 100%;
+      height: 100%;
+      display: grid;
+      grid-template-columns: repeat(9, 1fr);
+      grid-template-rows: repeat(9, 1fr);
+      border: 2px solid var(--outer);
+      border-radius: 4px;
+      overflow: hidden;
+      background: #16181c;
+    }
+
+    .cell {
+      display: grid;
+      place-items: center;
+      border-right: 1px solid var(--cell);
+      border-bottom: 1px solid var(--cell);
+      font-family: "IBM Plex Mono", monospace;
+      font-size: 19px;
+      font-variant-numeric: tabular-nums;
+      color: var(--ink);
+      position: relative;
+    }
+    .cell:nth-child(9n) { border-right: 0; }
+    .cell:nth-child(n+73) { border-bottom: 0; }
+    .cell.br { border-right-width: 2px; border-right-color: var(--box); }
+    .cell.bb { border-bottom-width: 2px; border-bottom-color: var(--box); }
+    .cell.given { color: var(--given); font-size: 16px; }
+    .cell.sel {
+      background: rgba(255,255,255,0.12);
+      box-shadow: inset 0 0 0 2px #fff;
+      z-index: 2;
+    }
+    .cell.peer { background: rgba(255,255,255,0.045); }
+    .cell.same { background: rgba(255,122,23,0.16); }
+
+    .notes {
+      width: 100%;
+      height: 100%;
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      grid-template-rows: repeat(3, 1fr);
+      padding: 2px;
+      font-size: 9px;
+      line-height: 1;
+      color: #9aa0a8;
+    }
+    .notes i {
+      font-style: normal;
+      display: grid;
+      place-items: center;
+      opacity: 0;
+    }
+    .notes i.on { opacity: 1; color: #c5cad1; }
+
+    /* Instrument rail — memory point */
+    .rail {
+      flex-shrink: 0;
+      border: 1px solid var(--hairline-strong);
+      border-radius: 18px;
+      background:
+        linear-gradient(180deg, rgba(255,255,255,0.035), transparent 28%),
+        #101114;
+      padding: 10px 10px 12px;
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.04);
+    }
+
+    .rail.notes {
+      border-color: rgba(255,122,23,0.4);
+      background:
+        linear-gradient(180deg, rgba(255,122,23,0.08), transparent 40%),
+        #121014;
+    }
+
+    .rail-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 10px;
+      padding: 0 4px;
+    }
+
+    .rail-mode {
+      font-family: "IBM Plex Mono", monospace;
+      font-size: 10px;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+    .rail.notes .rail-mode { color: var(--accent); }
+
+    .rail-tools {
+      display: flex;
+      gap: 6px;
+    }
+
+    .ico {
+      width: 36px;
+      height: 36px;
+      border-radius: 11px;
+      border: 1px solid var(--hairline);
+      background: rgba(0,0,0,0.25);
+      color: var(--ink);
+      display: grid;
+      place-items: center;
+      cursor: pointer;
+      padding: 0;
+    }
+    .ico svg {
+      width: 17px;
+      height: 17px;
+      stroke: currentColor;
+      fill: none;
+      stroke-width: 1.7;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+    .ico.on {
+      border-color: var(--accent);
+      color: var(--accent);
+      background: var(--accent-dim);
+    }
+    .ico:focus-visible {
+      outline: 2px solid var(--accent);
+      outline-offset: 2px;
+    }
+
+    .digits {
+      display: grid;
+      grid-template-columns: repeat(9, 1fr);
+      gap: 5px;
+    }
+
+    .d {
+      height: 44px;
+      border-radius: 12px;
+      border: 1px solid var(--hairline);
+      background: rgba(255,255,255,0.02);
+      color: var(--ink);
+      font-family: "IBM Plex Mono", monospace;
+      font-size: 16px;
+      font-variant-numeric: tabular-nums;
+      cursor: pointer;
+      padding: 0;
+    }
+    .rail.notes .d {
+      border-color: rgba(255,122,23,0.28);
+      color: #ffc285;
+    }
+    .d:active { transform: scale(0.97); }
+    .d.dim { opacity: 0.3; }
+
+    .foot {
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-top: 12px;
+      padding-top: 2px;
+    }
+
+    .done {
+      flex: 1;
+      height: 44px;
+      border-radius: 999px;
+      border: 1px solid var(--hairline);
+      background: transparent;
+      color: var(--muted);
+      font-size: 14px;
+      cursor: pointer;
+    }
+    .done.hot {
+      background: #fff;
+      color: #0a0a0a;
+      border-color: #fff;
+      font-weight: 600;
+    }
+
+    .bail {
+      border: 0;
+      background: none;
+      color: var(--muted);
+      font-size: 13px;
+      text-decoration: underline;
+      text-underline-offset: 3px;
+      opacity: 0.65;
+      cursor: pointer;
+      padding: 8px 4px;
+    }
+
+    /* Current (broken) for contrast — compressed mock */
+    .broken .board-shell { flex: 0 0 auto; max-height: 280px; }
+    .broken .board { max-width: 280px; transform: scale(0.98); }
+    .broken-pad {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+      margin-top: 8px;
+      opacity: 0.95;
+    }
+    .broken-pad .k {
+      height: 40px;
+      border-radius: 999px;
+      border: 1px solid var(--hairline);
+      display: grid;
+      place-items: center;
+      font-family: "IBM Plex Mono", monospace;
+      font-size: 14px;
+    }
+    .cut {
+      margin-top: 6px;
+      text-align: center;
+      font-size: 10px;
+      font-family: "IBM Plex Mono", monospace;
+      letter-spacing: 0.08em;
+      color: var(--error);
+      opacity: 0.85;
+    }
+    .broken-foot {
+      margin-top: auto;
+      border-top: 1px solid var(--hairline);
+      padding-top: 10px;
+      display: flex;
+      flex-direction: column;
+      gap: 7px;
+    }
+    .broken-foot .blk {
+      height: 40px;
+      border-radius: 999px;
+      border: 1px solid var(--hairline);
+      display: grid;
+      place-items: center;
+      font-size: 14px;
+    }
+
+    .side {
+      width: min(340px, 100%);
+      padding-top: 8px;
+    }
+    .side h4 {
+      margin: 0 0 10px;
+      font-size: 18px;
+      font-weight: 500;
+      letter-spacing: -0.02em;
+    }
+    .side p {
+      margin: 0 0 14px;
+      color: var(--body);
+      font-size: 14px;
+      line-height: 1.6;
+      text-wrap: pretty;
+    }
+    .side ul {
+      list-style: none;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .side li {
+      font-size: 13px;
+      line-height: 1.45;
+      color: var(--body);
+      padding-left: 14px;
+      border-left: 2px solid var(--hairline);
+    }
+    .side li.good { border-left-color: var(--accent); }
+
+    .confirm {
+      margin-top: 48px;
+      border: 1px solid var(--hairline);
+      border-radius: 16px;
+      padding: 20px 22px;
+      background: rgba(255,255,255,0.02);
+    }
+    .confirm h4 { margin: 0 0 8px; font-size: 15px; }
+    .confirm p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.55;
+    }
+    .confirm code { color: var(--accent); font-family: "IBM Plex Mono", monospace; font-size: 12px; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="research">
+      <div>
+        <div class="kicker">Research → UI skill → Mock v2</div>
+        <h1>Host Desk：把数独做成<br /><em>桌上唯一的物件</em></h1>
+        <p class="lede">
+          头部产品（Good Sudoku / NYT Games / Sudoku.com / 双键区流派）的共性不是「更多按钮」，
+          而是<strong style="color:#fff;font-weight:500">棋盘常驻视口、输入是贴身的仪器、笔记是一等模式</strong>。
+          傻了么要保留毒舌主持气质，但不能把笔记埋进折下。
+        </p>
+        <p class="thesis">
+          设计立场：<strong>Host Desk（主持桌面）</strong> —
+          近黑台面、盘面是雕塑、底部是一条「机加工输入轨」。
+          开笔记时轨头发热（sunset），盘缘轻亮，像换了笔尖 — 而不是多一层弹窗。
+        </p>
+        <div class="dfii" title="DFII from frontend-design skill">
+          <div><b>4</b><span>Aesthetic Impact</span></div>
+          <div><b>5</b><span>Context Fit</span></div>
+          <div><b>5</b><span>Feasibility</span></div>
+          <div><b>5</b><span>Performance</span></div>
+          <div><b>−1</b><span>Consistency Risk</span></div>
+        </div>
+        <p style="margin:10px 0 0;font-size:12px;color:var(--muted);font-family:'IBM Plex Mono',monospace;">
+          DFII ≈ 18 → 强方案 · 可执行 · 与 DESIGN.md xAI 黑底 + sunset 一致
+        </p>
+      </div>
+
+      <div class="panel">
+        <h2>头部产品拆解（可借鉴 / 不可照搬）</h2>
+        <div class="comp">
+          <article>
+            <div>
+              <div class="name">Good Sudoku</div>
+              <div class="tag">Premium calm</div>
+            </div>
+            <div class="take">盘面优雅居中、控件克制、笔记是解题核心。我们借「平静专注」，不借 Hint / 自动填候选（产品红线）。</div>
+          </article>
+          <article>
+            <div>
+              <div class="name">NYT Games</div>
+              <div class="tag">Toolbar under grid</div>
+            </div>
+            <div class="take">棋盘下方一条工具：撤销 · 笔记铅笔。输入与盘同区。我们借「工具贴盘」，弃订阅感 UI。</div>
+          </article>
+          <article>
+            <div>
+              <div class="name">Sudoku.com</div>
+              <div class="tag">Industry default</div>
+            </div>
+            <div class="take">标准化数字条 + 模式切换，肌肉记忆强。我们借布局效率，避广告/徽章堆叠。</div>
+          </article>
+          <article>
+            <div>
+              <div class="name">双键区流派</div>
+              <div class="tag">Notes ‖ Values</div>
+            </div>
+            <div class="take">左右分键区免切换，但占高、偏硬核。每日一局产品过重 → <b style="color:#fff">不采用</b>，改「单轨 + 强模式态」。</div>
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="gallery-head">
+      <h2>高清稿</h2>
+      <div class="tabs" role="tablist">
+        <button class="tab active" type="button" data-s="compare">现状 vs Host Desk</button>
+        <button class="tab" type="button" data-s="notes">笔记开 · 同屏</button>
+        <button class="tab" type="button" data-s="skill">UI skill 检查</button>
+      </div>
+    </div>
+
+    <!-- COMPARE -->
+    <section class="stage on" id="s-compare">
+      <div class="phone-col">
+        <div class="phone-label">现状 · 笔记折下</div>
+        <div class="phone broken">
+          <div class="status"><span>14:41</span><span style="opacity:.7">●● ▮</span></div>
+          <div class="body">
+            <div class="topmeta">
+              <div class="left">今日 · 2026-08-10 · 连签</div>
+              <div class="timer">00:42</div>
+            </div>
+            <div class="title-row">
+              <h3>数独</h3>
+              <div class="help">?</div>
+            </div>
+            <div class="board-shell">
+              <div class="board"><div class="grid" id="g-bad"></div></div>
+            </div>
+            <div class="broken-pad">
+              <div class="k">1</div><div class="k">2</div><div class="k">3</div>
+              <div class="k">4</div><div class="k">5</div><div class="k">6</div>
+            </div>
+            <div class="cut">↓ 7–9 / 清除 / 笔记 — 滚走才见</div>
+            <div class="broken-foot">
+              <div class="blk">撤销</div>
+              <div class="blk">完成今日</div>
+              <div class="blk" style="border:0;color:var(--muted)">认怂今日</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="phone-col">
+        <div class="phone-label">提案 · Host Desk</div>
+        <div class="phone">
+          <div class="status"><span>14:41</span><span style="opacity:.7">●● ▮</span></div>
+          <div class="body">
+            <div class="topmeta">
+              <div class="left">今日 · 2026-08-10 · 连签战绩</div>
+              <div class="timer">00:42</div>
+            </div>
+            <div class="title-row">
+              <h3>数独</h3>
+              <div class="help">?</div>
+            </div>
+            <div class="board-shell" id="shell-a">
+              <div class="board"><div class="grid" id="g-a"></div></div>
+            </div>
+            <div class="rail" id="rail-a">
+              <div class="rail-top">
+                <div class="rail-mode" id="mode-a">Value · 填数</div>
+                <div class="rail-tools">
+                  <button class="ico" type="button" aria-label="撤销上一步编辑" title="撤销">
+                    <svg viewBox="0 0 24 24"><path d="M9 14 4 9l5-5"/><path d="M4 9h11a4 4 0 1 1 0 8h-4"/></svg>
+                  </button>
+                  <button class="ico" type="button" aria-label="清除选中格" title="清除">
+                    <svg viewBox="0 0 24 24"><path d="M4 7h16"/><path d="M10 7V5h4v2"/><path d="M8 7l1 12h6l1-12"/></svg>
+                  </button>
+                  <button class="ico" type="button" id="pen-a" aria-label="切换笔记模式" aria-pressed="false" title="笔记">
+                    <svg viewBox="0 0 24 24"><path d="m12 19 7-7 2 2-7 7H9v-3z"/><path d="m15 5-9 9v3h3l9-9z"/></svg>
+                  </button>
+                </div>
+              </div>
+              <div class="digits">
+                <button class="d" type="button">1</button>
+                <button class="d" type="button">2</button>
+                <button class="d" type="button">3</button>
+                <button class="d" type="button">4</button>
+                <button class="d" type="button">5</button>
+                <button class="d" type="button">6</button>
+                <button class="d" type="button">7</button>
+                <button class="d" type="button">8</button>
+                <button class="d" type="button">9</button>
+              </div>
+            </div>
+            <div class="foot">
+              <button class="done" type="button">完成今日</button>
+              <button class="bail" type="button">认怂</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <aside class="side">
+        <h4>相对 v1 稿改进</h4>
+        <p>上一版像「把按钮排整齐」；本版有明确物件层级：盘是主体，轨是仪器，完成/认怂退到脚注级。</p>
+        <ul>
+          <li class="good">棋盘≈视口 55%+，笔记时不滚动</li>
+          <li class="good">单轨 1–9，触控高 44（HIG）</li>
+          <li class="good">铅笔 / 撤销 / 清除：图标按钮 + aria-label</li>
+          <li class="good">记忆点：笔记时轨头发热 + 盘缘轻描边</li>
+          <li>不采用双键区（每日一局过重）</li>
+          <li>无 Hint / 无一键候选</li>
+        </ul>
+      </aside>
+    </section>
+
+    <!-- NOTES -->
+    <section class="stage" id="s-notes">
+      <div class="phone-col">
+        <div class="phone-label">Host Desk · 笔记模式</div>
+        <div class="phone">
+          <div class="status"><span>14:41</span><span style="opacity:.7">●● ▮</span></div>
+          <div class="body">
+            <div class="topmeta">
+              <div class="left">今日 · 2026-08-10 · 连签战绩</div>
+              <div class="timer">01:16</div>
+            </div>
+            <div class="title-row">
+              <h3>数独</h3>
+              <div class="help">?</div>
+            </div>
+            <div class="board-shell notes-live">
+              <div class="board"><div class="grid" id="g-n"></div></div>
+            </div>
+            <div class="rail notes">
+              <div class="rail-top">
+                <div class="rail-mode">Notes · 候选</div>
+                <div class="rail-tools">
+                  <button class="ico" type="button" aria-label="撤销"><svg viewBox="0 0 24 24"><path d="M9 14 4 9l5-5"/><path d="M4 9h11a4 4 0 1 1 0 8h-4"/></svg></button>
+                  <button class="ico" type="button" aria-label="清除"><svg viewBox="0 0 24 24"><path d="M4 7h16"/><path d="M10 7V5h4v2"/><path d="M8 7l1 12h6l1-12"/></svg></button>
+                  <button class="ico on" type="button" aria-label="笔记开" aria-pressed="true"><svg viewBox="0 0 24 24"><path d="m12 19 7-7 2 2-7 7H9v-3z"/><path d="m15 5-9 9v3h3l9-9z"/></svg></button>
+                </div>
+              </div>
+              <div class="digits">
+                <button class="d" type="button">1</button>
+                <button class="d" type="button">2</button>
+                <button class="d" type="button">3</button>
+                <button class="d" type="button">4</button>
+                <button class="d" type="button">5</button>
+                <button class="d" type="button">6</button>
+                <button class="d" type="button">7</button>
+                <button class="d" type="button">8</button>
+                <button class="d" type="button">9</button>
+              </div>
+            </div>
+            <div class="foot">
+              <button class="done" type="button">完成今日</button>
+              <button class="bail" type="button">认怂</button>
+            </div>
+          </div>
+        </div>
+      </div>
+      <aside class="side">
+        <h4>解题时的视线</h4>
+        <p>记候选时仍能扫完整宫与同行 — 这是相对现状的核心胜利条件。格内笔记字号抬到约 9–10px，色比正文略淡。</p>
+        <ul>
+          <li class="good">模式切换成本：一拍铅笔</li>
+          <li class="good">选中格 + peer 高亮保留（对照头部产品）</li>
+          <li>可完成时再把「完成今日」升为白底主按钮</li>
+        </ul>
+      </aside>
+    </section>
+
+    <!-- SKILL -->
+    <section class="stage" id="s-skill">
+      <div class="panel" style="width:min(920px,100%)">
+        <h2>UI skill 对照（baseline-ui + frontend-design）</h2>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
+          <div>
+            <h4 style="margin:0 0 8px;font-size:14px;">通过</h4>
+            <ul class="side" style="padding:0">
+              <li class="good">图标按钮具备 aria-label</li>
+              <li class="good">触控目标 ≥ 44px（数字键）</li>
+              <li class="good">tabular-nums 用于计时与数字</li>
+              <li class="good">标题 text-balance / 说明 text-pretty</li>
+              <li class="good">无紫渐变、无奶油衬线模板、无多阴影卡片堆</li>
+              <li class="good">有命名美学（Host Desk），非组件拼盘</li>
+            </ul>
+          </div>
+          <div>
+            <h4 style="margin:0 0 8px;font-size:14px;">实现时注意</h4>
+            <ul class="side" style="padding:0">
+              <li>数独页禁用盘区 ScrollView（Binary 可保留）</li>
+              <li>safe-area 留给底轨与认怂</li>
+              <li>认怂仍走既有确认 sheet（破坏性动作）</li>
+              <li>模式切换反馈 ≤ 200ms（边框/色，不动画布局）</li>
+              <li>笔记字号随 cell 宽度计算，避免 8px 糊</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <div class="confirm">
+      <h4>请确认后开工</h4>
+      <p>
+        回复 <b style="color:#fff">「确认 Host Desk」</b> 开始布局改造；或指出要改的点（例如：数字键改 5+4、认怂位置、是否隐藏用时）。
+        文件：<code>docs/qa/v2.6-02-feel-mechanics/designs/sudoku-host-desk-v2.html</code>
+      </p>
+    </div>
+  </div>
+
+  <script>
+    const G = [
+      [5,3,0,0,7,0,0,0,0],
+      [6,0,0,1,9,5,0,0,0],
+      [0,9,8,0,0,0,0,6,0],
+      [8,0,0,0,6,0,0,0,3],
+      [4,0,0,8,0,3,0,0,1],
+      [7,0,0,0,2,0,0,0,6],
+      [0,6,0,0,0,0,2,8,0],
+      [0,0,0,4,1,9,0,0,5],
+      [0,0,0,0,8,0,0,7,9],
+    ];
+    const N = Array.from({length:9},()=>Array(9).fill(0));
+    N[0][2]=(1<<1)|(1<<2)|(1<<4);
+    N[0][3]=(1<<2)|(1<<6);
+    N[1][1]=(1<<2)|(1<<4)|(1<<7);
+    N[2][0]=(1<<1)|(1<<2);
+    N[4][4]=(1<<5)|(1<<9);
+    const SEL={r:0,c:2};
+
+    function paint(el, {notes, sel}) {
+      el.innerHTML="";
+      for(let r=0;r<9;r++) for(let c=0;c<9;c++){
+        const d=document.createElement("div");
+        let cls="cell";
+        if(c%3===2&&c<8) cls+=" br";
+        if(r%3===2&&r<8) cls+=" bb";
+        const v=G[r][c];
+        if(sel && sel.r===r && sel.c===c) cls+=" sel";
+        else if(sel && (r===sel.r||c===sel.c||(Math.floor(r/3)===Math.floor(sel.r/3)&&Math.floor(c/3)===Math.floor(sel.c/3)))) cls+=" peer";
+        d.className=cls;
+        if(v){ d.classList.add("given"); d.textContent=String(v); }
+        else if(notes && N[r][c]){
+          const w=document.createElement("div"); w.className="notes";
+          for(let i=1;i<=9;i++){ const s=document.createElement("i"); if(N[r][c]&(1<<i)){s.className="on";s.textContent=String(i);} w.appendChild(s); }
+          d.appendChild(w);
+        }
+        el.appendChild(d);
+      }
+    }
+
+    paint(document.getElementById("g-bad"),{notes:false,sel:null});
+    paint(document.getElementById("g-a"),{notes:true,sel:SEL});
+    paint(document.getElementById("g-n"),{notes:true,sel:SEL});
+
+    document.querySelectorAll(".tab").forEach(t=>{
+      t.addEventListener("click",()=>{
+        document.querySelectorAll(".tab").forEach(x=>x.classList.remove("active"));
+        document.querySelectorAll(".stage").forEach(x=>x.classList.remove("on"));
+        t.classList.add("active");
+        document.getElementById("s-"+t.dataset.s).classList.add("on");
+      });
+    });
+
+    const pen=document.getElementById("pen-a");
+    const rail=document.getElementById("rail-a");
+    const shell=document.getElementById("shell-a");
+    const mode=document.getElementById("mode-a");
+    pen.addEventListener("click",()=>{
+      const on=!pen.classList.contains("on");
+      pen.classList.toggle("on",on);
+      pen.setAttribute("aria-pressed",String(on));
+      rail.classList.toggle("notes",on);
+      shell.classList.toggle("notes-live",on);
+      mode.textContent=on?"Notes · 候选":"Value · 填数";
+    });
+  </script>
+</body>
+</html>

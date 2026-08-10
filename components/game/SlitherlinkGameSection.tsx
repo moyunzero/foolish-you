@@ -1,7 +1,11 @@
 import { View, type StyleProp, type ViewStyle } from 'react-native';
 
 import type { useSlitherlinkBoard } from '../../hooks/useSlitherlinkBoard';
-import type { SlitherlinkPlayState, SlitherlinkPuzzle } from '../../lib/puzzles/types';
+import type { SignatureMoment } from '../../lib/feel/signatureTokens';
+import type {
+  SlitherlinkPlayState,
+  SlitherlinkPuzzle,
+} from '../../lib/puzzles/types';
 import SlitherlinkBoard from '../slitherlink/SlitherlinkBoard';
 import HairlineCard from '../ui/HairlineCard';
 
@@ -13,6 +17,8 @@ type SlitherlinkGameSectionProps = {
   maxWidth: number;
   board: SlitherlinkBoardState;
   cardStyle?: StyleProp<ViewStyle>;
+  /** DIFF-03 signature beat — board animation in Task 2. */
+  signature?: SignatureMoment;
 };
 
 export default function SlitherlinkGameSection({
@@ -21,6 +27,7 @@ export default function SlitherlinkGameSection({
   maxWidth,
   board,
   cardStyle,
+  signature = 'idle',
 }: SlitherlinkGameSectionProps) {
   return (
     <View className="flex-1">
@@ -37,6 +44,7 @@ export default function SlitherlinkGameSection({
             onPressEdge={board.handlePressEdge}
             onLongPressEdge={board.handleLongPressEdge}
             maxWidth={maxWidth}
+            signature={signature}
           />
         </HairlineCard>
       </View>

@@ -20,6 +20,7 @@ import type {
   PuzzlePayload,
   SlitherlinkPlayState,
   SlitherlinkPuzzle,
+  SudokuNotes,
 } from '../lib/puzzles/types';
 import {
   isBinaryPuzzle,
@@ -55,6 +56,8 @@ type UseGameBoardSessionParams = {
   playState: PlayState | null;
   status: HydrateStatus;
   updatePlayState: (next: PlayState) => void;
+  sudokuNotes?: SudokuNotes | null;
+  updateSudokuNotes?: (next: SudokuNotes | null) => void;
 };
 
 export function useGameBoardSession({
@@ -63,6 +66,8 @@ export function useGameBoardSession({
   playState,
   status,
   updatePlayState,
+  sudokuNotes,
+  updateSudokuNotes,
 }: UseGameBoardSessionParams) {
   const { locale } = useI18n();
   const isSudoku =
@@ -97,24 +102,32 @@ export function useGameBoardSession({
       : createEmptySlitherlinkPlayState();
 
   const sudokuBoard = useSudokuBoard({
+    boardKey: isSudoku && puzzle != null ? puzzle.puzzleHash : 'sudoku-idle',
     givens: sudokuGivens ?? createEmptySudokuGrid(),
     playState: sudokuPlay,
     updatePlayState: (next) => updatePlayState(next),
+    sudokuNotes: isSudoku ? sudokuNotes : null,
+    updateSudokuNotes: isSudoku ? updateSudokuNotes : undefined,
   });
 
   const binaryBoard = useBinaryBoard({
+    boardKey: isBinary && puzzle != null ? puzzle.puzzleHash : 'binary-idle',
     givens: binaryGivens ?? createEmptyBinaryGrid(),
     playState: binaryPlay,
     updatePlayState: (next) => updatePlayState(next),
   });
 
   const nonogramBoard = useNonogramBoard({
+    boardKey: isNonogram ? nonogramPuzzle.puzzleHash : 'nonogram-idle',
     puzzle: nonogramPuzzle,
     playState: nonogramPlay,
     updatePlayState: (next) => updatePlayState(next),
   });
 
   const slitherlinkBoard = useSlitherlinkBoard({
+    boardKey: isSlitherlink
+      ? slitherlinkPuzzle.puzzleHash
+      : 'slitherlink-idle',
     puzzle: slitherlinkPuzzle,
     playState: slitherlinkPlay,
     updatePlayState: (next) => updatePlayState(next),
@@ -154,6 +167,34 @@ export function useGameBoardSession({
           ? slitherlinkBoard.statusHint
           : null;
 
+  const canUndo = isSudoku
+    ? sudokuBoard.canUndo
+    : isBinary
+      ? binaryBoard.canUndo
+      : isNonogram
+        ? nonogramBoard.canUndo
+        : isSlitherlink
+          ? slitherlinkBoard.canUndo
+          : false;
+
+  const undo = () => {
+    if (isSudoku) {
+      sudokuBoard.undo();
+      return;
+    }
+    if (isBinary) {
+      binaryBoard.undo();
+      return;
+    }
+    if (isNonogram) {
+      nonogramBoard.undo();
+      return;
+    }
+    if (isSlitherlink) {
+      slitherlinkBoard.undo();
+    }
+  };
+
   const typeLabel =
     gameType != null ? getGameTypeLabel(gameType, locale) : '…';
 
@@ -177,6 +218,8 @@ export function useGameBoardSession({
     showBoardChrome,
     showReload,
     canComplete,
+    canUndo,
+    undo,
     statusHint,
     typeLabel,
   };

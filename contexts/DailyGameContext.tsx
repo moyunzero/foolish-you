@@ -52,6 +52,7 @@ import type {
   GameType,
   PlayState,
   PuzzlePayload,
+  SudokuNotes,
 } from '../lib/puzzles/types';
 import {
   isBinaryPuzzle,
@@ -98,6 +99,8 @@ export type DailyGameState = {
   /** playing 态昨日错过召回 copy；不显示时为 null */
   missedYesterdayLine: string | null;
   updatePlayState: (next: PlayState) => void;
+  /** Sudoku notes sibling write (D-06, D-22) — one narrow Context export. */
+  updateSudokuNotes: (next: SudokuNotes | null) => void;
   markCompleted: () => Promise<void>;
   markAbandoned: () => Promise<void>;
   refresh: () => Promise<void>;
@@ -165,6 +168,7 @@ function useDailyGameProviderValue(): DailyGameState {
 
   const {
     updatePlayState,
+    updateSudokuNotes,
     flushPlayState,
     drainPendingInto,
     persistSnapshot,
@@ -567,6 +571,7 @@ function useDailyGameProviderValue(): DailyGameState {
       freezeConsumedLine,
       missedYesterdayLine,
       updatePlayState,
+      updateSudokuNotes,
       markCompleted,
       markAbandoned,
       refresh: hydrate,
@@ -589,6 +594,7 @@ function useDailyGameProviderValue(): DailyGameState {
       freezeConsumedLine,
       missedYesterdayLine,
       updatePlayState,
+      updateSudokuNotes,
       markCompleted,
       markAbandoned,
       hydrate,
