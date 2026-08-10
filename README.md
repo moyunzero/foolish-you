@@ -13,7 +13,7 @@
 
 No social feeds, no leaderboards, no fill-in hints — just **today's one game**.
 
-**iOS App Store:** Live [`2.4.1`](https://apps.apple.com/app/id6770218110); shipping **`2.5.0`** (Content Depth + Adaptive Mastery). Android (Google Play) is not published yet.
+**iOS App Store:** Live [`2.5.0`](https://apps.apple.com/app/id6770218110) (Content Depth + Adaptive Mastery). Android (Google Play) is not published yet.
 
 **For AI / contributors:** production invariants and layer rules live in [`AGENTS.md`](./AGENTS.md); verification, code review, and manual QA checklists in [`docs/DEVELOPMENT.md`](./docs/DEVELOPMENT.md) and [`docs/TESTING.md`](./docs/TESTING.md); the GSD workflow in [`CLAUDE.md`](./CLAUDE.md).
 
@@ -201,7 +201,7 @@ npm run build:preview:ios
 npm run build:preview:android
 ```
 
-`app.json` configures the app name **傻了么**, bundle ID `com.moyunzero.foolish-you`, and a dark UI. Marketing version **`2.5.0`** ships via the EAS `production` profile to App Store Connect (store still live on `2.4.1` until review). Retention KPIs are read from App Store Connect Analytics — there is no third-party analytics SDK in the app.
+`app.json` configures the app name **傻了么**, bundle ID `com.moyunzero.foolish-you`, and a dark UI. Marketing version **`2.5.0`** is live on the App Store (EAS `production`). Retention KPIs are read from App Store Connect Analytics — there is no third-party analytics SDK in the app.
 
 ---
 
@@ -222,7 +222,7 @@ npm run build:preview:android
 |-------|----|----|-----|--------|------------------|
 | v1.0 (shipped baseline) | — | — | — | live | 0% (no entry) |
 | v1.1 target (≈ 3 mo) | 32% | 12% | 5% | ≥ 4.4 | ≥ 3% |
-| **Current v2.5 (`2.5.0` shipping / `2.4.1` live)** | TBD (ASC) | TBD (ASC) | TBD (ASC) | ≥ 4.5 target | ≥ 5% target |
+| **Current v2.5 (`2.5.0` live)** | TBD (ASC) | TBD (ASC) | TBD (ASC) | ≥ 4.5 target | ≥ 5% target |
 | Post-v2.0 (≈ 6 mo) | **35%+** | **15%+** | **7%+** | **≥ 4.5** | ≥ 5% |
 | 12-month target | 38% | 18% | 9% | 4.6 | 7% |
 
@@ -239,8 +239,8 @@ npm run build:preview:android
 | **v2.1** | **Live** (`2.1.0`; App Store 2026-06-09) | ✅ Weekday difficulty; ✅ month calendar + summary; ✅ daily reminder (A+D); ✅ month gallery PNG | NYT Mini/Midi cadence · D1→D2 |
 | **v2.2** | **Live** (`2.2.0`) | ✅ Gentle growth: result “recent streak” line + calendar growth summary; no negative feedback | Mastery · non-competitive retention |
 | **v2.3** | **Live** (`2.3.0`) | ✅ Same-type smoother easter egg: extra positive result line when same puzzle type feels clearly faster; rhythm-first; never-negative | Vertical mastery without speed PK |
-| **v2.4** | **Live** (`2.4.1`) | ✅ Sunday Special + ✅ Nonogram expansion; ✅ Composition polish; Content Depth (week-rhythm bands + Nonogram 120) ships with `2.5.0` | Sunday ritual (D7) + fill thinnest content gap + host-crafted play chrome |
-| **v2.5** | **Shipping** (`2.5.0`) | ✅ Content Depth (week rhythm + Nonogram 120) + ✅ Adaptive Mastery (per-type mastery tiers, local avoid-repeat); 5th type still deferred | Personal difficulty fit without badges · honest board-drift disclosure |
+| **v2.4** | **Live** (`2.4.1`) | ✅ Sunday Special + ✅ Nonogram expansion; ✅ Composition polish; Content Depth (week-rhythm bands + Nonogram 120) shipped in `2.5.0` | Sunday ritual (D7) + fill thinnest content gap + host-crafted play chrome |
+| **v2.5** | **Live** (`2.5.0`) | ✅ Content Depth (week rhythm + Nonogram 120) + ✅ Adaptive Mastery (per-type mastery tiers, local avoid-repeat); 5th type still deferred | Personal difficulty fit without badges · honest board-drift disclosure |
 | **v3.0** | Parked | QR backup/restore (progress + streak + calendar); optional Android ship in same cycle | Device transfer without accounts |
 | **v3.1** | Planned | **Year in 傻了么** annual long-image (reuse month gallery pipeline) | Wrapped-style share; schedule before Q4 |
 | **v4.0** | Planned | Anonymous challenge codes (“play my day”); optional aggregate social proof | Conversation without friend list |

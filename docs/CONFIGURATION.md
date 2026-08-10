@@ -61,7 +61,7 @@ Submit profile `production` is defined but empty in-repo; store credentials are 
 
 | Channel | Status | Notes |
 |---------|--------|-------|
-| **iOS App Store** | **Live `2.4.1`** · shipping **`2.5.0`** | [App Store](https://apps.apple.com/app/id6770218110) · Bundle `com.moyunzero.foolish-you` · CN「傻了么」/ US「Brainfool」 |
+| **iOS App Store** | **Live `2.5.0`** | [App Store](https://apps.apple.com/app/id6770218110) · Bundle `com.moyunzero.foolish-you` · CN「傻了么」/ US「Brainfool」 |
 | **Google Play** | Not published | Package `com.moyunzero.foolishyou` configured in `app.json` only |
 
 ### iOS build number vs App Store Connect
@@ -76,11 +76,11 @@ If upload fails with **「捆绑包版本必须高于之前上传的版本 "N"�
 
 Previously `appVersionSource` was `remote`; EAS remote counter (`eas build:version:get`) can drift from App Store Connect if builds were uploaded outside EAS or counters were reset. Local source avoids that mismatch for store releases.
 
-### App Store · 更新说明（`2.5.0` What's New · 待提交）
+### App Store · 更新说明（`2.5.0` What's New · 已上架）
 
-粘贴到 App Store Connect → 版本 **2.5.0** → **更新说明**（中/英各一份）。隐私政策与权限无变更。
+已用于 App Store Connect → 版本 **2.5.0** → **更新说明**（中/英各一份）。隐私政策与权限无变更。
 
-> Content Depth（原单独规划的 `2.4.2`）与 Adaptive Mastery **一并**随本版提交；不单独提交 `2.4.2`。
+> Content Depth（原单独规划的 `2.4.2`）与 Adaptive Mastery **一并**随本版上架；未单独发布 `2.4.2`。
 
 **中文（傻了么 · 中国区）**
 

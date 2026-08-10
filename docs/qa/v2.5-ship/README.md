@@ -1,5 +1,6 @@
 # v2.5 Ship — 真机 / 手测 + Maestro 验收
 
+> **状态：`2.5.0` 已上架（App Store Live）。** 本目录保留发版前验收与证据归档，不再作为「待提交」清单。  
 > 设计源：[v2.5-06-CONTEXT.md](../../../.planning/phases/v2.5-06-ship-2-5-0/v2.5-06-CONTEXT.md)  
 > 手测清单：[TESTING.md § v2.5 ship](../../TESTING.md#v25-ship-adaptive-mastery-manual-qa)  
 > SHIP-02 覆盖矩阵：[SHIP-02-COVERAGE.md](./SHIP-02-COVERAGE.md)  
@@ -60,4 +61,4 @@ mkdir -p "$EVIDENCE"
 1. 接受日志（脚本默认 `maestro-v25-ship-acceptance.log`）末尾含 **`MAESTRO_EXIT=0`**
 2. 每种题型 **≥1** 张截图（smoke 内 `takeScreenshot`）
 
-Phase 「完成」= **仓库就绪**（版本 + What's New + CI + 本目录证据 + VERIFICATION 签字）。**不含** EAS production / ASC Submit for Review（D-13）。
+Phase 「完成」= **仓库就绪**（版本 + What's New + CI + 本目录证据 + VERIFICATION 签字）。D-13（EAS production / ASC）已完成：`2.5.0` **Live**。
