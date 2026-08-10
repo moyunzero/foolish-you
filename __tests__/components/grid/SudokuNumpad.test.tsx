@@ -25,20 +25,26 @@ describe('SudokuNumpad', () => {
     expect(onClear).toHaveBeenCalledTimes(1);
   });
 
-  it('does not call handlers when disabled', () => {
+  it('does not call digit handlers when disabled; notes toggle stays available', () => {
     const onDigit = jest.fn();
+    const onToggleNotesMode = jest.fn();
     renderWithI18n(
       <SudokuNumpad
         onDigit={onDigit}
         onClear={jest.fn()}
         disabled
         notesMode={false}
-        onToggleNotesMode={jest.fn()}
+        onToggleNotesMode={onToggleNotesMode}
       />,
     );
 
     fireEvent.press(screen.getByLabelText('填入 1'));
     expect(onDigit).not.toHaveBeenCalled();
+
+    fireEvent.press(
+      screen.getByLabelText('切换笔记模式；开启时数字键填写候选笔记'),
+    );
+    expect(onToggleNotesMode).toHaveBeenCalledTimes(1);
   });
 
   it('notes mode toggle exposes a11y selected state', () => {

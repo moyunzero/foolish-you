@@ -332,7 +332,7 @@ Maestro（本 phase **必须** 证据，D-11）：
 
 ```bash
 maestro test .maestro/flows/v26/v26-feel-smoke.yaml \
-  --test-output-dir docs/qa/v2.6-feel/evidence/$(date +%Y%m%d)
+  --test-output-dir docs/qa/v2.6-02-feel-mechanics/evidence/$(date +%Y%m%d)
 ```
 
 ### v2.6-03 Signature manual QA（DIFF-03 / SHIP-02）

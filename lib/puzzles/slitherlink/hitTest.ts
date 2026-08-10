@@ -7,8 +7,9 @@ import { SLITHERLINK_SIZE } from './spec';
  * ambiguous corner band where H vs V compete. Disambiguation stays nearest-distance
  * (`d < bestDist`); see hitTest.test.ts corner fixtures (D-14 tradeoff).
  *
- * Must stay strictly below half of minimum cellStep (budget ≈ floor(cellStep/2)-1)
- * so cell-center taps still return null — never introduce a native hit module (D-15).
+ * May equal floor(cellStep/2): hit uses strict `d < radius`, so a cell-center tap
+ * (distance ≈ cellStep/2) still returns null when radius === floor(cellStep/2).
+ * Never introduce a native hit module (D-15).
  */
 export const SLITHERLINK_EDGE_HIT_RADIUS = 20;
 

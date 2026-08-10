@@ -160,7 +160,8 @@ export default function NonogramGrid({
   const cellSize = Math.floor(Math.min(gridInner / cols, 36));
   const clueColWidth = clueBand * Math.max(12, cellSize * 0.55);
   const clueRowHeight = clueBand * Math.max(12, cellSize * 0.55);
-  const suppressPressRef = useRef(false);
+  /** Suppress Pressable after pan; grace after finalize covers queued same-gesture presses. */
+  const suppressPressUntilRef = useRef(0);
 
   const cellFromXY = (x: number, y: number): CellCoord | null => {
     if (cellSize <= 0) return null;
@@ -182,7 +183,8 @@ export default function NonogramGrid({
         .onStart((e) => {
           const cell = cellFromXY(e.x, e.y);
           if (cell == null) return;
-          suppressPressRef.current = true;
+          // Hold suppress until finalize; never leave Infinity if finalize is missed.
+          suppressPressUntilRef.current = Number.POSITIVE_INFINITY;
           onDragStrokeBegin(cell.row, cell.col);
         })
         .onUpdate((e) => {
@@ -192,6 +194,11 @@ export default function NonogramGrid({
         })
         .onFinalize(() => {
           onDragStrokeEnd();
+          // Only arm grace when this pan actually began a stroke (onStart set Infinity).
+          // Failed/cancelled pans must not swallow the next tap.
+          if (suppressPressUntilRef.current === Number.POSITIVE_INFINITY) {
+            suppressPressUntilRef.current = Date.now() + 50;
+          }
         }),
     [
       cellSize,
@@ -282,8 +289,12 @@ export default function NonogramGrid({
                         value,
                       )}
                       onPress={() => {
-                        if (suppressPressRef.current) {
-                          suppressPressRef.current = false;
+                        const until = suppressPressUntilRef.current;
+                        if (Date.now() < until) {
+                          // Safety: if finalize never ran, one swallowed press clears stuck Infinity.
+                          if (!Number.isFinite(until)) {
+                            suppressPressUntilRef.current = 0;
+                          }
                           return;
                         }
                         onPressCell(row, col);

@@ -42,6 +42,8 @@ export function usePlayStatePersistence({
   const pendingSudokuNotesRef = useRef<SudokuNotes | null | undefined>(
     undefined,
   );
+  /** Bumped on every optimistic edit so in-flight flush results cannot clobber newer state. */
+  const editEpochRef = useRef(0);
 
   const clearDebounce = useCallback(() => {
     if (debounceRef.current != null) {
@@ -60,6 +62,7 @@ export function usePlayStatePersistence({
       return;
     }
 
+    const epochAtStart = editEpochRef.current;
     const nextPlayState =
       pendingPlayStateRef.current ?? snapshot.playState ?? null;
     const pendingNotes = pendingSudokuNotesRef.current;
@@ -73,6 +76,14 @@ export function usePlayStatePersistence({
     updated = applyPendingNotes(updated, pendingNotes);
 
     const saved = await saveDailySnapshot(updated);
+    if (editEpochRef.current !== epochAtStart) {
+      // Newer optimistic edits already own snapshot + pending; do not roll back.
+      if (!saved) {
+        onSaveFailed?.();
+      }
+      return;
+    }
+
     if (saved) {
       setSnapshot(updated);
     } else {
@@ -98,6 +109,7 @@ export function usePlayStatePersistence({
     (next: PlayState) => {
       if (snapshot == null) return;
 
+      editEpochRef.current += 1;
       pendingPlayStateRef.current = next;
       let optimistic: DailySnapshot = { ...snapshot, playState: next };
       optimistic = applyPendingNotes(
@@ -115,6 +127,7 @@ export function usePlayStatePersistence({
     (next: SudokuNotes | null) => {
       if (snapshot == null) return;
 
+      editEpochRef.current += 1;
       pendingSudokuNotesRef.current = next;
       let optimistic: DailySnapshot = { ...snapshot };
       if (pendingPlayStateRef.current != null) {

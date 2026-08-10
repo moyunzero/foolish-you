@@ -9,32 +9,51 @@ ios:
 - launchApp:
     clearState: true
 - extendedWaitUntil:
-    visible: '完成今日'
+    visible: '跳过题型介绍，进入棋盘'
     timeout: 90000
+- tapOn: '跳过题型介绍，进入棋盘'
+- extendedWaitUntil:
+    visible: '完成今日'
+    timeout: 60000
 - runFlow: ../v22/subflows/dev-open-panel.yaml
 - tapOn:
     text: '二进制'
     below: 'DEV 调试'
 - extendedWaitUntil:
+    visible: '跳过题型介绍，进入棋盘'
+    timeout: 60000
+- tapOn: '跳过题型介绍，进入棋盘'
+- extendedWaitUntil:
     visible: '完成今日'
     timeout: 60000
+- waitForAnimationToEnd
+- tapOn:
+    text: '隐藏调试条，便于截图'
+    optional: true
+- tapOn:
+    text: 'DEV 调试'
+    optional: true
+- waitForAnimationToEnd
+# Evening banner shifts board Y — dismiss if present.
 - runFlow:
     when:
-      visible: '知道了'
+      visible: '稍后'
     commands:
-      - tapOn: '知道了'
-- runFlow: ../v22/subflows/dev-hide-bar.yaml
+      - tapOn: '稍后'
+      - waitForAnimationToEnd
 - assertVisible: '二进制'
 - assertVisible:
     text: '撤销上一步编辑'
     enabled: false
 - takeScreenshot: v26-01-binary-fresh
 
-- tapOn: '第 1 行第 4 列，空'
+# No pre-swipe tap — Undo enabled must come from the drag stroke only (D-04).
+# Start drag FROM an empty cell so RNGH Pan receives the gesture (percent swipe is flaky).
 - swipe:
-    start: 35%, 38%
-    end: 80%, 38%
-    duration: 1000
+    from:
+      text: '.*，空$'
+    direction: RIGHT
+    duration: 1200
 - waitForAnimationToEnd
 - assertVisible:
     text: '撤销上一步编辑'
@@ -60,50 +79,94 @@ ios:
 - launchApp:
     clearState: true
 - extendedWaitUntil:
-    visible: '完成今日'
+    visible: '跳过题型介绍，进入棋盘'
     timeout: 90000
+- tapOn: '跳过题型介绍，进入棋盘'
+- extendedWaitUntil:
+    visible: '完成今日'
+    timeout: 60000
 - runFlow: ../v22/subflows/dev-open-panel.yaml
 - tapOn:
     text: '数绘'
     below: 'DEV 调试'
 - extendedWaitUntil:
+    visible: '跳过题型介绍，进入棋盘'
+    timeout: 60000
+- tapOn: '跳过题型介绍，进入棋盘'
+- extendedWaitUntil:
     visible: '完成今日'
     timeout: 60000
+- waitForAnimationToEnd
+- tapOn:
+    text: '隐藏调试条，便于截图'
+    optional: true
+- tapOn:
+    text: 'DEV 调试'
+    optional: true
+- waitForAnimationToEnd
+# Evening banner shifts board Y — dismiss if present.
 - runFlow:
     when:
-      visible: '知道了'
+      visible: '稍后'
     commands:
-      - tapOn: '知道了'
-- runFlow: ../v22/subflows/dev-hide-bar.yaml
+      - tapOn: '稍后'
+      - waitForAnimationToEnd
 - assertVisible: '数绘'
+- assertVisible:
+    text: '撤销上一步编辑'
+    enabled: false
 - swipe:
-    start: 28%, 45%
-    end: 72%, 45%
-    duration: 900
+    from:
+      text: '.*，空$'
+    direction: RIGHT
+    duration: 1200
 - waitForAnimationToEnd
+- assertVisible:
+    text: '撤销上一步编辑'
+    enabled: true
 - tapOn: '撤销上一步编辑'
 - waitForAnimationToEnd
+- assertVisible:
+    text: '撤销上一步编辑'
+    enabled: false
 - takeScreenshot: v26-05-nonogram-drag-undo
 
 # ========== Slitherlink: edge taps ==========
 - launchApp:
     clearState: true
 - extendedWaitUntil:
-    visible: '完成今日'
+    visible: '跳过题型介绍，进入棋盘'
     timeout: 90000
+- tapOn: '跳过题型介绍，进入棋盘'
+- extendedWaitUntil:
+    visible: '完成今日'
+    timeout: 60000
 - runFlow: ../v22/subflows/dev-open-panel.yaml
 - tapOn:
     text: '数回'
     below: 'DEV 调试'
 - extendedWaitUntil:
+    visible: '跳过题型介绍，进入棋盘'
+    timeout: 60000
+- tapOn: '跳过题型介绍，进入棋盘'
+- extendedWaitUntil:
     visible: '完成今日'
     timeout: 60000
+- waitForAnimationToEnd
+- tapOn:
+    text: '隐藏调试条，便于截图'
+    optional: true
+- tapOn:
+    text: 'DEV 调试'
+    optional: true
+- waitForAnimationToEnd
+# Evening banner shifts board Y — dismiss if present.
 - runFlow:
     when:
-      visible: '知道了'
+      visible: '稍后'
     commands:
-      - tapOn: '知道了'
-- runFlow: ../v22/subflows/dev-hide-bar.yaml
+      - tapOn: '稍后'
+      - waitForAnimationToEnd
 - assertVisible: '数回'
 - tapOn:
     point: 50%, 42%
@@ -112,5 +175,7 @@ ios:
 - tapOn:
     point: 50%, 48%
 - takeScreenshot: v26-06-slitherlink-taps
-- assertVisible: '撤销上一步编辑'
+- assertVisible:
+    text: '撤销上一步编辑'
+    enabled: true
 - assertVisible: '完成今日'

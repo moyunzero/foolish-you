@@ -19,7 +19,10 @@ export type UndoStack<T> = {
 export function createUndoStack<T>(
   capacity: number = DEFAULT_UNDO_CAPACITY,
 ): UndoStack<T> {
-  const max = Math.max(1, Math.floor(capacity));
+  const floored = Math.floor(capacity);
+  const max = Number.isFinite(floored)
+    ? Math.max(1, floored)
+    : DEFAULT_UNDO_CAPACITY;
   let items: T[] = [];
 
   return {

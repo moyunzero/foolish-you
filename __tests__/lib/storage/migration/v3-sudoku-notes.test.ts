@@ -65,6 +65,18 @@ describe('migration v3 sudokuNotes', () => {
     expect(clean.playState).toEqual(snapshot.playState);
   });
 
+  it('strips sudokuNotes when a cell exceeds the notes bit mask', () => {
+    const notes = emptyNotes();
+    // Survives Int32 coercion of `& ~MASK` but exceeds digit-candidate range.
+    notes[0]![0] = 0x1_0000_0002;
+    const snapshot = baseSudokuSnapshot({
+      version: 3,
+      sudokuNotes: notes,
+    });
+    const clean = sanitizeSnapshotForSave(snapshot);
+    expect(clean.sudokuNotes).toBeUndefined();
+  });
+
   it('sanitize strips unknown keys and omits notes for non-sudoku', () => {
     const notes = emptyNotes();
     notes[1]![1] = FULL_CELL_MASK;

@@ -39,6 +39,9 @@ import {
 } from '../lib/storage/reminderStorage';
 
 const HORIZONTAL_PADDING = 24;
+/** Header + footer + padding reserved above the board when sizing Sudoku. */
+const GAME_SCREEN_CHROME_BUDGET = 300;
+const SUDOKU_BOARD_FLOOR = 240;
 
 export default function GameScreen() {
   const { strings, locale } = useI18n();
@@ -71,10 +74,14 @@ export default function GameScreen() {
   const elapsed = useElapsedTimer(snapshot?.startedAt);
   const gridMaxWidth = screenWidth - HORIZONTAL_PADDING * 2;
   const bottomInset = useDevBottomInset(insets.bottom + 8);
-  /** Sudoku Host Desk: board + fixed chrome must share one viewport (no scroll). */
+  /** Height left for the board after chrome; short viewports may need scroll. */
+  const sudokuHeightBudget =
+    screenHeight - bottomInset - GAME_SCREEN_CHROME_BUDGET;
+  const sudokuFitsWithoutScroll = sudokuHeightBudget >= SUDOKU_BOARD_FLOOR;
+  /** Sudoku Host Desk: prefer one viewport; scroll only when floor won't fit. */
   const sudokuBoardMax = Math.min(
     gridMaxWidth,
-    Math.max(240, screenHeight - bottomInset - 300),
+    Math.max(SUDOKU_BOARD_FLOOR, sudokuHeightBudget),
   );
   const [reminderOpen, setReminderOpen] = useState(false);
   const [reminderEnabled, setReminderEnabled] = useState(false);
@@ -146,10 +153,14 @@ export default function GameScreen() {
       return;
     }
     let cancelled = false;
-    void loadFirstIntroState().then((state) => {
-      if (cancelled) return;
-      setFirstIntroVisible(!state.seenByType[gameType]);
-    });
+    void loadFirstIntroState()
+      .then((state) => {
+        if (cancelled) return;
+        setFirstIntroVisible(!state.seenByType[gameType]);
+      })
+      .catch(() => {
+        // Leave firstIntroVisible false on load failure.
+      });
     return () => {
       cancelled = true;
     };
@@ -305,7 +316,10 @@ export default function GameScreen() {
           */}
           <ScrollView
             className="flex-1"
-            scrollEnabled={showPlayChrome && !session.isSudoku}
+            scrollEnabled={
+              showPlayChrome &&
+              (!session.isSudoku || !sudokuFitsWithoutScroll)
+            }
             contentContainerStyle={{
               flexGrow: 1,
               paddingHorizontal: HORIZONTAL_PADDING,

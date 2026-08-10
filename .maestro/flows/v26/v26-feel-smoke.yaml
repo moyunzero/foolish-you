@@ -4,36 +4,41 @@ ios:
 ---
 # v2.6-02 Feel smoke (SHIP-02) — launch → board; Skip intro if shown; no Hint path.
 # Companion to v26-feel-device-qa.yaml (Plan 02 drag/hit). Prefer zh locale for labels.
+# Intro buttons use a11y labels (skipA11y), not visible copy.
 
 - launchApp:
     clearState: true
 - extendedWaitUntil:
-    visible: '完成今日'
+    visible: '跳过题型介绍，进入棋盘'
     timeout: 90000
+- tapOn: '跳过题型介绍，进入棋盘'
+- extendedWaitUntil:
+    visible: '完成今日'
+    timeout: 60000
 - runFlow: ../v22/subflows/dev-open-panel.yaml
 - tapOn:
     text: '数独'
     below: 'DEV 调试'
+# Re-selecting today's type usually skips first-intro — only dismiss if shown.
+- runFlow:
+    when:
+      visible: '跳过题型介绍，进入棋盘'
+    commands:
+      - tapOn: '跳过题型介绍，进入棋盘'
 - extendedWaitUntil:
     visible: '完成今日'
     timeout: 60000
-
-# First-type intro (FEEL-05): Skip if shown — primary path into board (D-18)
-- runFlow:
-    when:
-      visible: '跳过，直接开玩'
-    commands:
-      - tapOn: '跳过，直接开玩'
-- runFlow:
-    when:
-      visible: '知道了'
-    commands:
-      - tapOn: '知道了'
-
-- runFlow: ../v22/subflows/dev-hide-bar.yaml
+- waitForAnimationToEnd
+- tapOn:
+    text: '隐藏调试条，便于截图'
+    optional: true
+- tapOn:
+    text: 'DEV 调试'
+    optional: true
+- waitForAnimationToEnd
 - assertVisible: '数独'
 - assertVisible: '完成今日'
-- assertVisible: '笔记'
+- assertVisible: '切换笔记模式；开启时数字键填写候选笔记'
 
 # No Hint / difficulty badge path (D-24)
 - assertNotVisible: 'Hint'

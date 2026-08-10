@@ -57,6 +57,7 @@ export function isValidSudokuNotes(value: unknown): value is SudokuNotes {
       (cell) =>
         Number.isInteger(cell) &&
         cell >= 0 &&
+        cell <= SUDOKU_NOTES_BIT_MASK &&
         (cell & ~SUDOKU_NOTES_BIT_MASK) === 0,
     ),
   );

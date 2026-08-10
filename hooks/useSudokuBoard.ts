@@ -35,6 +35,11 @@ type UseSudokuBoardParams = {
   updateSudokuNotes?: (next: SudokuNotes | null) => void;
 };
 
+type SudokuUndoSnapshot = {
+  playState: SudokuPlayState;
+  notes: SudokuNotes;
+};
+
 export function useSudokuBoard({
   boardKey,
   givens,
@@ -47,7 +52,7 @@ export function useSudokuBoard({
   const hints = strings.ui.hooks.sudoku;
   const [selected, setSelected] = useState<CellCoord | null>(null);
   const [notesMode, setNotesMode] = useState(false);
-  const undoStackRef = useRef(createUndoStack<SudokuPlayState>());
+  const undoStackRef = useRef(createUndoStack<SudokuUndoSnapshot>());
   const [undoEpoch, setUndoEpoch] = useState(0);
 
   useEffect(() => {
@@ -88,29 +93,22 @@ export function useSudokuBoard({
   const canUndo = undoStackRef.current.canUndo();
   void undoEpoch;
 
-  const commitPlayState = useCallback(
-    (next: SudokuPlayState) => {
-      undoStackRef.current.push(cloneGrid(playState));
-      updatePlayState(next);
-      setUndoEpoch((n) => n + 1);
-    },
-    [playState, updatePlayState],
-  );
-
-  const commitNotes = useCallback(
-    (next: SudokuNotes) => {
-      updateSudokuNotes?.(next);
-    },
-    [updateSudokuNotes],
-  );
+  const pushUndoSnapshot = useCallback(() => {
+    undoStackRef.current.push({
+      playState: cloneGrid(playState),
+      notes: cloneSudokuNotes(notes),
+    });
+    setUndoEpoch((n) => n + 1);
+  }, [playState, notes]);
 
   const undo = useCallback(() => {
     const prev = undoStackRef.current.pop();
     if (prev === undefined) return;
     feelUndo();
-    updatePlayState(prev);
+    updatePlayState(prev.playState);
+    updateSudokuNotes?.(prev.notes);
     setUndoEpoch((n) => n + 1);
-  }, [updatePlayState]);
+  }, [updatePlayState, updateSudokuNotes]);
 
   const handleSelect = useCallback((row: number, col: number) => {
     setSelected({ row, col });
@@ -130,7 +128,8 @@ export function useSudokuBoard({
         const next = cloneSudokuNotes(notes);
         const cell = next[selected.row]![selected.col]!;
         next[selected.row]![selected.col] = toggleNoteDigit(cell, digit);
-        commitNotes(next);
+        pushUndoSnapshot();
+        updateSudokuNotes?.(next);
         feelLight();
         return;
       }
@@ -139,13 +138,14 @@ export function useSudokuBoard({
 
       const next = cloneGrid(playState);
       next[selected.row][selected.col] = digit;
-      // Clear notes under a filled digit for clarity.
+      // One undo frame restores both digit and any notes cleared under it.
+      pushUndoSnapshot();
       if (notes[selected.row]![selected.col] !== 0) {
         const nextNotes = cloneSudokuNotes(notes);
         nextNotes[selected.row]![selected.col] = 0;
-        commitNotes(nextNotes);
+        updateSudokuNotes?.(nextNotes);
       }
-      commitPlayState(next);
+      updatePlayState(next);
 
       const cellConflict = getConflictCells(next, givens).some(
         (c) => c.row === selected.row && c.col === selected.col,
@@ -162,8 +162,9 @@ export function useSudokuBoard({
       playState,
       notesMode,
       notes,
-      commitPlayState,
-      commitNotes,
+      pushUndoSnapshot,
+      updatePlayState,
+      updateSudokuNotes,
     ],
   );
 
@@ -175,7 +176,8 @@ export function useSudokuBoard({
         if (notes[row]![col] === 0) return;
         const nextNotes = cloneSudokuNotes(notes);
         nextNotes[row]![col] = 0;
-        commitNotes(nextNotes);
+        pushUndoSnapshot();
+        updateSudokuNotes?.(nextNotes);
         feelLight();
         return;
       }
@@ -184,10 +186,19 @@ export function useSudokuBoard({
 
       const next = cloneGrid(playState);
       next[row][col] = 0;
-      commitPlayState(next);
+      pushUndoSnapshot();
+      updatePlayState(next);
       feelLight();
     },
-    [givens, playState, notesMode, notes, commitPlayState, commitNotes],
+    [
+      givens,
+      playState,
+      notesMode,
+      notes,
+      pushUndoSnapshot,
+      updatePlayState,
+      updateSudokuNotes,
+    ],
   );
 
   const handleClear = useCallback(() => {

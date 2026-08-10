@@ -45,6 +45,20 @@ describe('createUndoStack', () => {
     expect(stack.pop()).toBeUndefined();
   });
 
+  it('normalizes non-finite capacity to the default bound', () => {
+    const fromNaN = createUndoStack<number>(Number.NaN);
+    for (let i = 0; i < 51; i += 1) {
+      fromNaN.push(i);
+    }
+    expect(fromNaN.pop()).toBe(50);
+    expect(fromNaN.pop()).toBe(49);
+
+    const fromInf = createUndoStack<number>(Number.POSITIVE_INFINITY);
+    fromInf.push(1);
+    fromInf.push(2);
+    expect(fromInf.pop()).toBe(2);
+  });
+
   it('clear empties the stack', () => {
     const stack = createUndoStack<number>();
     stack.push(1);

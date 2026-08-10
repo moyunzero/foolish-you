@@ -196,7 +196,8 @@ export default function BinaryGrid({
   const grid = strings.ui.grid;
   const merged = mergePlayAndGivens(givens, playState);
   const layoutRef = useRef({ width: 0, height: 0 });
-  const suppressPressRef = useRef(false);
+  /** Suppress Pressable after pan; grace after finalize covers queued same-gesture presses. */
+  const suppressPressUntilRef = useRef(0);
   const progress = useSignatureProgress(signature);
 
   const cellFromXY = (x: number, y: number): CellCoord | null => {
@@ -222,7 +223,8 @@ export default function BinaryGrid({
         .onStart((e) => {
           const cell = cellFromXY(e.x, e.y);
           if (cell == null) return;
-          suppressPressRef.current = true;
+          // Hold suppress until finalize; never leave Infinity if finalize is missed.
+          suppressPressUntilRef.current = Number.POSITIVE_INFINITY;
           onDragStrokeBegin(cell.row, cell.col);
         })
         .onUpdate((e) => {
@@ -232,6 +234,11 @@ export default function BinaryGrid({
         })
         .onFinalize(() => {
           onDragStrokeEnd();
+          // Only arm grace when this pan actually began a stroke (onStart set Infinity).
+          // Failed/cancelled pans must not swallow the next tap.
+          if (suppressPressUntilRef.current === Number.POSITIVE_INFINITY) {
+            suppressPressUntilRef.current = Date.now() + 50;
+          }
         }),
     [onDragStrokeBegin, onDragStrokeMove, onDragStrokeEnd],
   );
@@ -296,8 +303,12 @@ export default function BinaryGrid({
                     conflict,
                   )}
                   onPress={() => {
-                    if (suppressPressRef.current) {
-                      suppressPressRef.current = false;
+                    const until = suppressPressUntilRef.current;
+                    if (Date.now() < until) {
+                      // Safety: if finalize never ran, one swallowed press clears stuck Infinity.
+                      if (!Number.isFinite(until)) {
+                        suppressPressUntilRef.current = 0;
+                      }
                       return;
                     }
                     onPressCell(row, col);
