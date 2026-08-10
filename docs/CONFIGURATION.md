@@ -26,7 +26,7 @@ Primary Expo configuration (static JSON, no `app.config.js`).
 |------|-------|-------|
 | Display name | 傻了么 | User-facing app name |
 | Slug / scheme | `foolish-you` | Deep links and Expo project slug |
-| Version | `2.5.0` | Marketing version (aligned with `package.json`) |
+| Version | `2.6.0` | Marketing version (aligned with `package.json`) |
 | UI style | `dark` | System appearance default |
 | New architecture | `true` | React Native new arch enabled |
 | Entry | `expo-router/entry` | Set in `package.json` `main` |
@@ -75,6 +75,35 @@ If upload fails with **「捆绑包版本必须高于之前上传的版本 "N"�
 3. Submit the **new** `.ipa` from that build. Re-submitting an old artifact with the same build number always fails.
 
 Previously `appVersionSource` was `remote`; EAS remote counter (`eas build:version:get`) can drift from App Store Connect if builds were uploaded outside EAS or counters were reset. Local source avoids that mismatch for store releases.
+
+### App Store · 更新说明（`2.6.0` What's New · 待粘贴）
+
+粘贴到 App Store Connect → 版本 **2.6.0** → **更新说明**（中/英各一份）。隐私政策与权限无变更。
+
+> Host-Crafted Feel：Undo / 笔记 / 拖填 / 热区 / 首遇 demo / 触感为主；招牌微交互一笔带过。  
+> **本版无变盘（no board-drift）**：未改 `APP_SALT`、生成器或日题选题；未开的日期盘面与 `2.5.0` 一致。
+
+**中文（傻了么 · 中国区）**
+
+```
+· 撤销上一步编辑，填错不用重来
+· 数独支持候选笔记，当日进度会保留
+· 二进制与数绘可拖填；数回边线更好点
+· 第一次碰到新题型，有可跳过的短演示
+· 填格、冲突、通关与认怂多了轻触感
+· 通关或认怂时，棋盘会有一小下招牌反馈
+```
+
+**English（Brainfool · United States）**
+
+```
+· Undo the last edit when you mis-tap
+· Sudoku pencil notes, kept for the same day
+· Drag-fill on Binary and Nonogram; easier Slitherlink edges
+· First time on a new puzzle type: a short, skippable demo
+· Light haptics on fill, conflict, clear, and bail
+· A brief board signature moment when you clear or bail
+```
 
 ### App Store · 更新说明（`2.5.0` What's New · 已上架）
 
@@ -334,6 +363,8 @@ See `DESIGN.md` for product-level design rules.
 | `@foolish-you/dev-tools-bar-visible` | `contexts/DevToolsUiContext.tsx` (local constant) | `'1'` / `'0'` for dev bar visibility | Dev builds only |
 
 **Daily snapshot migration:** On load, `migrateSnapshot()` in `lib/storage/snapshotMigration.ts` normalizes v0/v1/v2 data to `STORAGE_VERSION` (3). Snapshots with `version > STORAGE_VERSION` are rejected with a warning. Optional `sudokuNotes` (9×9 bitmasks, bits 1–9) is whitelist-copied only for `gameType === 'sudoku'`; invalid notes are stripped without dropping `playState`. **`recoverSnapshot()`** may repair puzzle data or strip invalid `playState` when `status: 'completed'` but the board is incomplete.
+
+**v2.6.0 ship storage disclose (Feel / SHIP-03):** Marketing `2.6.0` ships with daily `STORAGE_VERSION` **3** — optional `sudokuNotes` sibling on the daily snapshot (same-day notes persist; never inside `playState`) — plus `FIRST_INTRO_STORAGE_KEY` / `FIRST_INTRO_STORAGE_VERSION` **1** (`seenByType` flags for FEEL-05). **No board-drift in 2.6.0:** no `APP_SALT`, generator, or daily-selection change; unopened date boards stay identical to `2.5.0`. This is disclosure only — do not invent a second schema bump for ship.
 
 **Native modules (v1.1):** `expo-clipboard` (share card), `expo-store-review` (rating prompt) — bundled with Expo SDK 54; no extra env config.
 
