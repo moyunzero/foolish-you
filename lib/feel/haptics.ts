@@ -37,6 +37,13 @@ export function feelConfirm(): void {
   );
 }
 
+/** Win signature start — once per Complete (DIFF-03 / FEEL-06). */
+export function feelSuccess(): void {
+  void safe(() =>
+    Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success),
+  );
+}
+
 /**
  * Drag-fill coalesce helper for plan 02 (D-21).
  * Fires once at stroke start — never per cell. `onStrokeCell` is intentionally a no-op.

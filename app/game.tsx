@@ -1,5 +1,5 @@
 import { useRouter } from 'expo-router';
-import { useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { ScrollView, Text, useWindowDimensions, View } from 'react-native';
 import {
   SafeAreaView,
@@ -26,6 +26,7 @@ import { useGameBoardSession } from '../hooks/useGameBoardSession';
 import { useGameScreenActions } from '../hooks/useGameScreenActions';
 import { pickAbandonConfirmBody } from '../lib/copy/abandonConfirm';
 import { resolveGameStreakSubline } from '../lib/copy/sundaySpecial';
+import type { SignatureMoment } from '../lib/feel/signatureTokens';
 import { useI18n } from '../lib/i18n';
 import { shouldShowEveningReminderBanner } from '../lib/reminder/eveningBanner';
 import {
@@ -81,6 +82,8 @@ export default function GameScreen() {
   const [eveningBannerDismissedForDateKey, setEveningBannerDismissedForDateKey] =
     useState<string | null>(null);
   const [firstIntroVisible, setFirstIntroVisible] = useState(false);
+  /** Ephemeral DIFF-03 signature — never persisted (Feel D-22). */
+  const [signature, setSignature] = useState<SignatureMoment>('idle');
 
   const session = useGameBoardSession({
     gameType,
@@ -92,6 +95,14 @@ export default function GameScreen() {
     updateSudokuNotes,
   });
 
+  const onWinSignature = useCallback(() => {
+    setSignature('win');
+  }, []);
+
+  const onAbandonSignature = useCallback(() => {
+    setSignature('abandon');
+  }, []);
+
   const {
     handleComplete,
     confirmAbandon,
@@ -102,6 +113,8 @@ export default function GameScreen() {
     canComplete: session.canComplete,
     markCompleted,
     markAbandoned,
+    onWinSignature,
+    onAbandonSignature,
   });
 
   const abandonConfirmBody = useMemo(() => {
@@ -309,6 +322,7 @@ export default function GameScreen() {
                 playState={session.sudokuPlay}
                 maxWidth={sudokuBoardMax}
                 board={session.sudokuBoard}
+                signature={signature}
               />
             ) : null}
 
@@ -318,6 +332,7 @@ export default function GameScreen() {
                 playState={session.binaryPlay}
                 maxWidth={gridMaxWidth}
                 board={session.binaryBoard}
+                signature={signature}
               />
             ) : null}
 
@@ -327,6 +342,7 @@ export default function GameScreen() {
                 playState={session.nonogramPlay}
                 maxWidth={gridMaxWidth}
                 board={session.nonogramBoard}
+                signature={signature}
               />
             ) : null}
 
@@ -336,6 +352,7 @@ export default function GameScreen() {
                 playState={session.slitherlinkPlay}
                 maxWidth={gridMaxWidth}
                 board={session.slitherlinkBoard}
+                signature={signature}
               />
             ) : null}
           </ScrollView>

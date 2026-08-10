@@ -1,6 +1,7 @@
 import { View, type StyleProp, type ViewStyle } from 'react-native';
 
 import type { useBinaryBoard } from '../../hooks/useBinaryBoard';
+import type { SignatureMoment } from '../../lib/feel/signatureTokens';
 import type { BinaryGivens, BinaryPlayState } from '../../lib/puzzles/types';
 import BinaryGrid from '../grid/BinaryGrid';
 import HairlineCard from '../ui/HairlineCard';
@@ -13,6 +14,8 @@ type BinaryGameSectionProps = {
   maxWidth: number;
   board: BinaryBoardState;
   cardStyle?: StyleProp<ViewStyle>;
+  /** DIFF-03 signature beat — board animation in Task 2. */
+  signature?: SignatureMoment;
 };
 
 export default function BinaryGameSection({
