@@ -304,7 +304,7 @@ Central runtime constants for puzzles, persistence, and debouncing.
 | `BINARY_MAX_GEN_ATTEMPTS` | `40` | Generator retry cap |
 | `SLITHERLINK_MIN_CLUES` | `18` | Minimum clue cells for 7×7 Slitherlink dailies |
 | `SLITHERLINK_MAX_GEN_ATTEMPTS` | `50` | Slitherlink generator retry cap |
-| `SLITHERLINK_EDGE_HIT_RADIUS` | `20` | Edge tap radius (px) in `lib/puzzles/slitherlink/hitTest.ts`; larger = easier mid-edge taps, wider corner H/V ambiguity (nearest-distance wins; must stay `< cellStep/2`) |
+| `SLITHERLINK_EDGE_HIT_RADIUS` | `20` | Preferred edge tap radius (px) in `lib/puzzles/slitherlink/hitTest.ts`; effective = `min(radius, cellStep/2)` so cell-center stays null on small boards (min step 32); larger preferred radius eases mid-edge taps, widens corner H/V ambiguity |
 | `PLAY_STATE_DEBOUNCE_MS` | `300` | Debounce before writing play state to disk |
 | `GROWTH_SMOOTHER_MIN_SAMPLES` | `3` | Same-type smoother: min prior completions (same `gameType` + `weekdayBand`) |
 | `GROWTH_SMOOTHER_MEDIAN_RATIO` | `0.75` | Smoother triggers when today `elapsedMs` **<** median × ratio (strict) |

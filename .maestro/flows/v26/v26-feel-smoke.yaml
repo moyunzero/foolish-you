@@ -3,7 +3,8 @@ ios:
   snapshotKeyHonorModalViews: true
 ---
 # v2.6-02 Feel smoke (SHIP-02) — launch → board; Skip intro if shown; no Hint path.
-# Companion to v26-feel-device-qa.yaml (Plan 02 drag/hit). Prefer zh locale for labels.
+# Prerequisite: device/simulator system language Chinese (zh) — flows assert zh UI/a11y copy.
+# Companion to v26-feel-device-qa.yaml (Plan 02 drag/hit).
 # Intro buttons use a11y labels (skipA11y), not visible copy.
 
 - launchApp:

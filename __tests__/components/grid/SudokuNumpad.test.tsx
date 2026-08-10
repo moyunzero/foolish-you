@@ -47,6 +47,26 @@ describe('SudokuNumpad', () => {
     expect(onToggleNotesMode).toHaveBeenCalledTimes(1);
   });
 
+  it('dimmed digits stay actionable with fill a11y label', () => {
+    const onDigit = jest.fn();
+    renderWithI18n(
+      <SudokuNumpad
+        onDigit={onDigit}
+        onClear={jest.fn()}
+        disabled={false}
+        dimmedDigits={new Set([5])}
+        notesMode={false}
+        onToggleNotesMode={jest.fn()}
+      />,
+    );
+
+    expect(
+      screen.queryByLabelText('数字 5 在本行、列或宫内已有'),
+    ).toBeNull();
+    fireEvent.press(screen.getByLabelText('填入 5'));
+    expect(onDigit).toHaveBeenCalledWith(5);
+  });
+
   it('notes mode toggle exposes a11y selected state', () => {
     const onToggleNotesMode = jest.fn();
     renderWithI18n(

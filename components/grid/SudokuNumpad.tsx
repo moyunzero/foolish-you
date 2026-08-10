@@ -24,12 +24,8 @@ type SudokuNumpadProps = {
 
 const DIGITS = [1, 2, 3, 4, 5, 6, 7, 8, 9] as const;
 
-function digitA11yLabel(
-  grid: Strings['ui']['grid'],
-  label: string,
-  dimmed: boolean,
-): string {
-  if (dimmed) return grid.digitDisabled(Number(label));
+/** Dimmed digits stay tappable — a11y label must match actionable behavior. */
+function digitA11yLabel(grid: Strings['ui']['grid'], label: string): string {
   return grid.fillDigit(Number(label));
 }
 
@@ -53,7 +49,7 @@ function DigitKey({
   return (
     <Pressable
       accessibilityRole="button"
-      accessibilityLabel={digitA11yLabel(grid, label, dimmed)}
+      accessibilityLabel={digitA11yLabel(grid, label)}
       disabled={padDisabled}
       onPress={onPress}
       style={{

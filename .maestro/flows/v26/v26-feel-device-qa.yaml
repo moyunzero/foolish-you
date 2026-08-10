@@ -3,6 +3,7 @@ ios:
   snapshotKeyHonorModalViews: true
 ---
 # v2.6-02 Plan 02 device QA
+# Prerequisite: device/simulator system language Chinese (zh) — flows assert zh UI/a11y copy.
 # Each type uses a fresh launch so we can hide DEV bar without needing re-show on game.
 
 # ========== Binary: drag-fill + undo + vertical scroll ==========

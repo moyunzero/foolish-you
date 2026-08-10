@@ -3,6 +3,7 @@ ios:
   snapshotKeyHonorModalViews: true
 ---
 # Assert Undo becomes enabled after Binary horizontal drag (D-04 stroke).
+# Prerequisite: device/simulator system language Chinese (zh) — flows assert zh UI/a11y copy.
 # Intro buttons use a11y labels (skipA11y / gotItA11y), not visible copy.
 # Swipe starts FROM an empty cell (no discrete tap/cycle) so RNGH Pan receives the gesture.
 - launchApp:

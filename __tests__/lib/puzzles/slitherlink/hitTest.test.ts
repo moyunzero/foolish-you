@@ -8,8 +8,7 @@ const STEP = 40;
 
 describe('findNearestSlitherlinkEdge', () => {
   it('uses the tuned FEEL-04 radius constant', () => {
-    // RESEARCH A2 / D-14: prototype 20. Algorithm uses strict `d < radius`, so
-    // radius may equal floor(STEP/2) and cell-center (dist === STEP/2) stays null.
+    // RESEARCH A2 / D-14: preferred radius 20; runtime clamps to cellStep/2.
     expect(SLITHERLINK_EDGE_HIT_RADIUS).toBe(20);
     expect(SLITHERLINK_EDGE_HIT_RADIUS).toBeLessThanOrEqual(Math.floor(STEP / 2));
   });
@@ -80,5 +79,28 @@ describe('findNearestSlitherlinkEdge', () => {
       SLITHERLINK_EDGE_HIT_RADIUS,
     );
     expect(hit).toBeNull();
+  });
+
+  it('clamps preferred radius on min cellStep 32 so cell-center stays null', () => {
+    const step = 32;
+    // Without clamp, radius 20 > 16 would snag a center tap; clamp keeps center null.
+    const center = findNearestSlitherlinkEdge(
+      INSET + step / 2,
+      INSET + step / 2,
+      INSET,
+      step,
+      SLITHERLINK_EDGE_HIT_RADIUS,
+    );
+    expect(center).toBeNull();
+
+    // Mid-edge still hittable inside effective radius (15 < 16).
+    const midEdge = findNearestSlitherlinkEdge(
+      INSET + step / 2,
+      INSET + 15,
+      INSET,
+      step,
+      SLITHERLINK_EDGE_HIT_RADIUS,
+    );
+    expect(midEdge).toEqual({ orientation: 'h', row: 0, col: 0 });
   });
 });

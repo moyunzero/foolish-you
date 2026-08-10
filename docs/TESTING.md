@@ -318,6 +318,8 @@ Maestro（本 phase **必须** 证据，D-11）：
 
 **前置：** `__DEV__` 开发包。自动化：`maestro test .maestro/flows/v26/v26-feel-smoke.yaml`（smoke）与 `v26-feel-device-qa.yaml`（拖填/热区）。**不含** DIFF-03 / SHIP-03。
 
+**Maestro 语言前置（必读）：** `.maestro/flows/v26/` 断言中文可见文案 / a11y（如 `完成今日`、`跳过题型介绍，进入棋盘`、`二进制`）。跑 flow 前请将**模拟器/真机系统语言设为中文**，或确认 App 解析为 `zh`；English 系统下上述选择器会失败。
+
 | # | 区域 | 步骤 | 预期 |
 |---|------|------|------|
 | 1 | 四题型 | Dev force 数独 / 二进制 / 数绘 / 数回 | 各题型可开盘；顶栏题型名一致 |
@@ -325,10 +327,11 @@ Maestro（本 phase **必须** 证据，D-11）：
 | 3 | FEEL-02 Notes | 数独开「笔记」→ 填候选 → 关笔记再填数字 → 完成/认怂 | 笔记不计入完成；完成校验只看数字 |
 | 4 | FEEL-02 Persist | 同日笔记后杀进程重开 | `sudokuNotes` 保留；Undo 栈清空（ephemeral） |
 | 5 | FEEL-03 Drag | 二进制/数绘一笔拖填 → 撤销一次 | 一笔 = 一次 Undo；竖滑仍可滚页 |
-| 6 | FEEL-04 Hit | 数回点边中段 / 角落 | 可点；角落 H/V 消歧有上限（半径 20） |
+| 6 | FEEL-04 Hit | 数回：点边中段应落边；点线索格心不应误落边；小屏（窄宽）再验一次格心 | 中段可点；格心不误触；角落 H/V 消歧有上限（preferred 20，有效 ≤ cellStep/2） |
 | 7 | FEEL-05 Intro | 清 `@foolish-you/first-intro-v1` 后开新题型 | 首遇 BottomSheet；**跳过**立刻进盘；无 Hint / 不自动填答案 |
 | 8 | FEEL-06 Haptics | 填格 / 冲突 / Undo / 认怂确认 | 有触感；无 Vibration+Haptics 双振 |
 | 9 | D-24 | 全路径扫 UI | **无** Hint 入口、难度徽章、选题器 |
+| 10 | 数独 a11y | VoiceOver/TalkBack：选中格 → 已在本单元出现的数字键 | 标签仍为「填入 N」（可点）；视觉可置灰；**不应**读成已禁用却仍可点 |
 
 ```bash
 maestro test .maestro/flows/v26/v26-feel-smoke.yaml \
