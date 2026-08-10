@@ -2,18 +2,23 @@ import { Pressable, Text, View } from 'react-native';
 
 import { useI18n } from '../../lib/i18n';
 import OutlinePillButton from '../ui/OutlinePillButton';
+import UndoButton from './UndoButton';
 
 type GameScreenFooterProps = {
   statusHint: string | null;
   canComplete: boolean;
+  canUndo: boolean;
+  onUndo: () => void;
   onComplete: () => void;
   onAbandon: () => void;
 };
 
-/** 游戏页底栏：状态提示 + 完成主按钮 / 认怂文字链（D-11） */
+/** 游戏页底栏：Undo + 状态提示 + 完成主按钮 / 认怂文字链 */
 export default function GameScreenFooter({
   statusHint,
   canComplete,
+  canUndo,
+  onUndo,
   onComplete,
   onAbandon,
 }: GameScreenFooterProps) {
@@ -36,6 +41,8 @@ export default function GameScreenFooter({
           {statusHint}
         </Text>
       ) : null}
+
+      <UndoButton canUndo={canUndo} onUndo={onUndo} />
 
       <OutlinePillButton
         label={ui.game.completeToday}

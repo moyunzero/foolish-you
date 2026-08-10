@@ -19,8 +19,11 @@ export const ui = {
     giveUpToday: 'Give up on today’s puzzle',
     /** Softer abandon footer label (v2.5 D-11) */
     bailToday: 'Bail today',
+    undo: 'Undo',
+    undoA11y: 'Undo last edit',
     loadFailed: 'Couldn’t load today’s puzzle. Local data may be corrupted.',
   },
+
   result: {
     loadingStatus: 'Loading today’s result…',
     statusWin: 'Cleared',

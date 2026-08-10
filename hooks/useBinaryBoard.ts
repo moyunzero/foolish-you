@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useState } from 'react';
+import { useCallback, useMemo, useRef, useState } from 'react';
 import { Vibration } from 'react-native';
 
 import {
@@ -12,6 +12,7 @@ import {
 } from '../lib/puzzles/binary/validate';
 import { useI18n } from '../lib/i18n';
 import type { BinaryGivens, BinaryPlayState } from '../lib/puzzles/types';
+import { createUndoStack } from '../lib/undo/createUndoStack';
 
 function isBinaryEditable(givens: BinaryGivens, row: number, col: number): boolean {
   return givens[row][col] === BINARY_EMPTY;
@@ -47,6 +48,8 @@ export function useBinaryBoard({
   const { strings } = useI18n();
   const hints = strings.ui.hooks.binary;
   const [selected, setSelected] = useState<CellCoord | null>(null);
+  const undoStackRef = useRef(createUndoStack<BinaryPlayState>());
+  const [undoEpoch, setUndoEpoch] = useState(0);
 
   const conflicts = useMemo(
     () => getBinaryConflictCells(playState, givens),
@@ -64,6 +67,25 @@ export function useBinaryBoard({
     return hints.tapHint;
   }, [canComplete, conflicts.length, hints]);
 
+  const canUndo = undoStackRef.current.canUndo();
+  void undoEpoch;
+
+  const commitPlayState = useCallback(
+    (next: BinaryPlayState) => {
+      undoStackRef.current.push(cloneBinaryGrid(playState));
+      updatePlayState(next);
+      setUndoEpoch((n) => n + 1);
+    },
+    [playState, updatePlayState],
+  );
+
+  const undo = useCallback(() => {
+    const prev = undoStackRef.current.pop();
+    if (prev === undefined) return;
+    updatePlayState(prev);
+    setUndoEpoch((n) => n + 1);
+  }, [updatePlayState]);
+
   const handlePress = useCallback(
     (row: number, col: number) => {
       setSelected({ row, col });
@@ -72,14 +94,14 @@ export function useBinaryBoard({
       const current = binaryCellValue(givens, playState, row, col);
       const next = cloneBinaryGrid(playState);
       next[row][col] = cycleBinaryValue(current);
-      updatePlayState(next);
+      commitPlayState(next);
 
       const cellConflict = getBinaryConflictCells(next, givens).some(
         (c) => c.row === row && c.col === col,
       );
       if (cellConflict) Vibration.vibrate(12);
     },
-    [givens, playState, updatePlayState],
+    [givens, playState, commitPlayState],
   );
 
   const handleLongPress = useCallback(
@@ -90,9 +112,9 @@ export function useBinaryBoard({
 
       const next = cloneBinaryGrid(playState);
       next[row][col] = BINARY_EMPTY;
-      updatePlayState(next);
+      commitPlayState(next);
     },
-    [givens, playState, updatePlayState],
+    [givens, playState, commitPlayState],
   );
 
   return {
@@ -100,6 +122,8 @@ export function useBinaryBoard({
     conflicts,
     canComplete,
     statusHint,
+    canUndo,
+    undo,
     handlePress,
     handleLongPress,
   };

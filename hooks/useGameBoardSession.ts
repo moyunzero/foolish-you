@@ -154,6 +154,34 @@ export function useGameBoardSession({
           ? slitherlinkBoard.statusHint
           : null;
 
+  const canUndo = isSudoku
+    ? sudokuBoard.canUndo
+    : isBinary
+      ? binaryBoard.canUndo
+      : isNonogram
+        ? nonogramBoard.canUndo
+        : isSlitherlink
+          ? slitherlinkBoard.canUndo
+          : false;
+
+  const undo = () => {
+    if (isSudoku) {
+      sudokuBoard.undo();
+      return;
+    }
+    if (isBinary) {
+      binaryBoard.undo();
+      return;
+    }
+    if (isNonogram) {
+      nonogramBoard.undo();
+      return;
+    }
+    if (isSlitherlink) {
+      slitherlinkBoard.undo();
+    }
+  };
+
   const typeLabel =
     gameType != null ? getGameTypeLabel(gameType, locale) : '…';
 
@@ -177,6 +205,8 @@ export function useGameBoardSession({
     showBoardChrome,
     showReload,
     canComplete,
+    canUndo,
+    undo,
     statusHint,
     typeLabel,
   };

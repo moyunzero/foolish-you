@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useState } from 'react';
+import { useCallback, useMemo, useRef, useState } from 'react';
 import { Vibration } from 'react-native';
 
 import type { CellCoord } from '../lib/puzzles/sudoku/grid';
@@ -10,6 +10,7 @@ import {
 } from '../lib/puzzles/sudoku/validate';
 import { useI18n } from '../lib/i18n';
 import type { SudokuGivens, SudokuPlayState } from '../lib/puzzles/types';
+import { createUndoStack } from '../lib/undo/createUndoStack';
 
 function isSudokuEditable(givens: SudokuGivens, row: number, col: number): boolean {
   return givens[row][col] === 0;
@@ -29,6 +30,8 @@ export function useSudokuBoard({
   const { strings } = useI18n();
   const hints = strings.ui.hooks.sudoku;
   const [selected, setSelected] = useState<CellCoord | null>(null);
+  const undoStackRef = useRef(createUndoStack<SudokuPlayState>());
+  const [undoEpoch, setUndoEpoch] = useState(0);
 
   const conflicts = useMemo(
     () => getConflictCells(playState, givens),
@@ -57,6 +60,26 @@ export function useSudokuBoard({
     return null;
   }, [canComplete, conflicts.length, selected, hints]);
 
+  const canUndo = undoStackRef.current.canUndo();
+  // undoEpoch forces re-read of canUndo after push/pop
+  void undoEpoch;
+
+  const commitPlayState = useCallback(
+    (next: SudokuPlayState) => {
+      undoStackRef.current.push(cloneGrid(playState));
+      updatePlayState(next);
+      setUndoEpoch((n) => n + 1);
+    },
+    [playState, updatePlayState],
+  );
+
+  const undo = useCallback(() => {
+    const prev = undoStackRef.current.pop();
+    if (prev === undefined) return;
+    updatePlayState(prev);
+    setUndoEpoch((n) => n + 1);
+  }, [updatePlayState]);
+
   const handleSelect = useCallback((row: number, col: number) => {
     setSelected({ row, col });
   }, []);
@@ -65,17 +88,18 @@ export function useSudokuBoard({
     (digit: number) => {
       if (selected == null) return;
       if (!isSudokuEditable(givens, selected.row, selected.col)) return;
+      if (playState[selected.row][selected.col] === digit) return;
 
       const next = cloneGrid(playState);
       next[selected.row][selected.col] = digit;
-      updatePlayState(next);
+      commitPlayState(next);
 
       const cellConflict = getConflictCells(next, givens).some(
         (c) => c.row === selected.row && c.col === selected.col,
       );
       if (cellConflict) Vibration.vibrate(12);
     },
-    [selected, givens, playState, updatePlayState],
+    [selected, givens, playState, commitPlayState],
   );
 
   const clearCell = useCallback(
@@ -85,9 +109,9 @@ export function useSudokuBoard({
 
       const next = cloneGrid(playState);
       next[row][col] = 0;
-      updatePlayState(next);
+      commitPlayState(next);
     },
-    [givens, playState, updatePlayState],
+    [givens, playState, commitPlayState],
   );
 
   const handleClear = useCallback(() => {
@@ -110,6 +134,8 @@ export function useSudokuBoard({
     dimmedDigits,
     numpadDisabled,
     statusHint,
+    canUndo,
+    undo,
     handleSelect,
     handleDigit,
     handleClear,

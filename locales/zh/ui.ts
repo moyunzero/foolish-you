@@ -19,8 +19,11 @@ export const ui = {
     giveUpToday: '放弃今日挑战',
     /** Softer abandon footer label (v2.5 D-11) */
     bailToday: '认怂今日',
+    undo: '撤销',
+    undoA11y: '撤销上一步编辑',
     loadFailed: '今日题目加载失败，可能是本地数据损坏。',
   },
+
   result: {
     loadingStatus: '今日状态加载中…',
     statusWin: '通关',

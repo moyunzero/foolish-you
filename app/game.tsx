@@ -289,9 +289,12 @@ export default function GameScreen() {
               <GameScreenFooter
                 statusHint={session.statusHint}
                 canComplete={session.canComplete}
+                canUndo={session.canUndo}
+                onUndo={session.undo}
                 onComplete={() => void handleComplete()}
                 onAbandon={confirmAbandon}
               />
+
             </View>
           ) : null}
         </>
