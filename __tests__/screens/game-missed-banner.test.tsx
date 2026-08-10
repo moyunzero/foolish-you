@@ -3,6 +3,7 @@ import { render, screen, waitFor } from '@testing-library/react-native';
 
 import GameScreen from '../../app/game';
 import { saveDailySnapshot } from '../../lib/storage/dailyStorage';
+import { saveFirstIntroState } from '../../lib/storage/firstIntroStorage';
 import { saveStreakState } from '../../lib/storage/streakStorage';
 import {
   FIXTURE_TODAY,
@@ -21,6 +22,14 @@ function renderGame(locale: 'zh' | 'en' = 'zh') {
 describe('GameScreen missed-yesterday banner', () => {
   beforeEach(async () => {
     await AsyncStorage.clear();
+    await saveFirstIntroState({
+      seenByType: {
+        sudoku: true,
+        binary: true,
+        nonogram: true,
+        slitherlink: true,
+      },
+    });
   });
 
   it('shows recall line when yesterday had no real completion', async () => {

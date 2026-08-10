@@ -94,61 +94,65 @@ export default function SudokuNumpad({
   ] as const;
 
   return (
-    <View className="gap-2" pointerEvents={disabled ? 'none' : 'auto'}>
-      {rows.map((row, rowIndex) => (
-        <View key={`pad-row-${rowIndex}`} className="flex-row gap-2">
-          {row.map((digit) => (
-            <DigitKey
-              key={digit}
-              digit={digit}
-              label={String(digit)}
-              padDisabled={disabled}
-              filled={dimmedDigits?.has(digit)}
-              grid={grid}
-              isClear={false}
-              onPress={() => onDigit(digit)}
-            />
-          ))}
+    <View className="gap-2">
+      <View
+        className="gap-2"
+        pointerEvents={disabled ? 'none' : 'auto'}
+      >
+        {rows.map((row, rowIndex) => (
+          <View key={`pad-row-${rowIndex}`} className="flex-row gap-2">
+            {row.map((digit) => (
+              <DigitKey
+                key={digit}
+                digit={digit}
+                label={String(digit)}
+                padDisabled={disabled}
+                filled={dimmedDigits?.has(digit)}
+                grid={grid}
+                isClear={false}
+                onPress={() => onDigit(digit)}
+              />
+            ))}
+          </View>
+        ))}
+        <View className="flex-row">
+          <DigitKey
+            label={grid.clear}
+            padDisabled={disabled}
+            grid={grid}
+            isClear
+            onPress={onClear}
+          />
         </View>
-      ))}
-      <View className="flex-row gap-2">
-        <DigitKey
-          label={grid.clear}
-          padDisabled={disabled}
-          grid={grid}
-          isClear
-          onPress={onClear}
-        />
-        <Pressable
-          accessibilityRole="button"
-          accessibilityLabel={grid.notesModeA11y}
-          accessibilityState={{ selected: notesMode }}
-          onPress={onToggleNotesMode}
+      </View>
+      <Pressable
+        accessibilityRole="button"
+        accessibilityLabel={grid.notesModeA11y}
+        accessibilityState={{ selected: notesMode }}
+        onPress={onToggleNotesMode}
+        style={{
+          height: 44,
+          alignItems: 'center',
+          justifyContent: 'center',
+          borderRadius: 999,
+          borderWidth: 1,
+          borderColor: notesMode ? colors.accentSunset : colors.hairline,
+          backgroundColor: notesMode
+            ? 'rgba(255, 122, 23, 0.16)'
+            : 'transparent',
+        }}
+      >
+        <Text
           style={{
-            flex: 1,
-            height: 44,
-            alignItems: 'center',
-            justifyContent: 'center',
-            borderRadius: 999,
-            borderWidth: 1,
-            borderColor: notesMode ? colors.accentSunset : colors.hairline,
-            backgroundColor: notesMode
-              ? 'rgba(255, 122, 23, 0.16)'
-              : 'transparent',
+            fontFamily: 'Inter_400Regular',
+            fontSize: 15,
+            fontWeight: '600',
+            color: notesMode ? colors.accentSunset : colors.ink,
           }}
         >
-          <Text
-            style={{
-              fontFamily: 'Inter_400Regular',
-              fontSize: 15,
-              fontWeight: '600',
-              color: notesMode ? colors.accentSunset : colors.ink,
-            }}
-          >
-            {grid.notesMode}
-          </Text>
-        </Pressable>
-      </View>
+          {grid.notesMode}
+        </Text>
+      </Pressable>
     </View>
   );
 }

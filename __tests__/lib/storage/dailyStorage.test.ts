@@ -42,7 +42,7 @@ describe('dailyStorage', () => {
     expect(loaded).not.toHaveProperty('puzzleStub');
   });
 
-  it('upgrades v1 blob on load and persists v2', async () => {
+  it('upgrades v1 blob on load and persists current STORAGE_VERSION', async () => {
     const v1 = {
       version: 1,
       dateKey: '2026-05-16',
@@ -55,7 +55,7 @@ describe('dailyStorage', () => {
     };
     await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(v1));
     const loaded = await loadDailySnapshot();
-    expect(loaded?.version).toBe(2);
+    expect(loaded?.version).toBe(STORAGE_VERSION);
     expect(loaded).not.toHaveProperty('puzzleStub');
     expect(loaded?.puzzle.kind).toBe('binary');
     expect('givens' in (loaded?.puzzle ?? {})).toBe(true);

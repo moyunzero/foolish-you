@@ -314,6 +314,27 @@ Maestro（本 phase **必须** 证据，D-11）：
 | 9 | 首遇题型 scaffold | （本 phase 仅 checklist） | **占位 → v2.5-02 FEEL-05**：首遇题型可跳过操作演示；本 phase **不**实现 first-type demo |
 | 10 | 月历周六列 | 结果页「查看本月」 | 周六列有日期且与表头「六」对齐（非空列） |
 
+### v2.6-02 Feel + Mechanics manual QA（SHIP-02）
+
+**前置：** `__DEV__` 开发包。自动化：`maestro test .maestro/flows/v26/v26-feel-smoke.yaml`（smoke）与 `v26-feel-device-qa.yaml`（拖填/热区）。**不含** DIFF-03 / SHIP-03。
+
+| # | 区域 | 步骤 | 预期 |
+|---|------|------|------|
+| 1 | 四题型 | Dev force 数独 / 二进制 / 数绘 / 数回 | 各题型可开盘；顶栏题型名一致 |
+| 2 | FEEL-01 Undo | 填一格 → 撤销；空栈时点撤销 | 撤销恢复；空栈控件 disabled（`撤销上一步编辑`） |
+| 3 | FEEL-02 Notes | 数独开「笔记」→ 填候选 → 关笔记再填数字 → 完成/认怂 | 笔记不计入完成；完成校验只看数字 |
+| 4 | FEEL-02 Persist | 同日笔记后杀进程重开 | `sudokuNotes` 保留；Undo 栈清空（ephemeral） |
+| 5 | FEEL-03 Drag | 二进制/数绘一笔拖填 → 撤销一次 | 一笔 = 一次 Undo；竖滑仍可滚页 |
+| 6 | FEEL-04 Hit | 数回点边中段 / 角落 | 可点；角落 H/V 消歧有上限（半径 20） |
+| 7 | FEEL-05 Intro | 清 `@foolish-you/first-intro-v1` 后开新题型 | 首遇 BottomSheet；**跳过**立刻进盘；无 Hint / 不自动填答案 |
+| 8 | FEEL-06 Haptics | 填格 / 冲突 / Undo / 认怂确认 | 有触感；无 Vibration+Haptics 双振 |
+| 9 | D-24 | 全路径扫 UI | **无** Hint 入口、难度徽章、选题器 |
+
+```bash
+maestro test .maestro/flows/v26/v26-feel-smoke.yaml \
+  --test-output-dir docs/qa/v2.6-feel/evidence/$(date +%Y%m%d)
+```
+
 ## Maestro E2E（v2.2）
 
 **前提：** iOS Simulator 或 Android 模拟器已安装 **`com.moyunzero.foolish-you` 开发包**（非 Expo Go；与 `.maestro/flows/smoke-launch.yaml` 相同 `appId`）。Metro 可选（开发包已 bundle 时可离线跑 UI 流）。

@@ -1,0 +1,43 @@
+appId: com.moyunzero.foolish-you
+ios:
+  snapshotKeyHonorModalViews: true
+---
+# v2.6-02 Feel smoke (SHIP-02) — launch → board; Skip intro if shown; no Hint path.
+# Companion to v26-feel-device-qa.yaml (Plan 02 drag/hit). Prefer zh locale for labels.
+
+- launchApp:
+    clearState: true
+- extendedWaitUntil:
+    visible: '完成今日'
+    timeout: 90000
+- runFlow: ../v22/subflows/dev-open-panel.yaml
+- tapOn:
+    text: '数独'
+    below: 'DEV 调试'
+- extendedWaitUntil:
+    visible: '完成今日'
+    timeout: 60000
+
+# First-type intro (FEEL-05): Skip if shown — primary path into board (D-18)
+- runFlow:
+    when:
+      visible: '跳过，直接开玩'
+    commands:
+      - tapOn: '跳过，直接开玩'
+- runFlow:
+    when:
+      visible: '知道了'
+    commands:
+      - tapOn: '知道了'
+
+- runFlow: ../v22/subflows/dev-hide-bar.yaml
+- assertVisible: '数独'
+- assertVisible: '完成今日'
+- assertVisible: '笔记'
+
+# No Hint / difficulty badge path (D-24)
+- assertNotVisible: 'Hint'
+- assertNotVisible: '提示'
+- assertNotVisible: '一键填满'
+
+- takeScreenshot: v26-feel-smoke-sudoku
