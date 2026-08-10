@@ -36,6 +36,9 @@ export default function BinaryGameSection({
             conflictCells={board.conflicts}
             onPressCell={board.handlePress}
             onLongPressCell={board.handleLongPress}
+            onDragStrokeBegin={board.beginDragStroke}
+            onDragStrokeMove={board.moveDragStroke}
+            onDragStrokeEnd={board.endDragStroke}
           />
         </HairlineCard>
       </View>

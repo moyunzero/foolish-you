@@ -27,6 +27,9 @@ describe('NonogramGrid', () => {
         maxWidth={360}
         onPressCell={jest.fn()}
         onLongPressCell={jest.fn()}
+        onDragStrokeBegin={jest.fn()}
+        onDragStrokeMove={jest.fn()}
+        onDragStrokeEnd={jest.fn()}
       />,
     );
 

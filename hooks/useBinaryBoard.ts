@@ -1,6 +1,11 @@
 import { useCallback, useMemo, useRef, useState } from 'react';
 
-import { feelConflict, feelLight, feelUndo } from '../lib/feel/haptics';
+import {
+  createDragHapticCoalesce,
+  feelConflict,
+  feelLight,
+  feelUndo,
+} from '../lib/feel/haptics';
 import {
   BINARY_EMPTY,
   cloneGrid as cloneBinaryGrid,
@@ -40,6 +45,13 @@ type UseBinaryBoardParams = {
   updatePlayState: (next: BinaryPlayState) => void;
 };
 
+type DragStroke = {
+  pre: BinaryPlayState;
+  draft: BinaryPlayState;
+  paintValue: number;
+  changed: boolean;
+};
+
 export function useBinaryBoard({
   givens,
   playState,
@@ -50,6 +62,8 @@ export function useBinaryBoard({
   const [selected, setSelected] = useState<CellCoord | null>(null);
   const undoStackRef = useRef(createUndoStack<BinaryPlayState>());
   const [undoEpoch, setUndoEpoch] = useState(0);
+  const strokeRef = useRef<DragStroke | null>(null);
+  const dragHapticsRef = useRef(createDragHapticCoalesce());
 
   const conflicts = useMemo(
     () => getBinaryConflictCells(playState, givens),
@@ -123,6 +137,57 @@ export function useBinaryBoard({
     [givens, playState, commitPlayState],
   );
 
+  /** D-04/D-13: stroke begin — snapshot pre; paint in memory; no undo push yet. */
+  const beginDragStroke = useCallback(
+    (row: number, col: number) => {
+      if (!isBinaryEditable(givens, row, col)) return;
+      if (strokeRef.current != null) return;
+
+      const current = binaryCellValue(givens, playState, row, col);
+      const paintValue = cycleBinaryValue(current);
+      const pre = cloneBinaryGrid(playState);
+      const draft = cloneBinaryGrid(playState);
+      const prevCell = draft[row]![col]!;
+      draft[row]![col] = paintValue;
+      const changed = prevCell !== paintValue;
+      strokeRef.current = { pre, draft, paintValue, changed };
+      setSelected({ row, col });
+      dragHapticsRef.current.onStrokeStart();
+      if (changed) {
+        updatePlayState(cloneBinaryGrid(draft));
+      }
+    },
+    [givens, playState, updatePlayState],
+  );
+
+  const moveDragStroke = useCallback(
+    (row: number, col: number) => {
+      const stroke = strokeRef.current;
+      if (stroke == null) return;
+      if (!isBinaryEditable(givens, row, col)) return;
+      if (stroke.draft[row]![col] === stroke.paintValue) {
+        setSelected({ row, col });
+        return;
+      }
+      stroke.draft[row]![col] = stroke.paintValue;
+      stroke.changed = true;
+      setSelected({ row, col });
+      dragHapticsRef.current.onStrokeCell();
+      updatePlayState(cloneBinaryGrid(stroke.draft));
+    },
+    [givens, updatePlayState],
+  );
+
+  /** One undo push of pre-stroke clone when any cell changed (D-04, D-13). */
+  const endDragStroke = useCallback(() => {
+    const stroke = strokeRef.current;
+    strokeRef.current = null;
+    dragHapticsRef.current.onStrokeEnd();
+    if (stroke == null || !stroke.changed) return;
+    undoStackRef.current.push(stroke.pre);
+    setUndoEpoch((n) => n + 1);
+  }, []);
+
   return {
     selected,
     conflicts,
@@ -132,5 +197,8 @@ export function useBinaryBoard({
     undo,
     handlePress,
     handleLongPress,
+    beginDragStroke,
+    moveDragStroke,
+    endDragStroke,
   };
 }

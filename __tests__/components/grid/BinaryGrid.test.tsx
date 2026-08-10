@@ -31,6 +31,9 @@ describe('BinaryGrid', () => {
         conflictCells={[]}
         onPressCell={onPressCell}
         onLongPressCell={jest.fn()}
+        onDragStrokeBegin={jest.fn()}
+        onDragStrokeMove={jest.fn()}
+        onDragStrokeEnd={jest.fn()}
       />,
     );
 
@@ -53,6 +56,9 @@ describe('BinaryGrid', () => {
         conflictCells={[]}
         onPressCell={jest.fn()}
         onLongPressCell={onLongPressCell}
+        onDragStrokeBegin={jest.fn()}
+        onDragStrokeMove={jest.fn()}
+        onDragStrokeEnd={jest.fn()}
       />,
     );
 

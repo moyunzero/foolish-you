@@ -1,17 +1,32 @@
 import { useCallback, useMemo, useRef, useState } from 'react';
 
-import { feelLight, feelUndo } from '../lib/feel/haptics';
+import {
+  createDragHapticCoalesce,
+  feelLight,
+  feelUndo,
+} from '../lib/feel/haptics';
 import { cloneGrid, type CellCoord } from '../lib/puzzles/nonogram/grid';
 import { NONOGRAM_EMPTY } from '../lib/puzzles/nonogram/spec';
 import { cycleCellValue, isCompleteAndValid } from '../lib/puzzles/nonogram/validate';
 import { useI18n } from '../lib/i18n';
-import type { NonogramPlayState, NonogramPuzzle } from '../lib/puzzles/types';
+import type {
+  NonogramCellState,
+  NonogramPlayState,
+  NonogramPuzzle,
+} from '../lib/puzzles/types';
 import { createUndoStack } from '../lib/undo/createUndoStack';
 
 type UseNonogramBoardParams = {
   puzzle: NonogramPuzzle;
   playState: NonogramPlayState;
   updatePlayState: (next: NonogramPlayState) => void;
+};
+
+type DragStroke = {
+  pre: NonogramPlayState;
+  draft: NonogramPlayState;
+  paintValue: NonogramCellState;
+  changed: boolean;
 };
 
 export function useNonogramBoard({
@@ -24,6 +39,8 @@ export function useNonogramBoard({
   const [selected, setSelected] = useState<CellCoord | null>(null);
   const undoStackRef = useRef(createUndoStack<NonogramPlayState>());
   const [undoEpoch, setUndoEpoch] = useState(0);
+  const strokeRef = useRef<DragStroke | null>(null);
+  const dragHapticsRef = useRef(createDragHapticCoalesce());
 
   const canComplete = useMemo(
     () => isCompleteAndValid(playState, puzzle.solution),
@@ -79,6 +96,56 @@ export function useNonogramBoard({
     [playState, commitPlayState],
   );
 
+  /** D-04/D-13: stroke begin — snapshot pre; paint in memory; no undo push yet. */
+  const beginDragStroke = useCallback(
+    (row: number, col: number) => {
+      if (strokeRef.current != null) return;
+      if (row < 0 || col < 0 || row >= puzzle.rows || col >= puzzle.cols) return;
+
+      const paintValue = cycleCellValue(playState[row]![col]!);
+      const pre = cloneGrid(playState);
+      const draft = cloneGrid(playState);
+      const prevCell = draft[row]![col]!;
+      draft[row]![col] = paintValue;
+      const changed = prevCell !== paintValue;
+      strokeRef.current = { pre, draft, paintValue, changed };
+      setSelected({ row, col });
+      dragHapticsRef.current.onStrokeStart();
+      if (changed) {
+        updatePlayState(cloneGrid(draft));
+      }
+    },
+    [playState, puzzle.rows, puzzle.cols, updatePlayState],
+  );
+
+  const moveDragStroke = useCallback(
+    (row: number, col: number) => {
+      const stroke = strokeRef.current;
+      if (stroke == null) return;
+      if (row < 0 || col < 0 || row >= puzzle.rows || col >= puzzle.cols) return;
+      if (stroke.draft[row]![col] === stroke.paintValue) {
+        setSelected({ row, col });
+        return;
+      }
+      stroke.draft[row]![col] = stroke.paintValue;
+      stroke.changed = true;
+      setSelected({ row, col });
+      dragHapticsRef.current.onStrokeCell();
+      updatePlayState(cloneGrid(stroke.draft));
+    },
+    [puzzle.rows, puzzle.cols, updatePlayState],
+  );
+
+  /** One undo push of pre-stroke clone when any cell changed (D-04, D-13). */
+  const endDragStroke = useCallback(() => {
+    const stroke = strokeRef.current;
+    strokeRef.current = null;
+    dragHapticsRef.current.onStrokeEnd();
+    if (stroke == null || !stroke.changed) return;
+    undoStackRef.current.push(stroke.pre);
+    setUndoEpoch((n) => n + 1);
+  }, []);
+
   return {
     selected,
     canComplete,
@@ -87,5 +154,8 @@ export function useNonogramBoard({
     undo,
     handlePress,
     handleLongPress,
+    beginDragStroke,
+    moveDragStroke,
+    endDragStroke,
   };
 }

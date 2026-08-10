@@ -229,6 +229,11 @@ export default function GameScreen() {
         </View>
       ) : (
         <>
+          {/*
+            D-12 ScrollView ↔ Binary/Nonogram Gesture.Pan:
+            grids use failOffsetY-first (activeOffsetX ±12 / failOffsetY ±16).
+            Fallback if device QA fails: Gesture.Native() wrap + blocksExternalGesture.
+          */}
           <ScrollView
             className="flex-1"
             scrollEnabled={showPlayChrome}

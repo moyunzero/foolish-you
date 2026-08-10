@@ -39,6 +39,9 @@ export default function NonogramGameSection({
             maxWidth={maxWidth - 24}
             onPressCell={board.handlePress}
             onLongPressCell={board.handleLongPress}
+            onDragStrokeBegin={board.beginDragStroke}
+            onDragStrokeMove={board.moveDragStroke}
+            onDragStrokeEnd={board.endDragStroke}
           />
         </HairlineCard>
       </View>
