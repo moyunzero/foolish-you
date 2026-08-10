@@ -194,6 +194,55 @@ Retention and acquisition KPIs: **App Store Connect → Analytics** (no third-pa
 
 Public privacy policy URL (configure in App Store Connect): `constants/legal.ts` → `PRIVACY_POLICY_URL` (GitHub Pages under `docs/` — ensure Pages deploy is live before store review).
 
+### App Store · 产品页文案（ASO 轻改 · 待粘贴）
+
+**目的：** 去掉「高难度」硬预期，对齐一天一局 + 毒舌仪式 + 静默自适应（2.5）；不承诺多题/排行/提示。  
+**操作：** App Store Connect → App 信息 → 本地化（中国区 / 美国区）→ 副标题 + 描述。通常**不需**重新提审二进制；若 ASC 要求随版本元数据提交，挂下一次小版本即可。
+
+**副标题（≤30 字 · 中国区）**
+
+```
+每天一题，毒舌收尾
+```
+
+**副标题（≤30 characters · United States）**
+
+```
+One puzzle. Sharp send-off.
+```
+
+**描述（中国区 · 替换「高难度」版）**
+
+```
+傻了么是一款极简的每日益智游戏：每天只开一局。
+
+打开 App，系统在数独、二进制、数绘、数回里随机给你今天这一题。玩完或认怂，都会收到一句带点毒舌的收尾——明天再来。
+
+· 一天一局，不做成刷题工具箱
+· 离线也能玩，进度保存在本机
+· 难度会按你的节奏悄悄调整，不做难度徽章
+· 连签护盾、月历与图鉴，温和陪你养成习惯
+
+没有排行榜，没有好友，没有填格提示。专注今天这一局。
+```
+
+**Description（United States · Brainfool）**
+
+```
+Brainfool is a minimalist daily puzzle: one game a day.
+
+Open the app and get today’s board—Sudoku, Binary, Nonogram, or Slitherlink—chosen for you. Finish or bail, then get a sharp little send-off. Come back tomorrow.
+
+· One game a day—not an endless puzzle gym
+· Fully offline; progress stays on your device
+· Difficulty quietly adapts—no badges, no mode picker
+· Streak shields, month calendar, and gallery keep the habit gentle
+
+No leaderboards, no friends list, no fill-in hints. Just today’s one game.
+```
+
+> **勿写：** 高难度 / 最难 / 无限关卡 / 排行榜 / 提示。与产品红线冲突。
+
 ## Application constants (`constants/config.ts`)
 
 Central runtime constants for puzzles, persistence, and debouncing.
