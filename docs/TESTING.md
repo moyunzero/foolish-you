@@ -335,6 +335,26 @@ maestro test .maestro/flows/v26/v26-feel-smoke.yaml \
   --test-output-dir docs/qa/v2.6-feel/evidence/$(date +%Y%m%d)
 ```
 
+### v2.6-03 Signature manual QA（DIFF-03 / SHIP-02）
+
+**前置：** `__DEV__` 开发包；Feel 手测（上节）已绿。可选 Maestro：既有 `.maestro/flows/v26/` complete→result 流仍应通过——**不要**用 Maestro 断言毫秒级帧/招牌动效时长。
+
+| # | 区域 | 步骤 | 预期 |
+|---|------|------|------|
+| 1 | 8 变体·通关 | Dev force 四题型各一局 → 点「完成」 | 棋盘有题型物理解的通关招牌一刻（4 变体）；与导航并行；**footer 不当舞台** |
+| 2 | 8 变体·认怂 | 四题型各开 → 放弃 → 确认认怂 | 确认后有认怂变体（另 4）；与结果页导航并行 |
+| 3 | 峰值可读 | 通关 / 确认认怂瞬间 | 招牌峰值在导航首约 **100ms** 内可读；不抢戏结果页、无全屏闪白 |
+| 4 | Haptics | 通关一次 / 认怂确认一次 | **通关一次** haptic、**认怂确认一次** haptic（FEEL-06）；无双振 |
+| 5 | Reduce motion | 系统「减少动态效果」开 | 招牌仍可理解（降级可接受）；无卡死 |
+| 6 | 四题 smoke | Dev force 数独 / 二进制 / 数绘 / 数回 | 均可开盘；Feel 控件仍可用 |
+| 7 | 无 Hint | 全路径扫 UI（含首遇 sheet） | **无** Hint 入口、难度徽章、选题器 |
+
+```bash
+# Feel smoke（含 complete→result）；不断言招牌帧时序
+maestro test .maestro/flows/v26/v26-feel-smoke.yaml \
+  --test-output-dir docs/qa/v2.6-03-signature/evidence/$(date +%Y%m%d)
+```
+
 ## Maestro E2E（v2.2）
 
 **前提：** iOS Simulator 或 Android 模拟器已安装 **`com.moyunzero.foolish-you` 开发包**（非 Expo Go；与 `.maestro/flows/smoke-launch.yaml` 相同 `appId`）。Metro 可选（开发包已 bundle 时可离线跑 UI 流）。
