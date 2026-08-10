@@ -1,0 +1,34 @@
+appId: com.moyunzero.foolish-you
+---
+# Assert Undo becomes enabled after Binary horizontal drag (D-04 stroke).
+- launchApp:
+    clearState: true
+- extendedWaitUntil:
+    visible: '完成今日'
+    timeout: 90000
+- runFlow: ../v22/subflows/dev-open-panel.yaml
+- tapOn:
+    text: '二进制'
+    below: 'DEV 调试'
+- extendedWaitUntil:
+    visible: '完成今日'
+    timeout: 60000
+- runFlow: ../v22/subflows/dev-hide-bar.yaml
+- assertVisible:
+    text: '撤销上一步编辑'
+    enabled: false
+- tapOn: '第 1 行第 4 列，空'
+- swipe:
+    start: 35%, 38%
+    end: 80%, 38%
+    duration: 1000
+- waitForAnimationToEnd
+- takeScreenshot: v26-binary-drag-enabled
+- assertVisible:
+    text: '撤销上一步编辑'
+    enabled: true
+- tapOn: '撤销上一步编辑'
+- waitForAnimationToEnd
+- assertVisible:
+    text: '撤销上一步编辑'
+    enabled: false

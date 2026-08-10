@@ -1,0 +1,116 @@
+appId: com.moyunzero.foolish-you
+ios:
+  snapshotKeyHonorModalViews: true
+---
+# v2.6-02 Plan 02 device QA
+# Each type uses a fresh launch so we can hide DEV bar without needing re-show on game.
+
+# ========== Binary: drag-fill + undo + vertical scroll ==========
+- launchApp:
+    clearState: true
+- extendedWaitUntil:
+    visible: '完成今日'
+    timeout: 90000
+- runFlow: ../v22/subflows/dev-open-panel.yaml
+- tapOn:
+    text: '二进制'
+    below: 'DEV 调试'
+- extendedWaitUntil:
+    visible: '完成今日'
+    timeout: 60000
+- runFlow:
+    when:
+      visible: '知道了'
+    commands:
+      - tapOn: '知道了'
+- runFlow: ../v22/subflows/dev-hide-bar.yaml
+- assertVisible: '二进制'
+- assertVisible:
+    text: '撤销上一步编辑'
+    enabled: false
+- takeScreenshot: v26-01-binary-fresh
+
+- tapOn: '第 1 行第 4 列，空'
+- swipe:
+    start: 35%, 38%
+    end: 80%, 38%
+    duration: 1000
+- waitForAnimationToEnd
+- assertVisible:
+    text: '撤销上一步编辑'
+    enabled: true
+- takeScreenshot: v26-02-binary-after-drag
+
+- tapOn: '撤销上一步编辑'
+- waitForAnimationToEnd
+- assertVisible:
+    text: '撤销上一步编辑'
+    enabled: false
+- takeScreenshot: v26-03-binary-after-undo
+
+- swipe:
+    start: 50%, 62%
+    end: 50%, 28%
+    duration: 500
+- assertVisible: '撤销上一步编辑'
+- assertVisible: '完成今日'
+- takeScreenshot: v26-04-binary-after-scroll
+
+# ========== Nonogram: drag + undo ==========
+- launchApp:
+    clearState: true
+- extendedWaitUntil:
+    visible: '完成今日'
+    timeout: 90000
+- runFlow: ../v22/subflows/dev-open-panel.yaml
+- tapOn:
+    text: '数绘'
+    below: 'DEV 调试'
+- extendedWaitUntil:
+    visible: '完成今日'
+    timeout: 60000
+- runFlow:
+    when:
+      visible: '知道了'
+    commands:
+      - tapOn: '知道了'
+- runFlow: ../v22/subflows/dev-hide-bar.yaml
+- assertVisible: '数绘'
+- swipe:
+    start: 28%, 45%
+    end: 72%, 45%
+    duration: 900
+- waitForAnimationToEnd
+- tapOn: '撤销上一步编辑'
+- waitForAnimationToEnd
+- takeScreenshot: v26-05-nonogram-drag-undo
+
+# ========== Slitherlink: edge taps ==========
+- launchApp:
+    clearState: true
+- extendedWaitUntil:
+    visible: '完成今日'
+    timeout: 90000
+- runFlow: ../v22/subflows/dev-open-panel.yaml
+- tapOn:
+    text: '数回'
+    below: 'DEV 调试'
+- extendedWaitUntil:
+    visible: '完成今日'
+    timeout: 60000
+- runFlow:
+    when:
+      visible: '知道了'
+    commands:
+      - tapOn: '知道了'
+- runFlow: ../v22/subflows/dev-hide-bar.yaml
+- assertVisible: '数回'
+- tapOn:
+    point: 50%, 42%
+- tapOn:
+    point: 58%, 42%
+- tapOn:
+    point: 50%, 48%
+- takeScreenshot: v26-06-slitherlink-taps
+- assertVisible: '撤销上一步编辑'
+- assertVisible: '完成今日'
