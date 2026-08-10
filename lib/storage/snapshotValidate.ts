@@ -19,7 +19,12 @@ import { isCompleteAndValid as isSlitherlinkComplete } from '../puzzles/slitherl
 import { SUDOKU_SIZE } from '../puzzles/sudoku/grid';
 import { isCompleteAndValid as isSudokuComplete } from '../puzzles/sudoku/validate';
 import { STORAGE_VERSION } from '../../constants/config';
-import type { DailySnapshot, GameType, NonogramPlayState } from '../puzzles/types';
+import type {
+  DailySnapshot,
+  GameType,
+  NonogramPlayState,
+  SudokuNotes,
+} from '../puzzles/types';
 import {
   isBinaryPuzzle,
   isNonogramPuzzle,
@@ -27,6 +32,9 @@ import {
   isSudokuPuzzle,
 } from '../puzzles/types';
 import type { PersistedSnapshot } from './snapshotLegacy';
+
+/** Allowed bits for sudoku notes: bits 1–9 (digit candidates); bit 0 unused. */
+const SUDOKU_NOTES_BIT_MASK = 0b1111111110;
 
 function isSizedGrid(
   grid: unknown,
@@ -38,6 +46,19 @@ function isSizedGrid(
       Array.isArray(row) &&
       row.length === size &&
       row.every((cell) => typeof cell === 'number' && Number.isFinite(cell)),
+  );
+}
+
+/** 9×9 integer bitmasks with only bits 1–9 set. */
+export function isValidSudokuNotes(value: unknown): value is SudokuNotes {
+  if (!isSizedGrid(value, SUDOKU_SIZE)) return false;
+  return value.every((row) =>
+    row.every(
+      (cell) =>
+        Number.isInteger(cell) &&
+        cell >= 0 &&
+        (cell & ~SUDOKU_NOTES_BIT_MASK) === 0,
+    ),
   );
 }
 
@@ -296,6 +317,13 @@ export function sanitizeSnapshotForSave(snapshot: DailySnapshot): DailySnapshot 
     puzzleHash: snapshot.puzzleHash,
   };
   if (snapshot.playState != null) clean.playState = snapshot.playState;
+  if (
+    snapshot.gameType === 'sudoku' &&
+    snapshot.sudokuNotes != null &&
+    isValidSudokuNotes(snapshot.sudokuNotes)
+  ) {
+    clean.sudokuNotes = snapshot.sudokuNotes;
+  }
   if (snapshot.startedAt != null) clean.startedAt = snapshot.startedAt;
   if (snapshot.finishedAt != null) clean.finishedAt = snapshot.finishedAt;
   if (snapshot.lastGameType != null) clean.lastGameType = snapshot.lastGameType;

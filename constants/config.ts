@@ -28,8 +28,8 @@ export const PLAYED_HASH_STORAGE_VERSION = 1;
 export const PLAYED_HASH_RING_CAPACITY = 200;
 /** Max generate/select retries while puzzleHash is in the avoid set (DIV-02 / D-05). */
 export const AVOID_HASH_MAX_ATTEMPTS = 40;
-/** Bump when persisted snapshot shape changes; v2 drops puzzleStub / placeholders. */
-export const STORAGE_VERSION = 2;
+/** Bump when persisted snapshot shape changes; v2 drops puzzleStub; v3 adds optional sudokuNotes sibling. */
+export const STORAGE_VERSION = 3;
 
 export const SUDOKU_GIVEN_COUNT = 30;
 export const SUDOKU_MAX_GEN_ATTEMPTS = 50;

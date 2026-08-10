@@ -266,7 +266,7 @@ Central runtime constants for puzzles, persistence, and debouncing.
 | `AVOID_HASH_MAX_ATTEMPTS` | `40` | Generate/select retries while hash is in the avoid set (DIV-02) |
 | `RECOVERY_LOG_STORAGE_KEY` | `@foolish-you/snapshot-recovery-log-v1` | Ring buffer of snapshot recovery events |
 | `RECOVERY_LOG_MAX_ENTRIES` | `10` | Max recovery log entries retained |
-| `STORAGE_VERSION` | `2` | Persisted snapshot schema version (v2 drops legacy `puzzleStub`) |
+| `STORAGE_VERSION` | `3` | Persisted snapshot schema version (v2 drops legacy `puzzleStub`; v3 optional `sudokuNotes` sibling) |
 | `SUDOKU_GIVEN_COUNT` | `30` | Given cells for 9×9 Sudoku |
 | `SUDOKU_MAX_GEN_ATTEMPTS` | `50` | Generator retry cap |
 | `BINARY_GIVEN_COUNT` | `24` | Given cells for 8×8 Takuzu (~38%) |
@@ -330,7 +330,7 @@ See `DESIGN.md` for product-level design rules.
 | `@foolish-you/snapshot-recovery-log-v1` | `RECOVERY_LOG_STORAGE_KEY` | Recovery event log (dev-visible) | `lib/storage/recoveryLog.ts` |
 | `@foolish-you/dev-tools-bar-visible` | `contexts/DevToolsUiContext.tsx` (local constant) | `'1'` / `'0'` for dev bar visibility | Dev builds only |
 
-**Daily snapshot migration:** On load, `migrateSnapshot()` in `lib/storage/snapshotMigration.ts` normalizes v0/v1 data to `STORAGE_VERSION` (2). Snapshots with `version > STORAGE_VERSION` are rejected with a warning. **`recoverSnapshot()`** may repair puzzle data or strip invalid `playState` when `status: 'completed'` but the board is incomplete.
+**Daily snapshot migration:** On load, `migrateSnapshot()` in `lib/storage/snapshotMigration.ts` normalizes v0/v1/v2 data to `STORAGE_VERSION` (3). Snapshots with `version > STORAGE_VERSION` are rejected with a warning. Optional `sudokuNotes` (9×9 bitmasks, bits 1–9) is whitelist-copied only for `gameType === 'sudoku'`; invalid notes are stripped without dropping `playState`. **`recoverSnapshot()`** may repair puzzle data or strip invalid `playState` when `status: 'completed'` but the board is incomplete.
 
 **Native modules (v1.1):** `expo-clipboard` (share card), `expo-store-review` (rating prompt) — bundled with Expo SDK 54; no extra env config.
 
@@ -354,6 +354,13 @@ Recovery log (`RECOVERY_LOG_*`) and dev-only keys do not use schema version cons
 Mastery lives under its own key — do **not** bump daily `STORAGE_VERSION` solely for mastery fields.
 
 Played-hash ring lives under its own key (`playedHashStorage`) — introducing or bumping it must **not** bump daily `STORAGE_VERSION` or `MASTERY_STORAGE_VERSION` (D-12).
+
+### Daily snapshot bump history
+
+| Version | Change |
+|---------|--------|
+| 2 | Drop legacy `puzzleStub` / placeholder puzzles; full givens on disk |
+| 3 | Optional `sudokuNotes` sibling on `DailySnapshot` (FEEL-02); never inside `playState` |
 
 ## Bundler and styling toolchain
 

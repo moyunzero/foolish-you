@@ -157,7 +157,7 @@ describe('playedHashStorage', () => {
   });
 
   it('does not change STORAGE_VERSION or MASTERY_STORAGE_VERSION', () => {
-    expect(STORAGE_VERSION).toBe(2);
+    expect(STORAGE_VERSION).toBe(3);
     expect(MASTERY_STORAGE_VERSION).toBe(1);
     expect(PLAYED_HASH_STORAGE_KEY).toBe('@foolish-you/played-hash-v1');
     expect(PLAYED_HASH_STORAGE_VERSION).toBe(1);

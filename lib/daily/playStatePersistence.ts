@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useRef } from 'react';
 
 import { PLAY_STATE_DEBOUNCE_MS } from '../../constants/config';
-import type { DailySnapshot, PlayState } from '../puzzles/types';
+import type { DailySnapshot, PlayState, SudokuNotes } from '../puzzles/types';
 import { saveDailySnapshot } from '../storage/dailyStorage';
 
 export type SaveSnapshotResult = {
@@ -15,6 +15,22 @@ export type UsePlayStatePersistenceParams = {
   onSaveFailed?: () => void;
 };
 
+/**
+ * Apply pending notes ref onto a snapshot clone.
+ * `undefined` = no pending notes change; `null` = clear sibling.
+ */
+function applyPendingNotes(
+  base: DailySnapshot,
+  pending: SudokuNotes | null | undefined,
+): DailySnapshot {
+  if (pending === undefined) return base;
+  if (pending == null) {
+    const { sudokuNotes: _omit, ...rest } = base;
+    return rest;
+  }
+  return { ...base, sudokuNotes: pending };
+}
+
 export function usePlayStatePersistence({
   snapshot,
   setSnapshot,
@@ -22,6 +38,10 @@ export function usePlayStatePersistence({
 }: UsePlayStatePersistenceParams) {
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const pendingPlayStateRef = useRef<PlayState | null>(null);
+  /** undefined = unchanged; null = clear; grid = set (Pitfall 7). */
+  const pendingSudokuNotesRef = useRef<SudokuNotes | null | undefined>(
+    undefined,
+  );
 
   const clearDebounce = useCallback(() => {
     if (debounceRef.current != null) {
@@ -32,46 +52,92 @@ export function usePlayStatePersistence({
 
   const flushPlayState = useCallback(async () => {
     clearDebounce();
-    if (snapshot == null || pendingPlayStateRef.current == null) return;
+    if (snapshot == null) return;
+    if (
+      pendingPlayStateRef.current == null &&
+      pendingSudokuNotesRef.current === undefined
+    ) {
+      return;
+    }
 
-    const nextPlayState = pendingPlayStateRef.current;
+    const nextPlayState =
+      pendingPlayStateRef.current ?? snapshot.playState ?? null;
+    const pendingNotes = pendingSudokuNotesRef.current;
     pendingPlayStateRef.current = null;
+    pendingSudokuNotesRef.current = undefined;
 
-    const updated: DailySnapshot = {
-      ...snapshot,
-      playState: nextPlayState,
-    };
+    let updated: DailySnapshot = { ...snapshot };
+    if (nextPlayState != null) {
+      updated = { ...updated, playState: nextPlayState };
+    }
+    updated = applyPendingNotes(updated, pendingNotes);
+
     const saved = await saveDailySnapshot(updated);
     if (saved) {
       setSnapshot(updated);
     } else {
       setSnapshot(snapshot);
-      pendingPlayStateRef.current = nextPlayState;
+      if (nextPlayState != null) {
+        pendingPlayStateRef.current = nextPlayState;
+      }
+      if (pendingNotes !== undefined) {
+        pendingSudokuNotesRef.current = pendingNotes;
+      }
       onSaveFailed?.();
     }
   }, [snapshot, setSnapshot, clearDebounce, onSaveFailed]);
+
+  const scheduleFlush = useCallback(() => {
+    clearDebounce();
+    debounceRef.current = setTimeout(() => {
+      void flushPlayState();
+    }, PLAY_STATE_DEBOUNCE_MS);
+  }, [clearDebounce, flushPlayState]);
 
   const updatePlayState = useCallback(
     (next: PlayState) => {
       if (snapshot == null) return;
 
       pendingPlayStateRef.current = next;
-      const optimistic: DailySnapshot = { ...snapshot, playState: next };
+      let optimistic: DailySnapshot = { ...snapshot, playState: next };
+      optimistic = applyPendingNotes(
+        optimistic,
+        pendingSudokuNotesRef.current,
+      );
       setSnapshot(optimistic);
-
-      clearDebounce();
-      debounceRef.current = setTimeout(() => {
-        void flushPlayState();
-      }, PLAY_STATE_DEBOUNCE_MS);
+      scheduleFlush();
     },
-    [snapshot, setSnapshot, clearDebounce, flushPlayState],
+    [snapshot, setSnapshot, scheduleFlush],
+  );
+
+  /** Sibling notes write — never nested in playState (D-06, D-22, Pitfall 7). */
+  const updateSudokuNotes = useCallback(
+    (next: SudokuNotes | null) => {
+      if (snapshot == null) return;
+
+      pendingSudokuNotesRef.current = next;
+      let optimistic: DailySnapshot = { ...snapshot };
+      if (pendingPlayStateRef.current != null) {
+        optimistic = { ...optimistic, playState: pendingPlayStateRef.current };
+      }
+      optimistic = applyPendingNotes(optimistic, next);
+      setSnapshot(optimistic);
+      scheduleFlush();
+    },
+    [snapshot, setSnapshot, scheduleFlush],
   );
 
   const drainPendingInto = useCallback(
     (base: DailySnapshot): DailySnapshot => {
-      if (pendingPlayStateRef.current == null) return base;
-      const merged = { ...base, playState: pendingPlayStateRef.current };
-      pendingPlayStateRef.current = null;
+      let merged = base;
+      if (pendingPlayStateRef.current != null) {
+        merged = { ...merged, playState: pendingPlayStateRef.current };
+        pendingPlayStateRef.current = null;
+      }
+      if (pendingSudokuNotesRef.current !== undefined) {
+        merged = applyPendingNotes(merged, pendingSudokuNotesRef.current);
+        pendingSudokuNotesRef.current = undefined;
+      }
       return merged;
     },
     [],
@@ -94,6 +160,7 @@ export function usePlayStatePersistence({
   const resetPending = useCallback(() => {
     clearDebounce();
     pendingPlayStateRef.current = null;
+    pendingSudokuNotesRef.current = undefined;
   }, [clearDebounce]);
 
   useEffect(
@@ -105,6 +172,7 @@ export function usePlayStatePersistence({
 
   return {
     updatePlayState,
+    updateSudokuNotes,
     flushPlayState,
     drainPendingInto,
     persistSnapshot,
