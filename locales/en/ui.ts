@@ -21,6 +21,9 @@ export const ui = {
     bailToday: 'Bail today',
     undo: 'Undo',
     undoA11y: 'Undo last edit',
+    /** Host Desk Path B — session chrome mode caption */
+    sessionModeValue: 'Value',
+    sessionModeBoard: 'Board',
     loadFailed: 'Couldn’t load today’s puzzle. Local data may be corrupted.',
   },
 

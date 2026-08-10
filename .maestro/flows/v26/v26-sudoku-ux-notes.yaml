@@ -1,0 +1,13 @@
+appId: com.moyunzero.foolish-you
+---
+# App already on sudoku (no clear). Scroll to reveal numpad/notes then capture.
+- swipe:
+    start: 50%, 70%
+    end: 50%, 25%
+    duration: 500
+- takeScreenshot: sudoku-ux-02-after-scroll
+- tapOn: '切换笔记模式'
+- takeScreenshot: sudoku-ux-03-notes-on
+- tapOn:
+    point: 45%, 28%
+- takeScreenshot: sudoku-ux-04-notes-selected

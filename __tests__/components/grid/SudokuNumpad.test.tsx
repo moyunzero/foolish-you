@@ -60,5 +60,46 @@ describe('SudokuNumpad', () => {
     fireEvent.press(toggle);
     expect(onToggleNotesMode).toHaveBeenCalledTimes(1);
   });
-});
 
+  it('digitsOnly omits clear and notes tools', () => {
+    renderWithI18n(
+      <SudokuNumpad
+        digitsOnly
+        onDigit={jest.fn()}
+        onClear={jest.fn()}
+        disabled={false}
+        notesMode={false}
+        onToggleNotesMode={jest.fn()}
+      />,
+    );
+
+    expect(screen.getByLabelText('填入 9')).toBeTruthy();
+    expect(screen.queryByLabelText('清除当前格')).toBeNull();
+    expect(
+      screen.queryByLabelText(
+        '切换笔记模式；开启时数字键填写候选笔记',
+      ),
+    ).toBeNull();
+  });
+
+  it('toolsOnly renders clear and notes without digits', () => {
+    renderWithI18n(
+      <SudokuNumpad
+        toolsOnly
+        onDigit={jest.fn()}
+        onClear={jest.fn()}
+        disabled={false}
+        notesMode={false}
+        onToggleNotesMode={jest.fn()}
+      />,
+    );
+
+    expect(screen.getByLabelText('清除当前格')).toBeTruthy();
+    expect(
+      screen.getByLabelText(
+        '切换笔记模式；开启时数字键填写候选笔记',
+      ),
+    ).toBeTruthy();
+    expect(screen.queryByLabelText('填入 1')).toBeNull();
+  });
+});

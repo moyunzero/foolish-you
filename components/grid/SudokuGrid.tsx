@@ -124,8 +124,8 @@ function NotesGlyph({ mask }: { mask: number }) {
             width: '33.33%',
             textAlign: 'center',
             fontFamily: 'SpaceMono_400Regular',
-            fontSize: 8,
-            lineHeight: 10,
+            fontSize: 9,
+            lineHeight: 11,
             color: colors.muted,
             opacity: noteHasDigit(mask, digit) ? 1 : 0,
           }}

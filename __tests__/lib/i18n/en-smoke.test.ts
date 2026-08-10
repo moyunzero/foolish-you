@@ -195,6 +195,10 @@ describe('English locale smoke', () => {
 
     expect(ui.game.bailToday).toBe('Bail today');
     expect(ui.game.bailToday).not.toMatch(cjk);
+    expect(ui.game.sessionModeValue).toBe('Value');
+    expect(ui.game.sessionModeBoard).toBe('Board');
+    expect(ui.game.sessionModeValue).not.toMatch(cjk);
+    expect(ui.game.sessionModeBoard).not.toMatch(cjk);
     expect(ui.abandonSheet.keepGoing).toBe('Keep going');
     expect(ui.abandonSheet.bail).toBe('Bail');
     expect(ui.abandonSheet.keepGoing).not.toMatch(cjk);

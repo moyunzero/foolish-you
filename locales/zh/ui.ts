@@ -21,6 +21,9 @@ export const ui = {
     bailToday: '认怂今日',
     undo: '撤销',
     undoA11y: '撤销上一步编辑',
+    /** Host Desk Path B — session chrome mode caption */
+    sessionModeValue: '填数',
+    sessionModeBoard: '棋盘',
     loadFailed: '今日题目加载失败，可能是本地数据损坏。',
   },
 

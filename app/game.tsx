@@ -14,6 +14,7 @@ import GameScreenHeader from '../components/game/GameScreenHeader';
 import NonogramGameSection from '../components/game/NonogramGameSection';
 import SlitherlinkGameSection from '../components/game/SlitherlinkGameSection';
 import SudokuGameSection from '../components/game/SudokuGameSection';
+import SudokuNumpad from '../components/grid/SudokuNumpad';
 import FirstTypeIntroSheet from '../components/onboarding/FirstTypeIntroSheet';
 import EveningMissRiskBanner from '../components/reminder/EveningMissRiskBanner';
 import ReminderSheet from '../components/reminder/ReminderSheet';
@@ -42,7 +43,7 @@ export default function GameScreen() {
   const { strings, locale } = useI18n();
   const router = useRouter();
   const insets = useSafeAreaInsets();
-  const { width: screenWidth } = useWindowDimensions();
+  const { width: screenWidth, height: screenHeight } = useWindowDimensions();
   const {
     dateKey,
     gameType,
@@ -69,6 +70,11 @@ export default function GameScreen() {
   const elapsed = useElapsedTimer(snapshot?.startedAt);
   const gridMaxWidth = screenWidth - HORIZONTAL_PADDING * 2;
   const bottomInset = useDevBottomInset(insets.bottom + 8);
+  /** Sudoku Host Desk: board + fixed chrome must share one viewport (no scroll). */
+  const sudokuBoardMax = Math.min(
+    gridMaxWidth,
+    Math.max(240, screenHeight - bottomInset - 300),
+  );
   const [reminderOpen, setReminderOpen] = useState(false);
   const [reminderEnabled, setReminderEnabled] = useState(false);
   const [localHour, setLocalHour] = useState(() => new Date().getHours());
@@ -153,6 +159,17 @@ export default function GameScreen() {
   };
 
   const showPlayChrome = session.showBoardChrome;
+  const sudokuPad =
+    session.isSudoku && showPlayChrome
+      ? {
+          onDigit: session.sudokuBoard.handleDigit,
+          onClear: session.sudokuBoard.handleClear,
+          disabled: session.sudokuBoard.numpadDisabled,
+          dimmedDigits: session.sudokuBoard.dimmedDigits,
+          notesMode: session.sudokuBoard.notesMode,
+          onToggleNotesMode: session.sudokuBoard.toggleNotesMode,
+        }
+      : null;
   const streakSubline = resolveGameStreakSubline({
     showPlayChrome,
     freezeConsumedToday,
@@ -275,7 +292,7 @@ export default function GameScreen() {
           */}
           <ScrollView
             className="flex-1"
-            scrollEnabled={showPlayChrome}
+            scrollEnabled={showPlayChrome && !session.isSudoku}
             contentContainerStyle={{
               flexGrow: 1,
               paddingHorizontal: HORIZONTAL_PADDING,
@@ -290,7 +307,7 @@ export default function GameScreen() {
               <SudokuGameSection
                 givens={session.sudokuGivens}
                 playState={session.sudokuPlay}
-                maxWidth={gridMaxWidth}
+                maxWidth={sudokuBoardMax}
                 board={session.sudokuBoard}
               />
             ) : null}
@@ -337,8 +354,25 @@ export default function GameScreen() {
                 onUndo={session.undo}
                 onComplete={() => void handleComplete()}
                 onAbandon={confirmAbandon}
+                modeLabel={
+                  session.isSudoku
+                    ? session.sudokuBoard.notesMode
+                      ? strings.ui.grid.notesMode
+                      : strings.ui.game.sessionModeValue
+                    : strings.ui.game.sessionModeBoard
+                }
+                accent={Boolean(sudokuPad?.notesMode)}
+                extraTools={
+                  sudokuPad != null ? (
+                    <SudokuNumpad toolsOnly {...sudokuPad} />
+                  ) : null
+                }
+                instrument={
+                  sudokuPad != null ? (
+                    <SudokuNumpad digitsOnly {...sudokuPad} />
+                  ) : null
+                }
               />
-
             </View>
           ) : null}
         </>

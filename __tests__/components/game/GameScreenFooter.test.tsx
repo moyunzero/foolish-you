@@ -36,7 +36,7 @@ describe('GameScreenFooter', () => {
       />,
     );
 
-    fireEvent.press(screen.getByText('撤销'));
+    fireEvent.press(screen.getByLabelText('撤销上一步编辑'));
     fireEvent.press(screen.getByText('完成今日'));
     fireEvent.press(screen.getByText('认怂今日'));
     expect(onUndo).toHaveBeenCalledTimes(1);
@@ -57,7 +57,7 @@ describe('GameScreenFooter', () => {
       />,
     );
 
-    fireEvent.press(screen.getByText('撤销'));
+    fireEvent.press(screen.getByLabelText('撤销上一步编辑'));
     expect(onUndo).not.toHaveBeenCalled();
   });
 
@@ -76,7 +76,7 @@ describe('GameScreenFooter', () => {
 
     expect(screen.getByText('Finish today’s puzzle')).toBeTruthy();
     expect(screen.getByText('Bail today')).toBeTruthy();
-    expect(screen.getByText('Undo')).toBeTruthy();
+    expect(screen.getByLabelText('Undo last edit')).toBeTruthy();
   });
 
   it('renders abandon as text-link with min 44px hit target', () => {
@@ -93,9 +93,26 @@ describe('GameScreenFooter', () => {
 
     const abandon = screen.getByText('认怂今日');
     expect(abandon).toHaveStyle({
-      fontSize: 16,
-      lineHeight: 24,
+      fontSize: 13,
+      lineHeight: 18,
     });
     expect(screen.getByLabelText('认怂今日')).toBeTruthy();
+  });
+
+  it('renders mode label and accent tools slot', () => {
+    renderWithI18n(
+      <GameScreenFooter
+        statusHint={null}
+        canComplete={false}
+        canUndo={false}
+        onUndo={jest.fn()}
+        onComplete={jest.fn()}
+        onAbandon={jest.fn()}
+        modeLabel="笔记"
+        accent
+      />,
+    );
+
+    expect(screen.getByText('笔记')).toBeTruthy();
   });
 });

@@ -3,12 +3,19 @@ export const colors = {
   canvas: '#0a0a0a',
   canvasCard: '#191919',
   canvasSoft: '#1a1c20',
+  /** Host Desk session rail (Path B) */
+  canvasElev: '#101114',
+  canvasElevNotes: '#121014',
   hairline: '#212327',
+  /** Stronger hairline for session chrome border */
+  hairlineStrong: '#2e3238',
   ink: '#ffffff',
   body: '#dadbdf',
   muted: '#7d8187',
   /** 数独冲突格描边/浅底 — 对应 tailwind `accent-sunset` */
   accentSunset: '#ff7a17',
+  /** Notes-mode digit tint — DESIGN accent-sunset-soft */
+  accentSunsetSoft: '#ffc285',
   /** 题目给定数字（不可改） */
   sudokuGiven: '#b8bcc4',
   /** 冲突 / 错误数字 */

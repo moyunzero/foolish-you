@@ -1,0 +1,36 @@
+appId: com.moyunzero.foolish-you
+---
+- launchApp:
+    clearState: true
+- extendedWaitUntil:
+    visible: '.*今日.*'
+    timeout: 120000
+- runFlow:
+    when:
+      visible: '跳过题型介绍，进入棋盘'
+    commands:
+      - tapOn: '跳过题型介绍，进入棋盘'
+- runFlow: ../v22/subflows/dev-open-panel.yaml
+- tapOn:
+    text: '数独'
+    below: 'DEV 调试'
+- extendedWaitUntil:
+    visible: '数独'
+    timeout: 60000
+- runFlow:
+    when:
+      visible: '跳过题型介绍，进入棋盘'
+    commands:
+      - tapOn: '跳过题型介绍，进入棋盘'
+- runFlow: ../v22/subflows/dev-hide-bar.yaml
+- takeScreenshot: sudoku-ux-01-fresh
+- tapOn: '笔记'
+- takeScreenshot: sudoku-ux-02-notes-mode
+- tapOn:
+    point: 38%, 30%
+- takeScreenshot: sudoku-ux-03-cell-selected
+- swipe:
+    start: 50%, 78%
+    end: 50%, 20%
+    duration: 600
+- takeScreenshot: sudoku-ux-04-scrolled
