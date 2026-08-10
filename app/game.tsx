@@ -242,7 +242,12 @@ export default function GameScreen() {
           elapsed={elapsed}
           typeLabel={session.typeLabel}
           gameType={gameType}
-          showRules={showPlayChrome}
+          showRules={
+            showPlayChrome &&
+            !reminderOpen &&
+            !abandonSheetVisible &&
+            !firstIntroVisible
+          }
           streakSubline={streakSubline}
         />
       </View>
@@ -267,13 +272,21 @@ export default function GameScreen() {
         <EveningMissRiskBanner
           reminderEnabled={reminderEnabled}
           horizontalPadding={HORIZONTAL_PADDING}
-          onOpenReminder={() => setReminderOpen(true)}
+          onOpenReminder={() => {
+            // Defer next Modal until the previous host has unmounted (iOS Fabric present race).
+            if (firstIntroVisible) {
+              dismissFirstIntro();
+              requestAnimationFrame(() => setReminderOpen(true));
+              return;
+            }
+            setReminderOpen(true);
+          }}
           onDismiss={handleDismissEveningBanner}
         />
       ) : null}
 
       <ReminderSheet
-        visible={reminderOpen}
+        visible={reminderOpen && !abandonSheetVisible}
         onClose={() => setReminderOpen(false)}
         dateKey={dateKey}
         seed={snapshot?.seed ?? null}
@@ -282,7 +295,7 @@ export default function GameScreen() {
       />
 
       <AbandonConfirmSheet
-        visible={abandonSheetVisible}
+        visible={abandonSheetVisible && !reminderOpen}
         onClose={cancelAbandon}
         onConfirm={performAbandon}
         body={abandonConfirmBody}
@@ -290,7 +303,12 @@ export default function GameScreen() {
 
       {gameType != null ? (
         <FirstTypeIntroSheet
-          visible={firstIntroVisible && showPlayChrome}
+          visible={
+            firstIntroVisible &&
+            showPlayChrome &&
+            !reminderOpen &&
+            !abandonSheetVisible
+          }
           gameType={gameType}
           onDismiss={dismissFirstIntro}
         />
@@ -384,7 +402,14 @@ export default function GameScreen() {
                 canUndo={session.canUndo}
                 onUndo={session.undo}
                 onComplete={() => void handleComplete()}
-                onAbandon={confirmAbandon}
+                onAbandon={() => {
+                  if (reminderOpen) {
+                    setReminderOpen(false);
+                    requestAnimationFrame(() => confirmAbandon());
+                    return;
+                  }
+                  confirmAbandon();
+                }}
                 modeLabel={
                   session.isSudoku
                     ? session.sudokuBoard.notesMode

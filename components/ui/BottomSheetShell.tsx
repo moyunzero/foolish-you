@@ -20,9 +20,13 @@ export default function BottomSheetShell({
 }: BottomSheetShellProps) {
   const insets = useSafeAreaInsets();
 
+  // Mount Modal only while open — multiple idle Modal hosts on one screen race on iOS Fabric
+  // ("already presenting RCTFabricModalHostViewController").
+  if (!visible) return null;
+
   return (
     <Modal
-      visible={visible}
+      visible
       transparent
       animationType="slide"
       onRequestClose={onClose}

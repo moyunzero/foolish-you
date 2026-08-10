@@ -28,9 +28,12 @@ export default function GameRulesModal({
   const { height: windowHeight } = useWindowDimensions();
   const maxScrollHeight = Math.min(windowHeight * 0.5, 360);
 
+  // Same as BottomSheetShell: avoid idle Modal hosts stacking on game screen (iOS Fabric).
+  if (!visible) return null;
+
   return (
     <Modal
-      visible={visible}
+      visible
       transparent
       animationType="fade"
       onRequestClose={onClose}
