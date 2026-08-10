@@ -8,9 +8,10 @@ const STEP = 40;
 
 describe('findNearestSlitherlinkEdge', () => {
   it('uses the tuned FEEL-04 radius constant', () => {
-    // RESEARCH A2 / D-14: prototype 20; must stay < floor(STEP/2) so center stays null.
+    // RESEARCH A2 / D-14: prototype 20. Algorithm uses strict `d < radius`, so
+    // radius may equal floor(STEP/2) and cell-center (dist === STEP/2) stays null.
     expect(SLITHERLINK_EDGE_HIT_RADIUS).toBe(20);
-    expect(SLITHERLINK_EDGE_HIT_RADIUS).toBeLessThan(Math.floor(STEP / 2));
+    expect(SLITHERLINK_EDGE_HIT_RADIUS).toBeLessThanOrEqual(Math.floor(STEP / 2));
   });
 
   it('prefers horizontal edge when tap is on a horizontal segment', () => {

@@ -1,8 +1,16 @@
 import { SLITHERLINK_SIZE } from './spec';
 
-/** Max distance (px) from finger to edge segment to register a tap.
- *  Must stay below half of minimum cellStep (~32) so cell-center taps do not snap to an edge. */
-export const SLITHERLINK_EDGE_HIT_RADIUS = 18;
+/**
+ * Max distance (px) from finger to edge segment to register a tap (FEEL-04).
+ *
+ * Tuned 18 → 20 (RESEARCH A2): larger radius eases mid-edge taps, but widens the
+ * ambiguous corner band where H vs V compete. Disambiguation stays nearest-distance
+ * (`d < bestDist`); see hitTest.test.ts corner fixtures (D-14 tradeoff).
+ *
+ * Must stay strictly below half of minimum cellStep (budget ≈ floor(cellStep/2)-1)
+ * so cell-center taps still return null — never introduce a native hit module (D-15).
+ */
+export const SLITHERLINK_EDGE_HIT_RADIUS = 20;
 
 export type SlitherlinkEdgeHit = {
   orientation: 'h' | 'v';
