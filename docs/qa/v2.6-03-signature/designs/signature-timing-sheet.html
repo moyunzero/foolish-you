@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>傻了么 · Signature Timing Sheet</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=IBM+Plex+Mono:wght@400;500&family=Inter:wght@400;500&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --canvas: #0a0a0a;
+      --elev: #101114;
+      --hair: #212327;
+      --ink: #fff;
+      --body: #dadbdf;
+      --muted: #7d8187;
+      --accent: #ff7a17;
+      --soft: #ffc285;
+      --win: #ff7a17;
+      --bail: #7d8187;
+      --result: #f87171;
+    }
+    * { box-sizing: border-box; }
+    html, body { margin: 0; background: #070707; color: var(--ink); font-family: Inter, system-ui, sans-serif; }
+    body {
+      background:
+        radial-gradient(700px 360px at 80% 0%, rgba(255,122,23,.06), transparent 50%),
+        linear-gradient(180deg, #0c0c0e, #060606);
+      min-height: 100dvh;
+    }
+    .wrap { max-width: 980px; margin: 0 auto; padding: 40px 20px 88px; }
+    .kicker {
+      font-family: "IBM Plex Mono", monospace; font-size: 11px;
+      letter-spacing: .18em; text-transform: uppercase; color: var(--accent); margin-bottom: 12px;
+    }
+    h1 {
+      font-family: "Instrument Serif", Georgia, serif; font-weight: 400;
+      font-size: clamp(28px, 4vw, 40px); line-height: 1.1; margin: 0 0 10px;
+    }
+    .lede { color: var(--body); font-size: 15px; line-height: 1.65; max-width: 46em; margin: 0 0 28px; }
+
+    .scale {
+      position: relative; height: 28px; margin-bottom: 8px;
+      border-bottom: 1px solid var(--hair);
+      font-family: "IBM Plex Mono", monospace; font-size: 9px; color: var(--muted);
+    }
+    .scale span { position: absolute; bottom: 4px; transform: translateX(-50%); }
+    .scale span:first-child { transform: none; left: 0; }
+    .scale span:last-child { transform: translateX(-100%); }
+
+    .row {
+      display: grid; grid-template-columns: 168px 1fr 88px;
+      gap: 12px; align-items: center; margin-bottom: 10px;
+    }
+    @media (max-width: 640px) {
+      .row { grid-template-columns: 1fr; gap: 4px; margin-bottom: 16px; }
+    }
+    .label {
+      font-family: "IBM Plex Mono", monospace; font-size: 11px; letter-spacing: .04em;
+    }
+    .label small { display: block; color: var(--muted); font-size: 9px; letter-spacing: .08em; text-transform: uppercase; margin-top: 2px; }
+    .track {
+      position: relative; height: 22px; background: rgba(255,255,255,.03);
+      border: 1px solid var(--hair); border-radius: 6px; overflow: hidden;
+    }
+    .bar {
+      position: absolute; left: 0; top: 0; bottom: 0; border-radius: 5px;
+      display: flex; align-items: center; padding: 0 8px;
+      font-family: "IBM Plex Mono", monospace; font-size: 9px; letter-spacing: .06em;
+    }
+    .bar.win { background: linear-gradient(90deg, rgba(255,122,23,.85), rgba(255,194,133,.55)); color: #0a0a0a; width: calc(200 / 520 * 100%); }
+    .bar.bail { background: linear-gradient(90deg, rgba(125,129,135,.7), rgba(125,129,135,.35)); color: #fff; width: calc(120 / 520 * 100%); }
+    .bar.result { background: linear-gradient(90deg, rgba(248,113,113,.35), rgba(248,113,113,.12)); color: var(--body); width: 100%; border: 1px dashed rgba(248,113,113,.5); }
+    .ms {
+      font-family: "IBM Plex Mono", monospace; font-size: 12px; color: var(--body); text-align: right;
+    }
+
+    .card {
+      margin-top: 32px; border: 1px solid var(--hair); border-radius: 14px;
+      background: rgba(255,255,255,.02); padding: 18px 20px; overflow-x: auto;
+    }
+    h2 {
+      font-family: "Instrument Serif", Georgia, serif; font-weight: 400;
+      font-size: 22px; margin: 0 0 14px;
+    }
+    table {
+      width: 100%; border-collapse: collapse; font-size: 12px; min-width: 720px;
+    }
+    th, td {
+      text-align: left; padding: 10px 8px; border-bottom: 1px solid var(--hair);
+      vertical-align: top;
+    }
+    th {
+      font-family: "IBM Plex Mono", monospace; font-size: 10px;
+      letter-spacing: .1em; text-transform: uppercase; color: var(--accent); font-weight: 500;
+    }
+    td { color: var(--body); line-height: 1.45; }
+    td code, th code {
+      font-family: "IBM Plex Mono", monospace; font-size: 11px; color: var(--soft);
+    }
+    .tag {
+      display: inline-block; font-family: "IBM Plex Mono", monospace; font-size: 9px;
+      letter-spacing: .08em; text-transform: uppercase; border-radius: 999px;
+      padding: 3px 8px; border: 1px solid var(--hair); color: var(--muted);
+    }
+    .tag.win { border-color: rgba(255,122,23,.5); color: var(--soft); }
+    .tag.bail { border-color: rgba(125,129,135,.6); color: var(--muted); }
+
+    .note {
+      margin-top: 20px; font-size: 13px; color: var(--muted); line-height: 1.55;
+    }
+    .note a { color: var(--accent); }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="kicker">v2.6-03 · Timing sheet · Reanimated map</div>
+    <h1>招牌拍时序相对结果页</h1>
+    <p class="lede">
+      横轴对齐结果页最长入场 <strong style="color:#fff">ZoomIn 520ms</strong>（反例天花板）。
+      通关招牌必须读作「一击」；认怂更短更钝。并行导航时用户可能只看到前 ~100ms——峰值须落在前半程。
+    </p>
+
+    <div class="scale" aria-hidden="true">
+      <span>0</span>
+      <span style="left:23.08%">120</span>
+      <span style="left:38.46%">200</span>
+      <span style="left:76.92%">400</span>
+      <span style="left:100%">520ms</span>
+    </div>
+
+    <div class="row">
+      <div class="label">Win signature<small>all 4 types</small></div>
+      <div class="track"><div class="bar win">200ms · out-cubic</div></div>
+      <div class="ms">200</div>
+    </div>
+    <div class="row">
+      <div class="label">Abandon signature<small>all 4 types</small></div>
+      <div class="track"><div class="bar bail">120ms · in-quad</div></div>
+      <div class="ms">120</div>
+    </div>
+    <div class="row">
+      <div class="label">Result ZoomIn<small>anti-pattern</small></div>
+      <div class="track"><div class="bar result">520ms springify — do not compete</div></div>
+      <div class="ms">520</div>
+    </div>
+
+    <div class="card">
+      <h2>Keyframe → Reanimated</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>Variant</th>
+            <th>Elements</th>
+            <th>0 → peak → end</th>
+            <th>Shared values</th>
+            <th>Haptic</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><span class="tag win">sudoku-win</span></td>
+            <td>User-filled cells (not givens)</td>
+            <td>glow 0 → 0.28 @40% → 0<br>scale 1 → 1.04 → 1<br><code>200ms</code> out-cubic</td>
+            <td><code>t</code> 0→1 · interpolate bg <code>rgba(255,122,23,*)</code></td>
+            <td><code>feelSuccess()</code> ×1</td>
+          </tr>
+          <tr>
+            <td><span class="tag bail">sudoku-abandon</span></td>
+            <td>Same user cells</td>
+            <td>opacity 1 → 0.5<br>scale 1 → 0.985<br><code>120ms</code> in-quad</td>
+            <td><code>t</code> 0→1 · no accent</td>
+            <td><code>feelConfirm()</code> only</td>
+          </tr>
+          <tr>
+            <td><span class="tag win">binary-win</span></td>
+            <td>Filled cells + row hairlines</td>
+            <td>fill lift + row <code>#ffc285@0.5</code> @45%<br><code>200ms</code></td>
+            <td><code>t</code> + optional row opacity SV</td>
+            <td><code>feelSuccess()</code> ×1</td>
+          </tr>
+          <tr>
+            <td><span class="tag bail">binary-abandon</span></td>
+            <td>All filled cells</td>
+            <td>opacity → 0.45 · no row accent<br><code>120ms</code></td>
+            <td><code>t</code></td>
+            <td><code>feelConfirm()</code> only</td>
+          </tr>
+          <tr>
+            <td><span class="tag win">nonogram-win</span></td>
+            <td>Paint fills only (not X)</td>
+            <td>#e8e8e6 → #fff → #e8e8e6<br>or white overlay 0→0.22→0<br><code>200ms</code></td>
+            <td><code>t</code> · color interpolate</td>
+            <td><code>feelSuccess()</code> ×1</td>
+          </tr>
+          <tr>
+            <td><span class="tag bail">nonogram-abandon</span></td>
+            <td>Paint fills</td>
+            <td>muted inset overlay → 0.55<br><code>120ms</code></td>
+            <td><code>t</code></td>
+            <td><code>feelConfirm()</code> only</td>
+          </tr>
+          <tr>
+            <td><span class="tag win">slitherlink-win</span></td>
+            <td>Closed-loop edges</td>
+            <td>stroke 1.5→2.6→1.5<br>color ink → #ffc285 → ink<br><code>200ms</code> timing (no springify)</td>
+            <td><code>t</code> · strokeWidth / stroke</td>
+            <td><code>feelSuccess()</code> ×1</td>
+          </tr>
+          <tr>
+            <td><span class="tag bail">slitherlink-abandon</span></td>
+            <td>Loop (or drawn) edges</td>
+            <td>stroke opacity 1 → 0.4<br>width fixed · <code>120ms</code></td>
+            <td><code>t</code></td>
+            <td><code>feelConfirm()</code> only</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <p class="note">
+      Easing map: CSS <code style="color:var(--soft)">cubic-bezier(0.22, 1, 0.36, 1)</code> ≈
+      <code style="color:var(--soft)">Easing.out(Easing.cubic)</code>;
+      <code style="color:var(--soft)">cubic-bezier(0.55, 0.06, 0.68, 0.19)</code> ≈
+      <code style="color:var(--soft)">Easing.in(Easing.quad)</code>.
+      Animated storyboards:
+      <a href="./signature-board-moments.html">signature-board-moments.html</a>.
+      Contract: <code style="color:var(--muted)">.planning/phases/v2.6-03-signature/v2.6-03-UI-SPEC.md</code>.
+    </p>
+  </div>
+</body>
+</html>

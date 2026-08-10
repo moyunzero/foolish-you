@@ -1,0 +1,711 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>傻了么 · Signature · 四题 × 通关/认怂</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=IBM+Plex+Mono:wght@400;500&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --canvas: #0a0a0a;
+      --elev: #101114;
+      --soft: #1a1c20;
+      --hair: #212327;
+      --hair2: #2e3238;
+      --ink: #ffffff;
+      --body: #dadbdf;
+      --muted: #7d8187;
+      --accent: #ff7a17;
+      --accent-soft: #ffc285;
+      --given: #b8bcc4;
+      --cell: rgba(255,255,255,.09);
+      --box: rgba(255,255,255,.22);
+      --outer: rgba(255,255,255,.35);
+      --pw: 300px;
+      --ph: 640px;
+      --win-ms: 200ms;
+      --bail-ms: 120ms;
+    }
+    * { box-sizing: border-box; }
+    html, body { margin: 0; color: var(--ink); font-family: Inter, system-ui, sans-serif; }
+    body {
+      background:
+        radial-gradient(900px 480px at 10% -10%, rgba(255,122,23,.07), transparent 52%),
+        linear-gradient(180deg, #0c0c0e, #070707);
+      min-height: 100dvh;
+    }
+    .wrap { max-width: 1360px; margin: 0 auto; padding: 40px 20px 96px; }
+
+    .kicker {
+      font-family: "IBM Plex Mono", monospace;
+      font-size: 11px; letter-spacing: .18em; text-transform: uppercase;
+      color: var(--accent); margin-bottom: 12px;
+    }
+    h1 {
+      font-family: "Instrument Serif", Georgia, serif;
+      font-weight: 400; font-size: clamp(30px, 4.2vw, 44px);
+      line-height: 1.08; letter-spacing: -.02em; margin: 0 0 10px;
+    }
+    .lede {
+      max-width: 48em; color: var(--body); font-size: 15px; line-height: 1.65; margin: 0 0 18px;
+    }
+    .toolbar {
+      display: flex; flex-wrap: wrap; gap: 10px; align-items: center;
+      margin-bottom: 28px;
+    }
+    .btn {
+      font-family: "IBM Plex Mono", monospace; font-size: 11px; letter-spacing: .08em;
+      text-transform: uppercase; border-radius: 999px; padding: 10px 16px;
+      border: 1px solid var(--hair2); background: var(--elev); color: var(--ink); cursor: pointer;
+    }
+    .btn.primary { background: #fff; color: #0a0a0a; border-color: #fff; font-weight: 600; }
+    .btn:hover { border-color: var(--accent); }
+    .meta-pill {
+      font-family: "IBM Plex Mono", monospace; font-size: 10px; letter-spacing: .1em;
+      color: var(--muted); border: 1px solid var(--hair); border-radius: 999px; padding: 8px 12px;
+    }
+
+    .rule {
+      display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-bottom: 32px;
+    }
+    @media (max-width: 900px) { .rule { grid-template-columns: 1fr 1fr; } }
+    @media (max-width: 560px) { .rule { grid-template-columns: 1fr; } }
+    .rule div {
+      border: 1px solid var(--hair); border-radius: 12px; padding: 12px 14px;
+      background: rgba(255,255,255,.02);
+    }
+    .rule b {
+      display: block; font-family: "IBM Plex Mono", monospace; font-size: 10px;
+      letter-spacing: .12em; text-transform: uppercase; color: var(--accent); margin-bottom: 6px;
+    }
+    .rule span { font-size: 12px; line-height: 1.45; color: var(--body); }
+
+    .section-h {
+      display: flex; justify-content: space-between; align-items: end; gap: 12px;
+      margin: 8px 0 16px; flex-wrap: wrap;
+    }
+    .section-h h2 {
+      margin: 0; font-family: "Instrument Serif", Georgia, serif;
+      font-size: 26px; font-weight: 400;
+    }
+
+    .grid-8 {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 18px 14px;
+    }
+    @media (max-width: 1200px) { .grid-8 { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+    @media (max-width: 640px) { .grid-8 { grid-template-columns: 1fr; } }
+
+    .col { display: flex; flex-direction: column; align-items: center; gap: 10px; }
+    .lab {
+      font-family: "IBM Plex Mono", monospace; font-size: 10px;
+      letter-spacing: .14em; text-transform: uppercase; color: var(--muted);
+      text-align: center;
+    }
+    .lab.win { color: var(--accent-soft); }
+    .lab.bail { color: var(--muted); }
+
+    .phone {
+      width: var(--pw); height: var(--ph); border-radius: 36px;
+      background: #050505; border: 1px solid #2a2c30;
+      box-shadow: inset 0 0 0 1px rgba(255,255,255,.04), 0 24px 56px rgba(0,0,0,.55), 0 0 0 5px #0e0e10;
+      overflow: hidden; display: flex; flex-direction: column; position: relative;
+    }
+    .phone::before {
+      content: ""; position: absolute; top: 8px; left: 50%; transform: translateX(-50%);
+      width: 88px; height: 20px; background: #000; border-radius: 14px; z-index: 3;
+    }
+    .status {
+      height: 40px; padding: 12px 18px 0; display: flex; justify-content: space-between;
+      font-size: 11px; font-weight: 600; flex-shrink: 0;
+    }
+    .body {
+      flex: 1; min-height: 0; display: flex; flex-direction: column;
+      padding: 2px 12px 12px;
+    }
+    .meta {
+      display: flex; justify-content: space-between; align-items: center; gap: 6px; margin-bottom: 2px;
+    }
+    .meta .l { font-size: 9px; color: var(--muted); }
+    .timer {
+      font-family: "IBM Plex Mono", monospace; font-size: 9px;
+      border: 1px solid var(--hair); border-radius: 999px; padding: 3px 7px; color: var(--body);
+    }
+    .title {
+      display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 8px;
+    }
+    .title h3 {
+      margin: 0; font-family: "Instrument Serif", Georgia, serif;
+      font-size: 24px; font-weight: 400; letter-spacing: -.02em;
+    }
+    .help {
+      width: 26px; height: 26px; border-radius: 999px; border: 1px solid var(--hair);
+      display: grid; place-items: center; color: var(--muted); font-size: 11px;
+    }
+
+    .board-shell {
+      flex: 1 1 auto; min-height: 0; display: flex; align-items: center; justify-content: center;
+      margin-bottom: 8px; position: relative;
+    }
+    .card {
+      width: 100%; max-width: 268px; background: var(--soft); border-radius: 10px; padding: 6px;
+      border: 1px solid rgba(255,255,255,.05); box-shadow: 0 14px 32px rgba(0,0,0,.3);
+    }
+    .card.sq { aspect-ratio: 1; }
+
+    .session {
+      flex-shrink: 0;
+      border: 1px solid var(--hair2);
+      border-radius: 14px;
+      background: linear-gradient(180deg, rgba(255,255,255,.035), transparent 30%), var(--elev);
+      padding: 7px 7px 9px;
+    }
+    .session-top {
+      display: flex; align-items: center; justify-content: space-between;
+      margin-bottom: 6px; padding: 0 2px;
+    }
+    .session-mode {
+      font-family: "IBM Plex Mono", monospace; font-size: 8px;
+      letter-spacing: .12em; text-transform: uppercase; color: var(--muted);
+    }
+    .tools { display: flex; gap: 4px; }
+    .ico {
+      width: 30px; height: 30px; border-radius: 9px; border: 1px solid var(--hair);
+      background: rgba(0,0,0,.25); color: var(--ink); display: grid; place-items: center; padding: 0;
+    }
+    .ico svg { width: 13px; height: 13px; stroke: currentColor; fill: none; stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; }
+    .hint-line {
+      font-family: "IBM Plex Mono", monospace; font-size: 8px; letter-spacing: .06em;
+      color: var(--accent); text-align: center; margin-bottom: 6px; min-height: 11px;
+    }
+    .hint-line.muted { color: var(--muted); }
+    .foot { display: flex; align-items: center; gap: 6px; }
+    .done {
+      flex: 1; height: 36px; border-radius: 999px; border: 1px solid #fff;
+      background: #fff; color: #0a0a0a; font-size: 12px; font-weight: 600; cursor: pointer;
+    }
+    .done.ghost {
+      background: transparent; color: var(--muted); border-color: var(--hair); font-weight: 400;
+    }
+    .bail {
+      border: 0; background: none; color: var(--muted); font-size: 11px;
+      opacity: .7; padding: 6px 2px; cursor: pointer;
+    }
+    .frame-actions { display: flex; gap: 6px; }
+    .mini {
+      font-family: "IBM Plex Mono", monospace; font-size: 9px; letter-spacing: .06em;
+      text-transform: uppercase; border: 1px solid var(--hair); border-radius: 999px;
+      padding: 6px 10px; background: transparent; color: var(--body); cursor: pointer;
+    }
+    .mini:hover { border-color: var(--accent); color: var(--accent-soft); }
+
+    /* ——— Sudoku ——— */
+    .sg {
+      width: 100%; height: 100%; display: grid; grid-template-columns: repeat(9,1fr); grid-template-rows: repeat(9,1fr);
+      border: 1.5px solid var(--outer); border-radius: 3px; overflow: hidden; background: #16181c;
+    }
+    .sc {
+      display: grid; place-items: center; border-right: 1px solid var(--cell); border-bottom: 1px solid var(--cell);
+      font-family: "IBM Plex Mono", monospace; font-size: 11px; color: var(--ink);
+    }
+    .sc:nth-child(9n) { border-right: 0; }
+    .sc:nth-child(n+73) { border-bottom: 0; }
+    .sc.br { border-right-width: 1.5px; border-right-color: var(--box); }
+    .sc.bb { border-bottom-width: 1.5px; border-bottom-color: var(--box); }
+    .sc.g { color: var(--given); font-size: 10px; }
+    .sc.u { color: var(--ink); }
+
+    /* ——— Binary ——— */
+    .bg {
+      width: 100%; aspect-ratio: 1; display: grid; grid-template-columns: repeat(6,1fr); grid-template-rows: repeat(6,1fr);
+      border: 1.5px solid var(--outer); border-radius: 3px; overflow: hidden; background: #16181c;
+      position: relative;
+    }
+    .bc {
+      border-right: 1px solid var(--cell); border-bottom: 1px solid var(--cell);
+      display: grid; place-items: center; font-family: "IBM Plex Mono", monospace; font-size: 13px;
+      position: relative; z-index: 1;
+    }
+    .bc:nth-child(6n) { border-right: 0; }
+    .bc:nth-child(n+31) { border-bottom: 0; }
+    .bc.on { background: rgba(255,255,255,.1); color: var(--ink); }
+    .bc.off { color: var(--muted); }
+    .row-lines {
+      pointer-events: none; position: absolute; inset: 0; z-index: 2;
+      display: grid; grid-template-rows: repeat(6, 1fr);
+    }
+    .row-lines i {
+      display: block; border-bottom: 1px solid transparent; opacity: 0;
+    }
+
+    /* ——— Nonogram ——— */
+    .ng-wrap { display: grid; grid-template-columns: 28px 1fr; grid-template-rows: 28px 1fr; gap: 2px; }
+    .ng-cols, .ng-rows {
+      font-family: "IBM Plex Mono", monospace; font-size: 7px; color: var(--muted);
+      display: flex; gap: 1px;
+    }
+    .ng-cols { flex-direction: row; align-items: flex-end; }
+    .ng-cols span { flex: 1; text-align: center; line-height: 1.1; }
+    .ng-rows { flex-direction: column; justify-content: center; }
+    .ng-rows span { flex: 1; display: flex; align-items: center; justify-content: flex-end; padding-right: 2px; }
+    .ng {
+      display: grid; grid-template-columns: repeat(5,1fr); grid-template-rows: repeat(5,1fr);
+      border: 1.5px solid var(--outer); aspect-ratio: 1; background: #16181c;
+    }
+    .nc { border-right: 1px solid var(--cell); border-bottom: 1px solid var(--cell); }
+    .nc:nth-child(5n) { border-right: 0; }
+    .nc:nth-child(n+21) { border-bottom: 0; }
+    .nc.fill { background: #e8e8e6; }
+    .nc.x {
+      background-image: linear-gradient(135deg, transparent 46%, var(--muted) 46%, var(--muted) 54%, transparent 54%);
+    }
+
+    /* ——— Slitherlink ——— */
+    .sl {
+      width: 100%; aspect-ratio: 1; position: relative; background: #16181c;
+      border: 1.5px solid var(--outer); border-radius: 3px;
+    }
+    .sl svg { width: 100%; height: 100%; display: block; }
+    .sl .loop { fill: none; stroke: #fff; stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round; }
+    .sl .clue { fill: var(--muted); font-family: "IBM Plex Mono", monospace; font-size: 9px; text-anchor: middle; dominant-baseline: central; }
+
+    /* ——— KEYFRAMES: WIN 200ms ——— */
+    @keyframes sudoku-win-cell {
+      0% { background: transparent; transform: scale(1); }
+      40% { background: rgba(255,122,23,.18); transform: scale(1.04); }
+      100% { background: transparent; transform: scale(1); }
+    }
+    @keyframes binary-win-cell {
+      0% { background: rgba(255,255,255,.1); }
+      45% { background: rgba(255,255,255,.16); box-shadow: inset 0 0 0 1px rgba(255,194,133,.35); }
+      100% { background: rgba(255,255,255,.1); box-shadow: none; }
+    }
+    @keyframes binary-win-row {
+      0%, 100% { opacity: 0; border-bottom-color: transparent; }
+      45% { opacity: 1; border-bottom-color: rgba(255,194,133,.5); }
+    }
+    @keyframes nonogram-win-fill {
+      0% { background: #e8e8e6; filter: brightness(1); }
+      45% { background: #ffffff; filter: brightness(1.08); }
+      100% { background: #e8e8e6; filter: brightness(1); }
+    }
+    @keyframes sl-win-stroke {
+      0% { stroke: #fff; stroke-width: 2.2; }
+      45% { stroke: #ffc285; stroke-width: 3.4; }
+      100% { stroke: #fff; stroke-width: 2.2; }
+    }
+
+    /* ——— KEYFRAMES: ABANDON 120ms ——— */
+    @keyframes sudoku-bail-cell {
+      0% { opacity: 1; transform: scale(1); }
+      100% { opacity: .5; transform: scale(.985); }
+    }
+    @keyframes binary-bail-cell {
+      0% { opacity: 1; }
+      100% { opacity: .45; }
+    }
+    @keyframes nonogram-bail-fill {
+      0% { background: #e8e8e6; box-shadow: none; }
+      100% { background: #e8e8e6; box-shadow: inset 0 0 0 40px rgba(125,129,135,.55); }
+    }
+    @keyframes sl-bail-stroke {
+      0% { stroke-opacity: 1; }
+      100% { stroke-opacity: .4; }
+    }
+
+    /* play classes */
+    .playing-win .sc.u { animation: sudoku-win-cell var(--win-ms) cubic-bezier(0.22, 1, 0.36, 1) both; }
+    .playing-bail .sc.u { animation: sudoku-bail-cell var(--bail-ms) cubic-bezier(0.55, 0.06, 0.68, 0.19) both; }
+
+    .playing-win .bc.on { animation: binary-win-cell var(--win-ms) cubic-bezier(0.22, 1, 0.36, 1) both; }
+    .playing-win .row-lines i { animation: binary-win-row var(--win-ms) cubic-bezier(0.22, 1, 0.36, 1) both; }
+    .playing-bail .bc.on, .playing-bail .bc.off { animation: binary-bail-cell var(--bail-ms) cubic-bezier(0.55, 0.06, 0.68, 0.19) both; }
+
+    .playing-win .nc.fill { animation: nonogram-win-fill var(--win-ms) cubic-bezier(0.22, 1, 0.36, 1) both; }
+    .playing-bail .nc.fill { animation: nonogram-bail-fill var(--bail-ms) cubic-bezier(0.55, 0.06, 0.68, 0.19) both; }
+
+    .playing-win .loop { animation: sl-win-stroke var(--win-ms) cubic-bezier(0.22, 1, 0.36, 1) both; }
+    .playing-bail .loop { animation: sl-bail-stroke var(--bail-ms) cubic-bezier(0.55, 0.06, 0.68, 0.19) both; }
+
+    .legend {
+      margin-top: 40px; border: 1px solid var(--hair); border-radius: 14px;
+      padding: 18px 20px; background: rgba(255,255,255,.02);
+    }
+    .legend h4 { margin: 0 0 8px; font-size: 15px; }
+    .legend p { margin: 0; font-size: 13px; line-height: 1.55; color: var(--body); }
+    .legend code { color: var(--accent); font-family: "IBM Plex Mono", monospace; font-size: 12px; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="kicker">v2.6-03 · DIFF-03 · Board as sculpture</div>
+    <h1>招牌一刻：棋盘说话，<br />底栏只按扳机</h1>
+    <p class="lede">
+      通关 <strong style="color:#fff;font-weight:500">200ms · out-cubic</strong>，认怂
+      <strong style="color:#fff;font-weight:500">120ms · in-quad</strong>。
+      四题介质各异（格亮 / 行结 / 绘闪 / 环弹），与 <code style="color:var(--accent)">markCompleted</code> /
+      <code style="color:var(--accent)">markAbandoned</code> <strong style="color:#fff;font-weight:500">并行</strong>，不闸导航。
+      色板仅用 DESIGN.md：canvas <code style="color:var(--muted)">#0a0a0a</code> · sunset <code style="color:var(--accent)">#ff7a17</code> · soft <code style="color:var(--accent-soft)">#ffc285</code>。
+    </p>
+
+    <div class="toolbar">
+      <button class="btn primary" type="button" id="play-all">Play all</button>
+      <button class="btn" type="button" id="play-wins">Play wins only</button>
+      <button class="btn" type="button" id="play-bails">Play abandons only</button>
+      <span class="meta-pill">Host Desk Path B chrome · no particles · no fullscreen flash</span>
+    </div>
+
+    <div class="rule">
+      <div><b>D-01 / D-04</b><span>通关钉「完成」；认怂钉确认后；非最后一格自动播</span></div>
+      <div><b>D-10</b><span>棋盘主角；footer 不演主戏（仅热触发）</span></div>
+      <div><b>D-11</b><span>认怂 = 同介质、更短更钝</span></div>
+      <div><b>D-12</b><span>禁粒子 / Lottie / 闪白 / 抢戏 ZoomIn(520)</span></div>
+    </div>
+
+    <div class="section-h">
+      <h2>8 变体故事板</h2>
+      <span class="meta-pill">每帧可 Replay · 自动播完复位</span>
+    </div>
+
+    <div class="grid-8" id="gallery">
+      <!-- SUDOKU WIN -->
+      <div class="col" data-frame="sudoku-win" data-polarity="win">
+        <div class="lab win">数独 · 通关 · cells light</div>
+        <div class="phone">
+          <div class="status"><span>09:41</span><span style="opacity:.65">●●</span></div>
+          <div class="body">
+            <div class="meta"><div class="l">今日 · 连签 4</div><div class="timer">04:12</div></div>
+            <div class="title"><h3>数独</h3><div class="help">?</div></div>
+            <div class="board-shell"><div class="card sq"><div class="sg" data-board="sudoku"></div></div></div>
+            <div class="session">
+              <div class="session-top">
+                <div class="session-mode">Fill</div>
+                <div class="tools"><button class="ico" type="button" tabindex="-1" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M9 14 4 9l5-5"/><path d="M4 9h11a4 4 0 1 1 0 8h-4"/></svg></button></div>
+              </div>
+              <div class="hint-line">可完成 · 点完成即拍</div>
+              <div class="foot">
+                <button class="done" type="button" data-trigger="win">完成今日</button>
+                <button class="bail" type="button" tabindex="-1">认怂</button>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="frame-actions"><button class="mini" type="button" data-replay>Replay</button></div>
+      </div>
+
+      <!-- BINARY WIN -->
+      <div class="col" data-frame="binary-win" data-polarity="win">
+        <div class="lab win">二进制 · 通关 · row settle</div>
+        <div class="phone">
+          <div class="status"><span>09:41</span><span style="opacity:.65">●●</span></div>
+          <div class="body">
+            <div class="meta"><div class="l">今日 · 连签 4</div><div class="timer">02:48</div></div>
+            <div class="title"><h3>二进制</h3><div class="help">?</div></div>
+            <div class="board-shell"><div class="card sq">
+              <div class="bg" data-board="binary">
+                <div class="row-lines" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i></div>
+              </div>
+            </div></div>
+            <div class="session">
+              <div class="session-top"><div class="session-mode">Board</div>
+                <div class="tools"><button class="ico" type="button" tabindex="-1" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M9 14 4 9l5-5"/><path d="M4 9h11a4 4 0 1 1 0 8h-4"/></svg></button></div>
+              </div>
+              <div class="hint-line">可完成 · 点完成即拍</div>
+              <div class="foot"><button class="done" type="button" data-trigger="win">完成今日</button><button class="bail" type="button" tabindex="-1">认怂</button></div>
+            </div>
+          </div>
+        </div>
+        <div class="frame-actions"><button class="mini" type="button" data-replay>Replay</button></div>
+      </div>
+
+      <!-- NONOGRAM WIN -->
+      <div class="col" data-frame="nonogram-win" data-polarity="win">
+        <div class="lab win">数绘 · 通关 · paint flash</div>
+        <div class="phone">
+          <div class="status"><span>09:41</span><span style="opacity:.65">●●</span></div>
+          <div class="body">
+            <div class="meta"><div class="l">今日 · 连签 4</div><div class="timer">03:05</div></div>
+            <div class="title"><h3>数绘</h3><div class="help">?</div></div>
+            <div class="board-shell"><div class="card sq">
+              <div class="ng-wrap" data-board="nonogram">
+                <div></div>
+                <div class="ng-cols"><span>2</span><span>1<br>1</span><span>3</span><span>1</span><span>2</span></div>
+                <div class="ng-rows"><span>2</span><span>1 1</span><span>3</span><span>1</span><span>2</span></div>
+                <div class="ng"></div>
+              </div>
+            </div></div>
+            <div class="session">
+              <div class="session-top"><div class="session-mode">Paint</div>
+                <div class="tools"><button class="ico" type="button" tabindex="-1" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M9 14 4 9l5-5"/><path d="M4 9h11a4 4 0 1 1 0 8h-4"/></svg></button></div>
+              </div>
+              <div class="hint-line">可完成 · 点完成即拍</div>
+              <div class="foot"><button class="done" type="button" data-trigger="win">完成今日</button><button class="bail" type="button" tabindex="-1">认怂</button></div>
+            </div>
+          </div>
+        </div>
+        <div class="frame-actions"><button class="mini" type="button" data-replay>Replay</button></div>
+      </div>
+
+      <!-- SLITHERLINK WIN -->
+      <div class="col" data-frame="slitherlink-win" data-polarity="win">
+        <div class="lab win">数回 · 通关 · loop spring</div>
+        <div class="phone">
+          <div class="status"><span>09:41</span><span style="opacity:.65">●●</span></div>
+          <div class="body">
+            <div class="meta"><div class="l">今日 · 连签 4</div><div class="timer">05:22</div></div>
+            <div class="title"><h3>数回</h3><div class="help">?</div></div>
+            <div class="board-shell"><div class="card sq"><div class="sl" data-board="slitherlink"></div></div></div>
+            <div class="session">
+              <div class="session-top"><div class="session-mode">Edges</div>
+                <div class="tools"><button class="ico" type="button" tabindex="-1" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M9 14 4 9l5-5"/><path d="M4 9h11a4 4 0 1 1 0 8h-4"/></svg></button></div>
+              </div>
+              <div class="hint-line">可完成 · 点完成即拍</div>
+              <div class="foot"><button class="done" type="button" data-trigger="win">完成今日</button><button class="bail" type="button" tabindex="-1">认怂</button></div>
+            </div>
+          </div>
+        </div>
+        <div class="frame-actions"><button class="mini" type="button" data-replay>Replay</button></div>
+      </div>
+
+      <!-- SUDOKU BAIL -->
+      <div class="col" data-frame="sudoku-bail" data-polarity="bail">
+        <div class="lab bail">数独 · 认怂 · dim settle</div>
+        <div class="phone">
+          <div class="status"><span>09:41</span><span style="opacity:.65">●●</span></div>
+          <div class="body">
+            <div class="meta"><div class="l">今日 · 连签 4</div><div class="timer">01:09</div></div>
+            <div class="title"><h3>数独</h3><div class="help">?</div></div>
+            <div class="board-shell"><div class="card sq"><div class="sg" data-board="sudoku"></div></div></div>
+            <div class="session">
+              <div class="session-top"><div class="session-mode">Fill</div>
+                <div class="tools"><button class="ico" type="button" tabindex="-1" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M9 14 4 9l5-5"/><path d="M4 9h11a4 4 0 1 1 0 8h-4"/></svg></button></div>
+              </div>
+              <div class="hint-line muted">确认认怂后拍 · 同介质更钝</div>
+              <div class="foot">
+                <button class="done ghost" type="button" tabindex="-1">完成今日</button>
+                <button class="bail" type="button" data-trigger="bail" style="color:#fff;opacity:1">认怂 ✓</button>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="frame-actions"><button class="mini" type="button" data-replay>Replay</button></div>
+      </div>
+
+      <!-- BINARY BAIL -->
+      <div class="col" data-frame="binary-bail" data-polarity="bail">
+        <div class="lab bail">二进制 · 认怂 · dim settle</div>
+        <div class="phone">
+          <div class="status"><span>09:41</span><span style="opacity:.65">●●</span></div>
+          <div class="body">
+            <div class="meta"><div class="l">今日 · 连签 4</div><div class="timer">00:51</div></div>
+            <div class="title"><h3>二进制</h3><div class="help">?</div></div>
+            <div class="board-shell"><div class="card sq">
+              <div class="bg" data-board="binary"><div class="row-lines" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i></div></div>
+            </div></div>
+            <div class="session">
+              <div class="session-top"><div class="session-mode">Board</div>
+                <div class="tools"><button class="ico" type="button" tabindex="-1" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M9 14 4 9l5-5"/><path d="M4 9h11a4 4 0 1 1 0 8h-4"/></svg></button></div>
+              </div>
+              <div class="hint-line muted">确认认怂后拍 · 同介质更钝</div>
+              <div class="foot"><button class="done ghost" type="button" tabindex="-1">完成今日</button><button class="bail" type="button" data-trigger="bail" style="color:#fff;opacity:1">认怂 ✓</button></div>
+            </div>
+          </div>
+        </div>
+        <div class="frame-actions"><button class="mini" type="button" data-replay>Replay</button></div>
+      </div>
+
+      <!-- NONOGRAM BAIL -->
+      <div class="col" data-frame="nonogram-bail" data-polarity="bail">
+        <div class="lab bail">数绘 · 认怂 · dull paint</div>
+        <div class="phone">
+          <div class="status"><span>09:41</span><span style="opacity:.65">●●</span></div>
+          <div class="body">
+            <div class="meta"><div class="l">今日 · 连签 4</div><div class="timer">01:33</div></div>
+            <div class="title"><h3>数绘</h3><div class="help">?</div></div>
+            <div class="board-shell"><div class="card sq">
+              <div class="ng-wrap" data-board="nonogram">
+                <div></div>
+                <div class="ng-cols"><span>2</span><span>1<br>1</span><span>3</span><span>1</span><span>2</span></div>
+                <div class="ng-rows"><span>2</span><span>1 1</span><span>3</span><span>1</span><span>2</span></div>
+                <div class="ng"></div>
+              </div>
+            </div></div>
+            <div class="session">
+              <div class="session-top"><div class="session-mode">Paint</div>
+                <div class="tools"><button class="ico" type="button" tabindex="-1" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M9 14 4 9l5-5"/><path d="M4 9h11a4 4 0 1 1 0 8h-4"/></svg></button></div>
+              </div>
+              <div class="hint-line muted">确认认怂后拍 · 同介质更钝</div>
+              <div class="foot"><button class="done ghost" type="button" tabindex="-1">完成今日</button><button class="bail" type="button" data-trigger="bail" style="color:#fff;opacity:1">认怂 ✓</button></div>
+            </div>
+          </div>
+        </div>
+        <div class="frame-actions"><button class="mini" type="button" data-replay>Replay</button></div>
+      </div>
+
+      <!-- SLITHERLINK BAIL -->
+      <div class="col" data-frame="slitherlink-bail" data-polarity="bail">
+        <div class="lab bail">数回 · 认怂 · edge fade</div>
+        <div class="phone">
+          <div class="status"><span>09:41</span><span style="opacity:.65">●●</span></div>
+          <div class="body">
+            <div class="meta"><div class="l">今日 · 连签 4</div><div class="timer">02:10</div></div>
+            <div class="title"><h3>数回</h3><div class="help">?</div></div>
+            <div class="board-shell"><div class="card sq"><div class="sl" data-board="slitherlink"></div></div></div>
+            <div class="session">
+              <div class="session-top"><div class="session-mode">Edges</div>
+                <div class="tools"><button class="ico" type="button" tabindex="-1" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M9 14 4 9l5-5"/><path d="M4 9h11a4 4 0 1 1 0 8h-4"/></svg></button></div>
+              </div>
+              <div class="hint-line muted">确认认怂后拍 · 同介质更钝</div>
+              <div class="foot"><button class="done ghost" type="button" tabindex="-1">完成今日</button><button class="bail" type="button" data-trigger="bail" style="color:#fff;opacity:1">认怂 ✓</button></div>
+            </div>
+          </div>
+        </div>
+        <div class="frame-actions"><button class="mini" type="button" data-replay>Replay</button></div>
+      </div>
+    </div>
+
+    <div class="legend">
+      <h4>Implementation mapping</h4>
+      <p>
+        CSS <code>cubic-bezier(0.22, 1, 0.36, 1)</code> ≈ Reanimated <code>Easing.out(Easing.cubic)</code> ·
+        <code>cubic-bezier(0.55, 0.06, 0.68, 0.19)</code> ≈ <code>Easing.in(Easing.quad)</code>.
+        Overlay decorative — a11y: <code>accessible={false}</code> on glow layers; reduce-motion skips visuals, keeps one haptic.
+        See <code>signature-timing-sheet.html</code> + <code>v2.6-03-UI-SPEC.md</code>.
+      </p>
+    </div>
+  </div>
+
+  <script>
+    (function () {
+      const SUDOKU = [
+        // 0 empty, g given, u user — demo filled board
+        'g5','u3','g4','u6','g7','u8','g9','u1','g2',
+        'u6','g7','u2','g1','u9','g5','u3','g4','u8',
+        'g1','u9','g8','u3','g4','u2','g5','u6','g7',
+        'u8','g5','u9','g7','u6','g1','u4','g2','u3',
+        'g4','u2','g6','u8','g5','u3','g7','u9','g1',
+        'u7','g1','u3','g9','u2','g4','u8','g5','u6',
+        'g9','u6','g1','u5','g3','u7','g2','u8','g4',
+        'u2','g8','u7','g4','u1','g9','u6','g3','u5',
+        'g3','u4','g5','u2','g8','u6','g1','u7','g9',
+      ];
+      const BINARY = [
+        1,0,1,0,1,0,
+        0,1,0,1,0,1,
+        1,0,1,0,1,0,
+        0,1,0,1,0,1,
+        1,1,0,0,1,0,
+        0,0,1,1,0,1,
+      ];
+      const NONO = [
+        1,1,0,0,1,
+        1,0,1,0,0,
+        1,1,1,0,0,
+        0,0,0,1,0,
+        1,1,0,0,1,
+      ];
+
+      function buildSudoku(root) {
+        root.innerHTML = '';
+        SUDOKU.forEach((tok, i) => {
+          const c = document.createElement('div');
+          c.className = 'sc';
+          const col = i % 9;
+          const row = Math.floor(i / 9);
+          if (col === 2 || col === 5) c.classList.add('br');
+          if (row === 2 || row === 5) c.classList.add('bb');
+          if (tok.startsWith('g')) { c.classList.add('g'); c.textContent = tok.slice(1); }
+          else { c.classList.add('u'); c.textContent = tok.slice(1); }
+          root.appendChild(c);
+        });
+      }
+
+      function buildBinary(root) {
+        const lines = root.querySelector('.row-lines');
+        root.querySelectorAll('.bc').forEach((n) => n.remove());
+        BINARY.forEach((v) => {
+          const c = document.createElement('div');
+          c.className = 'bc ' + (v === 1 ? 'on' : 'off');
+          c.textContent = String(v);
+          root.insertBefore(c, lines);
+        });
+      }
+
+      function buildNonogram(wrap) {
+        const ng = wrap.querySelector('.ng');
+        ng.innerHTML = '';
+        NONO.forEach((v, i) => {
+          const c = document.createElement('div');
+          c.className = 'nc';
+          if (v === 1) c.classList.add('fill');
+          else if (i === 3 || i === 8 || i === 16) c.classList.add('x');
+          ng.appendChild(c);
+        });
+      }
+
+      function buildSlither(root) {
+        root.innerHTML = `
+          <svg viewBox="0 0 100 100" aria-hidden="true">
+            <g stroke="rgba(255,255,255,.12)" stroke-width="0.6">
+              ${[20,40,60,80].map((x) => `<line x1="${x}" y1="12" x2="${x}" y2="88"/>`).join('')}
+              ${[20,40,60,80].map((y) => `<line x1="12" y1="${y}" x2="88" y2="${y}"/>`).join('')}
+            </g>
+            <text class="clue" x="30" y="30">2</text>
+            <text class="clue" x="50" y="30">1</text>
+            <text class="clue" x="70" y="50">3</text>
+            <text class="clue" x="30" y="70">2</text>
+            <path class="loop" d="M20 20 H80 V80 H20 Z M20 40 H40 V60 H60 V40"/>
+          </svg>`;
+      }
+
+      document.querySelectorAll('[data-board="sudoku"]').forEach(buildSudoku);
+      document.querySelectorAll('[data-board="binary"]').forEach(buildBinary);
+      document.querySelectorAll('[data-board="nonogram"]').forEach(buildNonogram);
+      document.querySelectorAll('[data-board="slitherlink"]').forEach(buildSlither);
+
+      const timers = new WeakMap();
+
+      function playFrame(col) {
+        const board = col.querySelector('[data-board]');
+        if (!board) return;
+        const polarity = col.dataset.polarity;
+        const cls = polarity === 'win' ? 'playing-win' : 'playing-bail';
+        const ms = polarity === 'win' ? 220 : 140;
+        board.classList.remove('playing-win', 'playing-bail');
+        // reflow restart
+        void board.offsetWidth;
+        board.classList.add(cls);
+        const prev = timers.get(col);
+        if (prev) clearTimeout(prev);
+        timers.set(col, setTimeout(() => {
+          board.classList.remove(cls);
+        }, ms));
+      }
+
+      document.querySelectorAll('[data-replay]').forEach((btn) => {
+        btn.addEventListener('click', () => playFrame(btn.closest('.col')));
+      });
+      document.querySelectorAll('[data-trigger]').forEach((btn) => {
+        btn.addEventListener('click', () => playFrame(btn.closest('.col')));
+      });
+
+      function playFilter(pred) {
+        document.querySelectorAll('#gallery .col').forEach((col, i) => {
+          if (!pred(col)) return;
+          setTimeout(() => playFrame(col), i * 90);
+        });
+      }
+
+      document.getElementById('play-all').addEventListener('click', () => playFilter(() => true));
+      document.getElementById('play-wins').addEventListener('click', () => playFilter((c) => c.dataset.polarity === 'win'));
+      document.getElementById('play-bails').addEventListener('click', () => playFilter((c) => c.dataset.polarity === 'bail'));
+
+      // auto demo once
+      setTimeout(() => playFilter((c) => c.dataset.polarity === 'win'), 600);
+    })();
+  </script>
+</body>
+</html>
