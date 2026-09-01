@@ -1,12 +1,12 @@
-import * as Clipboard from 'expo-clipboard';
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { AccessibilityInfo } from 'react-native';
+import { AccessibilityInfo, Share } from 'react-native';
 
+import { APP_STORE_URL } from '../../constants/config';
 import { pickShareSuccessToast } from '../../lib/copy/shareToasts';
 import { useI18n } from '../../lib/i18n';
 import OutlinePillButton from '../ui/OutlinePillButton';
 
-type ShareButtonState = 'idle' | 'copying' | 'success' | 'error';
+type ShareButtonState = 'idle' | 'sharing' | 'success' | 'error';
 
 type ShareButtonProps = {
   shareText: string;
@@ -41,27 +41,34 @@ export default function ShareButton({
   }, [clearResetTimer]);
 
   const label =
-    state === 'copying'
-      ? shareUi.copying
+    state === 'sharing'
+      ? shareUi.sharing
       : state === 'success'
-        ? shareUi.copied
+        ? shareUi.shared
         : state === 'error'
-          ? shareUi.copyFailed
-          : shareUi.copyReport;
+          ? shareUi.shareFailed
+          : shareUi.shareReport;
 
   const accessibilityLabel =
-    state === 'success'
-      ? shareUi.copiedA11y
-      : state === 'error'
-        ? shareUi.failedA11y
-        : shareUi.copyReportA11y;
+    state === 'sharing'
+      ? shareUi.sharing
+      : state === 'success'
+        ? shareUi.sharedA11y
+        : state === 'error'
+          ? shareUi.failedA11y
+          : shareUi.shareReportA11y;
 
   const handlePress = useCallback(async () => {
-    if (state === 'copying') return;
+    if (state === 'sharing') return;
 
-    setState('copying');
+    setState('sharing');
     try {
-      await Clipboard.setStringAsync(shareText);
+      const message = `${shareText}\n${APP_STORE_URL}`;
+      const result = await Share.share({ message });
+      if (result.action === Share.dismissedAction) {
+        setState('idle');
+        return;
+      }
       setState('success');
       const toast = pickShareSuccessToast(
         seed,
@@ -80,13 +87,13 @@ export default function ShareButton({
     <OutlinePillButton
       label={label}
       variant="outline"
-      disabled={state === 'copying'}
+      disabled={state === 'sharing'}
       onPress={() => {
         void handlePress();
       }}
       accessibilityLabel={accessibilityLabel}
       accessibilityHint={shareUi.hint}
-      accessibilityState={{ busy: state === 'copying' }}
+      accessibilityState={{ busy: state === 'sharing' }}
       className="w-full"
     />
   );

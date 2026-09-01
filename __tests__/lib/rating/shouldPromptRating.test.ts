@@ -5,12 +5,12 @@ const TODAY = '2026-05-26';
 const COOLDOWN_START = '2026-02-20';
 
 describe('shouldPromptRating', () => {
-  it('returns true when all gates pass', () => {
+  it('returns true when all gates pass on first completion', () => {
     expect(
       shouldPromptRating({
         outcome: 'completed',
-        completedCount: 3,
-        streak: 2,
+        completedCount: 1,
+        streak: 1,
         ratingState: DEFAULT_RATING_STATE,
         todayDateKey: TODAY,
       }),
@@ -29,11 +29,11 @@ describe('shouldPromptRating', () => {
     ).toBe(false);
   });
 
-  it('returns false when completedCount below 3', () => {
+  it('returns false when completedCount below 1', () => {
     expect(
       shouldPromptRating({
         outcome: 'completed',
-        completedCount: 2,
+        completedCount: 0,
         streak: 5,
         ratingState: DEFAULT_RATING_STATE,
         todayDateKey: TODAY,
@@ -41,12 +41,12 @@ describe('shouldPromptRating', () => {
     ).toBe(false);
   });
 
-  it('returns false when streak below 2', () => {
+  it('returns false when streak below 1', () => {
     expect(
       shouldPromptRating({
         outcome: 'completed',
         completedCount: 5,
-        streak: 1,
+        streak: 0,
         ratingState: DEFAULT_RATING_STATE,
         todayDateKey: TODAY,
       }),
@@ -84,8 +84,8 @@ describe('shouldPromptRating', () => {
     expect(
       shouldPromptRating({
         outcome: 'completed',
-        completedCount: 3,
-        streak: 2,
+        completedCount: 1,
+        streak: 1,
         ratingState: {
           ...DEFAULT_RATING_STATE,
           lastPromptAt: COOLDOWN_START,
@@ -99,8 +99,8 @@ describe('shouldPromptRating', () => {
     expect(
       shouldPromptRating({
         outcome: 'completed',
-        completedCount: 3,
-        streak: 2,
+        completedCount: 1,
+        streak: 1,
         ratingState: {
           ...DEFAULT_RATING_STATE,
           lastPromptAt: '2026-02-27',

@@ -90,3 +90,6 @@ CLAUDE.md
 
 .codegraph
 .code-review-graph/
+
+project-data-analyse/*
+.claude/

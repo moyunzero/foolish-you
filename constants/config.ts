@@ -46,6 +46,9 @@ export const SLITHERLINK_MAX_GEN_ATTEMPTS = 50;
 
 export const PLAY_STATE_DEBOUNCE_MS = 300;
 
+/** iOS App Store 产品页（分享战报附带；Android 未上架前仍用此链接）。 */
+export const APP_STORE_URL = 'https://apps.apple.com/app/id6770218110';
+
 /**
  * Gentle-growth (v2.2) 结果页近况文案阈值。初始值，可调参（D-08）；
  * 运行时常量，非持久化 shape，无 storage version bump。

@@ -310,26 +310,26 @@ export const share = {
     'Clean grid. Clock told the truth.',
     'Puzzle didn’t win. Timer almost did.',
     'Good game. Less stalling next time.',
-    'Paste in chat — beat my time if you can.',
+    'Share it — beat my time if you can.',
   ] as const,
 
   cardCta: '#Brainfool · daily silly puzzle',
 
   successToasts: [
-    'Report copied — go flex in chat',
-    'On your clipboard. Send it.',
-    'Copied. Make a friend play too.',
-    'Ready to paste. Show off.',
-    'Copied. Wait for “what is this?”',
-    'Copied. Spread the daily puzzle.',
+    'Report shared — go flex in chat',
+    'Shared. Make a friend play too.',
+    'Shared. Wait for “what is this?”',
+    'Shared. Spread the daily puzzle.',
+    'Sent. Waiting on replies.',
+    'Shared. Come back tomorrow for round two.',
   ] as const,
 
   errorToasts: [
-    'Copy failed — tap again',
-    'Clipboard said no — retry',
-    'Didn’t copy — try once more',
+    'Share failed — tap again',
+    'Share sheet said no — retry',
+    'Didn’t send — try once more',
     'System declined — hit again',
-    'Copy glitched — tap to retry',
+    'Share glitched — tap to retry',
   ] as const,
 } as const;
 

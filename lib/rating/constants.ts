@@ -1,8 +1,8 @@
-/** 累计通关次数下限（含本次） */
-export const RATING_MIN_COMPLETED_COUNT = 3;
+/** 累计通关次数下限（含本次）。种子期放宽到首次通关即可请求。 */
+export const RATING_MIN_COMPLETED_COUNT = 1;
 
-/** 连签展示天数下限（入账后 displayStreak） */
-export const RATING_MIN_STREAK = 2;
+/** 连签展示天数下限（入账后 displayStreak）。首次通关 displayStreak=1。 */
+export const RATING_MIN_STREAK = 1;
 
 /** 距上次 requestReview 尝试的最小间隔（天） */
 export const RATING_COOLDOWN_DAYS = 90;
