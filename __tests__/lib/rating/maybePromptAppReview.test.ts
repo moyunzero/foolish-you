@@ -17,11 +17,11 @@ describe('maybePromptAppReview', () => {
   });
 
   it('calls requestReview when gates pass', async () => {
-    await saveRatingState({ ...DEFAULT_RATING_STATE, completedCount: 3 });
+    await saveRatingState({ ...DEFAULT_RATING_STATE, completedCount: 1 });
 
     const prompted = await maybePromptAppReview({
       outcome: 'completed',
-      streak: 2,
+      streak: 1,
       dateKey: '2026-05-26',
     });
 
@@ -30,7 +30,7 @@ describe('maybePromptAppReview', () => {
   });
 
   it('does not call requestReview when completedCount too low', async () => {
-    await saveRatingState({ ...DEFAULT_RATING_STATE, completedCount: 1 });
+    await saveRatingState({ ...DEFAULT_RATING_STATE, completedCount: 0 });
 
     const prompted = await maybePromptAppReview({
       outcome: 'completed',
