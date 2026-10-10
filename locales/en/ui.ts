@@ -25,6 +25,9 @@ export const ui = {
     sessionModeValue: 'Value',
     sessionModeBoard: 'Board',
     loadFailed: 'Couldn’t load today’s puzzle. Local data may be corrupted.',
+    /** Carry chip — instrumental; formal CTA copy in v2.7-04 */
+    carryChip: 'RESUME',
+    carryChipA11y: (dateKey: string) => `Resume, opened ${dateKey}`,
   },
 
   result: {

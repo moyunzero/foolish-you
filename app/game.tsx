@@ -62,6 +62,7 @@ export default function GameScreen() {
     freezeConsumedToday,
     freezeConsumedLine,
     missedYesterdayLine,
+    isCarrying,
     updatePlayState,
     updateSudokuNotes,
     markCompleted,
@@ -249,6 +250,7 @@ export default function GameScreen() {
             !firstIntroVisible
           }
           streakSubline={streakSubline}
+          isCarrying={isCarrying}
         />
       </View>
 

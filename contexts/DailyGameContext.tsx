@@ -10,6 +10,7 @@ import {
 } from 'react';
 import { AppState, type AppStateStatus } from 'react-native';
 
+import { isCarrying as deriveIsCarrying } from '../lib/daily/carryState';
 import {
   buildNewDailySnapshot,
   hydrateDailyGame,
@@ -98,6 +99,8 @@ export type DailyGameState = {
   freezeConsumedLine: string;
   /** playing 态昨日错过召回 copy；不显示时为 null */
   missedYesterdayLine: string | null;
+  /** Cross-day unfinished board (opening dateKey < calendar today) */
+  isCarrying: boolean;
   updatePlayState: (next: PlayState) => void;
   /** Sudoku notes sibling write (D-06, D-22) — one narrow Context export. */
   updateSudokuNotes: (next: SudokuNotes | null) => void;
@@ -553,6 +556,12 @@ function useDailyGameProviderValue(): DailyGameState {
     freezeConsumedToday,
   ]);
 
+  const isCarrying = deriveIsCarrying(
+    status,
+    snapshot?.dateKey ?? null,
+    getLocalDateKey(),
+  );
+
   return useMemo(
     () => ({
       status,
@@ -570,6 +579,7 @@ function useDailyGameProviderValue(): DailyGameState {
       freezeConsumedToday,
       freezeConsumedLine,
       missedYesterdayLine,
+      isCarrying,
       updatePlayState,
       updateSudokuNotes,
       markCompleted,
@@ -593,6 +603,7 @@ function useDailyGameProviderValue(): DailyGameState {
       freezeConsumedToday,
       freezeConsumedLine,
       missedYesterdayLine,
+      isCarrying,
       updatePlayState,
       updateSudokuNotes,
       markCompleted,

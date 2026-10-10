@@ -25,6 +25,9 @@ export const ui = {
     sessionModeValue: '填数',
     sessionModeBoard: '棋盘',
     loadFailed: '今日题目加载失败，可能是本地数据损坏。',
+    /** Carry chip — instrumental; formal CTA copy in v2.7-04 */
+    carryChip: '续局',
+    carryChipA11y: (dateKey: string) => `续局，开局日 ${dateKey}`,
   },
 
   result: {

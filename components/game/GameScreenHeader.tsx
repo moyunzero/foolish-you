@@ -1,5 +1,6 @@
 import { Text, View } from 'react-native';
 
+import { colors } from '../../constants/design';
 import { useI18n } from '../../lib/i18n';
 import { formatTodayMeta } from '../../lib/i18n/format';
 import { GAME_HEADER_META_STYLE } from './gameHeaderMetaStyle';
@@ -17,9 +18,11 @@ type GameScreenHeaderProps = {
   showRules: boolean;
   /** Shield consumed or missed-yesterday recall; mutually exclusive at call site. */
   streakSubline?: string | null;
+  /** Cross-day unfinished board — Option A carry chip (v2.7-01). */
+  isCarrying?: boolean;
 };
 
-/** 游戏页顶栏：单行元信息、题型标题、连签副行 */
+/** 游戏页顶栏：单行元信息、题型标题、续局 chip、连签副行 */
 export default function GameScreenHeader({
   dateKey,
   streakLine,
@@ -29,6 +32,7 @@ export default function GameScreenHeader({
   gameType,
   showRules,
   streakSubline,
+  isCarrying = false,
 }: GameScreenHeaderProps) {
   const { locale, strings } = useI18n();
   const dateMeta = formatTodayMeta(dateKey, locale);
@@ -83,6 +87,37 @@ export default function GameScreenHeader({
           <GameRulesButton gameType={gameType} />
         ) : null}
       </View>
+
+      {isCarrying && dateKey != null ? (
+        <View
+          accessibilityRole="text"
+          accessibilityLabel={strings.ui.game.carryChipA11y(dateKey)}
+          style={{
+            alignSelf: 'flex-start',
+            borderRadius: 6,
+            borderWidth: 1,
+            borderColor: 'rgba(255, 122, 23, 0.45)',
+            backgroundColor: 'rgba(255, 122, 23, 0.12)',
+            paddingHorizontal: 8,
+            paddingVertical: 4,
+            minHeight: 24,
+            justifyContent: 'center',
+          }}
+        >
+          <Text
+            style={{
+              fontFamily: 'SpaceMono_400Regular',
+              fontSize: 11,
+              lineHeight: 14,
+              letterSpacing: 1.2,
+              textTransform: 'uppercase',
+              color: colors.accentSunset,
+            }}
+          >
+            {strings.ui.game.carryChip}
+          </Text>
+        </View>
+      ) : null}
 
       <GameStreakSubline line={streakSubline} />
     </View>
