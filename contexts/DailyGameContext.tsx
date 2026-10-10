@@ -246,17 +246,23 @@ function useDailyGameProviderValue(): DailyGameState {
     const history = await loadCompletionHistory();
     const entries = history.entries;
 
+    const wallTodayKey = getLocalDateKey();
+    const openingDateKey = next.dateKey;
+    const activePlayingDateKey =
+      next.status === 'playing' ? openingDateKey : undefined;
+
     const repaired = repairStreakFromYesterdayCompletion(
       streakState,
-      next.dateKey,
+      wallTodayKey,
       entries,
     );
     if (repaired != null) {
       streakState = repaired;
     }
 
-    streakState = reconcileStreakOnOpen(streakState, next.dateKey, {
+    streakState = reconcileStreakOnOpen(streakState, wallTodayKey, {
       historyEntries: entries,
+      activePlayingDateKey,
     });
 
     if (shouldPersistStreakOnHydrate(loadedStreak, streakState)) {
