@@ -7,6 +7,8 @@ import { DEV_TOOLS_ENABLED } from '../../constants/dev';
 import { colors } from '../../constants/design';
 import { useDailyGame } from '../../contexts/DailyGameContext';
 import { useDevToolsUi } from '../../contexts/DevToolsUiContext';
+import { addDaysToDateKey } from '../../lib/date/dateKeyMath';
+import { getLocalDateKey } from '../../lib/date/localDay';
 import { useI18n } from '../../lib/i18n';
 import type { GameType } from '../../lib/puzzles/types';
 import { isSudokuPuzzle } from '../../lib/puzzles/types';
@@ -38,18 +40,20 @@ function DevButton({
   onPress,
   active,
   disabled,
+  accessibilityLabel,
 }: {
   label: string;
   onPress: () => void;
   active?: boolean;
   disabled?: boolean;
+  accessibilityLabel?: string;
 }) {
   return (
     <Pressable
       onPress={onPress}
       disabled={disabled}
       accessibilityRole="button"
-      accessibilityLabel={label}
+      accessibilityLabel={accessibilityLabel ?? label}
       className={[
         'rounded-full border px-3 py-2',
         active ? 'border-accent-sunset bg-accent-sunset/20' : 'border-hairline',
@@ -70,7 +74,7 @@ export default function DevToolsPanel() {
   const [recoveryLog, setRecoveryLog] = useState<RecoveryLogEntry[]>([]);
   const [streakSummary, setStreakSummary] = useState('streak: —');
   const [forceDateActive, setForceDateActive] = useState(
-    () => getDevForceDateKey() === DEV_QA_SUNDAY_DATE_KEY,
+    () => getDevForceDateKey() != null,
   );
   const {
     status,
@@ -179,12 +183,35 @@ export default function DevToolsPanel() {
     }
   };
 
+  /**
+   * Carry QA (v2.7-01): advance calendar today by +1 without minting a new board.
+   * Only setDevForceDateKey + hydrate refresh — never regenerate.
+   */
+  const advanceFakeDateNextDay = async () => {
+    if (regenerating) return;
+    setRegenerating(true);
+    try {
+      const next = addDaysToDateKey(getLocalDateKey(), 1);
+      setDevForceDateKey(next);
+      setForceDateActive(true);
+      await refresh();
+      await refreshStreakSummary();
+      router.replace('/game');
+    } catch (error) {
+      if (__DEV__) {
+        console.error('[DevTools] advanceFakeDateNextDay failed', error);
+      }
+    } finally {
+      setRegenerating(false);
+    }
+  };
+
   const onToggleExpanded = () => {
     const next = !expanded;
     setExpanded(next);
     if (next) {
       // Resync after Fast Refresh / Maestro so "清除" stays enabled when force is live.
-      setForceDateActive(getDevForceDateKey() === DEV_QA_SUNDAY_DATE_KEY);
+      setForceDateActive(getDevForceDateKey() != null);
       void refreshRecoveryLog();
       void refreshStreakSummary();
     }
@@ -260,9 +287,19 @@ export default function DevToolsPanel() {
             />
             <DevButton
               label="假日期·周日"
-              active={forceDateActive}
+              active={getDevForceDateKey() === DEV_QA_SUNDAY_DATE_KEY}
               disabled={regenerating}
               onPress={() => void applyFakeSunday()}
+            />
+            <DevButton
+              label="假日期·次日"
+              active={
+                forceDateActive &&
+                getDevForceDateKey() !== DEV_QA_SUNDAY_DATE_KEY
+              }
+              disabled={regenerating}
+              onPress={() => void advanceFakeDateNextDay()}
+              accessibilityLabel="假日期次日，不换题，仅用于续局手测"
             />
             <DevButton
               label="假日期·清除"
