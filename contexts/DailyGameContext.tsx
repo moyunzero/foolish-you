@@ -8,6 +8,7 @@ import {
   useState,
   type ReactNode,
 } from 'react';
+import { usePathname } from 'expo-router';
 import { AppState, type AppStateStatus } from 'react-native';
 
 import { isCarrying as deriveIsCarrying } from '../lib/daily/carryState';
@@ -144,6 +145,7 @@ function shouldPersistStreakOnHydrate(
 
 function useDailyGameProviderValue(): DailyGameState {
   const { locale } = useI18n();
+  const pathname = usePathname();
   const [status, setStatus] = useState<HydrateStatus>('loading');
   const [snapshot, setSnapshot] = useState<DailySnapshot | null>(null);
   const [streak, setStreak] = useState<StreakState | null>(null);
@@ -155,9 +157,11 @@ function useDailyGameProviderValue(): DailyGameState {
   const pendingStreakRef = useRef<StreakState | null>(null);
   const snapshotRef = useRef<DailySnapshot | null>(null);
   const streakRef = useRef<StreakState | null>(null);
+  const suppressMintRef = useRef(false);
 
   snapshotRef.current = snapshot;
   streakRef.current = streak;
+  suppressMintRef.current = pathname === '/result';
 
   const retrySaveRef = useRef<() => Promise<void>>(async () => {});
   const retryStreakSaveRef = useRef<() => Promise<void>>(async () => {});
@@ -226,7 +230,10 @@ function useDailyGameProviderValue(): DailyGameState {
 
   const loadHydratedState = useCallback(async () => {
     const [next, loadedStreak] = await Promise.all([
-      hydrateDailyGame({ onSaveFailed: handleSaveFailed }),
+      hydrateDailyGame({
+        onSaveFailed: handleSaveFailed,
+        suppressMint: suppressMintRef.current,
+      }),
       loadStreakState(),
     ]);
 

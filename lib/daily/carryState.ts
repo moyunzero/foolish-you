@@ -6,16 +6,25 @@ export type CarryRecordRef = {
   dateKey: string;
 };
 
+/** Options for hydrate keep vs mint (route-gated suppress). */
+export type ShouldKeepOptions = {
+  /** When true and record is non-null, keep slot (no mint). */
+  suppressMint?: boolean;
+};
+
 /**
  * Whether hydrate should keep the stored snapshot instead of minting a new daily.
  * Playing always keeps (Scheme A / D-01 / D-02). Same-calendar-day terminal keeps.
- * Null or terminal+stale → mint (advance ownership: v2.7-02).
+ * `suppressMint` keeps any non-null record (result anti-yank / D-09).
+ * Null or terminal+stale (without suppress) → mint.
  */
 export function shouldKeepOnHydrate(
   record: CarryRecordRef | null,
   calendarToday: string,
+  options?: ShouldKeepOptions,
 ): boolean {
   if (record == null) return false;
+  if (options?.suppressMint) return true;
   if (record.status === 'playing') return true;
   return record.dateKey === calendarToday;
 }

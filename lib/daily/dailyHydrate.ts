@@ -37,6 +37,8 @@ export type HydrateDailyParams = {
   today?: string;
   forceGameType?: GameType | null;
   onSaveFailed?: () => void;
+  /** When true, keep non-null slot (no buildNewDailySnapshot). */
+  suppressMint?: boolean;
 };
 
 function resolveForceGameType(
@@ -157,8 +159,8 @@ export async function hydrateDailyGame(
   const record = await loadDailySnapshot();
 
   // Scheme A (CARRY-01): keep any playing board across calendar days; never
-  // rewrite opening dateKey. Terminal+stale still mints (v2.7-02 timing).
-  if (shouldKeepOnHydrate(record, today)) {
+  // rewrite opening dateKey. Terminal+stale mints unless suppressMint (CARRY-02).
+  if (shouldKeepOnHydrate(record, today, { suppressMint: params.suppressMint })) {
     let prepared = await runAfterInteractions(() =>
       prepareTodaySnapshot(record!),
     );

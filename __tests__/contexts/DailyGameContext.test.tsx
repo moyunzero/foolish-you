@@ -127,7 +127,7 @@ describe('DailyGameContext', () => {
     expect(result.current.playState).not.toBeNull();
   });
 
-  it('starts a new daily when stored dateKey is not today', async () => {
+  it('keeps playing when stored dateKey is yesterday (carry)', async () => {
     const yesterday = makeBinaryPlayingSnapshot({
       dateKey: FIXTURE_YESTERDAY,
       seed: 111,
@@ -137,9 +137,9 @@ describe('DailyGameContext', () => {
     const { result } = await renderAndHydrate();
 
     expect(result.current.status).toBe('playing');
-    expect(result.current.dateKey).toBe(FIXTURE_TODAY);
-    expect(result.current.dateKey).not.toBe(FIXTURE_YESTERDAY);
-    expect(result.current.seed).not.toBe(111);
+    expect(result.current.dateKey).toBe(FIXTURE_YESTERDAY);
+    expect(result.current.seed).toBe(111);
+    expect(result.current.isCarrying).toBe(true);
   });
 
   it('repairs inconsistent snapshot on hydrate and exposes puzzle', async () => {
