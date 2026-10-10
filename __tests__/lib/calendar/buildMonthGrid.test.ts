@@ -25,4 +25,19 @@ describe('buildMonthGrid', () => {
       expect(idx % 7).toBe(6);
     }
   });
+
+  it('threads activePlayingDateKey so carry opening is in_progress', () => {
+    const cells = buildMonthGrid({
+      monthKey: '2026-07',
+      todayKey: '2026-07-22',
+      entriesByDate: new Map(),
+      freezeDates: new Set(),
+      activePlayingDateKey: '2026-07-21',
+    });
+
+    expect(cells.find((c) => c.dateKey === '2026-07-21')?.state).toBe(
+      'in_progress',
+    );
+    expect(cells.find((c) => c.dateKey === '2026-07-20')?.state).toBe('missed');
+  });
 });

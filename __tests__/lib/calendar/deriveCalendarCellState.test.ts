@@ -33,7 +33,7 @@ describe('deriveCalendarCellState', () => {
     ).toBe('shield');
   });
 
-  it('returns missed when today is still playing', () => {
+  it('returns in_progress when today is still playing (D-04)', () => {
     expect(
       deriveCalendarCellState({
         dateKey: todayKey,
@@ -41,7 +41,40 @@ describe('deriveCalendarCellState', () => {
         todaySnapshotStatus: 'playing',
         freezeDates: new Set(),
       }),
+    ).toBe('in_progress');
+  });
+
+  it('returns in_progress for carry opening day via activePlayingDateKey (D-01)', () => {
+    expect(
+      deriveCalendarCellState({
+        dateKey: '2026-05-19',
+        todayKey,
+        freezeDates: new Set(),
+        activePlayingDateKey: '2026-05-19',
+      }),
+    ).toBe('in_progress');
+  });
+
+  it('returns missed for empty gap between opening and wall (D-03)', () => {
+    expect(
+      deriveCalendarCellState({
+        dateKey: '2026-05-18',
+        todayKey: '2026-05-20',
+        freezeDates: new Set(),
+        activePlayingDateKey: '2026-05-19',
+      }),
     ).toBe('missed');
+  });
+
+  it('shield beats in_progress when freezeDates has dateKey', () => {
+    expect(
+      deriveCalendarCellState({
+        dateKey: '2026-05-19',
+        todayKey,
+        freezeDates: new Set(['2026-05-19']),
+        activePlayingDateKey: '2026-05-19',
+      }),
+    ).toBe('shield');
   });
 
   it('returns abandoned for today abandon snapshot', () => {
@@ -140,5 +173,25 @@ describe('buildMonthGrid', () => {
     const today = inMonth.find((c) => c.dateKey === '2026-05-20');
     expect(today?.state).toBe('completed');
     expect(today?.isToday).toBe(true);
+  });
+
+  it('marks carry opening day in_progress via activePlayingDateKey', () => {
+    const cells = buildMonthGrid({
+      monthKey: '2026-05',
+      todayKey: '2026-05-20',
+      entriesByDate: new Map(),
+      freezeDates: new Set(),
+      todaySnapshotStatus: 'playing',
+      activePlayingDateKey: '2026-05-19',
+    });
+
+    const opening = cells.find((c) => c.dateKey === '2026-05-19');
+    const gap = cells.find((c) => c.dateKey === '2026-05-18');
+    const wallToday = cells.find((c) => c.dateKey === '2026-05-20');
+
+    expect(opening?.state).toBe('in_progress');
+    expect(gap?.state).toBe('missed');
+    expect(wallToday?.state).toBe('in_progress');
+    expect(wallToday?.isToday).toBe(true);
   });
 });

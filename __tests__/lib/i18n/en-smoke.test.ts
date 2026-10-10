@@ -164,6 +164,8 @@ describe('English locale smoke', () => {
     expect(ui.calendar.completedDeltaLine(2)).not.toMatch(cjk);
     expect(ui.calendar.completedDeltaLine(2).length).toBeGreaterThan(0);
     expect(ui.calendar.emptyHeading).not.toMatch(cjk);
+    expect(ui.calendar.cellA11y(1, 'in_progress')).not.toMatch(cjk);
+    expect(ui.calendar.cellA11y(1, 'in_progress')).toMatch(/in progress/i);
     expect(ui.gallery.generateCta).not.toMatch(cjk);
     expect(ui.gallery.generateCta.length).toBeGreaterThan(0);
     expect(ui.gallery.errorExport).not.toMatch(cjk);
