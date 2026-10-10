@@ -22,6 +22,7 @@ import {
 import { loadMasteryState } from '../storage/masteryStorage';
 import { loadPlayedHashes } from '../storage/playedHashStorage';
 import { prepareTodaySnapshot } from '../storage/snapshotPrep';
+import { shouldKeepOnHydrate } from './carryState';
 
 export type BuildNewDailyParams = {
   today: string;
@@ -155,9 +156,11 @@ export async function hydrateDailyGame(
   const today = params.today ?? getLocalDateKey();
   const record = await loadDailySnapshot();
 
-  if (record != null && record.dateKey === today) {
+  // Scheme A (CARRY-01): keep any playing board across calendar days; never
+  // rewrite opening dateKey. Terminal+stale still mints (v2.7-02 timing).
+  if (shouldKeepOnHydrate(record, today)) {
     let prepared = await runAfterInteractions(() =>
-      prepareTodaySnapshot(record),
+      prepareTodaySnapshot(record!),
     );
     prepared = ensurePlayStateForSnapshot(prepared);
     const saved = await saveDailySnapshot(prepared);

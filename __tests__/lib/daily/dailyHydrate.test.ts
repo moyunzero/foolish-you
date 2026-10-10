@@ -15,6 +15,7 @@ import * as dailyStorage from '../../../lib/storage/dailyStorage';
 import * as snapshotPrep from '../../../lib/storage/snapshotPrep';
 import {
   FIXTURE_TODAY,
+  FIXTURE_TOMORROW,
   FIXTURE_YESTERDAY,
   makeBinaryPlayingSnapshot,
 } from '../../helpers/dailyGameFixtures';
@@ -47,17 +48,60 @@ describe('dailyHydrate', () => {
     expect(saveSpy).toHaveBeenCalled();
   });
 
-  it('hydrateDailyGame builds new daily when dateKey differs', async () => {
+  it('keeps playing snapshot when dateKey is yesterday (carry)', async () => {
     const yesterday = makeBinaryPlayingSnapshot({
       dateKey: FIXTURE_YESTERDAY,
       seed: 42,
     });
+    const playState = yesterday.playState;
+    const puzzleHash = yesterday.puzzleHash;
     jest.spyOn(dailyStorage, 'loadDailySnapshot').mockResolvedValue(yesterday);
+    jest.spyOn(dailyStorage, 'saveDailySnapshot').mockResolvedValue(true);
+    jest
+      .spyOn(snapshotPrep, 'prepareTodaySnapshot')
+      .mockImplementation((s) => s);
+
+    const result = await hydrateDailyGame();
+
+    expect(result.dateKey).toBe(FIXTURE_YESTERDAY);
+    expect(result.seed).toBe(42);
+    expect(result.puzzleHash).toBe(puzzleHash);
+    expect(result.playState).toEqual(playState);
+    expect(result.status).toBe('playing');
+  });
+
+  it('keeps playing snapshot when dateKey is tomorrow (clock skew)', async () => {
+    const tomorrow = makeBinaryPlayingSnapshot({
+      dateKey: FIXTURE_TOMORROW,
+      seed: 99,
+    });
+    jest.spyOn(dailyStorage, 'loadDailySnapshot').mockResolvedValue(tomorrow);
+    jest.spyOn(dailyStorage, 'saveDailySnapshot').mockResolvedValue(true);
+    jest
+      .spyOn(snapshotPrep, 'prepareTodaySnapshot')
+      .mockImplementation((s) => s);
+
+    const result = await hydrateDailyGame();
+
+    expect(result.dateKey).toBe(FIXTURE_TOMORROW);
+    expect(result.seed).toBe(99);
+    expect(result.status).toBe('playing');
+  });
+
+  it('mints new daily when completed snapshot dateKey is stale', async () => {
+    const stale = makeBinaryPlayingSnapshot({
+      dateKey: FIXTURE_YESTERDAY,
+      seed: 42,
+      status: 'completed',
+      finishedAt: 1_700_000_900_000,
+    });
+    jest.spyOn(dailyStorage, 'loadDailySnapshot').mockResolvedValue(stale);
     jest.spyOn(dailyStorage, 'saveDailySnapshot').mockResolvedValue(true);
 
     const result = await hydrateDailyGame();
 
     expect(result.dateKey).toBe(FIXTURE_TODAY);
+    expect(result.status).toBe('playing');
     expect(result.seed).not.toBe(42);
   });
 
