@@ -105,6 +105,34 @@ describe('dailyHydrate', () => {
     expect(result.seed).not.toBe(42);
   });
 
+  it('keeps stale completed when suppressMint is true', async () => {
+    const stale = makeBinaryPlayingSnapshot({
+      dateKey: FIXTURE_YESTERDAY,
+      seed: 42,
+      status: 'completed',
+      finishedAt: 1_700_000_900_000,
+    });
+    jest.spyOn(dailyStorage, 'loadDailySnapshot').mockResolvedValue(stale);
+    const saveSpy = jest
+      .spyOn(dailyStorage, 'saveDailySnapshot')
+      .mockResolvedValue(true);
+    jest
+      .spyOn(snapshotPrep, 'prepareTodaySnapshot')
+      .mockImplementation((s) => s);
+
+    const result = await hydrateDailyGame({ suppressMint: true });
+
+    expect(result.dateKey).toBe(FIXTURE_YESTERDAY);
+    expect(result.status).toBe('completed');
+    expect(result.seed).toBe(42);
+    expect(result.puzzleHash).toBe(stale.puzzleHash);
+    // Keep path prepare/saves; must not mint a new playing slot.
+    expect(saveSpy).toHaveBeenCalled();
+    const saved = saveSpy.mock.calls.at(-1)?.[0];
+    expect(saved?.status).toBe('completed');
+    expect(saved?.dateKey).toBe(FIXTURE_YESTERDAY);
+  });
+
   it('does not add empty playState when status is completed', async () => {
     const completed = makeBinaryPlayingSnapshot({
       status: 'completed',

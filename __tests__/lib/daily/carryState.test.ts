@@ -57,6 +57,41 @@ describe('shouldKeepOnHydrate', () => {
       ),
     ).toBe(false);
   });
+
+  it('returns false for null even with suppressMint', () => {
+    expect(
+      shouldKeepOnHydrate(null, FIXTURE_TODAY, { suppressMint: true }),
+    ).toBe(false);
+  });
+
+  it('keeps stale completed when suppressMint is true', () => {
+    expect(
+      shouldKeepOnHydrate(
+        { status: 'completed', dateKey: FIXTURE_YESTERDAY },
+        FIXTURE_TODAY,
+        { suppressMint: true },
+      ),
+    ).toBe(true);
+  });
+
+  it('keeps stale abandoned when suppressMint is true', () => {
+    expect(
+      shouldKeepOnHydrate(
+        { status: 'abandoned', dateKey: FIXTURE_YESTERDAY },
+        FIXTURE_TODAY,
+        { suppressMint: true },
+      ),
+    ).toBe(true);
+  });
+
+  it('mints stale completed when suppressMint is unset', () => {
+    expect(
+      shouldKeepOnHydrate(
+        { status: 'completed', dateKey: FIXTURE_YESTERDAY },
+        FIXTURE_TODAY,
+      ),
+    ).toBe(false);
+  });
 });
 
 describe('isCarrying', () => {

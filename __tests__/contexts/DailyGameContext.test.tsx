@@ -47,6 +47,10 @@ import {
   withOneFilledCell,
   withOneSlitherlinkEdge,
 } from '../helpers/dailyGameFixtures';
+import {
+  resetRouterMocks,
+  setMockPathname,
+} from '../helpers/expoRouterMocks';
 import type { SlitherlinkPlayState } from '../../lib/puzzles/types';
 
 const getLocalDateKeyMock = jest.mocked(getLocalDateKey);
@@ -92,6 +96,7 @@ describe('DailyGameContext', () => {
     getLocalDateKeyMock.mockReturnValue(FIXTURE_TODAY);
     appStateHandlers.length = 0;
     runReminderSyncMock.mockClear();
+    resetRouterMocks();
 
     jest.spyOn(AppState, 'addEventListener').mockImplementation((_, handler) => {
       appStateHandlers.push(handler as AppStateHandler);
@@ -417,6 +422,7 @@ describe('DailyGameContext', () => {
   });
 
   it('starts a new playing daily when calendar day advances on AppState active', async () => {
+    setMockPathname('/');
     await saveDailySnapshot(
       makeBinaryPlayingSnapshot({ status: 'completed', dateKey: FIXTURE_TODAY }),
     );
@@ -437,6 +443,32 @@ describe('DailyGameContext', () => {
         expect(result.current.status).not.toBe('loading');
         expect(result.current.dateKey).toBe(FIXTURE_TOMORROW);
         expect(result.current.status).toBe('playing');
+      },
+      { timeout: 15_000 },
+    );
+  });
+
+  it('keeps terminal slot on AppState day-advance while pathname is /result', async () => {
+    setMockPathname('/result');
+    await saveDailySnapshot(
+      makeBinaryPlayingSnapshot({ status: 'completed', dateKey: FIXTURE_TODAY }),
+    );
+
+    const { result } = await renderAndHydrate();
+    expect(result.current.status).toBe('completed');
+    expect(result.current.dateKey).toBe(FIXTURE_TODAY);
+
+    getLocalDateKeyMock.mockReturnValue(FIXTURE_TOMORROW);
+
+    await act(async () => {
+      emitAppState('active');
+      await Promise.resolve();
+    });
+
+    await waitFor(
+      () => {
+        expect(result.current.status).toBe('completed');
+        expect(result.current.dateKey).toBe(FIXTURE_TODAY);
       },
       { timeout: 15_000 },
     );
