@@ -109,6 +109,19 @@ describe('consumeFreezeForMissedDay', () => {
     );
     expect(consumed).toBe(false);
   });
+
+  // M1 / D-05: wall=N+1, still playing opening N → yesterday identity protect
+  it('does not consume when yesterdayKey equals activePlayingDateKey (M1)', () => {
+    const { state, consumed } = consumeFreezeForMissedDay(
+      baseStreak,
+      '2026-05-19',
+      [],
+      { activePlayingDateKey: '2026-05-18' },
+    );
+    expect(consumed).toBe(false);
+    expect(state.freezeCount).toBe(1);
+    expect(state).toEqual(baseStreak);
+  });
 });
 
 describe('reconcileStreakOnOpen', () => {
@@ -133,6 +146,17 @@ describe('reconcileStreakOnOpen', () => {
       },
     );
     expect(next.lastCheckInDateKey).toBe('2026-05-18');
+  });
+
+  it('threads activePlayingDateKey protect into consume (M1)', () => {
+    const next = reconcileStreakOnOpen(
+      { ...baseStreak, lastFreezeGrantWeekKey: '2026-W21' },
+      '2026-05-19',
+      { activePlayingDateKey: '2026-05-18' },
+    );
+    expect(next.freezeCount).toBe(1);
+    expect(next.lastCheckInDateKey).toBe('2026-05-17');
+    expect(next.freezeConsumedSessionKey).toBeNull();
   });
 });
 
