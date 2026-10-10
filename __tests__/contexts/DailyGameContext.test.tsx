@@ -245,7 +245,7 @@ describe('DailyGameContext', () => {
     jest.useRealTimers();
   });
 
-  it('markAbandoned does not record streak check-in', async () => {
+  it('markAbandoned records streak check-in on opening dateKey (D-12)', async () => {
     const stored = makeBinaryPlayingSnapshot();
     await saveDailySnapshot(stored);
 
@@ -256,8 +256,59 @@ describe('DailyGameContext', () => {
     });
 
     expect(result.current.status).toBe('abandoned');
-    await expect(loadStreakState()).resolves.toBeNull();
-    expect(result.current.streakLine).toBe('连签战绩 · 完成今日入账');
+    await expect(loadStreakState()).resolves.toEqual(
+      expect.objectContaining({
+        lastCheckInDateKey: FIXTURE_TODAY,
+        currentStreak: 1,
+      }),
+    );
+  });
+
+  it('carry abandon check-in stays on opening dateKey not wall (D-12)', async () => {
+    getLocalDateKeyMock.mockReturnValue(FIXTURE_TODAY);
+    const stored = makeBinaryPlayingSnapshot({
+      dateKey: FIXTURE_YESTERDAY,
+      seed: 222,
+    });
+    await saveDailySnapshot(stored);
+
+    const { result } = await renderAndHydrate();
+    expect(result.current.isCarrying).toBe(true);
+
+    await act(async () => {
+      await result.current.markAbandoned();
+    });
+
+    expect(result.current.status).toBe('abandoned');
+    await expect(loadStreakState()).resolves.toEqual(
+      expect.objectContaining({
+        lastCheckInDateKey: FIXTURE_YESTERDAY,
+      }),
+    );
+  });
+
+  it('while carrying suppresses freeze/miss scare lines (D-10)', async () => {
+    getLocalDateKeyMock.mockReturnValue(FIXTURE_TODAY);
+    // Wall-keyed freeze session would otherwise surface freezeConsumedLine after D-09.
+    await saveStreakState({
+      currentStreak: 5,
+      lastCheckInDateKey: FIXTURE_YESTERDAY,
+      historicalMax: 8,
+      freezeCount: 0,
+      lastFreezeGrantWeekKey: '2026-W21',
+      freezeConsumedSessionKey: FIXTURE_TODAY,
+      freezeConsumedDateKeys: [FIXTURE_YESTERDAY],
+    });
+    await saveDailySnapshot(
+      makeBinaryPlayingSnapshot({ dateKey: FIXTURE_YESTERDAY, seed: 333 }),
+    );
+
+    const { result } = await renderAndHydrate();
+
+    expect(result.current.isCarrying).toBe(true);
+    expect(result.current.freezeConsumedToday).toBe(true);
+    expect(result.current.freezeConsumedLine).toBe('');
+    expect(result.current.missedYesterdayLine).toBeNull();
   });
 
   it('reconciles streak on hydrate when daily is already completed', async () => {
