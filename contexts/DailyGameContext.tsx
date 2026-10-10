@@ -449,6 +449,7 @@ function useDailyGameProviderValue(): DailyGameState {
             const finishedAt = updated.finishedAt ?? Date.now();
             const elapsedMs = finishedAt - startedAt;
             await recordAbandon(updated.dateKey, elapsedMs, updated.gameType);
+            await recordStreakCheckIn(updated.dateKey);
             try {
               await saveMasteryState(
                 applyMasteryOutcome(await loadMasteryState(), {
@@ -515,10 +516,12 @@ function useDailyGameProviderValue(): DailyGameState {
     return null;
   }, [snapshot]);
 
-  const streakDisplay = useMemo(() => {
-    const todayKey = snapshot?.dateKey ?? getLocalDateKey();
-    return getStreakDisplay(streak, todayKey);
-  }, [streak, snapshot?.dateKey]);
+  const wallTodayKey = getLocalDateKey();
+
+  const streakDisplay = useMemo(
+    () => getStreakDisplay(streak, wallTodayKey),
+    [streak, wallTodayKey],
+  );
 
   const streakLine = useMemo(
     () => formatStreakLine(streakDisplay, locale),
@@ -528,18 +531,36 @@ function useDailyGameProviderValue(): DailyGameState {
   const streakHighlight = streakDisplay.checkedInToday;
   const displayStreak = streakDisplay.displayStreak;
 
-  const todayKey = snapshot?.dateKey ?? getLocalDateKey();
   const freezeConsumedToday =
-    streak?.freezeConsumedSessionKey === todayKey;
+    streak?.freezeConsumedSessionKey === wallTodayKey;
+
+  const isCarrying = deriveIsCarrying(
+    status,
+    snapshot?.dateKey ?? null,
+    wallTodayKey,
+  );
 
   const freezeConsumedLine = useMemo(() => {
+    // D-10: do not scare while still playing a carried opening day
+    if (isCarrying) {
+      return '';
+    }
     if (!freezeConsumedToday || snapshot?.dateKey == null) {
       return '';
     }
     return pickFreezeConsumedLine(snapshot.dateKey, snapshot.seed, locale);
-  }, [freezeConsumedToday, snapshot?.dateKey, snapshot?.seed, locale]);
+  }, [
+    isCarrying,
+    freezeConsumedToday,
+    snapshot?.dateKey,
+    snapshot?.seed,
+    locale,
+  ]);
 
   const missedYesterdayLine = useMemo(() => {
+    if (isCarrying) {
+      return null;
+    }
     if (snapshot?.dateKey == null || status !== 'playing') {
       return null;
     }
@@ -560,6 +581,7 @@ function useDailyGameProviderValue(): DailyGameState {
       freezeConsumedToday,
     });
   }, [
+    isCarrying,
     snapshot?.dateKey,
     snapshot?.seed,
     status,
@@ -568,12 +590,6 @@ function useDailyGameProviderValue(): DailyGameState {
     locale,
     freezeConsumedToday,
   ]);
-
-  const isCarrying = deriveIsCarrying(
-    status,
-    snapshot?.dateKey ?? null,
-    getLocalDateKey(),
-  );
 
   return useMemo(
     () => ({
