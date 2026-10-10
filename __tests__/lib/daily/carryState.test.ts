@@ -92,6 +92,26 @@ describe('shouldKeepOnHydrate', () => {
       ),
     ).toBe(false);
   });
+
+  it('keeps playing with suppressMint (D-06 inherit)', () => {
+    expect(
+      shouldKeepOnHydrate(
+        { status: 'playing', dateKey: FIXTURE_YESTERDAY },
+        FIXTURE_TODAY,
+        { suppressMint: true },
+      ),
+    ).toBe(true);
+  });
+
+  it('keeps same-day completed with suppressMint (D-11/D-14)', () => {
+    expect(
+      shouldKeepOnHydrate(
+        { status: 'completed', dateKey: FIXTURE_TODAY },
+        FIXTURE_TODAY,
+        { suppressMint: true },
+      ),
+    ).toBe(true);
+  });
 });
 
 describe('isCarrying', () => {

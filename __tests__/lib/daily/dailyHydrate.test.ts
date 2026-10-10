@@ -133,6 +133,60 @@ describe('dailyHydrate', () => {
     expect(saved?.dateKey).toBe(FIXTURE_YESTERDAY);
   });
 
+  it('mints new daily when abandoned snapshot dateKey is stale (D-06)', async () => {
+    const stale = makeBinaryPlayingSnapshot({
+      dateKey: FIXTURE_YESTERDAY,
+      seed: 77,
+      status: 'abandoned',
+      finishedAt: 1_700_000_900_000,
+    });
+    jest.spyOn(dailyStorage, 'loadDailySnapshot').mockResolvedValue(stale);
+    jest.spyOn(dailyStorage, 'saveDailySnapshot').mockResolvedValue(true);
+
+    const result = await hydrateDailyGame();
+
+    expect(result.dateKey).toBe(FIXTURE_TODAY);
+    expect(result.status).toBe('playing');
+    expect(result.seed).not.toBe(77);
+  });
+
+  it('keeps stale abandoned when suppressMint is true (D-06)', async () => {
+    const stale = makeBinaryPlayingSnapshot({
+      dateKey: FIXTURE_YESTERDAY,
+      seed: 77,
+      status: 'abandoned',
+      finishedAt: 1_700_000_900_000,
+    });
+    jest.spyOn(dailyStorage, 'loadDailySnapshot').mockResolvedValue(stale);
+    jest.spyOn(dailyStorage, 'saveDailySnapshot').mockResolvedValue(true);
+    jest
+      .spyOn(snapshotPrep, 'prepareTodaySnapshot')
+      .mockImplementation((s) => s);
+
+    const result = await hydrateDailyGame({ suppressMint: true });
+
+    expect(result.dateKey).toBe(FIXTURE_YESTERDAY);
+    expect(result.status).toBe('abandoned');
+    expect(result.seed).toBe(77);
+  });
+
+  it('mints only calendar today after multi-day gap (D-05)', async () => {
+    const multiDayStale = makeBinaryPlayingSnapshot({
+      dateKey: '2026-05-10',
+      seed: 11,
+      status: 'completed',
+      finishedAt: 1_700_000_100_000,
+    });
+    jest.spyOn(dailyStorage, 'loadDailySnapshot').mockResolvedValue(multiDayStale);
+    jest.spyOn(dailyStorage, 'saveDailySnapshot').mockResolvedValue(true);
+
+    const result = await hydrateDailyGame({ today: FIXTURE_TODAY });
+
+    expect(result.dateKey).toBe(FIXTURE_TODAY);
+    expect(result.status).toBe('playing');
+    expect(result.seed).not.toBe(11);
+  });
+
   it('does not add empty playState when status is completed', async () => {
     const completed = makeBinaryPlayingSnapshot({
       status: 'completed',

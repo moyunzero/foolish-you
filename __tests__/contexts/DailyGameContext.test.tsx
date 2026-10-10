@@ -515,6 +515,7 @@ describe('DailyGameContext', () => {
   });
 
   it('keeps completed status during foreground re-hydrate on result', async () => {
+    setMockPathname('/result');
     await saveDailySnapshot(
       makeBinaryPlayingSnapshot({ status: 'completed', dateKey: FIXTURE_TODAY }),
     );
@@ -531,6 +532,7 @@ describe('DailyGameContext', () => {
 
     await waitFor(() => {
       expect(result.current.status).toBe('completed');
+      expect(result.current.dateKey).toBe(FIXTURE_TODAY);
     });
     expect(seen).not.toContain('loading');
   });
