@@ -25,6 +25,7 @@ import { useDevBottomInset } from '../contexts/DevToolsUiContext';
 import {
   getResultFooterHint,
   pickResultCopy,
+  type ResultCopy,
 } from '../lib/copy/resultMessages';
 import { pickGrowthLine } from '../lib/copy/growthLine';
 import { resolveGrowthTone } from '../lib/growth/resolveGrowthLine';
@@ -67,8 +68,35 @@ export default function ResultScreen() {
     );
   }, [isSuccess, isFail, snapshot?.startedAt, snapshot?.finishedAt, snapshot?.dateKey, snapshot?.seed, dateKey, seed, locale]);
 
+  // D-13: pin last non-null outcome copy while ResultScreen is mounted so an
+  // unexpected non-terminal status flip does not collapse into the loading fallback.
+  const [latchedCopy, setLatchedCopy] = useState<ResultCopy | null>(null);
+  const nonTerminalWarnedRef = useRef(false);
+
+  useEffect(() => {
+    if (copy != null) {
+      setLatchedCopy(copy);
+      nonTerminalWarnedRef.current = false;
+    }
+  }, [copy]);
+
+  useEffect(() => {
+    if (status === 'completed' || status === 'abandoned') return;
+    if (latchedCopy == null) return;
+    if (nonTerminalWarnedRef.current) return;
+    nonTerminalWarnedRef.current = true;
+    if (__DEV__) {
+      console.warn(
+        '[ResultScreen] status left terminal while mounted; pinning latched outcome copy',
+        { status },
+      );
+    }
+  }, [status, latchedCopy]);
+
+  const displayCopy = copy ?? latchedCopy;
+
   const shareText = useMemo(() => {
-    if (copy == null || snapshot == null || puzzle == null || playState == null || gameType == null || dateKey == null) {
+    if (displayCopy == null || snapshot == null || puzzle == null || playState == null || gameType == null || dateKey == null) {
       return null;
     }
     const startedAt = snapshot.startedAt ?? Date.now();
@@ -90,7 +118,7 @@ export default function ResultScreen() {
       },
       locale,
     );
-  }, [copy, snapshot, puzzle, playState, gameType, dateKey, seed, status, displayStreak, locale]);
+  }, [displayCopy, snapshot, puzzle, playState, gameType, dateKey, seed, status, displayStreak, locale]);
 
   const bottomPadding = useDevBottomInset(insets.bottom + 16);
   const ratingPromptAttemptedRef = useRef(false);
@@ -101,7 +129,7 @@ export default function ResultScreen() {
   const [softAskVisible, setSoftAskVisible] = useState(false);
 
   useEffect(() => {
-    if (copy == null || snapshot == null || dateKey == null) {
+    if (displayCopy == null || snapshot == null || dateKey == null) {
       setStatsCards(null);
       return;
     }
@@ -122,7 +150,7 @@ export default function ResultScreen() {
     return () => {
       cancelled = true;
     };
-  }, [copy, snapshot, dateKey, seed, locale]);
+  }, [displayCopy, snapshot, dateKey, seed, locale]);
 
   useEffect(() => {
     if ((status !== 'completed' && status !== 'abandoned') || dateKey == null) {
@@ -215,7 +243,7 @@ export default function ResultScreen() {
       ? snapshot.puzzle
       : null;
 
-  if (copy == null) {
+  if (displayCopy == null) {
     return (
       <SafeAreaView className="flex-1 bg-canvas">
         <View className="flex-1 items-center justify-center px-6">
@@ -250,7 +278,7 @@ export default function ResultScreen() {
           {formatTodayMeta(dateKey, locale)}
         </Text>
 
-        {isSuccess ? (
+        {displayCopy.mode === 'completed' ? (
           <Text
             className={streakHighlight ? 'text-accent-sunset' : 'text-muted'}
             style={{
@@ -274,7 +302,7 @@ export default function ResultScreen() {
         ) : null}
 
         <View className="mt-6 flex-1">
-          {copy.mode === 'completed' ? (
+          {displayCopy.mode === 'completed' ? (
             <>
               {nonogramPuzzle != null ? (
                 <View className="mb-8">
@@ -297,23 +325,23 @@ export default function ResultScreen() {
             {strings.ui.result.sectionOutcome}
           </Text>
 
-          {copy.mode === 'completed' ? (
+          {displayCopy.mode === 'completed' ? (
             <ResultOutcomeBody
               badge={<WinFaceBadge />}
               statusLabel={strings.ui.result.statusWin}
               statusTone="victory"
-              headline={copy.headline}
-              punchline={copy.punchline}
-              sublines={copy.sublines}
+              headline={displayCopy.headline}
+              punchline={displayCopy.punchline}
+              sublines={displayCopy.sublines}
             />
           ) : (
             <ResultOutcomeBody
               badge={<FoolFaceBadge />}
               statusLabel={strings.ui.result.statusSurrender}
               statusTone="defeat"
-              headline={copy.headline}
-              punchline={copy.punchline}
-              sublines={copy.sublines}
+              headline={displayCopy.headline}
+              punchline={displayCopy.punchline}
+              sublines={displayCopy.sublines}
             />
           )}
 
@@ -325,23 +353,23 @@ export default function ResultScreen() {
             {strings.ui.result.sectionStats}
           </Text>
 
-          {copy.mode === 'completed' ? (
+          {displayCopy.mode === 'completed' ? (
             <ResultStatCard
               variant="victory"
-              elapsed={copy.elapsedDisplay}
+              elapsed={displayCopy.elapsedDisplay}
             />
           ) : (
             <>
               <ResultStatCard
                 variant="defeat"
-                percent={copy.foolIndexPercent}
-                hint={copy.foolIndexHint}
+                percent={displayCopy.foolIndexPercent}
+                hint={displayCopy.foolIndexHint}
               />
               <Text
                 className="mt-4 text-center text-xs text-muted"
                 style={{ fontFamily: 'SpaceMono_400Regular' }}
               >
-                {copy.statsLine}
+                {displayCopy.statsLine}
               </Text>
             </>
           )}
@@ -411,7 +439,7 @@ export default function ResultScreen() {
 
         <Animated.View entering={FadeIn.delay(1000).duration(500)} style={{ marginTop: 12 }}>
           <OutlinePillButton
-            label={copy.cta}
+            label={displayCopy.cta}
             variant="primary"
             onPress={exitApplication}
           />
