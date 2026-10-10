@@ -184,8 +184,10 @@ export default function DevToolsPanel() {
   };
 
   /**
-   * Carry QA (v2.7-01): advance calendar today by +1 without minting a new board.
+   * Carry QA (v2.7-01 / CARRY-02 D-07): advance calendar today by +1 without minting.
    * Only setDevForceDateKey + hydrate refresh — never regenerate.
+   * Stay on /result while terminal so suppressMint keep is observable; navigate
+   * to /game only when status is still playing (in-progress carry).
    */
   const advanceFakeDateNextDay = async () => {
     if (regenerating) return;
@@ -196,7 +198,9 @@ export default function DevToolsPanel() {
       setForceDateActive(true);
       await refresh();
       await refreshStreakSummary();
-      router.replace('/game');
+      if (status === 'playing') {
+        router.replace('/game');
+      }
     } catch (error) {
       if (__DEV__) {
         console.error('[DevTools] advanceFakeDateNextDay failed', error);

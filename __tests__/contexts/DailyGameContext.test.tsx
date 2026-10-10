@@ -580,6 +580,25 @@ describe('DailyGameContext', () => {
     expect(onDisk).not.toBeNull();
   });
 
+  it('devRegenerateToday rebuilds while pathname is /result (D-18)', async () => {
+    setMockPathname('/result');
+    await saveDailySnapshot(
+      makeBinaryPlayingSnapshot({ status: 'completed', dateKey: FIXTURE_TODAY, seed: 4242 }),
+    );
+
+    const { result } = await renderAndHydrate();
+    expect(result.current.status).toBe('completed');
+    expect(result.current.seed).toBe(4242);
+
+    await act(async () => {
+      await result.current.devRegenerateToday('sudoku');
+    });
+
+    expect(result.current.status).toBe('playing');
+    expect(result.current.gameType).toBe('sudoku');
+    expect(result.current.seed).not.toBe(4242);
+  });
+
   it('devRegenerateToday() with no arg keeps gameType but changes puzzle', async () => {
     const stored = makeBinaryPlayingSnapshot({ seed: 777 });
     await saveDailySnapshot(stored);
