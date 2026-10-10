@@ -19,6 +19,8 @@ function cellMark(state: MonthGridCell['state']): string {
       return '🏳';
     case 'shield':
       return '🛡';
+    case 'in_progress':
+      return '…';
     case 'missed':
       return '·';
     default:
@@ -34,6 +36,8 @@ function cellTone(state: MonthGridCell['state']): string {
       return colors.accentSunset;
     case 'shield':
       return colors.calendarShield;
+    case 'in_progress':
+      return colors.accentSunsetSoft;
     case 'missed':
       return colors.muted;
     default:

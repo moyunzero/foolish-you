@@ -18,6 +18,8 @@ export type BuildMonthGridInput = {
   entriesByDate: Map<string, CompletionEntry>;
   freezeDates: Set<string>;
   todaySnapshotStatus?: DailyStatus;
+  /** Opening day still playing — threaded into every cell derive (carry). */
+  activePlayingDateKey?: string | null;
 };
 
 function parseMonthKey(monthKey: string): { year: number; month: number } {
@@ -69,7 +71,14 @@ export function canGoToNextMonth(monthKey: string, todayKey: string): boolean {
 }
 
 export function buildMonthGrid(input: BuildMonthGridInput): MonthGridCell[] {
-  const { monthKey, todayKey, entriesByDate, freezeDates, todaySnapshotStatus } = input;
+  const {
+    monthKey,
+    todayKey,
+    entriesByDate,
+    freezeDates,
+    todaySnapshotStatus,
+    activePlayingDateKey,
+  } = input;
   const { year, month } = parseMonthKey(monthKey);
   const totalDays = daysInMonth(year, month);
   const firstWeekday = new Date(year, month - 1, 1).getDay();
@@ -93,6 +102,7 @@ export function buildMonthGrid(input: BuildMonthGridInput): MonthGridCell[] {
       entry,
       todaySnapshotStatus: dateKey === todayKey ? todaySnapshotStatus : undefined,
       freezeDates,
+      activePlayingDateKey,
     });
 
     cells.push({

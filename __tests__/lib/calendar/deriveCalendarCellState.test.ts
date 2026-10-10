@@ -181,7 +181,7 @@ describe('buildMonthGrid', () => {
       todayKey: '2026-05-20',
       entriesByDate: new Map(),
       freezeDates: new Set(),
-      todaySnapshotStatus: 'playing',
+      // Carry: do not forward playing status onto wall today
       activePlayingDateKey: '2026-05-19',
     });
 
@@ -191,7 +191,7 @@ describe('buildMonthGrid', () => {
 
     expect(opening?.state).toBe('in_progress');
     expect(gap?.state).toBe('missed');
-    expect(wallToday?.state).toBe('in_progress');
     expect(wallToday?.isToday).toBe(true);
+    expect(wallToday?.state).not.toBe('in_progress');
   });
 });

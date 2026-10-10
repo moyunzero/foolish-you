@@ -120,13 +120,14 @@ export const ui = {
     weekdays: ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'] as const,
     cellA11y: (
       day: number,
-      state: 'completed' | 'abandoned' | 'missed' | 'shield',
+      state: 'completed' | 'abandoned' | 'missed' | 'shield' | 'in_progress',
     ) => {
       const labels = {
         completed: 'cleared',
         abandoned: 'bailed',
         missed: 'missed',
         shield: 'shield',
+        in_progress: 'in progress',
       } as const;
       return `Day ${day} · ${labels[state]}`;
     },
