@@ -113,4 +113,31 @@ describe('hydrate streak pipeline (no React)', () => {
     expect(streakState?.lastCheckInDateKey).toBe('2026-05-17');
     expect(streakState?.freezeConsumedSessionKey).toBeNull();
   });
+
+  // M4 via pipeline: opening=N, wall=N+2, lastCheckIn=N → burn empty N+1
+  it('burns empty gap day on multi-day carry hydrate (M4)', async () => {
+    const openingN = '2026-05-18';
+    const wallN2 = '2026-05-20';
+    await saveStreakState({
+      currentStreak: 5,
+      lastCheckInDateKey: openingN,
+      historicalMax: 8,
+      freezeCount: 1,
+      lastFreezeGrantWeekKey: '2026-W21',
+      freezeConsumedSessionKey: null,
+      freezeConsumedDateKeys: [],
+    });
+    await saveDailySnapshot(makeBinaryPlayingSnapshot({ dateKey: openingN }));
+
+    const { streakState, next } = await runHydrateStreakPipeline({
+      wallTodayKey: wallN2,
+      openingDateKey: openingN,
+    });
+
+    expect(next.status).toBe('playing');
+    expect(next.dateKey).toBe(openingN);
+    expect(streakState?.freezeCount).toBe(0);
+    expect(streakState?.lastCheckInDateKey).toBe('2026-05-19');
+    expect(streakState?.freezeConsumedSessionKey).toBe(wallN2);
+  });
 });
