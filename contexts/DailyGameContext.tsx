@@ -72,7 +72,10 @@ import {
 import { appendPlayedHash } from '../lib/storage/playedHashStorage';
 import { incrementRatingCompletedCount } from '../lib/storage/ratingStorage';
 import { runReminderSync } from '../lib/notifications/runReminderSync';
-import { clearDailySnapshot } from '../lib/storage/dailyStorage';
+import {
+  clearDailySnapshot,
+  loadDailySnapshot,
+} from '../lib/storage/dailyStorage';
 import { loadStreakState, saveStreakState } from '../lib/storage/streakStorage';
 import { isSnapshotPuzzleConsistent } from '../lib/storage/snapshotValidate';
 
@@ -102,6 +105,11 @@ export type DailyGameState = {
   missedYesterdayLine: string | null;
   /** Cross-day unfinished board (opening dateKey < calendar today) */
   isCarrying: boolean;
+  /**
+   * Provisional continue-tone for index loading before hydrate settles (D-08).
+   * Peeked playing + opening dateKey &lt; wall; cleared after hydrate.
+   */
+  carryLoadingHint: boolean;
   updatePlayState: (next: PlayState) => void;
   /** Sudoku notes sibling write (D-06, D-22) — one narrow Context export. */
   updateSudokuNotes: (next: SudokuNotes | null) => void;
@@ -152,6 +160,7 @@ function useDailyGameProviderValue(): DailyGameState {
   const [historyEntries, setHistoryEntries] = useState<CompletionEntry[]>([]);
   const [saveError, setSaveError] = useState(false);
   const [streakSaveError, setStreakSaveError] = useState(false);
+  const [carryLoadingHint, setCarryLoadingHint] = useState(false);
   const hydratingRef = useRef(false);
   const coordinatorRef = useRef(createPersistenceCoordinator());
   const pendingStreakRef = useRef<StreakState | null>(null);
@@ -229,6 +238,17 @@ function useDailyGameProviderValue(): DailyGameState {
   retryStreakSaveRef.current = retryStreakSave;
 
   const loadHydratedState = useCallback(async () => {
+    // D-08: peek persisted slot before keep/mint so index can show continue loading
+    // while Context status is still `loading` (isCarrying is false until settle).
+    const peeked = await loadDailySnapshot();
+    const peekWallToday = getLocalDateKey();
+    setCarryLoadingHint(
+      peeked != null &&
+        peeked.status === 'playing' &&
+        peeked.dateKey !== '' &&
+        peeked.dateKey < peekWallToday,
+    );
+
     const [next, loadedStreak] = await Promise.all([
       hydrateDailyGame({
         onSaveFailed: handleSaveFailed,
@@ -301,6 +321,8 @@ function useDailyGameProviderValue(): DailyGameState {
     setStatus(next.status);
     setStreak(streakState);
     setHistoryEntries(entries);
+    // Warm path uses isCarrying; clear provisional hint so mint never lies.
+    setCarryLoadingHint(false);
 
     await runReminderSync({
       todayKey: next.dateKey,
@@ -619,6 +641,7 @@ function useDailyGameProviderValue(): DailyGameState {
       freezeConsumedLine,
       missedYesterdayLine,
       isCarrying,
+      carryLoadingHint,
       updatePlayState,
       updateSudokuNotes,
       markCompleted,
@@ -643,6 +666,7 @@ function useDailyGameProviderValue(): DailyGameState {
       freezeConsumedLine,
       missedYesterdayLine,
       isCarrying,
+      carryLoadingHint,
       updatePlayState,
       updateSudokuNotes,
       markCompleted,
