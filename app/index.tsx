@@ -7,7 +7,11 @@ import { useI18n } from '../lib/i18n';
 
 export default function IndexScreen() {
   const { strings } = useI18n();
-  const { status, refresh } = useDailyGame();
+  const { status, refresh, isCarrying, carryLoadingHint } = useDailyGame();
+  const loadingText =
+    isCarrying || carryLoadingHint
+      ? strings.ui.index.loadingPuzzleCarry
+      : strings.ui.index.loadingPuzzle;
 
   if (status === 'loading') {
     return (
@@ -33,7 +37,7 @@ export default function IndexScreen() {
           color={colors.ink}
           size="large"
         />
-        <Text className="mt-4 text-base text-muted">{strings.ui.index.loadingPuzzle}</Text>
+        <Text className="mt-4 text-base text-muted">{loadingText}</Text>
       </View>
     );
   }

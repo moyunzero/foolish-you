@@ -1,5 +1,9 @@
+import { devTools } from './devTools';
+
 /** English UI strings — MVP (Plan 02). */
 export const ui = {
+  /** Structural parity; runtime DEV panel uses zh (see locales/zh/devTools.ts). */
+  devTools,
   common: {
     back: 'Back',
     gotIt: 'Got it',
@@ -12,6 +16,8 @@ export const ui = {
   },
   index: {
     loadingPuzzle: 'Digging up today’s silly puzzle…',
+    /** Carry hydrate loading (v2.7-04 D-08) — wire in plan 03 */
+    loadingPuzzleCarry: 'Picking up this run…',
     errorReloading: 'Something went wrong. Tap below to try again.',
   },
   game: {
@@ -25,6 +31,9 @@ export const ui = {
     sessionModeValue: 'Value',
     sessionModeBoard: 'Board',
     loadFailed: 'Couldn’t load today’s puzzle. Local data may be corrupted.',
+    /** Carry chip — instrumental; formal CTA copy in v2.7-04 */
+    carryChip: 'CARRY',
+    carryChipA11y: (dateKey: string) => `Carry, opened ${dateKey}`,
   },
 
   result: {
@@ -32,6 +41,8 @@ export const ui = {
     statusWin: 'Cleared',
     statusSurrender: 'Bailed out',
     recordPrefix: 'Today ·',
+    /** Carry terminal record prefix (v2.7-04 D-17) — wire in plan 03 */
+    recordPrefixCarry: 'This run ·',
     elapsedPrefix: 'Time: ',
     foolIndexPrefix: 'Silly index: ',
     daysSuffix: ' days',
@@ -51,14 +62,14 @@ export const ui = {
       'Try again later, or open the public privacy policy in your browser.',
   },
   share: {
-    copyReport: 'Copy report',
-    copying: 'Copying…',
-    copied: 'Copied',
-    copyFailed: 'Copy failed — tap again',
-    copyReportA11y: 'Copy today’s report',
-    copiedA11y: 'Report copied to clipboard',
-    failedA11y: 'Failed to copy report',
-    hint: 'No spoilers — paste into chat',
+    shareReport: 'Share report',
+    sharing: 'Sharing…',
+    shared: 'Shared',
+    shareFailed: 'Share failed — tap again',
+    shareReportA11y: 'Share today’s report',
+    sharedA11y: 'Report handed to system share',
+    failedA11y: 'Failed to share report',
+    hint: 'No spoilers — send via Messages or social',
   },
   stats: {
     today: 'Today',
@@ -100,6 +111,10 @@ export const ui = {
     banner: {
       bodyNoPush: 'Almost 8 PM and today’s still open — want a nudge tomorrow?',
       bodyHasPush: 'Almost 8 PM — don’t leave today hanging.',
+      /** Carry evening banner bodies (v2.7-04 D-09) — wire in plan 02 */
+      bodyNoPushCarry:
+        'Almost 8 PM and this run’s still open — want a nudge tomorrow?',
+      bodyHasPushCarry: 'Almost 8 PM — don’t leave this run hanging.',
       ctaEnable: 'Turn on reminders',
       ctaEdit: 'Change reminder',
       dismissA11y: 'Dismiss reminder tip for now',
@@ -117,13 +132,14 @@ export const ui = {
     weekdays: ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'] as const,
     cellA11y: (
       day: number,
-      state: 'completed' | 'abandoned' | 'missed' | 'shield',
+      state: 'completed' | 'abandoned' | 'missed' | 'shield' | 'in_progress',
     ) => {
       const labels = {
         completed: 'cleared',
         abandoned: 'bailed',
         missed: 'missed',
         shield: 'shield',
+        in_progress: 'in progress',
       } as const;
       return `Day ${day} · ${labels[state]}`;
     },
@@ -207,6 +223,10 @@ export const ui = {
     abandonTitle: 'Give up today’s puzzle?',
     abandonMessage:
       'Progress will be saved as “Bailed out”. You can try again tomorrow.',
+    /** Carry abandon sheet (v2.7-04 D-18) — wire in plan 03 */
+    abandonTitleCarry: 'Bail on this run?',
+    abandonMessageCarry:
+      'Progress will be saved as “Bailed out”. You can come back later.',
     continuePlay: 'Keep playing',
     giveUp: 'Give up',
     saveFailedTitle: 'Save failed',

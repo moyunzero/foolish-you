@@ -18,6 +18,7 @@ import {
   entriesToMap,
   freezeDatesFromStreak,
 } from '../../lib/calendar/monthSummary';
+import { getLocalDateKey } from '../../lib/date/localDay';
 import type { DailyStatus } from '../../lib/puzzles/types';
 import type { CompletionEntry } from '../../lib/storage/completionHistoryStorage';
 import { loadCompletionHistory } from '../../lib/storage/completionHistoryStorage';
@@ -28,6 +29,7 @@ import { useI18n } from '../../lib/i18n';
 type MonthCalendarSheetProps = {
   visible: boolean;
   onClose: () => void;
+  /** Opening / active identity + month context — not calendar wall today. */
   dateKey: string | null;
   seed?: number | null;
   todaySnapshotStatus?: DailyStatus;
@@ -57,9 +59,17 @@ export default function MonthCalendarSheet({
   const calendarUi = strings.ui.calendar;
   const sheetUi = strings.ui.sheet;
 
-  const todayKey = dateKey ?? '';
+  const wallTodayKey = getLocalDateKey();
+  const openingDateKey = dateKey ?? '';
+  const activePlayingDateKey =
+    todaySnapshotStatus === 'playing' && openingDateKey
+      ? openingDateKey
+      : undefined;
+  /** Snapshot status applies to wall today only when opening === wall (not carry). */
+  const wallSnapshotStatus =
+    openingDateKey === wallTodayKey ? todaySnapshotStatus : undefined;
   const [monthKey, setMonthKey] = useState(() =>
-    todayKey ? getMonthKeyForDateKey(todayKey) : '',
+    openingDateKey ? getMonthKeyForDateKey(openingDateKey) : '',
   );
   const [entries, setEntries] = useState<CompletionEntry[]>([]);
   const [streak, setStreak] = useState<StreakState | null>(null);
@@ -98,16 +108,24 @@ export default function MonthCalendarSheet({
     () =>
       buildMonthGrid({
         monthKey,
-        todayKey,
+        todayKey: wallTodayKey,
         entriesByDate: entriesToMap(entries),
         freezeDates: freezeDatesFromStreak(streak),
-        todaySnapshotStatus,
+        todaySnapshotStatus: wallSnapshotStatus,
+        activePlayingDateKey,
       }),
-    [monthKey, todayKey, entries, streak, todaySnapshotStatus],
+    [
+      monthKey,
+      wallTodayKey,
+      entries,
+      streak,
+      wallSnapshotStatus,
+      activePlayingDateKey,
+    ],
   );
 
-  const showPrev = canGoToPreviousMonth(monthKey, todayKey);
-  const showNext = canGoToNextMonth(monthKey, todayKey);
+  const showPrev = canGoToPreviousMonth(monthKey, wallTodayKey);
+  const showNext = canGoToNextMonth(monthKey, wallTodayKey);
   const hasGalleryRecords = monthHasGalleryRecords(monthKey, entries);
 
   if (!dateKey) {
@@ -155,7 +173,9 @@ export default function MonthCalendarSheet({
             </Text>
 
             <Pressable
-              onPress={() => showNext && setMonthKey(getMonthKeyForDateKey(todayKey))}
+              onPress={() =>
+                showNext && setMonthKey(getMonthKeyForDateKey(wallTodayKey))
+              }
               disabled={!showNext}
               accessibilityRole="button"
               accessibilityLabel={calendarUi.nextMonthA11y}
@@ -232,7 +252,7 @@ export default function MonthCalendarSheet({
         <MonthGalleryCta
           monthKey={monthKey}
           monthTitle={monthTitle}
-          todayKey={todayKey}
+          todayKey={wallTodayKey}
           entries={entries}
         />
       </View>

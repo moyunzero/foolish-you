@@ -1,0 +1,31 @@
+# After force-type: intro may appear async (loadFirstIntroState). Modal hides
+# board CTA — poll briefly until intro gone (or never appeared).
+appId: com.moyunzero.foolish-you
+---
+- waitForAnimationToEnd:
+    timeout: 3000
+- repeat:
+    times: 20
+    while:
+      visible: '跳过题型介绍，进入棋盘'
+    commands:
+      - tapOn: '跳过题型介绍，进入棋盘'
+      - waitForAnimationToEnd:
+          timeout: 3000
+- runFlow:
+    when:
+      visible: '跳过，直接开玩'
+    commands:
+      - tapOn: '跳过，直接开玩'
+      - waitForAnimationToEnd:
+          timeout: 3000
+- runFlow:
+    when:
+      visible: '关闭题型介绍，进入棋盘'
+    commands:
+      - tapOn: '关闭题型介绍，进入棋盘'
+- runFlow:
+    when:
+      visible: '知道了'
+    commands:
+      - tapOn: '知道了'

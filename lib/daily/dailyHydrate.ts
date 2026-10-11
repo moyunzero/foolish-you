@@ -22,6 +22,7 @@ import {
 import { loadMasteryState } from '../storage/masteryStorage';
 import { loadPlayedHashes } from '../storage/playedHashStorage';
 import { prepareTodaySnapshot } from '../storage/snapshotPrep';
+import { shouldKeepOnHydrate } from './carryState';
 
 export type BuildNewDailyParams = {
   today: string;
@@ -36,6 +37,8 @@ export type HydrateDailyParams = {
   today?: string;
   forceGameType?: GameType | null;
   onSaveFailed?: () => void;
+  /** When true, keep non-null slot (no buildNewDailySnapshot). */
+  suppressMint?: boolean;
 };
 
 function resolveForceGameType(
@@ -155,9 +158,11 @@ export async function hydrateDailyGame(
   const today = params.today ?? getLocalDateKey();
   const record = await loadDailySnapshot();
 
-  if (record != null && record.dateKey === today) {
+  // Scheme A (CARRY-01): keep any playing board across calendar days; never
+  // rewrite opening dateKey. Terminal+stale mints unless suppressMint (CARRY-02).
+  if (shouldKeepOnHydrate(record, today, { suppressMint: params.suppressMint })) {
     let prepared = await runAfterInteractions(() =>
-      prepareTodaySnapshot(record),
+      prepareTodaySnapshot(record!),
     );
     prepared = ensurePlayStateForSnapshot(prepared);
     const saved = await saveDailySnapshot(prepared);

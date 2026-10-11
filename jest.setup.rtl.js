@@ -20,7 +20,7 @@ jest.mock('react-native-safe-area-context', () => {
 });
 
 jest.mock('./lib/platform/runAfterInteractions', () => ({
-  runAfterInteractions: (fn) => Promise.resolve().then(() => fn()),
+  runAfterInteractions: jest.fn((fn) => Promise.resolve().then(() => fn())),
 }));
 
 jest.setTimeout(30_000);

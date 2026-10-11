@@ -1,0 +1,57 @@
+appId: com.moyunzero.foolish-you
+ios:
+  snapshotKeyHonorModalViews: true
+---
+# v2.7 SHIP — full slitherlink carry (D-10 / D-12).
+# Force type once → fake next day → assert 续局 → Scheme A 一键通关 → result.
+# Do NOT force type after progress. Do NOT use storage-inject remint terminal.
+# Tap below DEV bar — header rules a11y also contains 数回.
+
+- launchApp:
+    clearState: true
+- waitForAnimationToEnd:
+    timeout: 10000
+- runFlow: subflows/wait-board-dismiss-intro.yaml
+- runFlow: ../v22/subflows/dev-open-panel.yaml
+- tapOn:
+    text: '数回'
+    below: 'DEV 调试'
+- runFlow: subflows/wait-regen-idle.yaml
+- runFlow: subflows/dismiss-intro-if-shown.yaml
+- extendedWaitUntil:
+    visible: '完成今日'
+    timeout: 60000
+# Collapse DEV panel (keep bar — hide would block fake-next-day / 一键通关).
+- runFlow:
+    when:
+      visible: '一键通关'
+    commands:
+      - tapOn: 'DEV 调试'
+- assertVisible: '数回'
+- takeScreenshot: 01-slitherlink-before-carry
+- runFlow: subflows/dev-fake-next-day.yaml
+- assertVisible: '续局'
+- assertVisible: '完成今日'
+- takeScreenshot: 02-slitherlink-carry-after-fake-next-day
+- runFlow: ../v22/subflows/dev-open-panel.yaml
+- extendedWaitUntil:
+    visible: '一键通关'
+    timeout: 20000
+- tapOn:
+    text: '一键通关'
+    below: '温和成长 QA（注入 history → 通关注入 → 结果页 / 月历）'
+- runFlow:
+    when:
+      visible: '以后'
+    commands:
+      - tapOn: '以后'
+- tapOn:
+    text: '隐藏调试条，便于截图'
+    optional: true
+- swipe:
+    direction: UP
+- extendedWaitUntil:
+    visible: '查看本月日历'
+    timeout: 60000
+- takeScreenshot: 03-slitherlink-complete-after-carry
+- assertVisible: '查看本月日历'

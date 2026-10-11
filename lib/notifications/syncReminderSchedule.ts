@@ -16,6 +16,8 @@ export type SyncReminderScheduleInput = {
   todayKey: string;
   locale: Locale;
   seed: number | null;
+  /** When true, schedule continue-tone push copy (v2.7-04 D-13–D-15). */
+  carrying?: boolean;
 };
 
 export type ReminderScheduleDeps = {
@@ -61,6 +63,7 @@ export async function syncReminderSchedule(
     input.todayKey,
     input.seed,
     input.locale,
+    { carrying: input.carrying },
   );
   await deps.scheduleDailyReminder(input.hour, input.minute, title, body);
 }

@@ -30,12 +30,14 @@ import {
 } from '../../lib/storage/completionHistoryStorage';
 import * as completionHistoryStorage from '../../lib/storage/completionHistoryStorage';
 import { runReminderSync } from '../../lib/notifications/runReminderSync';
+import { runAfterInteractions } from '../../lib/platform/runAfterInteractions';
 
 jest.mock('../../lib/notifications/runReminderSync', () => ({
   runReminderSync: jest.fn(async () => undefined),
 }));
 
 const runReminderSyncMock = jest.mocked(runReminderSync);
+const runAfterInteractionsMock = jest.mocked(runAfterInteractions);
 import {
   FIXTURE_TODAY,
   FIXTURE_TOMORROW,
@@ -47,6 +49,10 @@ import {
   withOneFilledCell,
   withOneSlitherlinkEdge,
 } from '../helpers/dailyGameFixtures';
+import {
+  resetRouterMocks,
+  setMockPathname,
+} from '../helpers/expoRouterMocks';
 import type { SlitherlinkPlayState } from '../../lib/puzzles/types';
 
 const getLocalDateKeyMock = jest.mocked(getLocalDateKey);
@@ -92,6 +98,11 @@ describe('DailyGameContext', () => {
     getLocalDateKeyMock.mockReturnValue(FIXTURE_TODAY);
     appStateHandlers.length = 0;
     runReminderSyncMock.mockClear();
+    runAfterInteractionsMock.mockReset();
+    runAfterInteractionsMock.mockImplementation((fn) =>
+      Promise.resolve().then(() => fn()),
+    );
+    resetRouterMocks();
 
     jest.spyOn(AppState, 'addEventListener').mockImplementation((_, handler) => {
       appStateHandlers.push(handler as AppStateHandler);
@@ -122,7 +133,7 @@ describe('DailyGameContext', () => {
     expect(result.current.playState).not.toBeNull();
   });
 
-  it('starts a new daily when stored dateKey is not today', async () => {
+  it('keeps playing when stored dateKey is yesterday (carry)', async () => {
     const yesterday = makeBinaryPlayingSnapshot({
       dateKey: FIXTURE_YESTERDAY,
       seed: 111,
@@ -132,9 +143,94 @@ describe('DailyGameContext', () => {
     const { result } = await renderAndHydrate();
 
     expect(result.current.status).toBe('playing');
-    expect(result.current.dateKey).toBe(FIXTURE_TODAY);
-    expect(result.current.dateKey).not.toBe(FIXTURE_YESTERDAY);
-    expect(result.current.seed).not.toBe(111);
+    expect(result.current.dateKey).toBe(FIXTURE_YESTERDAY);
+    expect(result.current.seed).toBe(111);
+    expect(result.current.isCarrying).toBe(true);
+  });
+
+  it('sets carryLoadingHint true during loading for yesterday playing snapshot (D-08)', async () => {
+    await saveDailySnapshot(
+      makeBinaryPlayingSnapshot({ dateKey: FIXTURE_YESTERDAY, seed: 111 }),
+    );
+
+    let releaseHydrate!: () => void;
+    const hydrateGate = new Promise<void>((resolve) => {
+      releaseHydrate = resolve;
+    });
+    runAfterInteractionsMock.mockImplementation(async (task) => {
+      await hydrateGate;
+      return task();
+    });
+
+    const { result } = renderHook(() => useDailyGame(), { wrapper });
+
+    await waitFor(() => {
+      expect(result.current.status).toBe('loading');
+      expect(result.current.carryLoadingHint).toBe(true);
+    });
+
+    await act(async () => {
+      releaseHydrate();
+    });
+    await waitForHydrated(result);
+
+    expect(result.current.isCarrying).toBe(true);
+    expect(result.current.carryLoadingHint).toBe(false);
+  });
+
+  it('keeps carryLoadingHint false during loading for same-day playing / empty (D-08)', async () => {
+    await saveDailySnapshot(makeBinaryPlayingSnapshot());
+
+    let releaseHydrate!: () => void;
+    const hydrateGate = new Promise<void>((resolve) => {
+      releaseHydrate = resolve;
+    });
+    runAfterInteractionsMock.mockImplementation(async (task) => {
+      await hydrateGate;
+      return task();
+    });
+
+    const { result } = renderHook(() => useDailyGame(), { wrapper });
+
+    await waitFor(() => {
+      expect(result.current.status).toBe('loading');
+      expect(result.current.carryLoadingHint).toBe(false);
+    });
+
+    await act(async () => {
+      releaseHydrate();
+    });
+    await waitForHydrated(result);
+
+    expect(result.current.isCarrying).toBe(false);
+    expect(result.current.carryLoadingHint).toBe(false);
+
+    await clearDailySnapshot();
+    let releaseEmpty!: () => void;
+    const emptyGate = new Promise<void>((resolve) => {
+      releaseEmpty = resolve;
+    });
+    runAfterInteractionsMock.mockImplementation(async (task) => {
+      await emptyGate;
+      return task();
+    });
+
+    const emptyHook = renderHook(() => useDailyGame(), { wrapper });
+    await waitFor(() => {
+      expect(emptyHook.result.current.status).toBe('loading');
+      expect(emptyHook.result.current.carryLoadingHint).toBe(false);
+    });
+
+    await act(async () => {
+      releaseEmpty();
+    });
+    await waitFor(
+      () => {
+        expect(emptyHook.result.current.status).not.toBe('loading');
+      },
+      { timeout: 15_000 },
+    );
+    expect(emptyHook.result.current.carryLoadingHint).toBe(false);
   });
 
   it('repairs inconsistent snapshot on hydrate and exposes puzzle', async () => {
@@ -240,7 +336,7 @@ describe('DailyGameContext', () => {
     jest.useRealTimers();
   });
 
-  it('markAbandoned does not record streak check-in', async () => {
+  it('markAbandoned records streak check-in on opening dateKey (D-12)', async () => {
     const stored = makeBinaryPlayingSnapshot();
     await saveDailySnapshot(stored);
 
@@ -251,8 +347,59 @@ describe('DailyGameContext', () => {
     });
 
     expect(result.current.status).toBe('abandoned');
-    await expect(loadStreakState()).resolves.toBeNull();
-    expect(result.current.streakLine).toBe('连签战绩 · 完成今日入账');
+    await expect(loadStreakState()).resolves.toEqual(
+      expect.objectContaining({
+        lastCheckInDateKey: FIXTURE_TODAY,
+        currentStreak: 1,
+      }),
+    );
+  });
+
+  it('carry abandon check-in stays on opening dateKey not wall (D-12)', async () => {
+    getLocalDateKeyMock.mockReturnValue(FIXTURE_TODAY);
+    const stored = makeBinaryPlayingSnapshot({
+      dateKey: FIXTURE_YESTERDAY,
+      seed: 222,
+    });
+    await saveDailySnapshot(stored);
+
+    const { result } = await renderAndHydrate();
+    expect(result.current.isCarrying).toBe(true);
+
+    await act(async () => {
+      await result.current.markAbandoned();
+    });
+
+    expect(result.current.status).toBe('abandoned');
+    await expect(loadStreakState()).resolves.toEqual(
+      expect.objectContaining({
+        lastCheckInDateKey: FIXTURE_YESTERDAY,
+      }),
+    );
+  });
+
+  it('while carrying suppresses freeze/miss scare lines (D-10)', async () => {
+    getLocalDateKeyMock.mockReturnValue(FIXTURE_TODAY);
+    // Wall-keyed freeze session would otherwise surface freezeConsumedLine after D-09.
+    await saveStreakState({
+      currentStreak: 5,
+      lastCheckInDateKey: FIXTURE_YESTERDAY,
+      historicalMax: 8,
+      freezeCount: 0,
+      lastFreezeGrantWeekKey: '2026-W21',
+      freezeConsumedSessionKey: FIXTURE_TODAY,
+      freezeConsumedDateKeys: [FIXTURE_YESTERDAY],
+    });
+    await saveDailySnapshot(
+      makeBinaryPlayingSnapshot({ dateKey: FIXTURE_YESTERDAY, seed: 333 }),
+    );
+
+    const { result } = await renderAndHydrate();
+
+    expect(result.current.isCarrying).toBe(true);
+    expect(result.current.freezeConsumedToday).toBe(true);
+    expect(result.current.freezeConsumedLine).toBe('');
+    expect(result.current.missedYesterdayLine).toBeNull();
   });
 
   it('reconciles streak on hydrate when daily is already completed', async () => {
@@ -417,6 +564,7 @@ describe('DailyGameContext', () => {
   });
 
   it('starts a new playing daily when calendar day advances on AppState active', async () => {
+    setMockPathname('/');
     await saveDailySnapshot(
       makeBinaryPlayingSnapshot({ status: 'completed', dateKey: FIXTURE_TODAY }),
     );
@@ -437,6 +585,32 @@ describe('DailyGameContext', () => {
         expect(result.current.status).not.toBe('loading');
         expect(result.current.dateKey).toBe(FIXTURE_TOMORROW);
         expect(result.current.status).toBe('playing');
+      },
+      { timeout: 15_000 },
+    );
+  });
+
+  it('keeps terminal slot on AppState day-advance while pathname is /result', async () => {
+    setMockPathname('/result');
+    await saveDailySnapshot(
+      makeBinaryPlayingSnapshot({ status: 'completed', dateKey: FIXTURE_TODAY }),
+    );
+
+    const { result } = await renderAndHydrate();
+    expect(result.current.status).toBe('completed');
+    expect(result.current.dateKey).toBe(FIXTURE_TODAY);
+
+    getLocalDateKeyMock.mockReturnValue(FIXTURE_TOMORROW);
+
+    await act(async () => {
+      emitAppState('active');
+      await Promise.resolve();
+    });
+
+    await waitFor(
+      () => {
+        expect(result.current.status).toBe('completed');
+        expect(result.current.dateKey).toBe(FIXTURE_TODAY);
       },
       { timeout: 15_000 },
     );
@@ -483,6 +657,7 @@ describe('DailyGameContext', () => {
   });
 
   it('keeps completed status during foreground re-hydrate on result', async () => {
+    setMockPathname('/result');
     await saveDailySnapshot(
       makeBinaryPlayingSnapshot({ status: 'completed', dateKey: FIXTURE_TODAY }),
     );
@@ -499,6 +674,7 @@ describe('DailyGameContext', () => {
 
     await waitFor(() => {
       expect(result.current.status).toBe('completed');
+      expect(result.current.dateKey).toBe(FIXTURE_TODAY);
     });
     expect(seen).not.toContain('loading');
   });
@@ -544,6 +720,25 @@ describe('DailyGameContext', () => {
 
     const onDisk = await AsyncStorage.getItem('@foolish-you/daily-v1');
     expect(onDisk).not.toBeNull();
+  });
+
+  it('devRegenerateToday rebuilds while pathname is /result (D-18)', async () => {
+    setMockPathname('/result');
+    await saveDailySnapshot(
+      makeBinaryPlayingSnapshot({ status: 'completed', dateKey: FIXTURE_TODAY, seed: 4242 }),
+    );
+
+    const { result } = await renderAndHydrate();
+    expect(result.current.status).toBe('completed');
+    expect(result.current.seed).toBe(4242);
+
+    await act(async () => {
+      await result.current.devRegenerateToday('sudoku');
+    });
+
+    expect(result.current.status).toBe('playing');
+    expect(result.current.gameType).toBe('sudoku');
+    expect(result.current.seed).not.toBe(4242);
   });
 
   it('devRegenerateToday() with no arg keeps gameType but changes puzzle', async () => {

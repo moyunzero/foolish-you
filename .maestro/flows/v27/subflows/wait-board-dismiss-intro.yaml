@@ -1,0 +1,51 @@
+# Ready = playable board CTA「完成今日」.
+# FirstTypeIntroSheet is a Modal with accessibilityViewIsModal — while open,
+# underlying「完成今日」is NOT visible to XCTest. Waiting board-first hangs.
+# Hard-waiting intro also fails: splash/hydrate delay, fail-closed load, or
+# intro already dismissed.
+#
+# Strategy:
+# 1) Soft-wait intro a11y (optional) — covers clearState → intro path without
+#    thrashing XCTest on splash.
+# 2) Optional taps for a11y / visible CTA / got-it.
+# 3) Poll until board CTA (covers late intro + no-intro paths). Keep poll
+#    iterations light (1s settle) so splash does not burn the 90 budget slowly.
+appId: com.moyunzero.foolish-you
+---
+- extendedWaitUntil:
+    visible: '跳过题型介绍，进入棋盘'
+    timeout: 90000
+    optional: true
+- tapOn:
+    text: '跳过题型介绍，进入棋盘'
+    optional: true
+- tapOn:
+    text: '跳过，直接开玩'
+    optional: true
+- tapOn:
+    text: '关闭题型介绍，进入棋盘'
+    optional: true
+- tapOn:
+    text: '知道了'
+    optional: true
+- waitForAnimationToEnd:
+    timeout: 5000
+- repeat:
+    times: 60
+    while:
+      notVisible: '完成今日'
+    commands:
+      - tapOn:
+          text: '跳过题型介绍，进入棋盘'
+          optional: true
+      - tapOn:
+          text: '跳过，直接开玩'
+          optional: true
+      - tapOn:
+          text: '关闭题型介绍，进入棋盘'
+          optional: true
+      - tapOn:
+          text: '知道了'
+          optional: true
+      - waitForAnimationToEnd:
+          timeout: 1000

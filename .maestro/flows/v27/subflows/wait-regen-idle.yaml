@@ -1,0 +1,7 @@
+# After force-type: wait until DevTools regenerate spinner is gone.
+# Panel must be open (caller opens first).
+appId: com.moyunzero.foolish-you
+---
+- extendedWaitUntil:
+    notVisible: '正在生成今日题目…'
+    timeout: 180000

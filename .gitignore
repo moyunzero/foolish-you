@@ -72,11 +72,17 @@ coverage/
 .turbo/
 .cache/
 
-# Maestro run logs / failure screenshots (keep docs/qa/**/screenshots/)
+# Maestro run dumps (keep curated evidence/<date>/screenshots/ + acceptance note)
 docs/qa/**/commands-*
 docs/qa/**/screenshot-*
+# Maestro --test-output-dir timestamp folders (YYYY-MM-DD_HHMMSS)
+docs/qa/**/evidence/**/[0-9][0-9][0-9][0-9]-[0-9][0-9]-[0-9][0-9]_*
+docs/qa/**/evidence/**/.maestro-runs/
 # Intermediate visual-audit runs (not ship evidence; superseded by v2.6-01 Composition)
 docs/qa/v2.5-01-composition/
+# Mid-phase discuss / hand QA dumps (not ship archive)
+docs/qa/v2.7-01-hydrate-resume/
+docs/qa/v2.7-03-streak-freeze-calendar/
 
 # --- Lockfile: this repo uses npm (package-lock.json) ---
 yarn.lock
@@ -90,3 +96,6 @@ CLAUDE.md
 
 .codegraph
 .code-review-graph/
+
+project-data-analyse/*
+.claude/

@@ -164,6 +164,8 @@ describe('English locale smoke', () => {
     expect(ui.calendar.completedDeltaLine(2)).not.toMatch(cjk);
     expect(ui.calendar.completedDeltaLine(2).length).toBeGreaterThan(0);
     expect(ui.calendar.emptyHeading).not.toMatch(cjk);
+    expect(ui.calendar.cellA11y(1, 'in_progress')).not.toMatch(cjk);
+    expect(ui.calendar.cellA11y(1, 'in_progress')).toMatch(/in progress/i);
     expect(ui.gallery.generateCta).not.toMatch(cjk);
     expect(ui.gallery.generateCta.length).toBeGreaterThan(0);
     expect(ui.gallery.errorExport).not.toMatch(cjk);
@@ -208,5 +210,64 @@ describe('English locale smoke', () => {
     expect(ui.result.sectionOutcome).not.toMatch(cjk);
     expect(ui.result.sectionStats).not.toMatch(cjk);
     expect(ui.sheet.dismissAbandonA11y).not.toMatch(cjk);
+  });
+
+  it('carry CTA / reminder / notification keys are English without CJK', () => {
+    const en = getStringsForLocale('en');
+    const ui = en.ui;
+    const n = en.notifications;
+    const cjk = /[\u4e00-\u9fff]/;
+    const dateKey = '2026-06-07';
+
+    expect(ui.index.loadingPuzzleCarry).toBe('Picking up this run…');
+    expect(ui.index.loadingPuzzleCarry).not.toMatch(cjk);
+    expect(ui.reminder.banner.bodyNoPushCarry).toBe(
+      'Almost 8 PM and this run’s still open — want a nudge tomorrow?',
+    );
+    expect(ui.reminder.banner.bodyNoPushCarry).not.toMatch(cjk);
+    expect(ui.reminder.banner.bodyHasPushCarry).toBe(
+      'Almost 8 PM — don’t leave this run hanging.',
+    );
+    expect(ui.reminder.banner.bodyHasPushCarry).not.toMatch(cjk);
+    expect(ui.result.recordPrefixCarry).toBe('This run ·');
+    expect(ui.result.recordPrefixCarry).not.toMatch(cjk);
+    expect(ui.alerts.abandonTitleCarry).toBe('Bail on this run?');
+    expect(ui.alerts.abandonTitleCarry).not.toMatch(cjk);
+    expect(ui.alerts.abandonMessageCarry).toBe(
+      'Progress will be saved as “Bailed out”. You can come back later.',
+    );
+    expect(ui.alerts.abandonMessageCarry).not.toMatch(cjk);
+    expect(ui.game.carryChip).toBe('CARRY');
+    expect(ui.game.carryChip).not.toMatch(cjk);
+    expect(ui.game.carryChipA11y(dateKey)).toBe(`Carry, opened ${dateKey}`);
+    expect(ui.game.carryChipA11y(dateKey)).not.toMatch(cjk);
+
+    expect(n.routineTitleCarry).toBe('Still open');
+    expect(n.routineTitleCarry).not.toMatch(cjk);
+    expect(n.routineBodiesCarry).toHaveLength(3);
+    for (const body of n.routineBodiesCarry) {
+      expect(body.length).toBeGreaterThan(0);
+      expect(body).not.toMatch(cjk);
+    }
+  });
+
+  it('DEV panel Maestro labels stay on zh bundle (panel always reads zh)', () => {
+    const zh = getStringsForLocale('zh').ui.devTools;
+    const en = getStringsForLocale('en').ui.devTools;
+
+    expect(zh.title).toBe('DEV 调试');
+    expect(zh.oneTapClear).toBe('一键通关');
+    expect(zh.fillBoardA11y).toBe('填满盘面，仅填盘不完成');
+    expect(zh.fakeNextDayA11y).toBe('假日期次日，不换题，仅用于续局手测');
+    expect(zh.openCalendarA11y).toBe('打开月历，DEV 续局验收');
+    expect(zh.hideA11y).toBe('隐藏调试条，便于截图');
+    expect(zh.fakeSunday).toBe('假日期·周日');
+    expect(zh.growth['growth-hot'].label).toBe('近况·火热');
+    expect(zh.growth['growth-calendar'].label).toBe('月历·比上月多');
+
+    // en exists for parity; must not be empty
+    expect(en.title.length).toBeGreaterThan(0);
+    expect(en.oneTapClear.length).toBeGreaterThan(0);
+    expect(en.growth['growth-hot'].label.length).toBeGreaterThan(0);
   });
 });

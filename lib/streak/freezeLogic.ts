@@ -50,6 +50,7 @@ export function consumeFreezeForMissedDay(
   state: StreakState,
   todayKey: string,
   historyEntries: CompletionEntry[] = [],
+  options?: { activePlayingDateKey?: string | null },
 ): ConsumeFreezeResult {
   if (state.lastCheckInDateKey == null) {
     return { state, consumed: false };
@@ -61,6 +62,12 @@ export function consumeFreezeForMissedDay(
   }
 
   const yesterdayKey = addDaysToDateKey(todayKey, -1);
+  if (
+    options?.activePlayingDateKey != null &&
+    yesterdayKey === options.activePlayingDateKey
+  ) {
+    return { state, consumed: false };
+  }
   if (hasRealCompletionForDateKey(historyEntries, yesterdayKey)) {
     return { state, consumed: false };
   }
@@ -83,7 +90,10 @@ export function consumeFreezeForMissedDay(
 export function reconcileStreakOnOpen(
   state: StreakState | null,
   todayKey: string,
-  options?: { historyEntries?: CompletionEntry[] },
+  options?: {
+    historyEntries?: CompletionEntry[];
+    activePlayingDateKey?: string | null;
+  },
 ): StreakState {
   const base = state ?? EMPTY_STREAK_STATE;
   const afterGrant = grantWeeklyFreeze(base, todayKey);
@@ -91,6 +101,7 @@ export function reconcileStreakOnOpen(
     afterGrant,
     todayKey,
     options?.historyEntries ?? [],
+    { activePlayingDateKey: options?.activePlayingDateKey },
   ).state;
 }
 

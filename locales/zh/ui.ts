@@ -1,5 +1,9 @@
+import { devTools } from './devTools';
+
 /** Chinese UI strings (Plan 02). */
 export const ui = {
+  /** __DEV__ panel — DevToolsPanel always reads zh for Maestro label stability. */
+  devTools,
   common: {
     back: '返回',
     gotIt: '知道了',
@@ -12,6 +16,8 @@ export const ui = {
   },
   index: {
     loadingPuzzle: '正在翻出今天的傻题…',
+    /** Carry hydrate loading (v2.7-04 D-08) — wire in plan 03 */
+    loadingPuzzleCarry: '接着这局…',
     errorReloading: '出了点问题，点击下方重试。',
   },
   game: {
@@ -25,6 +31,9 @@ export const ui = {
     sessionModeValue: '填数',
     sessionModeBoard: '棋盘',
     loadFailed: '今日题目加载失败，可能是本地数据损坏。',
+    /** Carry chip — instrumental; formal CTA copy in v2.7-04 */
+    carryChip: '续局',
+    carryChipA11y: (dateKey: string) => `续局，开局日 ${dateKey}`,
   },
 
   result: {
@@ -32,6 +41,8 @@ export const ui = {
     statusWin: '通关',
     statusSurrender: '认怂',
     recordPrefix: '今日战绩 ·',
+    /** Carry terminal record prefix (v2.7-04 D-17) — wire in plan 03 */
+    recordPrefixCarry: '本局战绩 ·',
     elapsedPrefix: '用时：',
     foolIndexPrefix: '傻了指数：',
     daysSuffix: '天',
@@ -51,14 +62,14 @@ export const ui = {
       '请稍后重试，或在浏览器中访问公开隐私政策页面。',
   },
   share: {
-    copyReport: '拷贝战报',
-    copying: '拷贝中…',
-    copied: '已复制',
-    copyFailed: '拷贝失败，再试一次',
-    copyReportA11y: '拷贝今日战报',
-    copiedA11y: '战报已复制到剪贴板',
-    failedA11y: '战报复制失败',
-    hint: '战报不含答案，可粘贴到聊天应用',
+    shareReport: '分享战报',
+    sharing: '分享中…',
+    shared: '已分享',
+    shareFailed: '分享失败，再试一次',
+    shareReportA11y: '分享今日战报',
+    sharedA11y: '战报已交给系统分享',
+    failedA11y: '战报分享失败',
+    hint: '战报不含答案，可发到微信或朋友圈',
   },
   stats: {
     today: '今日',
@@ -100,6 +111,9 @@ export const ui = {
     banner: {
       bodyNoPush: '快八点了，今日还没完 — 要明天准时喊你吗？',
       bodyHasPush: '快八点了，今日还没完 — 记得收工。',
+      /** Carry evening banner bodies (v2.7-04 D-09) — wire in plan 02 */
+      bodyNoPushCarry: '快八点了，这局还没收工 — 要明天准时喊你吗？',
+      bodyHasPushCarry: '快八点了，这局还没收工 — 记得收工。',
       ctaEnable: '开启提醒',
       ctaEdit: '改提醒',
       dismissA11y: '关闭提醒提示，稍后再说',
@@ -117,13 +131,14 @@ export const ui = {
     weekdays: ['日', '一', '二', '三', '四', '五', '六'] as const,
     cellA11y: (
       day: number,
-      state: 'completed' | 'abandoned' | 'missed' | 'shield',
+      state: 'completed' | 'abandoned' | 'missed' | 'shield' | 'in_progress',
     ) => {
       const labels = {
         completed: '通关',
         abandoned: '认怂',
         missed: '漏玩',
         shield: '护盾',
+        in_progress: '进行中',
       } as const;
       return `${day} 日 · ${labels[state]}`;
     },
@@ -205,6 +220,9 @@ export const ui = {
   alerts: {
     abandonTitle: '放弃今日挑战？',
     abandonMessage: '今天的进度会保存为「认怂」，明天再来也行。',
+    /** Carry abandon sheet (v2.7-04 D-18) — wire in plan 03 */
+    abandonTitleCarry: '放弃这局？',
+    abandonMessageCarry: '进度会保存为「认怂」，之后再来也行。',
     continuePlay: '继续玩',
     giveUp: '放弃',
     saveFailedTitle: '保存失败',

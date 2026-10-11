@@ -6,8 +6,10 @@ import {
   screen,
   waitFor,
 } from '@testing-library/react-native';
+import { Share } from 'react-native';
 
 import ResultScreen from '../../app/result';
+import { APP_STORE_URL } from '../../constants/config';
 import { growthLine as zhGrowthLine } from '../../locales/zh/copy';
 import { saveCompletionHistory } from '../../lib/storage/completionHistoryStorage';
 import type { CompletionEntry } from '../../lib/storage/completionHistoryStorage';
@@ -29,12 +31,7 @@ import {
 } from '../helpers/dailyGameFixtures';
 import { ScreenProviders } from '../helpers/screenTestUtils';
 
-const mockSetStringAsync = jest.fn();
-
-jest.mock('expo-clipboard', () => ({
-  setStringAsync: (...args: unknown[]) => mockSetStringAsync(...args),
-}));
-
+const mockShare = jest.fn();
 const mockRequestReview = jest.fn(() => Promise.resolve());
 
 jest.mock('expo-store-review', () => ({
@@ -86,10 +83,15 @@ async function seedCompletionHistory(entries: CompletionEntry[]) {
 describe('ResultScreen', () => {
   beforeEach(async () => {
     resetRouterMocks();
-    mockSetStringAsync.mockReset();
-    mockSetStringAsync.mockResolvedValue(undefined);
+    mockShare.mockReset();
+    mockShare.mockResolvedValue({ action: Share.sharedAction });
+    jest.spyOn(Share, 'share').mockImplementation((...args) => mockShare(...args));
     mockRequestReview.mockClear();
     await AsyncStorage.clear();
+  });
+
+  afterEach(() => {
+    jest.restoreAllMocks();
   });
 
   it('shows fallback when status is still playing', async () => {
@@ -118,7 +120,7 @@ describe('ResultScreen', () => {
       // Header uses formatTodayMeta → single node「今日 · YYYY-MM-DD」(not bare「今日」).
       expect(screen.getByText(/今日 · \d{4}-\d{2}-\d{2}/)).toBeTruthy();
     });
-    expect(screen.queryByText('拷贝战报')).toBeNull();
+    expect(screen.queryByText('分享战报')).toBeNull();
   });
 
   it('shows victory copy when today is completed', async () => {
@@ -129,7 +131,7 @@ describe('ResultScreen', () => {
       expect(screen.getByText(/今日战绩 · 通关/)).toBeTruthy();
     });
     expect(screen.getByText(/连续 1 天/)).toBeTruthy();
-    expect(screen.getByText('拷贝战报')).toBeTruthy();
+    expect(screen.getByText('分享战报')).toBeTruthy();
     expect(screen.getByText(/傻了么/)).toBeTruthy();
   });
 
@@ -157,29 +159,31 @@ describe('ResultScreen', () => {
     await waitFor(() => {
       expect(screen.getByText(/今日战绩 · 认怂/)).toBeTruthy();
     });
-    expect(screen.getByText('拷贝战报')).toBeTruthy();
+    expect(screen.getByText('分享战报')).toBeTruthy();
   });
 
-  it('copies share card to clipboard when share button pressed', async () => {
+  it('opens system share sheet with store URL when share button pressed', async () => {
     await saveDailySnapshot(makeSudokuCompletedSnapshot());
     renderResult();
 
     await waitFor(() => {
-      expect(screen.getByText('拷贝战报')).toBeTruthy();
+      expect(screen.getByText('分享战报')).toBeTruthy();
     });
 
-    fireEvent.press(screen.getByText('拷贝战报'));
+    fireEvent.press(screen.getByText('分享战报'));
 
     await waitFor(() => {
-      expect(mockSetStringAsync).toHaveBeenCalledTimes(1);
+      expect(mockShare).toHaveBeenCalledTimes(1);
     });
 
-    const copied = String(mockSetStringAsync.mock.calls[0]?.[0] ?? '');
-    expect(copied).toContain('傻了么 · 数独');
-    expect(copied).not.toMatch(/绝密/);
+    const payload = mockShare.mock.calls[0]?.[0] as { message?: string };
+    const shared = String(payload?.message ?? '');
+    expect(shared).toContain('傻了么 · 数独');
+    expect(shared).toContain(APP_STORE_URL);
+    expect(shared).not.toMatch(/绝密/);
 
     await waitFor(() => {
-      expect(screen.getByText('已复制')).toBeTruthy();
+      expect(screen.getByText('已分享')).toBeTruthy();
     });
   });
 
@@ -300,19 +304,19 @@ describe('ResultScreen', () => {
 
   it('requests store review after delay when rating gates pass', async () => {
     jest.useFakeTimers();
-    await saveRatingState({ ...DEFAULT_RATING_STATE, completedCount: 3 });
+    await saveRatingState({ ...DEFAULT_RATING_STATE, completedCount: 1 });
     await saveStreakState({
       ...EMPTY_STREAK_STATE,
-      currentStreak: 2,
+      currentStreak: 1,
       lastCheckInDateKey: FIXTURE_TODAY,
-      historicalMax: 2,
+      historicalMax: 1,
     });
     await saveDailySnapshot(makeSudokuCompletedSnapshot());
 
     renderResult();
 
     await waitFor(() => {
-      expect(screen.getByText('拷贝战报')).toBeTruthy();
+      expect(screen.getByText('分享战报')).toBeTruthy();
     });
 
     await act(async () => {

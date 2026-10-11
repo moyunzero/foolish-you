@@ -109,6 +109,51 @@ describe('consumeFreezeForMissedDay', () => {
     );
     expect(consumed).toBe(false);
   });
+
+  // Freeze × carry gap matrix (N = 2026-05-18 opening)
+  // M1 / D-05: lastCheckIn=N-1, wall=N+1, playing N → yesterday identity protect
+  it('does not consume when yesterdayKey equals activePlayingDateKey (M1)', () => {
+    const { state, consumed } = consumeFreezeForMissedDay(
+      baseStreak,
+      '2026-05-19',
+      [],
+      { activePlayingDateKey: '2026-05-18' },
+    );
+    expect(consumed).toBe(false);
+    expect(state.freezeCount).toBe(1);
+    expect(state).toEqual(baseStreak);
+  });
+
+  // M2 / D-06: lastCheckIn=N-1, wall=N+2, playing N → gap≠2 so no burn for opening N
+  it('does not burn opening day when wall is N+2 and gap is 3 (M2)', () => {
+    const { state, consumed } = consumeFreezeForMissedDay(
+      { ...baseStreak, lastCheckInDateKey: '2026-05-17' },
+      '2026-05-20',
+      [],
+      { activePlayingDateKey: '2026-05-18' },
+    );
+    expect(consumed).toBe(false);
+    expect(state.freezeCount).toBe(1);
+  });
+
+  // M4 / D-06: lastCheckIn=N, wall=N+2, playing N → empty N+1 still burnable (gap===2)
+  it('consumes freeze for empty gap day while still playing opening (M4)', () => {
+    const { state, consumed } = consumeFreezeForMissedDay(
+      { ...baseStreak, lastCheckInDateKey: '2026-05-18' },
+      '2026-05-20',
+      [],
+      { activePlayingDateKey: '2026-05-18' },
+    );
+    expect(consumed).toBe(true);
+    expect(state.freezeCount).toBe(0);
+    expect(state.lastCheckInDateKey).toBe('2026-05-19');
+    expect(state.freezeConsumedSessionKey).toBe('2026-05-20');
+  });
+
+  it('still consumes without activePlayingDateKey when gap is 2 (non-carry baseline)', () => {
+    const { consumed } = consumeFreezeForMissedDay(baseStreak, '2026-05-19');
+    expect(consumed).toBe(true);
+  });
 });
 
 describe('reconcileStreakOnOpen', () => {
@@ -133,6 +178,17 @@ describe('reconcileStreakOnOpen', () => {
       },
     );
     expect(next.lastCheckInDateKey).toBe('2026-05-18');
+  });
+
+  it('threads activePlayingDateKey protect into consume (M1)', () => {
+    const next = reconcileStreakOnOpen(
+      { ...baseStreak, lastFreezeGrantWeekKey: '2026-W21' },
+      '2026-05-19',
+      { activePlayingDateKey: '2026-05-18' },
+    );
+    expect(next.freezeCount).toBe(1);
+    expect(next.lastCheckInDateKey).toBe('2026-05-17');
+    expect(next.freezeConsumedSessionKey).toBeNull();
   });
 });
 
