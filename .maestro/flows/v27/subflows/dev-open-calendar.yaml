@@ -1,0 +1,10 @@
+appId: com.moyunzero.foolish-you
+---
+# DEV-only calendar sheet while still playing.
+# Tap a11y label (overrides visible「打开月历」).
+- runFlow: ../../v22/subflows/dev-open-panel.yaml
+- tapOn: '打开月历，DEV 续局验收'
+- extendedWaitUntil:
+    visible:
+      id: calendar-month-sheet
+    timeout: 20000

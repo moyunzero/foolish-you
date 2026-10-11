@@ -3,6 +3,7 @@ import { useCallback, useState } from 'react';
 import { ActivityIndicator, Pressable, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
+import MonthCalendarSheet from '../calendar/MonthCalendarSheet';
 import { DEV_TOOLS_ENABLED } from '../../constants/dev';
 import { colors } from '../../constants/design';
 import { useDailyGame } from '../../contexts/DailyGameContext';
@@ -13,7 +14,10 @@ import { useI18n } from '../../lib/i18n';
 import type { GameType } from '../../lib/puzzles/types';
 import { isSudokuPuzzle } from '../../lib/puzzles/types';
 import { requestAppStoreReview } from '../../lib/rating/requestReview';
-import { devInjectCompletedEmptyPlayState, devInjectTodayCompleted } from '../../lib/dev/snapshotDevInject';
+import {
+  devInjectCompletedEmptyPlayState,
+  solvePlayStateForSnapshot,
+} from '../../lib/dev/snapshotDevInject';
 import {
   DEV_QA_SUNDAY_DATE_KEY,
   getDevForceDateKey,
@@ -76,11 +80,16 @@ export default function DevToolsPanel() {
   const [forceDateActive, setForceDateActive] = useState(
     () => getDevForceDateKey() != null,
   );
+  /** DEV-only sheet so Maestro can open calendar while still playing (carry QA). */
+  const [calendarOpen, setCalendarOpen] = useState(false);
   const {
     status,
     dateKey,
     gameType,
     snapshot,
+    seed,
+    updatePlayState,
+    markCompleted,
     devRegenerateToday,
     devApplyStreakScenario,
     refresh,
@@ -105,12 +114,23 @@ export default function DevToolsPanel() {
     router.replace('/game');
   };
 
+  /** Fill board only — no markCompleted (sudoku Maestro taps product 完成今日). */
+  const fillBoardOnly = () => {
+    if (snapshot == null || status !== 'playing') return;
+    const solved = solvePlayStateForSnapshot(snapshot);
+    if (solved == null) return;
+    updatePlayState(solved);
+  };
+
   const injectTodayCompleted = async () => {
-    const ok = await devInjectTodayCompleted();
-    if (ok) {
-      await refresh();
-      router.replace('/result');
-    }
+    // Scheme A: do not refresh after storage inject — wall≠opening remints (CARRY-02).
+    // Solve into Context then markCompleted (same path as real 完成今日).
+    if (snapshot == null || status !== 'playing') return;
+    const solved = solvePlayStateForSnapshot(snapshot);
+    if (solved == null) return;
+    updatePlayState(solved);
+    await markCompleted();
+    router.replace('/result');
   };
 
   const applyStreakScenario = async (scenario: StreakDevScenarioId) => {
@@ -306,6 +326,12 @@ export default function DevToolsPanel() {
               accessibilityLabel="假日期次日，不换题，仅用于续局手测"
             />
             <DevButton
+              label="打开月历"
+              disabled={dateKey == null}
+              onPress={() => setCalendarOpen(true)}
+              accessibilityLabel="打开月历，DEV 续局验收"
+            />
+            <DevButton
               label="假日期·清除"
               disabled={regenerating || !forceDateActive}
               onPress={() => void clearFakeDate()}
@@ -373,7 +399,7 @@ export default function DevToolsPanel() {
           </View>
 
           <Text className="text-[10px] text-accent-sunset" style={{ fontFamily: 'SpaceMono_400Regular' }}>
-            温和成长 QA（注入 history → 点「一键通关」→ 结果页 / 月历）
+            温和成长 QA（注入 history → 通关注入 → 结果页 / 月历）
           </Text>
           <View className="flex-row flex-wrap gap-2">
             {GROWTH_DEV_SCENARIOS.map((scenario) => (
@@ -385,6 +411,11 @@ export default function DevToolsPanel() {
                 }}
               />
             ))}
+            <DevButton
+              label="填满盘面"
+              onPress={fillBoardOnly}
+              accessibilityLabel="填满盘面，仅填盘不完成"
+            />
             <DevButton
               label="一键通关"
               onPress={() => {
@@ -432,10 +463,22 @@ export default function DevToolsPanel() {
           ) : null}
 
           <Text className="text-[10px] leading-4 text-muted">
-            点「数独/二进制/数绘/数回」会清今日存档并按选定题型重建；「自然随机」走日期算法并尽量换题型。「重开今日」保持当前题型、换一道新题（清空进度）。也可改 constants/dev.ts 里 DEV_FORCE_GAME_TYPE。「弹出评分」直接调系统对话框；「重置通关记录」清本周统计；「重置评分」清评分门控。「注入坏盘面」写入 completed+空盘，重启后走恢复逻辑；展开时显示恢复日志。截图时点「隐藏」；长按页脚「隐私政策」可再唤出。
+            点「数独/二进制/数绘/数回」会清今日存档并按选定题型重建；「自然随机」走日期算法并尽量换题型。「重开今日」保持当前题型、换一道新题（清空进度）。也可改 constants/dev.ts 里 DEV_FORCE_GAME_TYPE。「弹出评分」直接调系统对话框；「重置通关记录」清本周统计；「重置评分」清评分门控。「注入坏盘面」写入 completed+空盘，重启后走恢复逻辑；展开时显示恢复日志。「打开月历」供续局中验收 in_progress。截图时点「隐藏」；长按页脚「隐私政策」可再唤出。
           </Text>
         </View>
       ) : null}
+
+      <MonthCalendarSheet
+        visible={calendarOpen}
+        onClose={() => setCalendarOpen(false)}
+        dateKey={dateKey}
+        seed={seed ?? snapshot?.seed}
+        todaySnapshotStatus={
+          status === 'completed' || status === 'abandoned' || status === 'playing'
+            ? status
+            : undefined
+        }
+      />
     </View>
   );
 }

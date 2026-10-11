@@ -65,7 +65,20 @@ export async function devInjectCompletedEmptyPlayState(): Promise<boolean> {
   return saved;
 }
 
-/** __DEV__: fill today's board with a valid solution and mark completed (Maestro / growth QA). */
+/** __DEV__: solved playState for a playing snapshot (Maestro / growth QA). */
+export function solvePlayStateForSnapshot(
+  snapshot: DailySnapshot,
+): PlayState | null {
+  if (!DEV_TOOLS_ENABLED) return null;
+  if (snapshot.status !== 'playing') return null;
+  return solvedPlayStateFor(snapshot);
+}
+
+/**
+ * __DEV__: fill today's board with a valid solution and mark completed in storage.
+ * Prefer Context `updatePlayState` + `markCompleted` under Scheme A carry — a bare
+ * `refresh()` after this mint-wipes terminal+stale when wall today ≠ opening dateKey.
+ */
 export async function devInjectTodayCompleted(): Promise<boolean> {
   if (!DEV_TOOLS_ENABLED) return false;
   const snapshot = await loadDailySnapshot();

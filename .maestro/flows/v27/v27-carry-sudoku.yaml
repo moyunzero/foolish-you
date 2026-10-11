@@ -1,0 +1,65 @@
+appId: com.moyunzero.foolish-you
+ios:
+  snapshotKeyHonorModalViews: true
+---
+# v2.7 SHIP — full sudoku carry (D-10 / D-12 hybrid).
+# Force type once → one-cell progress → fake next day → DEV fill-only → product 完成今日.
+# Do NOT use Scheme A one-tap complete for sudoku terminal.
+# Do NOT force type after progress (clears archive).
+
+- launchApp:
+    clearState: true
+- extendedWaitUntil:
+    visible: '跳过题型介绍，进入棋盘'
+    timeout: 90000
+- tapOn: '跳过题型介绍，进入棋盘'
+- extendedWaitUntil:
+    visible: '完成今日'
+    timeout: 60000
+- runFlow: ../v22/subflows/dev-open-panel.yaml
+- tapOn:
+    text: '数独'
+    below: 'DEV 调试'
+- runFlow:
+    when:
+      visible: '跳过题型介绍，进入棋盘'
+    commands:
+      - tapOn: '跳过题型介绍，进入棋盘'
+- extendedWaitUntil:
+    visible: '完成今日'
+    timeout: 60000
+- runFlow:
+    when:
+      visible: '知道了'
+    commands:
+      - tapOn: '知道了'
+- runFlow: ../v22/subflows/dev-hide-bar.yaml
+- assertVisible: '数独'
+# Progress marker (v25-hand-keep pattern) — never force type after this.
+- tapOn: '第 1 行第 1 列，空'
+- tapOn: '填入 7'
+- extendedWaitUntil:
+    visible: '第 1 行第 1 列，已填 7'
+    timeout: 15000
+- runFlow: subflows/dev-fake-next-day.yaml
+- assertVisible: '续局'
+- assertVisible: '完成今日'
+- takeScreenshot: 01-sudoku-carry-after-fake-next-day
+# D-12: fill-only then product CTA (not Scheme A one-tap complete).
+- runFlow: ../v22/subflows/dev-open-panel.yaml
+- tapOn: '填满盘面，仅填盘不完成'
+- runFlow: ../v22/subflows/dev-hide-bar.yaml
+- extendedWaitUntil:
+    visible: '完成今日'
+    timeout: 20000
+- tapOn: '完成今日'
+- runFlow:
+    when:
+      visible: '以后'
+    commands:
+      - tapOn: '以后'
+- extendedWaitUntil:
+    visible: '查看本月日历'
+    timeout: 60000
+- takeScreenshot: 02-sudoku-complete-after-carry
+- assertVisible: '查看本月日历'
