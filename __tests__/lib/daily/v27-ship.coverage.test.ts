@@ -74,13 +74,12 @@ async function runHydrateStreakPipeline(options?: {
 
 describe('v27-ship SHIP-01 matrix', () => {
   it('keeps playing yesterday vs today wall (hydrate keep/advance)', () => {
-    // RED: inverted until GREEN wires correct polarity
     expect(
       shouldKeepOnHydrate(
         { status: 'playing', dateKey: FIXTURE_YESTERDAY },
         FIXTURE_TODAY,
       ),
-    ).toBe(false);
+    ).toBe(true);
   });
 
   it('does not keep completed yesterday (mint for advance)', () => {
@@ -89,13 +88,11 @@ describe('v27-ship SHIP-01 matrix', () => {
         { status: 'completed', dateKey: FIXTURE_YESTERDAY },
         FIXTURE_TODAY,
       ),
-    ).toBe(true);
+    ).toBe(false);
   });
 
   it('isCarrying when playing and openingDateKey less than wallToday', () => {
-    expect(isCarrying('playing', FIXTURE_YESTERDAY, FIXTURE_TODAY)).toBe(
-      false,
-    );
+    expect(isCarrying('playing', FIXTURE_YESTERDAY, FIXTURE_TODAY)).toBe(true);
   });
 
   it('deriveCalendarCellState returns in_progress for activePlayingDateKey', () => {
@@ -106,7 +103,7 @@ describe('v27-ship SHIP-01 matrix', () => {
         freezeDates: new Set(),
         activePlayingDateKey: FIXTURE_YESTERDAY,
       }),
-    ).toBe('missed');
+    ).toBe('in_progress');
   });
 
   it('freeze×carry — carry opening yesterday does not false-burn freeze', async () => {
@@ -131,8 +128,9 @@ describe('v27-ship SHIP-01 matrix', () => {
 
     expect(next.status).toBe('playing');
     expect(next.dateKey).toBe(FIXTURE_YESTERDAY);
-    // RED: expect burn until GREEN asserts freeze preserved
-    expect(streakState?.freezeCount).toBe(0);
+    expect(streakState?.freezeCount).toBe(1);
+    expect(streakState?.lastCheckInDateKey).toBe('2026-05-17');
+    expect(streakState?.freezeConsumedSessionKey).toBeNull();
   });
 
   it('cross-midnight matrix: keep across wall advance then terminal mints', () => {
@@ -141,19 +139,19 @@ describe('v27-ship SHIP-01 matrix', () => {
         { status: 'playing', dateKey: FIXTURE_YESTERDAY },
         FIXTURE_TOMORROW,
       ),
-    ).toBe(false);
+    ).toBe(true);
     expect(isCarrying('playing', FIXTURE_YESTERDAY, FIXTURE_TOMORROW)).toBe(
-      false,
+      true,
     );
     expect(
       shouldKeepOnHydrate(
         { status: 'completed', dateKey: FIXTURE_YESTERDAY },
         FIXTURE_TOMORROW,
       ),
-    ).toBe(true);
+    ).toBe(false);
   });
 
   it('daily STORAGE_VERSION remains 3 (ship invariant)', () => {
-    expect(STORAGE_VERSION).toBe(99);
+    expect(STORAGE_VERSION).toBe(3);
   });
 });
