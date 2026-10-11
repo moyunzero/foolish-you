@@ -250,4 +250,24 @@ describe('English locale smoke', () => {
       expect(body).not.toMatch(cjk);
     }
   });
+
+  it('DEV panel Maestro labels stay on zh bundle (panel always reads zh)', () => {
+    const zh = getStringsForLocale('zh').ui.devTools;
+    const en = getStringsForLocale('en').ui.devTools;
+
+    expect(zh.title).toBe('DEV 调试');
+    expect(zh.oneTapClear).toBe('一键通关');
+    expect(zh.fillBoardA11y).toBe('填满盘面，仅填盘不完成');
+    expect(zh.fakeNextDayA11y).toBe('假日期次日，不换题，仅用于续局手测');
+    expect(zh.openCalendarA11y).toBe('打开月历，DEV 续局验收');
+    expect(zh.hideA11y).toBe('隐藏调试条，便于截图');
+    expect(zh.fakeSunday).toBe('假日期·周日');
+    expect(zh.growth['growth-hot'].label).toBe('近况·火热');
+    expect(zh.growth['growth-calendar'].label).toBe('月历·比上月多');
+
+    // en exists for parity; must not be empty
+    expect(en.title.length).toBeGreaterThan(0);
+    expect(en.oneTapClear.length).toBeGreaterThan(0);
+    expect(en.growth['growth-hot'].label.length).toBeGreaterThan(0);
+  });
 });

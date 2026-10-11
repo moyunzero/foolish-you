@@ -1,5 +1,9 @@
+import { devTools } from './devTools';
+
 /** English UI strings — MVP (Plan 02). */
 export const ui = {
+  /** Structural parity; runtime DEV panel uses zh (see locales/zh/devTools.ts). */
+  devTools,
   common: {
     back: 'Back',
     gotIt: 'Got it',

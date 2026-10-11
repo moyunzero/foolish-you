@@ -19,41 +19,16 @@ export type GrowthDevScenarioId =
 
 export type GrowthDevScenarioMeta = {
   id: GrowthDevScenarioId;
-  label: string;
-  hint: string;
 };
 
+// Scenario ids only; labels and hints live in locales zh and en devTools.
 export const GROWTH_DEV_SCENARIOS: GrowthDevScenarioMeta[] = [
-  {
-    id: 'growth-silent',
-    label: '近况·平常',
-    hint: '仅昨日通关；今日 win 后结果页无成长行',
-  },
-  {
-    id: 'growth-hot',
-    label: '近况·火热',
-    hint: '近 7 天含今日 ≥6 次通关 → 火热口吻',
-  },
-  {
-    id: 'growth-steady',
-    label: '近况·稳定',
-    hint: '近 7 天含今日 4–5 次 → 稳定口吻',
-  },
-  {
-    id: 'growth-comeback',
-    label: '近况·召回',
-    hint: '上次通关 ≥3 天前 → 好久不见',
-  },
-  {
-    id: 'growth-calendar',
-    label: '月历·比上月多',
-    hint: '上月 2 天 + 本月若干天；Sheet 应追加正向 delta',
-  },
-  {
-    id: 'growth-smoother',
-    label: '彩蛋·同类更顺',
-    hint: '同玩法三周同星期几较慢历史；今日通关更快 → smoother 行',
-  },
+  { id: 'growth-silent' },
+  { id: 'growth-hot' },
+  { id: 'growth-steady' },
+  { id: 'growth-comeback' },
+  { id: 'growth-calendar' },
+  { id: 'growth-smoother' },
 ];
 
 function completedEntry(

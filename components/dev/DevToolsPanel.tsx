@@ -1,5 +1,5 @@
 import { useRouter } from 'expo-router';
-import { useCallback, useState } from 'react';
+import { useCallback, useRef, useState } from 'react';
 import { ActivityIndicator, Pressable, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
@@ -11,6 +11,8 @@ import { useDevToolsUi } from '../../contexts/DevToolsUiContext';
 import { addDaysToDateKey } from '../../lib/date/dateKeyMath';
 import { getLocalDateKey } from '../../lib/date/localDay';
 import { useI18n } from '../../lib/i18n';
+import { getGameTypeLabel } from '../../lib/i18n/gameLabels';
+import { getStringsForLocale } from '../../lib/i18n/strings';
 import type { GameType } from '../../lib/puzzles/types';
 import { isSudokuPuzzle } from '../../lib/puzzles/types';
 import { requestAppStoreReview } from '../../lib/rating/requestReview';
@@ -39,6 +41,9 @@ import { clearRatingState } from '../../lib/storage/ratingStorage';
 import { clearRecoveryLog, loadRecoveryLog, type RecoveryLogEntry } from '../../lib/storage/recoveryLog';
 import { loadStreakState } from '../../lib/storage/streakStorage';
 
+/** Maestro taps Chinese DEV labels even when product locale is English. */
+const DEV_LOCALE = 'zh' as const;
+
 function DevButton({
   label,
   onPress,
@@ -58,6 +63,7 @@ function DevButton({
       disabled={disabled}
       accessibilityRole="button"
       accessibilityLabel={accessibilityLabel ?? label}
+      accessibilityState={{ disabled: disabled === true }}
       className={[
         'rounded-full border px-3 py-2',
         active ? 'border-accent-sunset bg-accent-sunset/20' : 'border-hairline',
@@ -75,11 +81,22 @@ export default function DevToolsPanel() {
   const insets = useSafeAreaInsets();
   const [expanded, setExpanded] = useState(false);
   const [regenerating, setRegenerating] = useState(false);
+  /** Tracks in-flight regenerate for async waiters (Maestro fake-next-day). */
+  const regeneratingRef = useRef(false);
+  /** Prevents concurrent fake-next-day (Maestro retry while first refresh in flight). */
+  const advanceInFlightRef = useRef(false);
   const [recoveryLog, setRecoveryLog] = useState<RecoveryLogEntry[]>([]);
-  const [streakSummary, setStreakSummary] = useState('streak: —');
+  const [streakSummary, setStreakSummary] = useState(
+    () => getStringsForLocale(DEV_LOCALE).ui.devTools.streakPlaceholder,
+  );
   const [forceDateActive, setForceDateActive] = useState(
     () => getDevForceDateKey() != null,
   );
+
+  const setRegeneratingGate = (next: boolean) => {
+    regeneratingRef.current = next;
+    setRegenerating(next);
+  };
   /** DEV-only sheet so Maestro can open calendar while still playing (carry QA). */
   const [calendarOpen, setCalendarOpen] = useState(false);
   const {
@@ -94,8 +111,15 @@ export default function DevToolsPanel() {
     devApplyStreakScenario,
     refresh,
   } = useDailyGame();
+  /** Fresh after await — do not trust advanceFakeDateNextDay closure across regen wait. */
+  const dateKeyRef = useRef(dateKey);
+  const statusRef = useRef(status);
+  dateKeyRef.current = dateKey;
+  statusRef.current = status;
   const { barVisible, hideBar } = useDevToolsUi();
   const { setLocaleOverride } = useI18n();
+  const d = getStringsForLocale(DEV_LOCALE).ui.devTools;
+  const gameTypeLabel = (type: GameType) => getGameTypeLabel(type, DEV_LOCALE);
 
   const refreshRecoveryLog = useCallback(async () => {
     setRecoveryLog(await loadRecoveryLog());
@@ -154,8 +178,8 @@ export default function DevToolsPanel() {
       : null;
 
   const regenerate = async (force?: GameType | null) => {
-    if (regenerating) return;
-    setRegenerating(true);
+    if (regeneratingRef.current) return;
+    setRegeneratingGate(true);
     try {
       await devRegenerateToday(force);
       router.replace('/game');
@@ -164,14 +188,14 @@ export default function DevToolsPanel() {
         console.error('[DevTools] devRegenerateToday failed', error);
       }
     } finally {
-      setRegenerating(false);
+      setRegeneratingGate(false);
     }
   };
 
   /** Maestro / Sunday Special QA: pin dateKey to a known Sunday then rebuild today. */
   const applyFakeSunday = async () => {
-    if (regenerating) return;
-    setRegenerating(true);
+    if (regeneratingRef.current) return;
+    setRegeneratingGate(true);
     try {
       setDevForceDateKey(DEV_QA_SUNDAY_DATE_KEY);
       setForceDateActive(true);
@@ -182,13 +206,13 @@ export default function DevToolsPanel() {
         console.error('[DevTools] applyFakeSunday failed', error);
       }
     } finally {
-      setRegenerating(false);
+      setRegeneratingGate(false);
     }
   };
 
   const clearFakeDate = async () => {
-    if (regenerating) return;
-    setRegenerating(true);
+    if (regeneratingRef.current) return;
+    setRegeneratingGate(true);
     try {
       setDevForceDateKey(null);
       setForceDateActive(false);
@@ -199,34 +223,70 @@ export default function DevToolsPanel() {
         console.error('[DevTools] clearFakeDate failed', error);
       }
     } finally {
-      setRegenerating(false);
+      setRegeneratingGate(false);
     }
   };
 
   /**
    * Carry QA (v2.7-01 / CARRY-02 D-07): advance calendar today by +1 without minting.
    * Only setDevForceDateKey + hydrate refresh — never regenerate.
-   * Stay on /result while terminal so suppressMint keep is observable; navigate
-   * to /game only when status is still playing (in-progress carry).
+   * Boundaries:
+   * - Wait out regenerate (Maestro tap on disabled control is a silent no-op).
+   * - Single-flight + idempotent vs device wall (`getLocalDateKey(new Date())` —
+   *   no-arg getLocalDateKey honors force and would +2 on retry).
+   * - Read dateKey/status from refs after await (stale closure across wait).
    */
   const advanceFakeDateNextDay = async () => {
-    if (regenerating) return;
-    setRegenerating(true);
+    if (advanceInFlightRef.current) return;
+    advanceInFlightRef.current = true;
     try {
-      const next = addDaysToDateKey(getLocalDateKey(), 1);
-      setDevForceDateKey(next);
-      setForceDateActive(true);
-      await refresh();
-      await refreshStreakSummary();
-      if (status === 'playing') {
-        router.replace('/game');
+      const waitStarted = Date.now();
+      while (regeneratingRef.current && Date.now() - waitStarted < 180_000) {
+        await new Promise((r) => setTimeout(r, 100));
       }
-    } catch (error) {
-      if (__DEV__) {
-        console.error('[DevTools] advanceFakeDateNextDay failed', error);
+      if (regeneratingRef.current) {
+        if (__DEV__) {
+          console.warn(
+            '[DevTools] advanceFakeDateNextDay: regenerate still busy',
+          );
+        }
+        return;
+      }
+
+      // Explicit Date bypasses force — true device calendar day.
+      const deviceWall = getLocalDateKey(new Date());
+      const target = addDaysToDateKey(deviceWall, 1);
+      const opening = dateKeyRef.current;
+      const alreadyAdvanced =
+        getDevForceDateKey() === target ||
+        (opening != null && opening !== '' && opening < deviceWall) ||
+        (opening != null && opening !== '' && opening >= target);
+
+      if (alreadyAdvanced) {
+        if (statusRef.current === 'playing') {
+          router.replace('/game');
+        }
+        return;
+      }
+
+      setRegeneratingGate(true);
+      try {
+        setDevForceDateKey(target);
+        setForceDateActive(true);
+        await refresh();
+        await refreshStreakSummary();
+        if (statusRef.current === 'playing') {
+          router.replace('/game');
+        }
+      } catch (error) {
+        if (__DEV__) {
+          console.error('[DevTools] advanceFakeDateNextDay failed', error);
+        }
+      } finally {
+        setRegeneratingGate(false);
       }
     } finally {
-      setRegenerating(false);
+      advanceInFlightRef.current = false;
     }
   };
 
@@ -251,25 +311,27 @@ export default function DevToolsPanel() {
         <Pressable
           onPress={onToggleExpanded}
           accessibilityRole="button"
-          accessibilityLabel="DEV 调试"
+          accessibilityLabel={d.title}
           className="min-h-[32px] flex-1 flex-row items-center justify-between"
         >
           <Text
             className="text-xs uppercase tracking-widest text-accent-sunset"
             style={{ fontFamily: 'SpaceMono_400Regular' }}
           >
-            DEV 调试
+            {d.title}
           </Text>
-          <Text className="text-xs text-muted">{expanded ? '收起 ▼' : '展开 ▲'}</Text>
+          <Text className="text-xs text-muted">
+            {expanded ? d.collapse : d.expand}
+          </Text>
         </Pressable>
         <Pressable
           onPress={hideBar}
           accessibilityRole="button"
-          accessibilityLabel="隐藏调试条，便于截图"
+          accessibilityLabel={d.hideA11y}
           className="rounded-full border border-hairline px-2.5 py-1.5"
         >
           <Text className="text-[10px] text-muted" style={{ fontFamily: 'SpaceMono_400Regular' }}>
-            隐藏
+            {d.hide}
           </Text>
         </Pressable>
       </View>
@@ -291,107 +353,111 @@ export default function DevToolsPanel() {
             <View className="flex-row items-center gap-2 py-1">
               <ActivityIndicator size="small" color={colors.accentSunset} />
               <Text className="text-xs text-muted" style={{ fontFamily: 'SpaceMono_400Regular' }}>
-                正在生成今日题目…
+                {d.regenerating}
               </Text>
             </View>
           ) : null}
 
           <View className="flex-row flex-wrap gap-2">
             <DevButton
-              label="设置占位"
+              label={d.settings}
               onPress={() => {
                 router.push('/settings');
               }}
             />
             <DevButton
-              label="预览·English"
+              label={d.previewEnglish}
               onPress={() => {
                 setLocaleOverride('en');
               }}
             />
             <DevButton
-              label="假日期·周日"
+              label={d.fakeSunday}
               active={getDevForceDateKey() === DEV_QA_SUNDAY_DATE_KEY}
               disabled={regenerating}
               onPress={() => void applyFakeSunday()}
             />
             <DevButton
-              label="假日期·次日"
+              label={d.fakeNextDay}
               active={
                 forceDateActive &&
                 getDevForceDateKey() !== DEV_QA_SUNDAY_DATE_KEY
               }
               disabled={regenerating}
               onPress={() => void advanceFakeDateNextDay()}
-              accessibilityLabel="假日期次日，不换题，仅用于续局手测"
+              accessibilityLabel={d.fakeNextDayA11y}
             />
             <DevButton
-              label="打开月历"
+              label={d.openCalendar}
               disabled={dateKey == null}
               onPress={() => setCalendarOpen(true)}
-              accessibilityLabel="打开月历，DEV 续局验收"
+              accessibilityLabel={d.openCalendarA11y}
             />
             <DevButton
-              label="假日期·清除"
+              label={d.clearFakeDate}
               disabled={regenerating || !forceDateActive}
               onPress={() => void clearFakeDate()}
             />
             <DevButton
-              label="数独"
+              label={gameTypeLabel('sudoku')}
               active={gameType === 'sudoku'}
               disabled={regenerating}
               onPress={() => void regenerate('sudoku')}
             />
             <DevButton
-              label="二进制"
+              label={gameTypeLabel('binary')}
               active={gameType === 'binary'}
               disabled={regenerating}
               onPress={() => void regenerate('binary')}
             />
             <DevButton
-              label="数绘"
+              label={gameTypeLabel('nonogram')}
               active={gameType === 'nonogram'}
               disabled={regenerating}
               onPress={() => void regenerate('nonogram')}
             />
             <DevButton
-              label="数回"
+              label={gameTypeLabel('slitherlink')}
               active={gameType === 'slitherlink'}
               disabled={regenerating}
               onPress={() => void regenerate('slitherlink')}
             />
             <DevButton
-              label="自然随机"
+              label={d.naturalRandom}
               disabled={regenerating}
               onPress={() => void regenerate(null)}
             />
-            <DevButton label="重开今日" disabled={regenerating} onPress={() => void regenerate()} />
             <DevButton
-              label="弹出评分"
+              label={d.reopenToday}
+              disabled={regenerating}
+              onPress={() => void regenerate()}
+            />
+            <DevButton
+              label={d.promptReview}
               onPress={() => {
                 void requestAppStoreReview();
               }}
             />
             <DevButton
-              label="重置通关记录"
+              label={d.resetCompletions}
               onPress={() => {
                 void clearCompletionHistory();
               }}
             />
             <DevButton
-              label="重置评分"
+              label={d.resetRating}
               onPress={() => {
                 void clearRatingState();
               }}
             />
             <DevButton
-              label="注入坏盘面"
+              label={d.injectBadBoard}
               onPress={() => {
                 void devInjectCompletedEmptyPlayState().then(() => refresh());
               }}
             />
             <DevButton
-              label="清恢复日志"
+              label={d.clearRecoveryLog}
               onPress={() => {
                 void clearRecoveryLog().then(() => refreshRecoveryLog());
               }}
@@ -399,42 +465,45 @@ export default function DevToolsPanel() {
           </View>
 
           <Text className="text-[10px] text-accent-sunset" style={{ fontFamily: 'SpaceMono_400Regular' }}>
-            温和成长 QA（注入 history → 通关注入 → 结果页 / 月历）
+            {d.growthSection}
           </Text>
           <View className="flex-row flex-wrap gap-2">
             {GROWTH_DEV_SCENARIOS.map((scenario) => (
               <DevButton
                 key={scenario.id}
-                label={scenario.label}
+                label={d.growth[scenario.id].label}
                 onPress={() => {
                   void applyGrowthScenario(scenario.id);
                 }}
               />
             ))}
             <DevButton
-              label="填满盘面"
+              label={d.fillBoard}
               onPress={fillBoardOnly}
-              accessibilityLabel="填满盘面，仅填盘不完成"
+              accessibilityLabel={d.fillBoardA11y}
             />
             <DevButton
-              label="一键通关"
+              label={d.oneTapClear}
               onPress={() => {
                 void injectTodayCompleted();
               }}
             />
           </View>
           <Text className="text-[10px] leading-4 text-muted">
-            {GROWTH_DEV_SCENARIOS.map((s) => `${s.label}：${s.hint}`).join(' · ')}
+            {GROWTH_DEV_SCENARIOS.map(
+              (s) =>
+                `${d.growth[s.id].label}${d.hintSep}${d.growth[s.id].hint}`,
+            ).join(' · ')}
           </Text>
 
           <Text className="text-[10px] text-accent-sunset" style={{ fontFamily: 'SpaceMono_400Regular' }}>
-            连签 / 护盾 QA（注入后自动 hydrate → 跳转 game）
+            {d.streakSection}
           </Text>
           <View className="flex-row flex-wrap gap-2">
             {STREAK_DEV_SCENARIOS.map((scenario) => (
               <DevButton
                 key={scenario.id}
-                label={scenario.label}
+                label={d.streak[scenario.id].label}
                 onPress={() => {
                   void applyStreakScenario(scenario.id);
                 }}
@@ -442,13 +511,16 @@ export default function DevToolsPanel() {
             ))}
           </View>
           <Text className="text-[10px] leading-4 text-muted">
-            {STREAK_DEV_SCENARIOS.map((s) => `${s.label}：${s.hint}`).join(' · ')}
+            {STREAK_DEV_SCENARIOS.map(
+              (s) =>
+                `${d.streak[s.id].label}${d.hintSep}${d.streak[s.id].hint}`,
+            ).join(' · ')}
           </Text>
 
           {recoveryLog.length > 0 ? (
             <View className="gap-1">
               <Text className="text-[10px] text-muted" style={{ fontFamily: 'SpaceMono_400Regular' }}>
-                恢复日志（最近 {recoveryLog.length} 条）
+                {d.recoveryLogTitle(recoveryLog.length)}
               </Text>
               {recoveryLog.slice(-3).map((entry) => (
                 <Text
@@ -463,7 +535,7 @@ export default function DevToolsPanel() {
           ) : null}
 
           <Text className="text-[10px] leading-4 text-muted">
-            点「数独/二进制/数绘/数回」会清今日存档并按选定题型重建；「自然随机」走日期算法并尽量换题型。「重开今日」保持当前题型、换一道新题（清空进度）。也可改 constants/dev.ts 里 DEV_FORCE_GAME_TYPE。「弹出评分」直接调系统对话框；「重置通关记录」清本周统计；「重置评分」清评分门控。「注入坏盘面」写入 completed+空盘，重启后走恢复逻辑；展开时显示恢复日志。「打开月历」供续局中验收 in_progress。截图时点「隐藏」；长按页脚「隐私政策」可再唤出。
+            {d.helpFooter}
           </Text>
         </View>
       ) : null}

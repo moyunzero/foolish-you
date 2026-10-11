@@ -1,5 +1,9 @@
+import { devTools } from './devTools';
+
 /** Chinese UI strings (Plan 02). */
 export const ui = {
+  /** __DEV__ panel — DevToolsPanel always reads zh for Maestro label stability. */
+  devTools,
   common: {
     back: '返回',
     gotIt: '知道了',

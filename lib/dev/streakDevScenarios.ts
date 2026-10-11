@@ -22,8 +22,6 @@ export type StreakDevScenarioId =
 
 export type StreakDevScenarioMeta = {
   id: StreakDevScenarioId;
-  label: string;
-  hint: string;
 };
 
 /** Scenarios that expect streak subline on the game screen while playing. */
@@ -35,42 +33,15 @@ export const STREAK_GAME_BANNER_SCENARIOS: ReadonlySet<StreakDevScenarioId> =
     'freeze-consumed-ui',
   ]);
 
+// Scenario ids only; labels and hints live in locales zh and en devTools.
 export const STREAK_DEV_SCENARIOS: StreakDevScenarioMeta[] = [
-  {
-    id: 'clear',
-    label: '清空连签',
-    hint: '删除 streak 存储；hydrate 后等同新装',
-  },
-  {
-    id: 'gap2-recall',
-    label: '漏签召回',
-    hint: '上次入账 = 前天，无护盾；刷新后应见 recall banner',
-  },
-  {
-    id: 'gap2-freeze-ready',
-    label: '待耗护盾',
-    hint: '上次入账 = 前天，护盾×1；刷新后自动消耗并显示 freeze 一行',
-  },
-  {
-    id: 'gap2-yesterday-real',
-    label: '昨日真通',
-    hint: '前天入账 + 昨日 real 通关；刷新后 repair，不耗护盾',
-  },
-  {
-    id: 'freeze-consumed-ui',
-    label: '护盾已垫',
-    hint: '已消耗态：仅 freeze 一行，无 recall banner',
-  },
-  {
-    id: 'shields-full',
-    label: '护盾×2',
-    hint: '结果页第三卡 subline 应含 护盾×2',
-  },
-  {
-    id: 'weekly-grant-pending',
-    label: '跨周+1',
-    hint: '上周已发过；刷新后 freezeCount +1（上限 2）',
-  },
+  { id: 'clear' },
+  { id: 'gap2-recall' },
+  { id: 'gap2-freeze-ready' },
+  { id: 'gap2-yesterday-real' },
+  { id: 'freeze-consumed-ui' },
+  { id: 'shields-full' },
+  { id: 'weekly-grant-pending' },
 ];
 
 function streakBase(today: string, overrides: Partial<StreakState>): StreakState {
