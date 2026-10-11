@@ -5,7 +5,8 @@ set -euo pipefail
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 cd "$ROOT"
 
-UDID="${MAESTRO_UDID:-846693AF-C5EA-4B48-B869-F70D88BFEC90}"
+# Override with MAESTRO_UDID when the default sim is not the booted Dev Client.
+UDID="${MAESTRO_UDID:-566EE5F2-BFAC-4706-BBE7-3ECD33D441E1}"
 EVIDENCE="${EVIDENCE:-docs/qa/v2.7-ship/evidence/$(date +%Y%m%d)}"
 mkdir -p "$EVIDENCE"
 
