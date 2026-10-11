@@ -34,6 +34,8 @@ type ReminderSheetProps = {
   dateKey: string | null;
   seed: number | null;
   todayStatus: DailyStatus | 'loading';
+  /** Keep continue-tone push pool on toggle reschedule (v2.7-04 Pitfall 3). */
+  carrying?: boolean;
   onReminderChange?: (state: ReminderState) => void;
 };
 
@@ -50,6 +52,7 @@ export default function ReminderSheet({
   dateKey,
   seed,
   todayStatus,
+  carrying,
   onReminderChange,
 }: ReminderSheetProps) {
   const { strings, locale } = useI18n();
@@ -95,6 +98,7 @@ export default function ReminderSheet({
           seed,
           locale,
           localHour: new Date().getHours(),
+          carrying,
           enabled: next.enabled,
           hour: next.hour,
           minute: next.minute,
@@ -102,7 +106,7 @@ export default function ReminderSheet({
       }
       setSaving(false);
     },
-    [dateKey, todayStatus, seed, locale, onReminderChange],
+    [dateKey, todayStatus, seed, locale, carrying, onReminderChange],
   );
 
   const handleToggle = useCallback(
