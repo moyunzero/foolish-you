@@ -2,7 +2,8 @@
 
 > 设计源：[v2.7-05-CONTEXT.md](../../../.planning/phases/v2.7-05-ship/v2.7-05-CONTEXT.md)  
 > SHIP-01 Jest 覆盖矩阵：[SHIP-01-COVERAGE.md](./SHIP-01-COVERAGE.md)  
-> 验收矩阵（phase 完成后）：[v2.7-05-VERIFICATION.md](../../../.planning/phases/v2.7-05-ship/v2.7-05-VERIFICATION.md)（若尚不存在则随 plan-03 补齐）
+> Maestro 证据目录：[evidence/](./evidence/)（green 归档见 `evidence/20261011/`）  
+> 验收矩阵 / 仓库就绪签核：[v2.7-05-VERIFICATION.md](../../../.planning/phases/v2.7-05-ship/v2.7-05-VERIFICATION.md)
 
 ## 环境
 
@@ -54,4 +55,4 @@ Maestro **不上** `.github/workflows/ci.yml` 的 `verify` job。本仓库暂不
 
 ## Phase 「完成」定义
 
-Phase 「完成」= **仓库就绪**（版本 `2.7.0` + What's New + 四门 CI + 本目录 green 证据 + VERIFICATION）— **不是** EAS production / ASC Live（D-08）。版本与 CONFIG 披露属 plan-03，不在本 Maestro 波次。
+Phase 「完成」= **仓库就绪**（营销版本 `2.7.0` + CONFIG Carry What's New + 四门 CI + 本目录 green 证据 `MAESTRO_EXIT=0` + [v2.7-05-VERIFICATION.md](../../../.planning/phases/v2.7-05-ship/v2.7-05-VERIFICATION.md)）— **明确不是** EAS production / App Store Connect 粘贴（D-08）。ASC / EAS 另轨 ops。
