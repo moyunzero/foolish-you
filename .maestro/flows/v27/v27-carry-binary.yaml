@@ -1,0 +1,63 @@
+appId: com.moyunzero.foolish-you
+ios:
+  snapshotKeyHonorModalViews: true
+---
+# v2.7 SHIP — full binary carry (D-10 / D-12).
+# Force type once → fake next day → assert 续局 → Scheme A 一键通关 → result.
+# Do NOT force type after progress. Do NOT use storage-inject remint terminal.
+
+- launchApp:
+    clearState: true
+- extendedWaitUntil:
+    visible: '跳过题型介绍，进入棋盘'
+    timeout: 90000
+- tapOn: '跳过题型介绍，进入棋盘'
+- extendedWaitUntil:
+    visible: '完成今日'
+    timeout: 60000
+- runFlow: ../v22/subflows/dev-open-panel.yaml
+- tapOn:
+    text: '二进制'
+    below: 'DEV 调试'
+- runFlow:
+    when:
+      visible: '跳过题型介绍，进入棋盘'
+    commands:
+      - tapOn: '跳过题型介绍，进入棋盘'
+- extendedWaitUntil:
+    visible: '完成今日'
+    timeout: 60000
+- runFlow:
+    when:
+      visible: '知道了'
+    commands:
+      - tapOn: '知道了'
+- runFlow: ../v22/subflows/dev-hide-bar.yaml
+- assertVisible: '二进制'
+- takeScreenshot: 01-binary-before-carry
+- runFlow: subflows/dev-fake-next-day.yaml
+- assertVisible: '续局'
+- assertVisible: '完成今日'
+- takeScreenshot: 02-binary-carry-after-fake-next-day
+- runFlow: ../v22/subflows/dev-open-panel.yaml
+- extendedWaitUntil:
+    visible: '一键通关'
+    timeout: 20000
+- tapOn:
+    text: '一键通关'
+    below: '温和成长 QA（注入 history → 通关注入 → 结果页 / 月历）'
+- runFlow:
+    when:
+      visible: '以后'
+    commands:
+      - tapOn: '以后'
+- tapOn:
+    text: '隐藏调试条，便于截图'
+    optional: true
+- swipe:
+    direction: UP
+- extendedWaitUntil:
+    visible: '查看本月日历'
+    timeout: 60000
+- takeScreenshot: 03-binary-complete-after-carry
+- assertVisible: '查看本月日历'

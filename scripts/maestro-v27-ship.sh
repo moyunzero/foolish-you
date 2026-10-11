@@ -12,6 +12,9 @@ mkdir -p "$EVIDENCE"
 # D-10 four carry + D-16 freeze×carry/calendar (always-on; no INCLUDE_HAND opt-out).
 FLOWS=(
   v27-carry-sudoku
+  v27-carry-binary
+  v27-carry-nonogram
+  v27-carry-slitherlink
   v27-carry-freeze-calendar
 )
 
