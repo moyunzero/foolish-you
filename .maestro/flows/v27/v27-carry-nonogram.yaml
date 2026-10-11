@@ -8,13 +8,15 @@ ios:
 
 - launchApp:
     clearState: true
+- waitForAnimationToEnd:
+    timeout: 10000
 - extendedWaitUntil:
     visible: '跳过题型介绍，进入棋盘'
-    timeout: 90000
+    timeout: 180000
 - tapOn: '跳过题型介绍，进入棋盘'
 - extendedWaitUntil:
     visible: '完成今日'
-    timeout: 60000
+    timeout: 90000
 - runFlow: ../v22/subflows/dev-open-panel.yaml
 - tapOn:
     text: '数绘'
