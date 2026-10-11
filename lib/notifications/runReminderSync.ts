@@ -15,6 +15,8 @@ export type RunReminderSyncParams = {
   seed: number | null;
   locale: Locale;
   localHour: number;
+  /** When true, schedule continue-tone push copy (v2.7-04 D-13–D-15). */
+  carrying?: boolean;
 };
 
 /** Hydrate / complete / toggle / AppState active — idempotent pipeline. */
@@ -34,6 +36,7 @@ export async function runReminderSync(
     todayKey: params.todayKey,
     locale: params.locale,
     seed: params.seed,
+    carrying: params.carrying,
   });
 }
 
@@ -55,5 +58,6 @@ export async function runReminderSyncWithState(
     todayKey: params.todayKey,
     locale: params.locale,
     seed: params.seed,
+    carrying: params.carrying,
   });
 }

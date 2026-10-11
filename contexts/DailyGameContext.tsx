@@ -308,6 +308,11 @@ function useDailyGameProviderValue(): DailyGameState {
       seed: next.seed,
       locale,
       localHour: new Date().getHours(),
+      carrying: deriveIsCarrying(
+        next.status,
+        next.dateKey,
+        getLocalDateKey(),
+      ),
     });
   }, [handleSaveFailed, locale]);
 
@@ -469,6 +474,11 @@ function useDailyGameProviderValue(): DailyGameState {
             seed: updated.seed,
             locale,
             localHour: new Date().getHours(),
+            carrying: deriveIsCarrying(
+              nextStatus,
+              updated.dateKey,
+              getLocalDateKey(),
+            ),
           });
         }
       });

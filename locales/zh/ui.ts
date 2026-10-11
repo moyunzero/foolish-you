@@ -12,6 +12,8 @@ export const ui = {
   },
   index: {
     loadingPuzzle: '正在翻出今天的傻题…',
+    /** Carry hydrate loading (v2.7-04 D-08) — wire in plan 03 */
+    loadingPuzzleCarry: '接着这局…',
     errorReloading: '出了点问题，点击下方重试。',
   },
   game: {
@@ -35,6 +37,8 @@ export const ui = {
     statusWin: '通关',
     statusSurrender: '认怂',
     recordPrefix: '今日战绩 ·',
+    /** Carry terminal record prefix (v2.7-04 D-17) — wire in plan 03 */
+    recordPrefixCarry: '本局战绩 ·',
     elapsedPrefix: '用时：',
     foolIndexPrefix: '傻了指数：',
     daysSuffix: '天',
@@ -103,6 +107,9 @@ export const ui = {
     banner: {
       bodyNoPush: '快八点了，今日还没完 — 要明天准时喊你吗？',
       bodyHasPush: '快八点了，今日还没完 — 记得收工。',
+      /** Carry evening banner bodies (v2.7-04 D-09) — wire in plan 02 */
+      bodyNoPushCarry: '快八点了，这局还没收工 — 要明天准时喊你吗？',
+      bodyHasPushCarry: '快八点了，这局还没收工 — 记得收工。',
       ctaEnable: '开启提醒',
       ctaEdit: '改提醒',
       dismissA11y: '关闭提醒提示，稍后再说',
@@ -209,6 +216,9 @@ export const ui = {
   alerts: {
     abandonTitle: '放弃今日挑战？',
     abandonMessage: '今天的进度会保存为「认怂」，明天再来也行。',
+    /** Carry abandon sheet (v2.7-04 D-18) — wire in plan 03 */
+    abandonTitleCarry: '放弃这局？',
+    abandonMessageCarry: '进度会保存为「认怂」，之后再来也行。',
     continuePlay: '继续玩',
     giveUp: '放弃',
     saveFailedTitle: '保存失败',

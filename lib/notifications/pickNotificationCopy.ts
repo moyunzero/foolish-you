@@ -7,13 +7,16 @@ export function pickNotificationCopy(
   dateKey: string,
   seed: number | null | undefined,
   locale: Locale,
+  options?: { carrying?: boolean },
 ): { title: string; body: string } {
-  const strings = getStringsForLocale(locale);
+  const n = getStringsForLocale(locale).notifications;
+  const carrying = options?.carrying === true;
+  const bodies = carrying ? n.routineBodiesCarry : n.routineBodies;
+  const title = carrying ? n.routineTitleCarry : n.routineTitle;
   const baseSeed = seed ?? deriveSeed(dateKey);
   const rng = mulberry32(deriveSubSeed(baseSeed, 'routine-push'));
-  const body = pickFromPool(rng, strings.notifications.routineBodies);
   return {
-    title: strings.notifications.routineTitle,
-    body,
+    title,
+    body: pickFromPool(rng, bodies),
   };
 }

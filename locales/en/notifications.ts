@@ -6,4 +6,11 @@ export const notifications = {
     'Reminder time — open the app and finish today’s run.',
     'Don’t ghost us — today’s puzzle isn’t cleared yet.',
   ] as const,
+  /** Carry push pool (v2.7-04 D-13–D-15) */
+  routineTitleCarry: 'Still open',
+  routineBodiesCarry: [
+    'This run’s still open — pick it back up.',
+    'Reminder time — finish the puzzle you started.',
+    'Don’t ghost us — that board isn’t cleared yet.',
+  ] as const,
 } as const;

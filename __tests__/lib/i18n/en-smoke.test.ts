@@ -214,18 +214,8 @@ describe('English locale smoke', () => {
 
   it('carry CTA / reminder / notification keys are English without CJK', () => {
     const en = getStringsForLocale('en');
-    const ui = en.ui as typeof en.ui & {
-      index: { loadingPuzzleCarry: string };
-      reminder: {
-        banner: { bodyNoPushCarry: string; bodyHasPushCarry: string };
-      };
-      result: { recordPrefixCarry: string };
-      alerts: { abandonTitleCarry: string; abandonMessageCarry: string };
-    };
-    const n = en.notifications as typeof en.notifications & {
-      routineTitleCarry: string;
-      routineBodiesCarry: readonly string[];
-    };
+    const ui = en.ui;
+    const n = en.notifications;
     const cjk = /[\u4e00-\u9fff]/;
     const dateKey = '2026-06-07';
 

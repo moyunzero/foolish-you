@@ -108,10 +108,7 @@ describe('syncReminderSchedule', () => {
   it('schedules carry title and body when carrying is true', async () => {
     const deps = makeDeps();
     await syncReminderSchedule(
-      { ...baseInput, todayStatus: 'playing', carrying: true } as typeof baseInput & {
-        todayStatus: 'playing';
-        carrying: boolean;
-      },
+      { ...baseInput, todayStatus: 'playing', carrying: true },
       deps,
     );
     expect(deps.schedule).toHaveBeenCalledTimes(1);

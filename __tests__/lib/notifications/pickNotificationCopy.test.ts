@@ -8,31 +8,12 @@ import { pickNotificationCopy } from '../../../lib/notifications/pickNotificatio
 const DATE_KEY = '2026-06-07';
 const SEED = 42;
 
-/** Call with optional carrying flag before the API is typed for it. */
-function pick(
-  dateKey: string,
-  seed: number,
-  locale: 'en' | 'zh',
-  options?: { carrying?: boolean },
-): { title: string; body: string } {
-  return (
-    pickNotificationCopy as (
-      d: string,
-      s: number,
-      l: 'en' | 'zh',
-      o?: { carrying?: boolean },
-    ) => { title: string; body: string }
-  )(dateKey, seed, locale, options);
-}
-
 describe('pickNotificationCopy', () => {
   it('uses carry title and bodies when carrying is true', () => {
-    const en = getStringsForLocale('en').notifications as unknown as {
-      routineTitleCarry: string;
-      routineBodiesCarry: readonly string[];
-      routineBodies: readonly string[];
-    };
-    const { title, body } = pick(DATE_KEY, SEED, 'en', { carrying: true });
+    const en = getStringsForLocale('en').notifications;
+    const { title, body } = pickNotificationCopy(DATE_KEY, SEED, 'en', {
+      carrying: true,
+    });
 
     expect(title).toBe('Still open');
     expect(title).toBe(en.routineTitleCarry);
@@ -42,8 +23,10 @@ describe('pickNotificationCopy', () => {
 
   it('uses today pool when carrying is false or omitted', () => {
     const en = getStringsForLocale('en').notifications;
-    const withFalse = pick(DATE_KEY, SEED, 'en', { carrying: false });
-    const omitted = pick(DATE_KEY, SEED, 'en');
+    const withFalse = pickNotificationCopy(DATE_KEY, SEED, 'en', {
+      carrying: false,
+    });
+    const omitted = pickNotificationCopy(DATE_KEY, SEED, 'en');
 
     expect(withFalse.title).toBe("Today's puzzle");
     expect(omitted.title).toBe("Today's puzzle");

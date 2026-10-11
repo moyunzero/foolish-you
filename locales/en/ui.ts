@@ -12,6 +12,8 @@ export const ui = {
   },
   index: {
     loadingPuzzle: 'Digging up today’s silly puzzle…',
+    /** Carry hydrate loading (v2.7-04 D-08) — wire in plan 03 */
+    loadingPuzzleCarry: 'Picking up this run…',
     errorReloading: 'Something went wrong. Tap below to try again.',
   },
   game: {
@@ -26,8 +28,8 @@ export const ui = {
     sessionModeBoard: 'Board',
     loadFailed: 'Couldn’t load today’s puzzle. Local data may be corrupted.',
     /** Carry chip — instrumental; formal CTA copy in v2.7-04 */
-    carryChip: 'RESUME',
-    carryChipA11y: (dateKey: string) => `Resume, opened ${dateKey}`,
+    carryChip: 'CARRY',
+    carryChipA11y: (dateKey: string) => `Carry, opened ${dateKey}`,
   },
 
   result: {
@@ -35,6 +37,8 @@ export const ui = {
     statusWin: 'Cleared',
     statusSurrender: 'Bailed out',
     recordPrefix: 'Today ·',
+    /** Carry terminal record prefix (v2.7-04 D-17) — wire in plan 03 */
+    recordPrefixCarry: 'This run ·',
     elapsedPrefix: 'Time: ',
     foolIndexPrefix: 'Silly index: ',
     daysSuffix: ' days',
@@ -103,6 +107,10 @@ export const ui = {
     banner: {
       bodyNoPush: 'Almost 8 PM and today’s still open — want a nudge tomorrow?',
       bodyHasPush: 'Almost 8 PM — don’t leave today hanging.',
+      /** Carry evening banner bodies (v2.7-04 D-09) — wire in plan 02 */
+      bodyNoPushCarry:
+        'Almost 8 PM and this run’s still open — want a nudge tomorrow?',
+      bodyHasPushCarry: 'Almost 8 PM — don’t leave this run hanging.',
       ctaEnable: 'Turn on reminders',
       ctaEdit: 'Change reminder',
       dismissA11y: 'Dismiss reminder tip for now',
@@ -211,6 +219,10 @@ export const ui = {
     abandonTitle: 'Give up today’s puzzle?',
     abandonMessage:
       'Progress will be saved as “Bailed out”. You can try again tomorrow.',
+    /** Carry abandon sheet (v2.7-04 D-18) — wire in plan 03 */
+    abandonTitleCarry: 'Bail on this run?',
+    abandonMessageCarry:
+      'Progress will be saved as “Bailed out”. You can come back later.',
     continuePlay: 'Keep playing',
     giveUp: 'Give up',
     saveFailedTitle: 'Save failed',
