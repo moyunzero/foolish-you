@@ -32,7 +32,12 @@ ios:
       visible: '知道了'
     commands:
       - tapOn: '知道了'
-- runFlow: ../v22/subflows/dev-hide-bar.yaml
+# Collapse DEV panel (keep bar — hide would block fake-next-day / 一键通关).
+- runFlow:
+    when:
+      visible: '一键通关'
+    commands:
+      - tapOn: 'DEV 调试'
 - assertVisible: '二进制'
 - takeScreenshot: 01-binary-before-carry
 - runFlow: subflows/dev-fake-next-day.yaml
