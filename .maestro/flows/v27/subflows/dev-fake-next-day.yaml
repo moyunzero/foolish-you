@@ -2,8 +2,12 @@ appId: com.moyunzero.foolish-you
 ---
 # Advance in-memory calendar +1 without regenerating (carry / Freeze QA).
 # Tap a11y label — DevButton sets accessibilityLabel overriding visible「假日期·次日」.
+# Gate on 续局 (carry chip) so we don't race DevTools refresh/spinner.
 - runFlow: ../../v22/subflows/dev-open-panel.yaml
 - tapOn: '假日期次日，不换题，仅用于续局手测'
+- extendedWaitUntil:
+    visible: '续局'
+    timeout: 90000
 - extendedWaitUntil:
     visible: '完成今日'
     timeout: 60000
