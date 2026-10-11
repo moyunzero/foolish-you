@@ -1,38 +1,25 @@
-# PENDING — Maestro v2.7 ship evidence (resume only)
+# RESOLVED — Maestro v2.7 ship evidence (2026-10-11)
 
-**Status:** Not D-17 green. Do **not** treat as phase Complete or unlock plan-03 SHIP checkboxes.
+**Status:** D-17 green. Log ends with `MAESTRO_EXIT=0`.
 
-**Date:** 2026-10-11  
-**UDID used:** `566EE5F2-BFAC-4706-BBE7-3ECD33D441E1` (iPhone 17 Pro · iOS 26.5)  
-**Command:** `MAESTRO_UDID=<udid> ./scripts/maestro-v27-ship.sh`
+**UDID:** `566EE5F2-BFAC-4706-BBE7-3ECD33D441E1`  
+**Log:** `maestro-v27-ship-acceptance.log`  
+**Screenshots:** `screenshots/` (five-flow carry + freeze calendar)
 
-## What passed (partial)
+## Flows
 
-In the full suite run archived in `maestro-v27-ship-acceptance.log` (before final `MAESTRO_EXIT=1`):
+| Flow | Result |
+|------|--------|
+| v27-carry-sudoku | PASS |
+| v27-carry-binary | PASS (1 infra retry) |
+| v27-carry-nonogram | PASS (1 infra retry) |
+| v27-carry-slitherlink | PASS (1 infra retry; regen-idle fix) |
+| v27-carry-freeze-calendar | PASS (1 infra retry) |
 
-| Flow | Result | Screenshots under `screenshots/` |
-|------|--------|----------------------------------|
-| `v27-carry-sudoku` | green | `01-sudoku-carry-after-fake-next-day`, `02-sudoku-complete-after-carry` |
-| `v27-carry-binary` | green | `01`…`03-binary-*` |
-| `v27-carry-nonogram` | green | `01`…`03-nonogram-*` |
-| `v27-carry-slitherlink` | failed | `01-slitherlink-before-carry` only |
-| `v27-carry-freeze-calendar` | not reached | — |
+## Fixes that unlocked green
 
-Log ends with `MAESTRO_EXIT=1 (failed on v27-carry-slitherlink)` — **no** `MAESTRO_EXIT=0`.
+1. Intro Modal `accessibilityViewIsModal` — poll dismiss until「完成今日」
+2. XCTest flake — `MAESTRO_FLOW_ATTEMPTS=3` + `--reinstall-driver` on retry
+3. Slitherlink silent no-op — wait「正在生成」; `advanceFakeDateNextDay` waits regen instead of early return
 
-## Blocker
-
-1. **Slitherlink carry flake / XCTest driver:** after「假日期·次日」, suite either asserted before carry chip settled, or XCTest returned `kAXErrorInvalidUIElement` / hung while waiting for「续局」(see resume attempt in the same acceptance log).
-2. **Cold clearState hydrate** occasionally stalls past 90s on splash (mitigated with 180s intro wait; still environment-sensitive).
-3. Script default `MAESTRO_UDID` may not match the booted Dev Client sim — pass `MAESTRO_UDID` explicitly.
-
-## Resume
-
-1. Boot sim with Dev Client + Metro `:8081`
-2. `MAESTRO_UDID=<booted> ./scripts/maestro-v27-ship.sh`
-3. Prefer a clean full five-flow green log ending in `MAESTRO_EXIT=0`
-4. Replace this PENDING note once green evidence is archived (or keep alongside for history)
-
-## Not invented
-
-No hand-QA checklist substituted (D-15).
+Wave3 SHIP checkboxes may proceed when plan-03 / verifier gates are satisfied.

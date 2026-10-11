@@ -8,9 +8,16 @@ Running on iPhone 17 Pro - iOS 26.5 - 566EE5F2-BFAC-4706-BBE7-3ECD33D441E1
  > Flow v27-carry-sudoku
 Launch app "com.moyunzero.foolish-you" with clear state... COMPLETED
 Wait for animation to end within 10000 ms... COMPLETED
-Assert that "跳过题型介绍，进入棋盘" is visible... COMPLETED
-Tap on "跳过题型介绍，进入棋盘"... COMPLETED
-Assert that "完成今日" is visible... COMPLETED
+Run subflows/wait-board-dismiss-intro.yaml...
+  Assert that (Optional) "跳过题型介绍，进入棋盘" is visible... COMPLETED
+  Tap on (Optional) "跳过题型介绍，进入棋盘"... COMPLETED
+  Tap on (Optional) "跳过，直接开玩"... WARNED
+  Tap on (Optional) "关闭题型介绍，进入棋盘"... WARNED
+  Tap on (Optional) "知道了"... WARNED
+  Wait for animation to end within 5000 ms... COMPLETED
+  Repeat while "完成今日" is not visible (up to 60 times)...
+  Repeat while "完成今日" is not visible (up to 60 times)... SKIPPED
+Run subflows/wait-board-dismiss-intro.yaml... COMPLETED
 Run ../v22/subflows/dev-open-panel.yaml...
   Run flow when "一键通关" is not visible...
     Tap on "DEV 调试"... COMPLETED
@@ -18,12 +25,23 @@ Run ../v22/subflows/dev-open-panel.yaml...
   Assert that "一键通关" is visible... COMPLETED
 Run ../v22/subflows/dev-open-panel.yaml... COMPLETED
 Tap on "数独", Below "DEV 调试"... COMPLETED
-Run flow when "跳过题型介绍，进入棋盘" is visible...
-  Tap on "跳过题型介绍，进入棋盘"... COMPLETED
-Run flow when "跳过题型介绍，进入棋盘" is visible... COMPLETED
+Run subflows/wait-regen-idle.yaml...
+  Assert that "正在生成今日题目…" is not visible... COMPLETED
+Run subflows/wait-regen-idle.yaml... COMPLETED
+Run subflows/dismiss-intro-if-shown.yaml...
+  Wait for animation to end within 3000 ms... COMPLETED
+  Repeat while "跳过题型介绍，进入棋盘" is visible (up to 20 times)...
+    Tap on "跳过题型介绍，进入棋盘"... COMPLETED
+    Wait for animation to end within 3000 ms... COMPLETED
+  Repeat while "跳过题型介绍，进入棋盘" is visible (up to 20 times)... COMPLETED
+  Run flow when "跳过，直接开玩" is visible...
+  Run flow when "跳过，直接开玩" is visible... SKIPPED
+  Run flow when "关闭题型介绍，进入棋盘" is visible...
+  Run flow when "关闭题型介绍，进入棋盘" is visible... SKIPPED
+  Run flow when "知道了" is visible...
+  Run flow when "知道了" is visible... SKIPPED
+Run subflows/dismiss-intro-if-shown.yaml... COMPLETED
 Assert that "完成今日" is visible... COMPLETED
-Run flow when "知道了" is visible...
-Run flow when "知道了" is visible... SKIPPED
 Run flow when "一键通关" is visible...
   Tap on "DEV 调试"... COMPLETED
 Run flow when "一键通关" is visible... COMPLETED
@@ -38,8 +56,14 @@ Run subflows/dev-fake-next-day.yaml...
     Run flow when "一键通关" is not visible... COMPLETED
     Assert that "一键通关" is visible... COMPLETED
   Run ../../v22/subflows/dev-open-panel.yaml... COMPLETED
+  Assert that "正在生成今日题目…" is not visible... COMPLETED
   Tap on "假日期次日，不换题，仅用于续局手测"... COMPLETED
+  Wait for animation to end within 10000 ms... COMPLETED
+  Assert that "正在生成今日题目…" is not visible... COMPLETED
+  Run flow when "续局" is not visible...
+  Run flow when "续局" is not visible... SKIPPED
   Assert that "完成今日" is visible... COMPLETED
+  Assert that "续局" is visible... COMPLETED
   Wait for animation to end within 5000 ms... COMPLETED
 Run subflows/dev-fake-next-day.yaml... COMPLETED
 Assert that "续局" is visible... COMPLETED
@@ -74,9 +98,31 @@ Running on iPhone 17 Pro - iOS 26.5 - 566EE5F2-BFAC-4706-BBE7-3ECD33D441E1
  > Flow v27-carry-binary
 Launch app "com.moyunzero.foolish-you" with clear state... COMPLETED
 Wait for animation to end within 10000 ms... COMPLETED
-Assert that "跳过题型介绍，进入棋盘" is visible... COMPLETED
-Tap on "跳过题型介绍，进入棋盘"... COMPLETED
-Assert that "完成今日" is visible... COMPLETED
+Run subflows/wait-board-dismiss-intro.yaml...
+  Assert that (Optional) "跳过题型介绍，进入棋盘" is visible...
+==== Debug output (logs & screenshots) ====
+
+/Users/moyun/code/foolish-you/docs/qa/v2.7-ship/evidence/20261011/2026-10-11_135143
+(retry 2/3 after driver/infra flake — reinstall XCTest driver)
+WARNING: A restricted method in java.lang.System has been called
+WARNING: java.lang.System::load has been called by org.fusesource.jansi.internal.JansiLoader in an unnamed module (file:/Users/moyun/.maestro/lib/jansi-2.4.1.jar)
+WARNING: Use --enable-native-access=ALL-UNNAMED to avoid a warning for callers in this module
+WARNING: Restricted methods will be blocked in a future release unless native access is enabled
+
+Running on iPhone 17 Pro - iOS 26.5 - 566EE5F2-BFAC-4706-BBE7-3ECD33D441E1
+ > Flow v27-carry-binary
+Launch app "com.moyunzero.foolish-you" with clear state... COMPLETED
+Wait for animation to end within 10000 ms... COMPLETED
+Run subflows/wait-board-dismiss-intro.yaml...
+  Assert that (Optional) "跳过题型介绍，进入棋盘" is visible... COMPLETED
+  Tap on (Optional) "跳过题型介绍，进入棋盘"... COMPLETED
+  Tap on (Optional) "跳过，直接开玩"... WARNED
+  Tap on (Optional) "关闭题型介绍，进入棋盘"... WARNED
+  Tap on (Optional) "知道了"... WARNED
+  Wait for animation to end within 5000 ms... COMPLETED
+  Repeat while "完成今日" is not visible (up to 60 times)...
+  Repeat while "完成今日" is not visible (up to 60 times)... SKIPPED
+Run subflows/wait-board-dismiss-intro.yaml... COMPLETED
 Run ../v22/subflows/dev-open-panel.yaml...
   Run flow when "一键通关" is not visible...
     Tap on "DEV 调试"... COMPLETED
@@ -84,12 +130,23 @@ Run ../v22/subflows/dev-open-panel.yaml...
   Assert that "一键通关" is visible... COMPLETED
 Run ../v22/subflows/dev-open-panel.yaml... COMPLETED
 Tap on "二进制", Below "DEV 调试"... COMPLETED
-Run flow when "跳过题型介绍，进入棋盘" is visible...
-  Tap on "跳过题型介绍，进入棋盘"... COMPLETED
-Run flow when "跳过题型介绍，进入棋盘" is visible... COMPLETED
+Run subflows/wait-regen-idle.yaml...
+  Assert that "正在生成今日题目…" is not visible... COMPLETED
+Run subflows/wait-regen-idle.yaml... COMPLETED
+Run subflows/dismiss-intro-if-shown.yaml...
+  Wait for animation to end within 3000 ms... COMPLETED
+  Repeat while "跳过题型介绍，进入棋盘" is visible (up to 20 times)...
+    Tap on "跳过题型介绍，进入棋盘"... COMPLETED
+    Wait for animation to end within 3000 ms... COMPLETED
+  Repeat while "跳过题型介绍，进入棋盘" is visible (up to 20 times)... COMPLETED
+  Run flow when "跳过，直接开玩" is visible...
+  Run flow when "跳过，直接开玩" is visible... SKIPPED
+  Run flow when "关闭题型介绍，进入棋盘" is visible...
+  Run flow when "关闭题型介绍，进入棋盘" is visible... SKIPPED
+  Run flow when "知道了" is visible...
+  Run flow when "知道了" is visible... SKIPPED
+Run subflows/dismiss-intro-if-shown.yaml... COMPLETED
 Assert that "完成今日" is visible... COMPLETED
-Run flow when "知道了" is visible...
-Run flow when "知道了" is visible... SKIPPED
 Run flow when "一键通关" is visible...
   Tap on "DEV 调试"... COMPLETED
 Run flow when "一键通关" is visible... COMPLETED
@@ -102,8 +159,14 @@ Run subflows/dev-fake-next-day.yaml...
     Run flow when "一键通关" is not visible... COMPLETED
     Assert that "一键通关" is visible... COMPLETED
   Run ../../v22/subflows/dev-open-panel.yaml... COMPLETED
+  Assert that "正在生成今日题目…" is not visible... COMPLETED
   Tap on "假日期次日，不换题，仅用于续局手测"... COMPLETED
+  Wait for animation to end within 10000 ms... COMPLETED
+  Assert that "正在生成今日题目…" is not visible... COMPLETED
+  Run flow when "续局" is not visible...
+  Run flow when "续局" is not visible... SKIPPED
   Assert that "完成今日" is visible... COMPLETED
+  Assert that "续局" is visible... COMPLETED
   Wait for animation to end within 5000 ms... COMPLETED
 Run subflows/dev-fake-next-day.yaml... COMPLETED
 Assert that "续局" is visible... COMPLETED
@@ -134,9 +197,31 @@ Running on iPhone 17 Pro - iOS 26.5 - 566EE5F2-BFAC-4706-BBE7-3ECD33D441E1
  > Flow v27-carry-nonogram
 Launch app "com.moyunzero.foolish-you" with clear state... COMPLETED
 Wait for animation to end within 10000 ms... COMPLETED
-Assert that "跳过题型介绍，进入棋盘" is visible... COMPLETED
-Tap on "跳过题型介绍，进入棋盘"... COMPLETED
-Assert that "完成今日" is visible... COMPLETED
+Run subflows/wait-board-dismiss-intro.yaml...
+  Assert that (Optional) "跳过题型介绍，进入棋盘" is visible...
+==== Debug output (logs & screenshots) ====
+
+/Users/moyun/code/foolish-you/docs/qa/v2.7-ship/evidence/20261011/2026-10-11_135602
+(retry 2/3 after driver/infra flake — reinstall XCTest driver)
+WARNING: A restricted method in java.lang.System has been called
+WARNING: java.lang.System::load has been called by org.fusesource.jansi.internal.JansiLoader in an unnamed module (file:/Users/moyun/.maestro/lib/jansi-2.4.1.jar)
+WARNING: Use --enable-native-access=ALL-UNNAMED to avoid a warning for callers in this module
+WARNING: Restricted methods will be blocked in a future release unless native access is enabled
+
+Running on iPhone 17 Pro - iOS 26.5 - 566EE5F2-BFAC-4706-BBE7-3ECD33D441E1
+ > Flow v27-carry-nonogram
+Launch app "com.moyunzero.foolish-you" with clear state... COMPLETED
+Wait for animation to end within 10000 ms... COMPLETED
+Run subflows/wait-board-dismiss-intro.yaml...
+  Assert that (Optional) "跳过题型介绍，进入棋盘" is visible... COMPLETED
+  Tap on (Optional) "跳过题型介绍，进入棋盘"... COMPLETED
+  Tap on (Optional) "跳过，直接开玩"... WARNED
+  Tap on (Optional) "关闭题型介绍，进入棋盘"... WARNED
+  Tap on (Optional) "知道了"... WARNED
+  Wait for animation to end within 5000 ms... COMPLETED
+  Repeat while "完成今日" is not visible (up to 60 times)...
+  Repeat while "完成今日" is not visible (up to 60 times)... SKIPPED
+Run subflows/wait-board-dismiss-intro.yaml... COMPLETED
 Run ../v22/subflows/dev-open-panel.yaml...
   Run flow when "一键通关" is not visible...
     Tap on "DEV 调试"... COMPLETED
@@ -144,12 +229,23 @@ Run ../v22/subflows/dev-open-panel.yaml...
   Assert that "一键通关" is visible... COMPLETED
 Run ../v22/subflows/dev-open-panel.yaml... COMPLETED
 Tap on "数绘", Below "DEV 调试"... COMPLETED
-Run flow when "跳过题型介绍，进入棋盘" is visible...
-  Tap on "跳过题型介绍，进入棋盘"... COMPLETED
-Run flow when "跳过题型介绍，进入棋盘" is visible... COMPLETED
+Run subflows/wait-regen-idle.yaml...
+  Assert that "正在生成今日题目…" is not visible... COMPLETED
+Run subflows/wait-regen-idle.yaml... COMPLETED
+Run subflows/dismiss-intro-if-shown.yaml...
+  Wait for animation to end within 3000 ms... COMPLETED
+  Repeat while "跳过题型介绍，进入棋盘" is visible (up to 20 times)...
+    Tap on "跳过题型介绍，进入棋盘"... COMPLETED
+    Wait for animation to end within 3000 ms... COMPLETED
+  Repeat while "跳过题型介绍，进入棋盘" is visible (up to 20 times)... COMPLETED
+  Run flow when "跳过，直接开玩" is visible...
+  Run flow when "跳过，直接开玩" is visible... SKIPPED
+  Run flow when "关闭题型介绍，进入棋盘" is visible...
+  Run flow when "关闭题型介绍，进入棋盘" is visible... SKIPPED
+  Run flow when "知道了" is visible...
+  Run flow when "知道了" is visible... SKIPPED
+Run subflows/dismiss-intro-if-shown.yaml... COMPLETED
 Assert that "完成今日" is visible... COMPLETED
-Run flow when "知道了" is visible...
-Run flow when "知道了" is visible... SKIPPED
 Run flow when "一键通关" is visible...
   Tap on "DEV 调试"... COMPLETED
 Run flow when "一键通关" is visible... COMPLETED
@@ -162,8 +258,14 @@ Run subflows/dev-fake-next-day.yaml...
     Run flow when "一键通关" is not visible... COMPLETED
     Assert that "一键通关" is visible... COMPLETED
   Run ../../v22/subflows/dev-open-panel.yaml... COMPLETED
+  Assert that "正在生成今日题目…" is not visible... COMPLETED
   Tap on "假日期次日，不换题，仅用于续局手测"... COMPLETED
+  Wait for animation to end within 10000 ms... COMPLETED
+  Assert that "正在生成今日题目…" is not visible... COMPLETED
+  Run flow when "续局" is not visible...
+  Run flow when "续局" is not visible... SKIPPED
   Assert that "完成今日" is visible... COMPLETED
+  Assert that "续局" is visible... COMPLETED
   Wait for animation to end within 5000 ms... COMPLETED
 Run subflows/dev-fake-next-day.yaml... COMPLETED
 Assert that "续局" is visible... COMPLETED
@@ -194,53 +296,12 @@ Running on iPhone 17 Pro - iOS 26.5 - 566EE5F2-BFAC-4706-BBE7-3ECD33D441E1
  > Flow v27-carry-slitherlink
 Launch app "com.moyunzero.foolish-you" with clear state... COMPLETED
 Wait for animation to end within 10000 ms... COMPLETED
-Assert that "跳过题型介绍，进入棋盘" is visible... COMPLETED
-Tap on "跳过题型介绍，进入棋盘"... COMPLETED
-Assert that "完成今日" is visible... COMPLETED
-Run ../v22/subflows/dev-open-panel.yaml...
-  Run flow when "一键通关" is not visible...
-    Tap on "DEV 调试"... COMPLETED
-  Run flow when "一键通关" is not visible... COMPLETED
-  Assert that "一键通关" is visible... COMPLETED
-Run ../v22/subflows/dev-open-panel.yaml... COMPLETED
-Tap on "数回", Below "DEV 调试"... COMPLETED
-Run flow when "跳过题型介绍，进入棋盘" is visible...
-Run flow when "跳过题型介绍，进入棋盘" is visible... SKIPPED
-Assert that "完成今日" is visible... COMPLETED
-Run flow when "知道了" is visible...
-Run flow when "知道了" is visible... SKIPPED
-Run flow when "一键通关" is visible...
-  Tap on "DEV 调试"... COMPLETED
-Run flow when "一键通关" is visible... COMPLETED
-Assert that "数回" is visible... COMPLETED
-Take screenshot 01-slitherlink-before-carry... COMPLETED
-Run subflows/dev-fake-next-day.yaml...
-  Run ../../v22/subflows/dev-open-panel.yaml...
-    Run flow when "一键通关" is not visible...
-    Run flow when "一键通关" is not visible... SKIPPED
-    Assert that "一键通关" is visible... COMPLETED
-  Run ../../v22/subflows/dev-open-panel.yaml... COMPLETED
-  Tap on "假日期次日，不换题，仅用于续局手测"... COMPLETED
-  Assert that "完成今日" is visible... COMPLETED
-  Wait for animation to end within 5000 ms... COMPLETED
-Run subflows/dev-fake-next-day.yaml... COMPLETED
-Assert that "续局" is visible... FAILED
-
-Assertion is false: "续局" is visible
-
-Assertion '"续局" is visible' failed. Check the UI hierarchy in debug artifacts to verify the element state and properties.
-
-Possible causes:
-- Element selector may be incorrect - check if there are similar elements with slightly different names/properties.
-- Element may be temporarily unavailable due to loading state
-- This could be a real regression that needs to be addressed
-
+Run subflows/wait-board-dismiss-intro.yaml...
+  Assert that (Optional) "跳过题型介绍，进入棋盘" is visible...
 ==== Debug output (logs & screenshots) ====
 
-/Users/moyun/code/foolish-you/docs/qa/v2.7-ship/evidence/20261011/2026-10-11_111435
-MAESTRO_EXIT=1 (failed on v27-carry-slitherlink)
-=== RESUME after subflow fix 2026-10-11T03:18:49Z ===
-=== v27-carry-slitherlink ===
+/Users/moyun/code/foolish-you/docs/qa/v2.7-ship/evidence/20261011/2026-10-11_140008
+(retry 2/3 after driver/infra flake — reinstall XCTest driver)
 WARNING: A restricted method in java.lang.System has been called
 WARNING: java.lang.System::load has been called by org.fusesource.jansi.internal.JansiLoader in an unnamed module (file:/Users/moyun/.maestro/lib/jansi-2.4.1.jar)
 WARNING: Use --enable-native-access=ALL-UNNAMED to avoid a warning for callers in this module
@@ -250,9 +311,16 @@ Running on iPhone 17 Pro - iOS 26.5 - 566EE5F2-BFAC-4706-BBE7-3ECD33D441E1
  > Flow v27-carry-slitherlink
 Launch app "com.moyunzero.foolish-you" with clear state... COMPLETED
 Wait for animation to end within 10000 ms... COMPLETED
-Assert that "跳过题型介绍，进入棋盘" is visible... COMPLETED
-Tap on "跳过题型介绍，进入棋盘"... COMPLETED
-Assert that "完成今日" is visible... COMPLETED
+Run subflows/wait-board-dismiss-intro.yaml...
+  Assert that (Optional) "跳过题型介绍，进入棋盘" is visible... WARNED
+  Tap on (Optional) "跳过题型介绍，进入棋盘"... WARNED
+  Tap on (Optional) "跳过，直接开玩"... WARNED
+  Tap on (Optional) "关闭题型介绍，进入棋盘"... COMPLETED
+  Tap on (Optional) "知道了"... WARNED
+  Wait for animation to end within 5000 ms... COMPLETED
+  Repeat while "完成今日" is not visible (up to 60 times)...
+  Repeat while "完成今日" is not visible (up to 60 times)... SKIPPED
+Run subflows/wait-board-dismiss-intro.yaml... COMPLETED
 Run ../v22/subflows/dev-open-panel.yaml...
   Run flow when "一键通关" is not visible...
     Tap on "DEV 调试"... COMPLETED
@@ -260,11 +328,21 @@ Run ../v22/subflows/dev-open-panel.yaml...
   Assert that "一键通关" is visible... COMPLETED
 Run ../v22/subflows/dev-open-panel.yaml... COMPLETED
 Tap on "数回", Below "DEV 调试"... COMPLETED
-Run flow when "跳过题型介绍，进入棋盘" is visible...
-Run flow when "跳过题型介绍，进入棋盘" is visible... SKIPPED
+Run subflows/wait-regen-idle.yaml...
+  Assert that "正在生成今日题目…" is not visible... COMPLETED
+Run subflows/wait-regen-idle.yaml... COMPLETED
+Run subflows/dismiss-intro-if-shown.yaml...
+  Wait for animation to end within 3000 ms... COMPLETED
+  Repeat while "跳过题型介绍，进入棋盘" is visible (up to 20 times)...
+  Repeat while "跳过题型介绍，进入棋盘" is visible (up to 20 times)... SKIPPED
+  Run flow when "跳过，直接开玩" is visible...
+  Run flow when "跳过，直接开玩" is visible... SKIPPED
+  Run flow when "关闭题型介绍，进入棋盘" is visible...
+  Run flow when "关闭题型介绍，进入棋盘" is visible... SKIPPED
+  Run flow when "知道了" is visible...
+  Run flow when "知道了" is visible... SKIPPED
+Run subflows/dismiss-intro-if-shown.yaml... COMPLETED
 Assert that "完成今日" is visible... COMPLETED
-Run flow when "知道了" is visible...
-Run flow when "知道了" is visible... SKIPPED
 Run flow when "一键通关" is visible...
   Tap on "DEV 调试"... COMPLETED
 Run flow when "一键通关" is visible... COMPLETED
@@ -273,38 +351,137 @@ Take screenshot 01-slitherlink-before-carry... COMPLETED
 Run subflows/dev-fake-next-day.yaml...
   Run ../../v22/subflows/dev-open-panel.yaml...
     Run flow when "一键通关" is not visible...
+      Tap on "DEV 调试"... COMPLETED
+    Run flow when "一键通关" is not visible... COMPLETED
+    Assert that "一键通关" is visible... COMPLETED
+  Run ../../v22/subflows/dev-open-panel.yaml... COMPLETED
+  Assert that "正在生成今日题目…" is not visible... COMPLETED
+  Tap on "假日期次日，不换题，仅用于续局手测"... COMPLETED
+  Wait for animation to end within 10000 ms... COMPLETED
+  Assert that "正在生成今日题目…" is not visible... COMPLETED
+  Run flow when "续局" is not visible...
+  Run flow when "续局" is not visible... SKIPPED
+  Assert that "完成今日" is visible... COMPLETED
+  Assert that "续局" is visible... COMPLETED
+  Wait for animation to end within 5000 ms... COMPLETED
+Run subflows/dev-fake-next-day.yaml... COMPLETED
+Assert that "续局" is visible... COMPLETED
+Assert that "完成今日" is visible... COMPLETED
+Take screenshot 02-slitherlink-carry-after-fake-next-day... COMPLETED
+Run ../v22/subflows/dev-open-panel.yaml...
+  Run flow when "一键通关" is not visible...
+  Run flow when "一键通关" is not visible... SKIPPED
+  Assert that "一键通关" is visible... COMPLETED
+Run ../v22/subflows/dev-open-panel.yaml... COMPLETED
+Assert that "一键通关" is visible... COMPLETED
+Tap on "一键通关", Below "温和成长 QA（注入 history → 通关注入 → 结果页 / 月历）"... COMPLETED
+Run flow when "以后" is visible...
+  Tap on "以后"... COMPLETED
+Run flow when "以后" is visible... COMPLETED
+Tap on (Optional) "隐藏调试条，便于截图"... COMPLETED
+Swiping in UP direction in 400 ms... COMPLETED
+Assert that "查看本月日历" is visible... COMPLETED
+Take screenshot 03-slitherlink-complete-after-carry... COMPLETED
+Assert that "查看本月日历" is visible... COMPLETED
+=== v27-carry-freeze-calendar ===
+WARNING: A restricted method in java.lang.System has been called
+WARNING: java.lang.System::load has been called by org.fusesource.jansi.internal.JansiLoader in an unnamed module (file:/Users/moyun/.maestro/lib/jansi-2.4.1.jar)
+WARNING: Use --enable-native-access=ALL-UNNAMED to avoid a warning for callers in this module
+WARNING: Restricted methods will be blocked in a future release unless native access is enabled
+
+Running on iPhone 17 Pro - iOS 26.5 - 566EE5F2-BFAC-4706-BBE7-3ECD33D441E1
+ > Flow v27-carry-freeze-calendar
+Launch app "com.moyunzero.foolish-you" with clear state... COMPLETED
+Wait for animation to end within 10000 ms... COMPLETED
+Run subflows/wait-board-dismiss-intro.yaml...
+  Assert that (Optional) "跳过题型介绍，进入棋盘" is visible...
+==== Debug output (logs & screenshots) ====
+
+/Users/moyun/code/foolish-you/docs/qa/v2.7-ship/evidence/20261011/2026-10-11_140526
+(retry 2/3 after driver/infra flake — reinstall XCTest driver)
+WARNING: A restricted method in java.lang.System has been called
+WARNING: java.lang.System::load has been called by org.fusesource.jansi.internal.JansiLoader in an unnamed module (file:/Users/moyun/.maestro/lib/jansi-2.4.1.jar)
+WARNING: Use --enable-native-access=ALL-UNNAMED to avoid a warning for callers in this module
+WARNING: Restricted methods will be blocked in a future release unless native access is enabled
+
+Running on iPhone 17 Pro - iOS 26.5 - 566EE5F2-BFAC-4706-BBE7-3ECD33D441E1
+ > Flow v27-carry-freeze-calendar
+Launch app "com.moyunzero.foolish-you" with clear state... COMPLETED
+Wait for animation to end within 10000 ms... COMPLETED
+Run subflows/wait-board-dismiss-intro.yaml...
+  Assert that (Optional) "跳过题型介绍，进入棋盘" is visible... COMPLETED
+  Tap on (Optional) "跳过题型介绍，进入棋盘"... COMPLETED
+  Tap on (Optional) "跳过，直接开玩"... WARNED
+  Tap on (Optional) "关闭题型介绍，进入棋盘"... WARNED
+  Tap on (Optional) "知道了"... WARNED
+  Wait for animation to end within 5000 ms... COMPLETED
+  Repeat while "完成今日" is not visible (up to 60 times)...
+  Repeat while "完成今日" is not visible (up to 60 times)... SKIPPED
+Run subflows/wait-board-dismiss-intro.yaml... COMPLETED
+Run ../v22/subflows/dev-open-panel.yaml...
+  Run flow when "一键通关" is not visible...
+    Tap on "DEV 调试"... COMPLETED
+  Run flow when "一键通关" is not visible... COMPLETED
+  Assert that "一键通关" is visible... COMPLETED
+Run ../v22/subflows/dev-open-panel.yaml... COMPLETED
+Tap on "数独", Below "DEV 调试"... COMPLETED
+Run subflows/wait-regen-idle.yaml...
+  Assert that "正在生成今日题目…" is not visible... COMPLETED
+Run subflows/wait-regen-idle.yaml... COMPLETED
+Run subflows/dismiss-intro-if-shown.yaml...
+  Wait for animation to end within 3000 ms... COMPLETED
+  Repeat while "跳过题型介绍，进入棋盘" is visible (up to 20 times)...
+    Tap on "跳过题型介绍，进入棋盘"... COMPLETED
+    Wait for animation to end within 3000 ms... COMPLETED
+  Repeat while "跳过题型介绍，进入棋盘" is visible (up to 20 times)... COMPLETED
+  Run flow when "跳过，直接开玩" is visible...
+  Run flow when "跳过，直接开玩" is visible... SKIPPED
+  Run flow when "关闭题型介绍，进入棋盘" is visible...
+  Run flow when "关闭题型介绍，进入棋盘" is visible... SKIPPED
+  Run flow when "知道了" is visible...
+  Run flow when "知道了" is visible... SKIPPED
+Run subflows/dismiss-intro-if-shown.yaml... COMPLETED
+Assert that "完成今日" is visible... COMPLETED
+Run subflows/dev-fake-next-day.yaml...
+  Run ../../v22/subflows/dev-open-panel.yaml...
+    Run flow when "一键通关" is not visible...
     Run flow when "一键通关" is not visible... SKIPPED
     Assert that "一键通关" is visible... COMPLETED
   Run ../../v22/subflows/dev-open-panel.yaml... COMPLETED
+  Assert that "正在生成今日题目…" is not visible... COMPLETED
   Tap on "假日期次日，不换题，仅用于续局手测"... COMPLETED
-  Assert that "续局" is visible...Exception in thread "main" UnknownFailure(errorResponse=Request for viewHierarchy failed, code: 500, body: {"code":"internal","errorMessage":"Error getting element frame kAXErrorInvalidUIElement"})
-	at xcuitest.XCTestDriverClient.handleExceptions(XCTestDriverClient.kt:338)
-	at xcuitest.XCTestDriverClient.processResponse(XCTestDriverClient.kt:283)
-	at xcuitest.XCTestDriverClient.executeJsonRequest$lambda$6(XCTestDriverClient.kt:262)
-	at xcuitest.XCTestDriverClient.transportCall(XCTestDriverClient.kt:66)
-	at xcuitest.XCTestDriverClient.executeJsonRequest(XCTestDriverClient.kt:251)
-	at xcuitest.XCTestDriverClient.viewHierarchy(XCTestDriverClient.kt:78)
-	at ios.xctest.XCTestIOSDevice.viewHierarchy$lambda$1(XCTestIOSDevice.kt:39)
-	at ios.xctest.XCTestIOSDevice.execute(XCTestIOSDevice.kt:232)
-	at ios.xctest.XCTestIOSDevice.viewHierarchy(XCTestIOSDevice.kt:37)
-	at ios.LocalIOSDevice.viewHierarchy(LocalIOSDevice.kt:49)
-	at maestro.drivers.IOSDriver.viewHierarchy(IOSDriver.kt:177)
-	at maestro.drivers.IOSDriver.contentDescriptor$lambda$22$lambda$21(IOSDriver.kt:172)
-	at maestro.drivers.IOSDriver.runDeviceCall(IOSDriver.kt:546)
-	at maestro.drivers.IOSDriver.contentDescriptor$lambda$22(IOSDriver.kt:172)
-	at maestro.utils.Metrics.measured(Metrics.kt:48)
-	at maestro.drivers.IOSDriver.contentDescriptor(IOSDriver.kt:171)
-	at maestro.ViewHierarchy$Companion.from-8JJjmZI(ViewHierarchy.kt:29)
-	at maestro.Maestro$findElementWithTimeout$found$1$1.invoke-prqvCes(Maestro.kt:441)
-	at maestro.Maestro$findElementWithTimeout$found$1$1.invoke(Maestro.kt:440)
-	at kotlinx.coroutines.InterruptibleKt.runInterruptibleInExpectedContext(Interruptible.kt:48)
-	at kotlinx.coroutines.InterruptibleKt.access$runInterruptibleInExpectedContext(Interruptible.kt:1)
-	at kotlinx.coroutines.InterruptibleKt$runInterruptible$2.invokeSuspend(Interruptible.kt:40)
-	at kotlin.coroutines.jvm.internal.BaseContinuationImpl.resumeWith(ContinuationImpl.kt:34)
-	at kotlinx.coroutines.DispatchedTask.run(DispatchedTask.kt:100)
-	at kotlinx.coroutines.internal.LimitedDispatcher$Worker.run(LimitedDispatcher.kt:124)
-	at kotlinx.coroutines.scheduling.TaskImpl.run(Tasks.kt:89)
-	at kotlinx.coroutines.scheduling.CoroutineScheduler.runSafely(CoroutineScheduler.kt:586)
-	at kotlinx.coroutines.scheduling.CoroutineScheduler$Worker.executeTask(CoroutineScheduler.kt:820)
-	at kotlinx.coroutines.scheduling.CoroutineScheduler$Worker.runWorker(CoroutineScheduler.kt:717)
-	at kotlinx.coroutines.scheduling.CoroutineScheduler$Worker.run(CoroutineScheduler.kt:704)
+  Wait for animation to end within 10000 ms... COMPLETED
+  Assert that "正在生成今日题目…" is not visible... COMPLETED
+  Run flow when "续局" is not visible...
+  Run flow when "续局" is not visible... SKIPPED
+  Assert that "完成今日" is visible... COMPLETED
+  Assert that "续局" is visible... COMPLETED
+  Wait for animation to end within 5000 ms... COMPLETED
+Run subflows/dev-fake-next-day.yaml... COMPLETED
+Assert that "续局" is visible... COMPLETED
+Assert that "完成今日" is visible... COMPLETED
+Take screenshot 01-carry-after-fake-next-day... COMPLETED
+Run subflows/dev-open-calendar.yaml...
+  Run ../../v22/subflows/dev-open-panel.yaml...
+    Run flow when "一键通关" is not visible...
+    Run flow when "一键通关" is not visible... SKIPPED
+    Assert that "一键通关" is visible... COMPLETED
+  Run ../../v22/subflows/dev-open-panel.yaml... COMPLETED
+  Tap on "打开月历，DEV 续局验收"... COMPLETED
+  Assert that id: calendar-month-sheet is visible... COMPLETED
+Run subflows/dev-open-calendar.yaml... COMPLETED
+Assert that ".*日 · 进行中.*" is visible... COMPLETED
+Take screenshot 02-calendar-in-progress... COMPLETED
+Tap on "关闭月历"... COMPLETED
+Swiping in DOWN direction in 500 ms... COMPLETED
+Assert that "一键通关" is visible... COMPLETED
+Tap on "一键通关", Below "温和成长 QA（注入 history → 通关注入 → 结果页 / 月历）"... COMPLETED
+Run flow when "以后" is visible...
+  Tap on "以后"... COMPLETED
+Run flow when "以后" is visible... COMPLETED
+Tap on (Optional) "隐藏调试条，便于截图"... COMPLETED
+Swiping in UP direction in 400 ms... COMPLETED
+Assert that "查看本月日历" is visible... COMPLETED
+Take screenshot 03-complete-after-carry... COMPLETED
+Assert that "查看本月日历" is visible... COMPLETED
+MAESTRO_EXIT=0
