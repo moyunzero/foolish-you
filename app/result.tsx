@@ -333,6 +333,7 @@ export default function ResultScreen() {
               headline={displayCopy.headline}
               punchline={displayCopy.punchline}
               sublines={displayCopy.sublines}
+              openingDateKey={dateKey}
             />
           ) : (
             <ResultOutcomeBody
@@ -342,6 +343,7 @@ export default function ResultScreen() {
               headline={displayCopy.headline}
               punchline={displayCopy.punchline}
               sublines={displayCopy.sublines}
+              openingDateKey={dateKey}
             />
           )}
 

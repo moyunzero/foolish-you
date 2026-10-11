@@ -128,12 +128,15 @@ export default function GameScreen() {
 
   const abandonConfirmBody = useMemo(() => {
     if (dateKey == null) return '';
+    if (isCarrying) {
+      return strings.ui.alerts.abandonMessageCarry;
+    }
     return pickAbandonConfirmBody({
       dateKey,
       seed: snapshot?.seed,
       locale,
     });
-  }, [dateKey, snapshot?.seed, locale]);
+  }, [dateKey, snapshot?.seed, locale, isCarrying, strings.ui.alerts.abandonMessageCarry]);
 
   useEffect(() => {
     if (status === 'completed' || status === 'abandoned') {

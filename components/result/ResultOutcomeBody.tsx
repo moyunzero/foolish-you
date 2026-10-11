@@ -7,6 +7,7 @@ import Animated, {
 } from 'react-native-reanimated';
 
 import { colors } from '../../constants/design';
+import { getLocalDateKey } from '../../lib/date/localDay';
 import { useI18n } from '../../lib/i18n';
 
 const PUNCHLINE_STYLE = {
@@ -24,6 +25,8 @@ type ResultOutcomeBodyProps = {
   headline: string;
   punchline: string;
   sublines: string[];
+  /** Opening snapshot dateKey — carry terminal uses recordPrefixCarry (D-17). */
+  openingDateKey?: string | null;
 };
 
 export default function ResultOutcomeBody({
@@ -33,11 +36,19 @@ export default function ResultOutcomeBody({
   headline,
   punchline,
   sublines,
+  openingDateKey,
 }: ResultOutcomeBodyProps) {
   const { strings } = useI18n();
   const statusColor =
     statusTone === 'victory' ? colors.accentSunset : colors.sudokuError;
   const visibleSublines = sublines.slice(0, 1);
+  const wallTodayKey = getLocalDateKey();
+  const recordPrefix =
+    openingDateKey != null &&
+    openingDateKey !== '' &&
+    openingDateKey < wallTodayKey
+      ? strings.ui.result.recordPrefixCarry
+      : strings.ui.result.recordPrefix;
 
   return (
     <View className="items-center">
@@ -53,7 +64,7 @@ export default function ResultOutcomeBody({
             color: statusColor,
           }}
         >
-          {`${strings.ui.result.recordPrefix} ${statusLabel}`}
+          {`${recordPrefix} ${statusLabel}`}
         </Text>
         <Text
           className="mt-1 text-center text-[12px] text-muted"
