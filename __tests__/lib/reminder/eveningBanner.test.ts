@@ -54,4 +54,18 @@ describe('shouldShowEveningReminderBanner', () => {
       }),
     ).toBe(true);
   });
+
+  /** D-11: opening dismiss must not hide banner when todayKey is wall calendar day. */
+  it('shows when dismissed for opening key but todayKey is wall', () => {
+    const openingKey = '2026-06-07';
+    const wallKey = '2026-06-08';
+    expect(openingKey).not.toBe(wallKey);
+    expect(
+      shouldShowEveningReminderBanner({
+        ...BASE,
+        todayKey: wallKey,
+        eveningBannerDismissedForDateKey: openingKey,
+      }),
+    ).toBe(true);
+  });
 });

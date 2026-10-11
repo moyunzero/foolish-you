@@ -1,13 +1,18 @@
 import type { DailyStatus } from '../puzzles/types';
 
 export type EveningReminderBannerInput = {
+  /**
+   * Wall calendar day (YYYY-MM-DD from `getLocalDateKey`), not the opening
+   * snapshot `dateKey`. Callers must pass wall today so a prior-day opening
+   * dismiss cannot suppress the banner on a new wall day (D-11).
+   */
   todayKey: string;
   status: DailyStatus | 'loading';
   /** Local hour 0–23 from device clock. */
   localHour: number;
   freezeConsumedToday: boolean;
   showMissedYesterday: boolean;
-  /** Same-day dismiss — hide for this dateKey only. */
+  /** Same wall-day dismiss — hide when equal to wall `todayKey` only. */
   eveningBannerDismissedForDateKey?: string | null;
 };
 

@@ -26,6 +26,7 @@ import { useGameBoardSession } from '../hooks/useGameBoardSession';
 import { useGameScreenActions } from '../hooks/useGameScreenActions';
 import { pickAbandonConfirmBody } from '../lib/copy/abandonConfirm';
 import { resolveGameStreakSubline } from '../lib/copy/sundaySpecial';
+import { getLocalDateKey } from '../lib/date/localDay';
 import type { SignatureMoment } from '../lib/feel/signatureTokens';
 import { useI18n } from '../lib/i18n';
 import { shouldShowEveningReminderBanner } from '../lib/reminder/eveningBanner';
@@ -204,10 +205,13 @@ export default function GameScreen() {
     sundayGameSubline: strings.copy.sundaySpecial.gameSubline,
   });
 
+  // D-11: banner gate/dismiss use wall calendar day, not opening snapshot dateKey.
+  const wallTodayKey = getLocalDateKey();
+
   const showEveningBanner = useMemo(() => {
     if (dateKey == null) return false;
     return shouldShowEveningReminderBanner({
-      todayKey: dateKey,
+      todayKey: wallTodayKey,
       status,
       localHour,
       freezeConsumedToday,
@@ -216,6 +220,7 @@ export default function GameScreen() {
     });
   }, [
     dateKey,
+    wallTodayKey,
     status,
     localHour,
     freezeConsumedToday,
@@ -225,8 +230,8 @@ export default function GameScreen() {
 
   const handleDismissEveningBanner = () => {
     if (dateKey == null) return;
-    setEveningBannerDismissedForDateKey(dateKey);
-    void markEveningBannerDismissed(dateKey).then((state) => {
+    setEveningBannerDismissedForDateKey(wallTodayKey);
+    void markEveningBannerDismissed(wallTodayKey).then((state) => {
       setEveningBannerDismissedForDateKey(
         state.eveningBannerDismissedForDateKey,
       );
