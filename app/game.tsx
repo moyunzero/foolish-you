@@ -278,6 +278,7 @@ export default function GameScreen() {
       {showEveningBanner ? (
         <EveningMissRiskBanner
           reminderEnabled={reminderEnabled}
+          isCarrying={isCarrying}
           horizontalPadding={HORIZONTAL_PADDING}
           onOpenReminder={() => {
             // Defer next Modal until the previous host has unmounted (iOS Fabric present race).
@@ -298,6 +299,7 @@ export default function GameScreen() {
         dateKey={dateKey}
         seed={snapshot?.seed ?? null}
         todayStatus={status}
+        carrying={isCarrying}
         onReminderChange={(state) => setReminderEnabled(state.enabled)}
       />
 

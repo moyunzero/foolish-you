@@ -7,6 +7,8 @@ import OutlinePillButton from '../ui/OutlinePillButton';
 
 type EveningMissRiskBannerProps = {
   reminderEnabled: boolean;
+  /** Continue-tone body pools when carrying prior-day open (D-09–D-10). */
+  isCarrying?: boolean;
   horizontalPadding?: number;
   onOpenReminder: () => void;
   onDismiss: () => void;
@@ -15,6 +17,7 @@ type EveningMissRiskBannerProps = {
 /** D-path banner — 20:00+ playing, independent row below header (D-13). */
 export default function EveningMissRiskBanner({
   reminderEnabled,
+  isCarrying = false,
   horizontalPadding = 24,
   onOpenReminder,
   onDismiss,
@@ -23,7 +26,14 @@ export default function EveningMissRiskBanner({
   const bannerUi = strings.ui.reminder.banner;
   const later = strings.ui.common.later;
 
-  const body = reminderEnabled ? bannerUi.bodyHasPush : bannerUi.bodyNoPush;
+  // D-09/D-10: body*Carry when carrying; D-12: CTA labels stay ctaEnable / ctaEdit.
+  const body = isCarrying
+    ? reminderEnabled
+      ? bannerUi.bodyHasPushCarry
+      : bannerUi.bodyNoPushCarry
+    : reminderEnabled
+      ? bannerUi.bodyHasPush
+      : bannerUi.bodyNoPush;
   const cta = reminderEnabled ? bannerUi.ctaEdit : bannerUi.ctaEnable;
 
   return (
