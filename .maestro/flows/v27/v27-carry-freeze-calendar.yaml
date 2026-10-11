@@ -9,22 +9,13 @@ ios:
     clearState: true
 - waitForAnimationToEnd:
     timeout: 10000
-- extendedWaitUntil:
-    visible: '跳过题型介绍，进入棋盘'
-    timeout: 180000
-- tapOn: '跳过题型介绍，进入棋盘'
-- extendedWaitUntil:
-    visible: '完成今日'
-    timeout: 90000
+- runFlow: subflows/wait-board-dismiss-intro.yaml
 - runFlow: ../v22/subflows/dev-open-panel.yaml
 - tapOn:
     text: '数独'
     below: 'DEV 调试'
-- runFlow:
-    when:
-      visible: '跳过题型介绍，进入棋盘'
-    commands:
-      - tapOn: '跳过题型介绍，进入棋盘'
+- runFlow: subflows/wait-regen-idle.yaml
+- runFlow: subflows/dismiss-intro-if-shown.yaml
 - extendedWaitUntil:
     visible: '完成今日'
     timeout: 60000
