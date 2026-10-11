@@ -104,4 +104,23 @@ describe('syncReminderSchedule', () => {
     expect(deps.cancel).toHaveBeenCalledTimes(1);
     expect(deps.schedule).not.toHaveBeenCalled();
   });
+
+  it('schedules carry title and body when carrying is true', async () => {
+    const deps = makeDeps();
+    await syncReminderSchedule(
+      { ...baseInput, todayStatus: 'playing', carrying: true } as typeof baseInput & {
+        todayStatus: 'playing';
+        carrying: boolean;
+      },
+      deps,
+    );
+    expect(deps.schedule).toHaveBeenCalledTimes(1);
+    expect(deps.schedule.mock.calls[0][2]).toBe('Still open');
+    const body = deps.schedule.mock.calls[0][3] as string;
+    expect([
+      'This run’s still open — pick it back up.',
+      'Reminder time — finish the puzzle you started.',
+      'Don’t ghost us — that board isn’t cleared yet.',
+    ]).toContain(body);
+  });
 });

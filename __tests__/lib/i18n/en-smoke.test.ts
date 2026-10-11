@@ -211,4 +211,53 @@ describe('English locale smoke', () => {
     expect(ui.result.sectionStats).not.toMatch(cjk);
     expect(ui.sheet.dismissAbandonA11y).not.toMatch(cjk);
   });
+
+  it('carry CTA / reminder / notification keys are English without CJK', () => {
+    const en = getStringsForLocale('en');
+    const ui = en.ui as typeof en.ui & {
+      index: { loadingPuzzleCarry: string };
+      reminder: {
+        banner: { bodyNoPushCarry: string; bodyHasPushCarry: string };
+      };
+      result: { recordPrefixCarry: string };
+      alerts: { abandonTitleCarry: string; abandonMessageCarry: string };
+    };
+    const n = en.notifications as typeof en.notifications & {
+      routineTitleCarry: string;
+      routineBodiesCarry: readonly string[];
+    };
+    const cjk = /[\u4e00-\u9fff]/;
+    const dateKey = '2026-06-07';
+
+    expect(ui.index.loadingPuzzleCarry).toBe('Picking up this run…');
+    expect(ui.index.loadingPuzzleCarry).not.toMatch(cjk);
+    expect(ui.reminder.banner.bodyNoPushCarry).toBe(
+      'Almost 8 PM and this run’s still open — want a nudge tomorrow?',
+    );
+    expect(ui.reminder.banner.bodyNoPushCarry).not.toMatch(cjk);
+    expect(ui.reminder.banner.bodyHasPushCarry).toBe(
+      'Almost 8 PM — don’t leave this run hanging.',
+    );
+    expect(ui.reminder.banner.bodyHasPushCarry).not.toMatch(cjk);
+    expect(ui.result.recordPrefixCarry).toBe('This run ·');
+    expect(ui.result.recordPrefixCarry).not.toMatch(cjk);
+    expect(ui.alerts.abandonTitleCarry).toBe('Bail on this run?');
+    expect(ui.alerts.abandonTitleCarry).not.toMatch(cjk);
+    expect(ui.alerts.abandonMessageCarry).toBe(
+      'Progress will be saved as “Bailed out”. You can come back later.',
+    );
+    expect(ui.alerts.abandonMessageCarry).not.toMatch(cjk);
+    expect(ui.game.carryChip).toBe('CARRY');
+    expect(ui.game.carryChip).not.toMatch(cjk);
+    expect(ui.game.carryChipA11y(dateKey)).toBe(`Carry, opened ${dateKey}`);
+    expect(ui.game.carryChipA11y(dateKey)).not.toMatch(cjk);
+
+    expect(n.routineTitleCarry).toBe('Still open');
+    expect(n.routineTitleCarry).not.toMatch(cjk);
+    expect(n.routineBodiesCarry).toHaveLength(3);
+    for (const body of n.routineBodiesCarry) {
+      expect(body.length).toBeGreaterThan(0);
+      expect(body).not.toMatch(cjk);
+    }
+  });
 });
