@@ -35,11 +35,12 @@ ios:
       - tapOn: '知道了'
 - runFlow: ../v22/subflows/dev-hide-bar.yaml
 - assertVisible: '数独'
-# Progress marker (v25-hand-keep pattern) — never force type after this.
-- tapOn: '第 1 行第 1 列，空'
+# Progress marker — first empty cell (R1C1 is often a given; regex stays seed-stable).
+# Never force type after this.
+- tapOn: '第 .* 行第 .* 列，空'
 - tapOn: '填入 7'
 - extendedWaitUntil:
-    visible: '第 1 行第 1 列，已填 7'
+    visible: '第 .* 行第 .* 列，已填 7'
     timeout: 15000
 - runFlow: subflows/dev-fake-next-day.yaml
 - assertVisible: '续局'
