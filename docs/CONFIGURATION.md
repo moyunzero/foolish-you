@@ -26,7 +26,7 @@ Primary Expo configuration (static JSON, no `app.config.js`).
 |------|-------|-------|
 | Display name | 傻了么 | User-facing app name |
 | Slug / scheme | `foolish-you` | Deep links and Expo project slug |
-| Version | `2.6.0` | Marketing version (aligned with `package.json`) |
+| Version | `2.7.0` | Marketing version (aligned with `package.json`) |
 | UI style | `dark` | System appearance default |
 | New architecture | `true` | React Native new arch enabled |
 | Entry | `expo-router/entry` | Set in `package.json` `main` |
@@ -75,6 +75,25 @@ If upload fails with **「捆绑包版本必须高于之前上传的版本 "N"�
 3. Submit the **new** `.ipa` from that build. Re-submitting an old artifact with the same build number always fails.
 
 Previously `appVersionSource` was `remote`; EAS remote counter (`eas build:version:get`) can drift from App Store Connect if builds were uploaded outside EAS or counters were reset. Local source avoids that mismatch for store releases.
+
+### App Store · 更新说明（`2.7.0` What's New · 待粘贴）
+
+粘贴到 App Store Connect → 版本 **2.7.0** → **更新说明**（中/英各一份）。隐私政策与权限无变更。
+
+> Carry（方案 A）：未完成的一局可跨天继续；通关或认怂后再迎下一题。  
+> **本版无变盘（no board-drift）**：未改 `APP_SALT`、生成器或日题选题；日题 `STORAGE_VERSION` 仍为 **3**；Carry 为行为-only（无新 daily snapshot 字段）；未开的日期盘面与 `2.6.x` 一致。
+
+**中文（傻了么 · 中国区）**
+
+```
+· 未完成的一局可以跨天继续，通关或认怂后再迎下一题
+```
+
+**English（Brainfool · United States）**
+
+```
+· Unfinished puzzles carry across days—finish or bail, then get the next one.
+```
 
 ### App Store · 更新说明（`2.6.0` What's New · 待粘贴）
 
@@ -363,6 +382,8 @@ See `DESIGN.md` for product-level design rules.
 | `@foolish-you/dev-tools-bar-visible` | `contexts/DevToolsUiContext.tsx` (local constant) | `'1'` / `'0'` for dev bar visibility | Dev builds only |
 
 **Daily snapshot migration:** On load, `migrateSnapshot()` in `lib/storage/snapshotMigration.ts` normalizes v0/v1/v2 data to `STORAGE_VERSION` (3). Snapshots with `version > STORAGE_VERSION` are rejected with a warning. Optional `sudokuNotes` (9×9 bitmasks, bits 1–9) is whitelist-copied only for `gameType === 'sudoku'`; invalid notes are stripped without dropping `playState`. **`recoverSnapshot()`** may repair puzzle data or strip invalid `playState` when `status: 'completed'` but the board is incomplete.
+
+**v2.7.0 ship storage disclose (Carry / SHIP-02):** Marketing `2.7.0` ships Carry as **behavior-only** — daily `STORAGE_VERSION` remains **3** (no new daily snapshot fields). **No board-drift in 2.7.0:** no `APP_SALT`, generator, or daily-selection change; unopened date boards stay identical to `2.6.x`. This is disclosure only — do not bump daily storage for Carry.
 
 **v2.6.0 ship storage disclose (Feel / SHIP-03):** Marketing `2.6.0` ships with daily `STORAGE_VERSION` **3** — optional `sudokuNotes` sibling on the daily snapshot (same-day notes persist; never inside `playState`) — plus `FIRST_INTRO_STORAGE_KEY` / `FIRST_INTRO_STORAGE_VERSION` **1** (`seenByType` flags for FEEL-05). **No board-drift in 2.6.0:** no `APP_SALT`, generator, or daily-selection change; unopened date boards stay identical to `2.5.0`. This is disclosure only — do not invent a second schema bump for ship.
 
